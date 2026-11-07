@@ -1,0 +1,6 @@
+{
+  "parent": "bettercombat:scythe",
+  "attributes": {
+    "two_handed": true
+  }
+}

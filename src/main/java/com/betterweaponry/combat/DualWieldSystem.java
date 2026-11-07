@@ -3,12 +3,10 @@ package com.betterweaponry.combat;
 import com.betterweaponry.compat.BetterCombatCompat;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.item.WeaponItem;
+import com.betterweaponry.registry.ModTags;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.TridentItem;
 
 /**
  * Règles du dual wield : une arme dans chaque main, aucune des deux à deux mains.
@@ -24,11 +22,12 @@ public final class DualWieldSystem {
     private DualWieldSystem() {
     }
 
-    /** Ce que le mod considère comme une arme (vanilla ou d'autres mods inclus). */
+    /**
+     * Ce que le mod considère comme une arme : le tag {@code better_weaponry:dual_wieldable}
+     * (épées, haches, trident et armes de mêlée des autres mods), modifiable par datapack.
+     */
     public static boolean isWeapon(ItemStack stack) {
-        return stack.getItem() instanceof SwordItem
-                || stack.getItem() instanceof AxeItem
-                || stack.getItem() instanceof TridentItem;
+        return stack.is(ModTags.DUAL_WIELDABLE);
     }
 
     /** Toujours faux si Better Combat est installé : il a son propre système de dual wield. */

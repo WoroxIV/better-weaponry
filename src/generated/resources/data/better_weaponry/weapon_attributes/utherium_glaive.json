@@ -1,0 +1,6 @@
+{
+  "parent": "bettercombat:glaive",
+  "attributes": {
+    "two_handed": true
+  }
+}

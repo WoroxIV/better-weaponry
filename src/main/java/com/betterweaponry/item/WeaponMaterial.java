@@ -34,6 +34,7 @@ public final class WeaponMaterial {
     @Nullable private final MaterialIngredient craftingIngredient;
     @Nullable private final SmithingUpgrade smithingUpgrade;
     private final List<String> requiredMods;
+    private final boolean fireResistant;
 
     private WeaponMaterial(Builder builder, Tier tier) {
         this.id = builder.id;
@@ -44,6 +45,7 @@ public final class WeaponMaterial {
         this.craftingIngredient = builder.craftingIngredient;
         this.smithingUpgrade = builder.smithingUpgrade;
         this.requiredMods = List.copyOf(builder.requiredMods);
+        this.fireResistant = builder.fireResistant;
     }
 
     /** Matériau basé sur un {@link Tier} existant (vanilla). */
@@ -99,6 +101,11 @@ public final class WeaponMaterial {
 
     public boolean isModded() {
         return !requiredMods.isEmpty();
+    }
+
+    /** Les armes de ce matériau flottent dans la lave et ne brûlent pas, comme les objets en netherite. */
+    public boolean isFireResistant() {
+        return fireResistant;
     }
 
     /** Nom de l'item pour ce matériau et ce type, ex : "netherite_katana". */
@@ -157,6 +164,7 @@ public final class WeaponMaterial {
         @Nullable private MaterialIngredient craftingIngredient;
         @Nullable private SmithingUpgrade smithingUpgrade;
         private List<String> requiredMods = List.of();
+        private boolean fireResistant;
         // Stats d'un matériau moddé, transformées en Tier au build()
         private int durability = -1;
         private int enchantability;
@@ -217,6 +225,12 @@ public final class WeaponMaterial {
                     MaterialIngredient.of(id + "_template", template),
                     MaterialIngredient.of(id + "_addition", addition));
             this.craftingIngredient = null;
+            return this;
+        }
+
+        /** Les armes résistent au feu et à la lave, comme les objets en netherite. */
+        public Builder fireResistant() {
+            this.fireResistant = true;
             return this;
         }
 

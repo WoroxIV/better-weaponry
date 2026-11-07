@@ -4,5 +4,20 @@
   "attack_speed": 0.7,
   "attack_reach": 4.0,
   "base_damage": 11.5,
-  "material_damage": {}
+  "material_damage": {},
+  "armor_penetration": 30,
+  "disables_shield": true,
+  "on_hit_effects": [
+    {
+      "effect": "minecraft:slowness",
+      "duration_seconds": 1.5,
+      "level": 2,
+      "chance": 100
+    }
+  ],
+  "sweep": {
+    "enabled": false,
+    "radius": 1.0,
+    "damage_ratio": 0
+  }
 }

@@ -3,9 +3,12 @@ package com.betterweaponry.event;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.config.ClientConfig;
+import com.betterweaponry.data.OnHitEffect;
+import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -19,18 +22,31 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
 
 /**
- * Ajoute "Attack Reach" et "Two Handed" sous les stats vertes (dégâts, vitesse) des armes.
+ * Complète les stats vertes (dégâts, vitesse, pénétration d'armure) des armes :
+ * portée d'attaque, coup balayé, "Arme à deux mains", "Désactive les boucliers" et effets à l'impact.
+ * Chaque ligne ajoutée se place après la précédente, dans cet ordre.
  */
 @EventBusSubscriber(modid = BetterWeaponry.MODID, value = Dist.CLIENT)
 public final class TooltipEventHandler {
     private static final double PLAYER_BASE_REACH = 3.0D;
+    private static final double PERCENT = 100.0D;
 
     private static final String REACH_KEY = "attribute.betterweaponry.attack_reach";
     private static final String TWO_HANDED_KEY = "attribute.betterweaponry.two_handed";
-    // Morceau de la clé vanilla "attribute.name.player.entity_interaction_range"
+    private static final String DISABLES_SHIELD_KEY = "attribute.betterweaponry.disables_shield";
+    private static final String ON_HIT_KEY = BetterWeaponry.MODID + ".tooltip.on_hit_effect";
+    private static final String ON_HIT_CHANCE_KEY = ON_HIT_KEY + ".chance";
+    // Morceaux des clés vanilla "attribute.name.player.entity_interaction_range" et "...sweeping_damage_ratio"
     private static final String VANILLA_REACH_KEY_PART = "entity_interaction_range";
-    // Format vanilla d'une stat de base ("%s %s" en anglais, "%s en %s" en français, "%2$s: %1$s" en italien...)
+    private static final String VANILLA_SWEEP_KEY_PART = "sweeping_damage_ratio";
+    // Formats vanilla d'une stat de base, nombre puis pourcentage ("%s %s" en anglais, "%s en %s" en français,
+    // "%2$s: %1$s" en italien...) : l'ordre des mots suit la langue.
     private static final String VANILLA_STAT_FORMAT_KEY = "attribute.modifier.equals.0";
+    private static final String VANILLA_PERCENT_STAT_FORMAT_KEY = "attribute.modifier.equals.1";
+
+    /** Clés qui marquent une ligne de stat : les lignes ajoutées se placent après la dernière d'entre elles. */
+    private static final List<String> STAT_LINE_MARKERS = List.of("attack_damage", "attack_speed", "armor_penetration",
+            REACH_KEY, VANILLA_SWEEP_KEY_PART, TWO_HANDED_KEY, DISABLES_SHIELD_KEY, ON_HIT_KEY);
 
     private TooltipEventHandler() {
     }
@@ -43,10 +59,18 @@ public final class TooltipEventHandler {
         if (ClientConfig.get(ClientConfig.SHOW_ATTACK_REACH_TOOLTIP)) {
             addReachLine(stack, tooltip);
         }
+        if (!(stack.getItem() instanceof WeaponItem weapon)) return;
 
-        if (ClientConfig.get(ClientConfig.SHOW_TWO_HANDED_TOOLTIP) && WeaponItem.isTwoHanded(stack)) {
-            // Inséré après la portée, qui compte comme une ligne de stat (voir findStatsEnd)
+        WeaponDefinition definition = weapon.definition();
+        addSweepLine(definition, tooltip);
+        if (ClientConfig.get(ClientConfig.SHOW_TWO_HANDED_TOOLTIP) && definition.twoHanded()) {
             insertAfterStats(tooltip, statLine(Component.translatable(TWO_HANDED_KEY)));
+        }
+        if (definition.disablesShield()) {
+            insertAfterStats(tooltip, statLine(Component.translatable(DISABLES_SHIELD_KEY)));
+        }
+        for (OnHitEffect effect : definition.onHitEffects()) {
+            addEffectLine(effect, tooltip);
         }
     }
 
@@ -70,9 +94,37 @@ public final class TooltipEventHandler {
 
         // Format vanilla "#.##" : affiche "3.5" ou "4" et évite les "3.6000000000000005" des calculs en double.
         String reachText = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(totalReach);
-        // Même clé que les stats vanilla : l'ordre des mots suit la langue
-        // ("3 Attack Reach", "3 en Portée d'attaque", "Portata d'attacco: 3"...).
         insertAfterStats(tooltip, statLine(Component.translatable(VANILLA_STAT_FORMAT_KEY, reachText, Component.translatable(REACH_KEY))));
+    }
+
+    /**
+     * Le jeu affiche le bonus de balayage en "+0.5" bleu : on le remplace par une ligne verte en pourcentage
+     * ("50% Sweeping Damage Ratio"), avec le nom vanilla de la stat dans chaque langue.
+     */
+    private static void addSweepLine(WeaponDefinition definition, List<Component> tooltip) {
+        tooltip.removeIf(line -> containsTranslationKey(line, VANILLA_SWEEP_KEY_PART));
+        if (!definition.sweep().enabled() || definition.sweep().damageRatio() <= 0.0D) return;
+
+        String percent = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(definition.sweep().damageRatio());
+        Component name = Component.translatable(Attributes.SWEEPING_DAMAGE_RATIO.value().getDescriptionId());
+        insertAfterStats(tooltip, statLine(Component.translatable(VANILLA_PERCENT_STAT_FORMAT_KEY, percent, name)));
+    }
+
+    /** Ex : "Au coup : Lenteur II (1.5 s)", avec le nom de l'effet traduit par le jeu. */
+    private static void addEffectLine(OnHitEffect effect, List<Component> tooltip) {
+        effect.holder().ifPresent(holder -> {
+            MutableComponent name = Component.translatable(holder.value().getDescriptionId());
+            if (effect.level() > 1) {
+                // Même rendu que les potions vanilla : "Lenteur II"
+                name = Component.translatable("potion.withAmplifier", name, Component.translatable("potion.potency." + (effect.level() - 1)));
+            }
+            String seconds = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(effect.durationSeconds());
+            Component line = effect.chance() >= PERCENT
+                    ? Component.translatable(ON_HIT_KEY, name, seconds)
+                    : Component.translatable(ON_HIT_CHANCE_KEY, name, seconds,
+                    ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(effect.chance()));
+            insertAfterStats(tooltip, Component.literal(" ").append(line).withStyle(ChatFormatting.BLUE));
+        });
     }
 
     /** Met en forme une ligne comme les stats vanilla : indentée d'un espace, en vert foncé. */
@@ -88,16 +140,14 @@ public final class TooltipEventHandler {
     }
 
     /**
-     * Index juste après la dernière ligne de stat (dégâts, vitesse ou notre portée), ou -1 si aucune
+     * Index juste après la dernière ligne de stat (vanilla ou ajoutée par le mod), ou -1 si aucune
      * (ex : stats masquées par un autre mod). On parcourt à l'envers pour trouver la dernière.
      */
     private static int findStatsEnd(List<Component> tooltip) {
         for (int i = tooltip.size() - 1; i >= 0; i--) {
             Component line = tooltip.get(i);
-            if (containsTranslationKey(line, "attack_speed")
-                    || containsTranslationKey(line, "attack_damage")
-                    || containsTranslationKey(line, REACH_KEY)) {
-                return i + 1;
+            for (String marker : STAT_LINE_MARKERS) {
+                if (containsTranslationKey(line, marker)) return i + 1;
             }
         }
         return -1;

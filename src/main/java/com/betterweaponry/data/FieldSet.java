@@ -9,9 +9,10 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Les champs d'un type de fichier (arme ou règles), et la fusion des couches de fichiers.
+ * Les champs d'un type de fichier (arme ou règles) ou d'un objet imbriqué, et la fusion des couches de fichiers.
  *
  * @param scope portée utilisée dans les clés de langue : {@code better_weaponry.field.<scope>.<champ>}
+ *              (ex : "weapon", ou "weapon.sweep" pour les sous-champs de "sweep")
  * @param hints anciens noms ou noms courants mal choisis, associés au bon champ (ex : "attack_damage" → "base_damage")
  */
 public record FieldSet(String scope, List<DataField<?>> fields, Map<String, String> hints) {
@@ -30,7 +31,8 @@ public record FieldSet(String scope, List<DataField<?>> fields, Map<String, Stri
     /**
      * Fusionne les couches dans l'ordre (la dernière gagne), champ par champ.
      * Une valeur invalide est signalée puis ignorée : on garde celle des couches précédentes.
-     * Les objets (ex : material_damage) sont fusionnés clé par clé ; une couche peut donc ne changer qu'un matériau.
+     * Les objets (ex : sweep, material_damage) sont fusionnés clé par clé ; une couche peut donc ne changer
+     * qu'un sous-champ. Les listes (ex : on_hit_effects) sont remplacées en entier.
      *
      * @return l'objet JSON fusionné, qui ne contient que des valeurs valides
      */
@@ -47,6 +49,8 @@ public record FieldSet(String scope, List<DataField<?>> fields, Map<String, Stri
                     problems.add(new DataProblem(DataProblem.Kind.UNKNOWN_FIELD, layer.source(), key, suggest(key).orElse(null)));
                     continue;
                 }
+                // Fautes de frappe dans les sous-champs (ex : "sweep": { "radus": 2 }) : signalées, sans bloquer le reste.
+                reportUnknownChildren(field, entry.getValue(), key, layer.source(), problems);
 
                 JsonElement candidate = JsonUtil.deepMerge(result.get(key), entry.getValue());
                 Optional<String> error = field.validate(candidate);
@@ -64,6 +68,38 @@ public record FieldSet(String scope, List<DataField<?>> fields, Map<String, Stri
         Map<String, DataField<?>> map = new LinkedHashMap<>();
         for (DataField<?> field : fields) map.put(field.name(), field);
         return map;
+    }
+
+    /** Signale les clés inconnues d'un objet imbriqué ou des éléments d'une liste, en profondeur. */
+    private static void reportUnknownChildren(DataField<?> field, JsonElement value, String path, String source,
+                                              List<DataProblem> problems) {
+        FieldSet children = field.children();
+        if (children == null) return;
+        if (field.kind() == DataField.Kind.OBJECT && value.isJsonObject()) {
+            children.reportUnknownKeys(value.getAsJsonObject(), path, source, problems);
+        } else if (field.kind() == DataField.Kind.OBJECT_LIST && value.isJsonArray()) {
+            int index = 0;
+            for (JsonElement element : value.getAsJsonArray()) {
+                if (element.isJsonObject()) {
+                    children.reportUnknownKeys(element.getAsJsonObject(), path + "[" + index + "]", source, problems);
+                }
+                index++;
+            }
+        }
+    }
+
+    private void reportUnknownKeys(JsonObject object, String path, String source, List<DataProblem> problems) {
+        Map<String, DataField<?>> byName = byName();
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            String key = entry.getKey();
+            if (isIgnored(key)) continue;
+            DataField<?> field = byName.get(key);
+            if (field == null) {
+                problems.add(new DataProblem(DataProblem.Kind.UNKNOWN_FIELD, source, path + "." + key, suggest(key).orElse(null)));
+            } else {
+                reportUnknownChildren(field, entry.getValue(), path + "." + key, source, problems);
+            }
+        }
     }
 
     /** "$schema" relie le fichier au schéma ; les clés qui commencent par "_" servent de commentaires. */

@@ -4,19 +4,58 @@
   "names": {
     "pattern": "{material} {type|lower}",
     "types": {
-      "broadsword": { "name": "Breedzwaard", "gender": "het" },
-      "spear": { "name": "Speer", "gender": "de" },
-      "dagger": { "name": "Dolk", "gender": "de" },
-      "scythe": { "name": "Zeis", "gender": "de" },
-      "rapier": { "name": "Rapier", "gender": "het" },
-      "sickle": { "name": "Sikkel", "gender": "de" },
-      "katana": { "name": "Katana", "gender": "de" },
-      "battleaxe": { "name": "Strijdbijl", "gender": "de" },
-      "glaive": { "name": "Glaive", "gender": "de" },
-      "hammer": { "name": "Strijdhamer", "gender": "de" },
-      "claymore": { "name": "Claymore", "gender": "de" },
-      "chakram": { "name": "Chakram", "gender": "de" },
-      "sai": { "name": "Sai", "gender": "de" }
+      "broadsword": {
+        "name": "Breedzwaard",
+        "gender": "het"
+      },
+      "spear": {
+        "name": "Speer",
+        "gender": "de"
+      },
+      "dagger": {
+        "name": "Dolk",
+        "gender": "de"
+      },
+      "scythe": {
+        "name": "Zeis",
+        "gender": "de"
+      },
+      "rapier": {
+        "name": "Rapier",
+        "gender": "het"
+      },
+      "sickle": {
+        "name": "Sikkel",
+        "gender": "de"
+      },
+      "katana": {
+        "name": "Katana",
+        "gender": "de"
+      },
+      "battleaxe": {
+        "name": "Strijdbijl",
+        "gender": "de"
+      },
+      "glaive": {
+        "name": "Glaive",
+        "gender": "de"
+      },
+      "hammer": {
+        "name": "Strijdhamer",
+        "gender": "de"
+      },
+      "claymore": {
+        "name": "Claymore",
+        "gender": "de"
+      },
+      "chakram": {
+        "name": "Chakram",
+        "gender": "de"
+      },
+      "sai": {
+        "name": "Sai",
+        "gender": "de"
+      }
     },
     "materials": {
       "wooden": "Houten",
@@ -34,30 +73,63 @@
       "electrum": "Electrum",
       "constantan": "Constantaan",
       "osmium": "Osmium",
-      "refined_obsidian": { "pattern": "{type} van {material}", "name": "verfijnd obsidiaan" },
-      "refined_glowstone": { "pattern": "{type} van {material}", "name": "verfijnde gloeisteen" },
+      "refined_obsidian": {
+        "pattern": "{type} van {material}",
+        "name": "verfijnd obsidiaan"
+      },
+      "refined_glowstone": {
+        "pattern": "{type} van {material}",
+        "name": "verfijnde gloeisteen"
+      },
       "invar": "Invar",
       "signalum": "Signalum",
       "lumium": "Lumium",
       "enderium": "Enderium",
       "brass": "Messing",
-      "andesite_alloy": { "pattern": "{type} van {material}", "name": "andesietlegering" },
+      "andesite_alloy": {
+        "pattern": "{type} van {material}",
+        "name": "andesietlegering"
+      },
       "manasteel": "Manastaal",
       "elementium": "Elementium",
       "terrasteel": "Terrastaal",
       "ironwood": "IJzerhouten",
-      "steeleaf": { "pattern": "{type} van {material}", "name": "staalblad" },
+      "steeleaf": {
+        "pattern": "{type} van {material}",
+        "name": "staalblad"
+      },
       "knightmetal": "Riddermetalen",
-      "fiery": { "de": "Vurige", "het": "Vurig" },
-      "certus_quartz": { "pattern": "{type} van {material}", "name": "certuskwarts" },
+      "fiery": {
+        "de": "Vurige",
+        "het": "Vurig"
+      },
+      "certus_quartz": {
+        "pattern": "{type} van {material}",
+        "name": "certuskwarts"
+      },
       "fluix": "Fluix",
       "zanite": "Zaniet",
       "gravitite": "Gravitiet",
-      "warden": { "pattern": "{type} van {material}", "name": "de Hoeder" },
-      "dragonbone": { "pattern": "{type} van {material}", "name": "drakenbot" },
-      "fire_dragonsteel": { "pattern": "{type} van {material}", "name": "vuurdrakenstaal" },
-      "ice_dragonsteel": { "pattern": "{type} van {material}", "name": "ijsdrakenstaal" },
-      "lightning_dragonsteel": { "pattern": "{type} van {material}", "name": "bliksemdrakenstaal" },
+      "warden": {
+        "pattern": "{type} van {material}",
+        "name": "de Hoeder"
+      },
+      "dragonbone": {
+        "pattern": "{type} van {material}",
+        "name": "drakenbot"
+      },
+      "fire_dragonsteel": {
+        "pattern": "{type} van {material}",
+        "name": "vuurdrakenstaal"
+      },
+      "ice_dragonsteel": {
+        "pattern": "{type} van {material}",
+        "name": "ijsdrakenstaal"
+      },
+      "lightning_dragonsteel": {
+        "pattern": "{type} van {material}",
+        "name": "bliksemdrakenstaal"
+      },
       "cobalt": "Kobalt",
       "manyullyn": "Manyullyn",
       "allthemodium": "Allthemodium",
@@ -75,10 +147,14 @@
   "strings": {
     "attribute.betterweaponry.attack_reach": "aanvalsbereik",
     "attribute.betterweaponry.two_handed": "tweehandig",
+    "attribute.name.better_weaponry.armor_penetration": "harnasdoordringing",
+    "attribute.betterweaponry.disables_shield": "schakelt schilden uit",
     "better_weaponry.configuration.show_attack_reach_tooltip": "Aanvalsbereik tonen",
     "better_weaponry.configuration.show_attack_reach_tooltip.tooltip": "Toont de waarde 'aanvalsbereik' in de beschrijving van wapens.",
     "better_weaponry.configuration.show_two_handed_tooltip": "'Tweehandig' tonen",
     "better_weaponry.configuration.show_two_handed_tooltip.tooltip": "Toont 'tweehandig' in de beschrijving van tweehandige wapens.",
+    "better_weaponry.tooltip.on_hit_effect": "Bij een treffer: %s (%s s)",
+    "better_weaponry.tooltip.on_hit_effect.chance": "Bij een treffer (%3$s%% kans): %1$s (%2$s s)",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s probleem/problemen in de wapenbestanden:",
     "better_weaponry.data.problems.more": "... en nog %s. Details in logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: JSON-syntaxisfout, bestand genegeerd (%2$s)",
@@ -100,12 +176,39 @@
     "better_weaponry.field.weapon.base_damage.help": "Schade van de houten versie, zoals in de beschrijving. Elk materiaal vermenigvuldigt die met zijn eigen factor (steen ×1.25, ijzer ×1.5, diamant ×1.75, netheriet ×2, goud ×1) en rondt af op een halve punt.",
     "better_weaponry.field.weapon.material_damage": "Schade per materiaal",
     "better_weaponry.field.weapon.material_damage.help": "Legt de schade van bepaalde materialen vast, bijvoorbeeld { \"golden\": 6 }. Niet genoemde materialen gebruiken base_damage × hun factor.",
+    "better_weaponry.field.weapon.armor_penetration": "Harnasdoordringing",
+    "better_weaponry.field.weapon.armor_penetration.help": "Percentage van het harnas van het doelwit dat de slagen van dit wapen negeren (0 = het harnas werkt normaal, 100 = het harnas wordt genegeerd). Alleen slagen van dichtbij. Wordt in de beschrijving getoond boven 0.",
+    "better_weaponry.field.weapon.disables_shield": "Schakelt schilden uit",
+    "better_weaponry.field.weapon.disables_shield.help": "true: net als een bijl schakelt een slag op een opgeheven schild dat schild 5 seconden uit.",
+    "better_weaponry.field.weapon.on_hit_effects": "Effecten bij een treffer",
+    "better_weaponry.field.weapon.on_hit_effects.help": "Effecten die het geraakte doelwit krijgt, bijvoorbeeld traagheid. Lijst van objecten: [ { \"effect\": \"minecraft:slowness\", \"duration_seconds\": 2 } ].",
+    "better_weaponry.field.weapon.on_hit_effects.effect": "Effect",
+    "better_weaponry.field.weapon.on_hit_effects.effect.help": "ID van het effect, bijvoorbeeld minecraft:slowness (traagheid), minecraft:weakness (zwakheid) of minecraft:poison (vergif).",
+    "better_weaponry.field.weapon.on_hit_effects.duration_seconds": "Duur",
+    "better_weaponry.field.weapon.on_hit_effects.duration_seconds.help": "Duur van het effect, in seconden.",
+    "better_weaponry.field.weapon.on_hit_effects.level": "Niveau",
+    "better_weaponry.field.weapon.on_hit_effects.level.help": "Niveau van het effect (1 = Traagheid I, 2 = Traagheid II...).",
+    "better_weaponry.field.weapon.on_hit_effects.chance": "Kans",
+    "better_weaponry.field.weapon.on_hit_effects.chance.help": "Kans om het effect bij elke treffer te geven, in % (100 = altijd).",
+    "better_weaponry.field.weapon.sweep": "Verscherpte aanval",
+    "better_weaponry.field.weapon.sweep.help": "De verscherpte aanval die ook de vijanden rond het doelwit raakt (volledig opgeladen slag, op de grond, zonder te sprinten).",
+    "better_weaponry.field.weapon.sweep.enabled": "Ingeschakeld",
+    "better_weaponry.field.weapon.sweep.enabled.help": "false: dit wapen doet nooit een verscherpte aanval (steekwapens).",
+    "better_weaponry.field.weapon.sweep.radius": "Straal",
+    "better_weaponry.field.weapon.sweep.radius.help": "Grootte van de zone rond het doelwit, in blokken (vanilla zwaard: 1). Blijft beperkt door het aanvalsbereik.",
+    "better_weaponry.field.weapon.sweep.damage_ratio": "Schade",
+    "better_weaponry.field.weapon.sweep.damage_ratio.help": "Schade van de verscherpte aanval, in % van de wapenschade (0 = 1 schade, zoals een vanilla zwaard zonder Verscherping). Telt op bij Verscherping.",
     "better_weaponry.field.rules.format_version": "Formaatversie",
     "better_weaponry.field.rules.format_version.help": "Versie van het bestandsformaat. Laat dit op 1.",
     "better_weaponry.field.rules.dual_wield_speed_multiplier": "Snelheidsvermenigvuldiger met twee wapens",
     "better_weaponry.field.rules.dual_wield_speed_multiplier.help": "Vermenigvuldiger van de aanvalssnelheid als je in elke hand een wapen hebt (1.5 = 50% sneller).",
+    "better_weaponry.field.rules.dual_wield_invulnerability_seconds": "Bescherming na een slag met twee wapens",
+    "better_weaponry.field.rules.dual_wield_invulnerability_seconds.help": "Hoe lang een doelwit nieuwe slagen negeert na een slag met een wapen in elke hand, in seconden (vanilla: 0.5). Lagere waarden laten snelle wapens zoals dolken elke slag raken.",
     "better_weaponry.doc.range": "Bereik: %s tot %s",
     "better_weaponry.doc.default": "Standaard: %s",
+    "better_weaponry.doc.examples": "Voorbeelden: %s",
+    "better_weaponry.doc.required": "Verplicht",
+    "better_weaponry.doc.max_entries": "Maximaal %s items",
     "better_weaponry.doc.schema.weapon": "Better Weaponry-wapenbestand",
     "better_weaponry.doc.schema.rules": "Algemene regels van Better Weaponry",
     "better_weaponry.doc.readme.title": "Better Weaponry: wapeninstellingen",

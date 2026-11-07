@@ -1,19 +1,25 @@
 package com.betterweaponry.item;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
+import com.betterweaponry.registry.ModAttributes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Item unique pour toutes les armes du mod.
- * Ses stats (dégâts, vitesse, portée) sont lues dans les données des armes ({@link WeaponData}) à chaque demande,
+ * Ses stats sont lues dans les données des armes ({@link WeaponData}) à chaque demande,
  * donc un {@code /reload} ou une synchronisation du serveur s'applique sans redémarrer.
  */
 public class WeaponItem extends SwordItem {
@@ -21,6 +27,12 @@ public class WeaponItem extends SwordItem {
     private static final double PLAYER_BASE_DAMAGE = 1.0D;
     private static final double PLAYER_BASE_SPEED = 4.0D;
     private static final double PLAYER_BASE_REACH = 3.0D;
+    private static final double PERCENT = 100.0D;
+    /** Hauteur de la zone de balayage autour de la cible (vanilla : 0.25 bloc). */
+    private static final double SWEEP_HEIGHT = 0.25D;
+    /** Un seul identifiant pour le balayage de toutes les armes, comme les dégâts et la vitesse vanilla. */
+    public static final ResourceLocation BASE_SWEEPING_RATIO_ID =
+            ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "base_sweeping_damage_ratio");
 
     private final WeaponType type;
     private final WeaponMaterial material;
@@ -54,6 +66,8 @@ public class WeaponItem extends SwordItem {
         return stack.getItem() instanceof WeaponItem weapon && weapon.definition().twoHanded();
     }
 
+    // --- Stats ---
+
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
         // Cette méthode est appelée très souvent (tooltips, changements d'équipement...) :
@@ -61,27 +75,67 @@ public class WeaponItem extends SwordItem {
         WeaponData.Versioned data = WeaponData.versioned();
         CachedModifiers current = cache;
         if (current == null || current.generation() != data.generation()) {
-            WeaponDefinition definition = data.snapshot().weapon(type);
-            current = new CachedModifiers(data.generation(), buildModifiers(
-                    definition.damageFor(material), definition.attackSpeed(), definition.attackReach()));
+            current = new CachedModifiers(data.generation(), buildModifiers(data.snapshot().weapon(type)));
             cache = current;
         }
         return current.modifiers();
     }
 
     // Les données stockent les valeurs finales affichées au joueur, on retire donc ses valeurs de base.
-    private ItemAttributeModifiers buildModifiers(double damage, double speed, double reach) {
-        return ItemAttributeModifiers.builder()
-                .add(Attributes.ATTACK_DAMAGE,
-                        new AttributeModifier(BASE_ATTACK_DAMAGE_ID, damage - PLAYER_BASE_DAMAGE, AttributeModifier.Operation.ADD_VALUE),
+    private ItemAttributeModifiers buildModifiers(WeaponDefinition definition) {
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder()
+                .add(Attributes.ATTACK_DAMAGE, addValue(BASE_ATTACK_DAMAGE_ID, definition.damageFor(material) - PLAYER_BASE_DAMAGE),
                         EquipmentSlotGroup.MAINHAND)
-                .add(Attributes.ATTACK_SPEED,
-                        new AttributeModifier(BASE_ATTACK_SPEED_ID, speed - PLAYER_BASE_SPEED, AttributeModifier.Operation.ADD_VALUE),
+                .add(Attributes.ATTACK_SPEED, addValue(BASE_ATTACK_SPEED_ID, definition.attackSpeed() - PLAYER_BASE_SPEED),
                         EquipmentSlotGroup.MAINHAND)
-                .add(Attributes.ENTITY_INTERACTION_RANGE,
-                        new AttributeModifier(reachModifierId, reach - PLAYER_BASE_REACH, AttributeModifier.Operation.ADD_VALUE),
-                        EquipmentSlotGroup.MAINHAND)
-                .build();
+                .add(Attributes.ENTITY_INTERACTION_RANGE, addValue(reachModifierId, definition.attackReach() - PLAYER_BASE_REACH),
+                        EquipmentSlotGroup.MAINHAND);
+        // Absents à 0 : la ligne du tooltip n'apparaît que si la stat sert à quelque chose.
+        if (definition.armorPenetration() > 0.0D) {
+            builder.add(ModAttributes.ARMOR_PENETRATION,
+                    addValue(ModAttributes.BASE_ARMOR_PENETRATION_ID, definition.armorPenetration() / PERCENT), EquipmentSlotGroup.MAINHAND);
+        }
+        if (definition.sweep().enabled() && definition.sweep().damageRatio() > 0.0D) {
+            builder.add(Attributes.SWEEPING_DAMAGE_RATIO,
+                    addValue(BASE_SWEEPING_RATIO_ID, definition.sweep().damageRatio() / PERCENT), EquipmentSlotGroup.MAINHAND);
+        }
+        return builder.build();
+    }
+
+    private static AttributeModifier addValue(ResourceLocation id, double amount) {
+        return new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_VALUE);
+    }
+
+    // --- Combat ---
+
+    /**
+     * Appelé quand un coup de cette arme touche une créature (côté serveur).
+     * Pendant un coup de la main secondaire, c'est bien l'arme secondaire qui est appelée.
+     */
+    @Override
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        boolean result = super.hurtEnemy(stack, target, attacker);
+        if (!attacker.level().isClientSide) {
+            for (OnHitEffect effect : definition().onHitEffects()) {
+                if (attacker.getRandom().nextDouble() * PERCENT < effect.chance()) {
+                    effect.createInstance().ifPresent(instance -> target.addEffect(instance, attacker));
+                }
+            }
+        }
+        return result;
+    }
+
+    /** Zone touchée par le coup balayé autour de la cible (vanilla : 1 bloc). La portée d'attaque la limite aussi. */
+    @Override
+    public AABB getSweepHitBox(ItemStack stack, Player player, Entity target) {
+        double radius = definition().sweep().radius();
+        return target.getBoundingBox().inflate(radius, SWEEP_HEIGHT, radius);
+    }
+
+    /** Comme une hache vanilla : un coup sur un bouclier levé le désactive. */
+    @Override
+    public boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
+        return definition().disablesShield();
     }
 
     // Record immuable : l'item est partagé entre le thread client et le thread serveur en solo.

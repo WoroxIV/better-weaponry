@@ -4,5 +4,13 @@
   "attack_speed": 1.3,
   "attack_reach": 3.0,
   "base_damage": 5.0,
-  "material_damage": {}
+  "material_damage": {},
+  "armor_penetration": 0,
+  "disables_shield": false,
+  "on_hit_effects": [],
+  "sweep": {
+    "enabled": true,
+    "radius": 1.0,
+    "damage_ratio": 0
+  }
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "bettercombat:dagger",
+  "attributes": {
+    "two_handed": false
+  }
+}

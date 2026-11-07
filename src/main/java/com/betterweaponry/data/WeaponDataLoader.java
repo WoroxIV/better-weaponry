@@ -90,8 +90,7 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         if (BetterWeaponry.LOGGER.isDebugEnabled()) {
             for (WeaponType type : WeaponType.values()) {
                 WeaponDefinition weapon = result.snapshot().weapon(type);
-                BetterWeaponry.LOGGER.debug("  {}: two_handed={}, attack_speed={}, attack_reach={}, base_damage={}, material_damage={}",
-                        type.id(), weapon.twoHanded(), weapon.attackSpeed(), weapon.attackReach(), weapon.baseDamage(), weapon.materialDamage());
+                BetterWeaponry.LOGGER.debug("  {}: {}", type.id(), weapon);
             }
             BetterWeaponry.LOGGER.debug("  rules: {}", result.snapshot().rules());
         }

@@ -4,19 +4,58 @@
   "names": {
     "pattern": "{material}{type|lower}",
     "types": {
-      "broadsword": { "name": "Breitschwert", "gender": "n" },
-      "spear": { "name": "Speer", "gender": "m" },
-      "dagger": { "name": "Dolch", "gender": "m" },
-      "scythe": { "name": "Sense", "gender": "f" },
-      "rapier": { "name": "Rapier", "gender": "n" },
-      "sickle": { "name": "Sichel", "gender": "f" },
-      "katana": { "name": "Katana", "gender": "n" },
-      "battleaxe": { "name": "Streitaxt", "gender": "f" },
-      "glaive": { "name": "Glefe", "gender": "f" },
-      "hammer": { "name": "Kriegshammer", "gender": "m" },
-      "claymore": { "name": "Claymore", "gender": "n" },
-      "chakram": { "name": "Chakram", "gender": "n" },
-      "sai": { "name": "Sai", "gender": "n" }
+      "broadsword": {
+        "name": "Breitschwert",
+        "gender": "n"
+      },
+      "spear": {
+        "name": "Speer",
+        "gender": "m"
+      },
+      "dagger": {
+        "name": "Dolch",
+        "gender": "m"
+      },
+      "scythe": {
+        "name": "Sense",
+        "gender": "f"
+      },
+      "rapier": {
+        "name": "Rapier",
+        "gender": "n"
+      },
+      "sickle": {
+        "name": "Sichel",
+        "gender": "f"
+      },
+      "katana": {
+        "name": "Katana",
+        "gender": "n"
+      },
+      "battleaxe": {
+        "name": "Streitaxt",
+        "gender": "f"
+      },
+      "glaive": {
+        "name": "Glefe",
+        "gender": "f"
+      },
+      "hammer": {
+        "name": "Kriegshammer",
+        "gender": "m"
+      },
+      "claymore": {
+        "name": "Claymore",
+        "gender": "n"
+      },
+      "chakram": {
+        "name": "Chakram",
+        "gender": "n"
+      },
+      "sai": {
+        "name": "Sai",
+        "gender": "n"
+      }
     },
     "materials": {
       "wooden": "Holz",
@@ -34,8 +73,16 @@
       "electrum": "Elektrum",
       "constantan": "Constantan",
       "osmium": "Osmium",
-      "refined_obsidian": { "m": "Veredelter Obsidian", "f": "Veredelte Obsidian", "n": "Veredeltes Obsidian" },
-      "refined_glowstone": { "m": "Veredelter Leuchtstein", "f": "Veredelte Leuchtstein", "n": "Veredeltes Leuchtstein" },
+      "refined_obsidian": {
+        "m": "Veredelter Obsidian",
+        "f": "Veredelte Obsidian",
+        "n": "Veredeltes Obsidian"
+      },
+      "refined_glowstone": {
+        "m": "Veredelter Leuchtstein",
+        "f": "Veredelte Leuchtstein",
+        "n": "Veredeltes Leuchtstein"
+      },
       "invar": "Invar",
       "signalum": "Signalum",
       "lumium": "Lumium",
@@ -47,7 +94,12 @@
       "terrasteel": "Terrastahl",
       "ironwood": "Eisenholz",
       "steeleaf": "Stahlblatt",
-      "knightmetal": { "pattern": "{material} {type}", "m": "Ritterlicher", "f": "Ritterliche", "n": "Ritterliches" },
+      "knightmetal": {
+        "pattern": "{material} {type}",
+        "m": "Ritterlicher",
+        "f": "Ritterliche",
+        "n": "Ritterliches"
+      },
       "fiery": "Feuer",
       "certus_quartz": "Certusquarz",
       "fluix": "Fluix",
@@ -59,7 +111,10 @@
       "ice_dragonsteel": "Eisdrachenstahl",
       "lightning_dragonsteel": "Blitzdrachenstahl",
       "cobalt": "Kobalt",
-      "manyullyn": { "pattern": "{material}-{type}", "name": "Manyullyn" },
+      "manyullyn": {
+        "pattern": "{material}-{type}",
+        "name": "Manyullyn"
+      },
       "allthemodium": "Allthemodium",
       "vibranium": "Vibranium",
       "unobtainium": "Unobtainium",
@@ -68,17 +123,26 @@
       "cloggrum": "Cloggrum",
       "froststeel": "Froststahl",
       "utherium": "Utherium",
-      "forgotten": { "pattern": "{material} {type}", "m": "Vergessener", "f": "Vergessene", "n": "Vergessenes" }
+      "forgotten": {
+        "pattern": "{material} {type}",
+        "m": "Vergessener",
+        "f": "Vergessene",
+        "n": "Vergessenes"
+      }
     },
     "overrides": {}
   },
   "strings": {
     "attribute.betterweaponry.attack_reach": "Angriffsreichweite",
     "attribute.betterweaponry.two_handed": "Zweihändig",
+    "attribute.name.better_weaponry.armor_penetration": "Rüstungsdurchdringung",
+    "attribute.betterweaponry.disables_shield": "Deaktiviert Schilde",
     "better_weaponry.configuration.show_attack_reach_tooltip": "Angriffsreichweite anzeigen",
     "better_weaponry.configuration.show_attack_reach_tooltip.tooltip": "Zeigt den Wert „Angriffsreichweite“ in der Beschreibung der Waffen an.",
     "better_weaponry.configuration.show_two_handed_tooltip": "„Zweihändig“ anzeigen",
     "better_weaponry.configuration.show_two_handed_tooltip.tooltip": "Zeigt „Zweihändig“ in der Beschreibung von Zweihandwaffen an.",
+    "better_weaponry.tooltip.on_hit_effect": "Bei Treffer: %s (%s s)",
+    "better_weaponry.tooltip.on_hit_effect.chance": "Bei Treffer (%3$s %% Chance): %1$s (%2$s s)",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s Problem(e) in den Waffendateien:",
     "better_weaponry.data.problems.more": "... und %s weitere. Details in logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: JSON-Syntaxfehler, Datei ignoriert (%2$s)",
@@ -100,12 +164,39 @@
     "better_weaponry.field.weapon.base_damage.help": "Schaden der Holzversion, wie in der Beschreibung angezeigt. Jedes Material multipliziert ihn mit seinem Faktor (Stein ×1.25, Eisen ×1.5, Diamant ×1.75, Netherit ×2, Gold ×1) und rundet auf den nächsten halben Punkt.",
     "better_weaponry.field.weapon.material_damage": "Schaden pro Material",
     "better_weaponry.field.weapon.material_damage.help": "Legt den Schaden einzelner Materialien fest, zum Beispiel { \"golden\": 6 }. Nicht aufgeführte Materialien verwenden base_damage × ihren Faktor.",
+    "better_weaponry.field.weapon.armor_penetration": "Rüstungsdurchdringung",
+    "better_weaponry.field.weapon.armor_penetration.help": "Anteil der Rüstung des Ziels in %, den die Treffer dieser Waffe ignorieren (0 = Rüstung wirkt normal, 100 = Rüstung wird ignoriert). Nur Nahkampftreffer. Wird ab einem Wert über 0 in der Beschreibung angezeigt.",
+    "better_weaponry.field.weapon.disables_shield": "Deaktiviert Schilde",
+    "better_weaponry.field.weapon.disables_shield.help": "true: Wie bei einer Axt deaktiviert ein Treffer auf einen erhobenen Schild diesen für 5 Sekunden.",
+    "better_weaponry.field.weapon.on_hit_effects": "Effekte bei Treffer",
+    "better_weaponry.field.weapon.on_hit_effects.help": "Effekte, die das getroffene Ziel erhält, zum Beispiel Langsamkeit. Liste von Objekten: [ { \"effect\": \"minecraft:slowness\", \"duration_seconds\": 2 } ].",
+    "better_weaponry.field.weapon.on_hit_effects.effect": "Effekt",
+    "better_weaponry.field.weapon.on_hit_effects.effect.help": "ID des Effekts, zum Beispiel minecraft:slowness (Langsamkeit), minecraft:weakness (Schwäche) oder minecraft:poison (Vergiftung).",
+    "better_weaponry.field.weapon.on_hit_effects.duration_seconds": "Dauer",
+    "better_weaponry.field.weapon.on_hit_effects.duration_seconds.help": "Dauer des Effekts in Sekunden.",
+    "better_weaponry.field.weapon.on_hit_effects.level": "Stufe",
+    "better_weaponry.field.weapon.on_hit_effects.level.help": "Stufe des Effekts (1 = Langsamkeit I, 2 = Langsamkeit II ...).",
+    "better_weaponry.field.weapon.on_hit_effects.chance": "Chance",
+    "better_weaponry.field.weapon.on_hit_effects.chance.help": "Wahrscheinlichkeit des Effekts bei jedem Treffer, in % (100 = immer).",
+    "better_weaponry.field.weapon.sweep": "Schwungangriff",
+    "better_weaponry.field.weapon.sweep.help": "Der Schwungangriff, der auch die Gegner um das Ziel trifft (voll aufgeladener Schlag, am Boden, ohne zu sprinten).",
+    "better_weaponry.field.weapon.sweep.enabled": "Aktiviert",
+    "better_weaponry.field.weapon.sweep.enabled.help": "false: Diese Waffe macht nie einen Schwungangriff (Stichwaffen).",
+    "better_weaponry.field.weapon.sweep.radius": "Radius",
+    "better_weaponry.field.weapon.sweep.radius.help": "Größe des Bereichs um das Ziel, in Blöcken (Vanilla-Schwert: 1). Bleibt durch die Angriffsreichweite begrenzt.",
+    "better_weaponry.field.weapon.sweep.damage_ratio": "Schaden",
+    "better_weaponry.field.weapon.sweep.damage_ratio.help": "Schaden des Schwungangriffs in % des Waffenschadens (0 = 1 Schaden wie ein Vanilla-Schwert ohne Schwungkraft). Addiert sich mit Schwungkraft.",
     "better_weaponry.field.rules.format_version": "Formatversion",
     "better_weaponry.field.rules.format_version.help": "Version des Dateiformats. Auf 1 lassen.",
     "better_weaponry.field.rules.dual_wield_speed_multiplier": "Geschwindigkeitsmultiplikator mit zwei Waffen",
     "better_weaponry.field.rules.dual_wield_speed_multiplier.help": "Multiplikator der Angriffsgeschwindigkeit, wenn man in jeder Hand eine Waffe hält (1.5 = 50 % schneller).",
+    "better_weaponry.field.rules.dual_wield_invulnerability_seconds": "Schutz nach einem Treffer mit zwei Waffen",
+    "better_weaponry.field.rules.dual_wield_invulnerability_seconds.help": "Wie lange ein Ziel nach einem Treffer mit einer Waffe in jeder Hand neue Treffer ignoriert, in Sekunden (Vanilla: 0.5). Niedrigere Werte lassen schnelle Waffen wie Dolche jeden Treffer landen.",
     "better_weaponry.doc.range": "Bereich: %s bis %s",
     "better_weaponry.doc.default": "Standard: %s",
+    "better_weaponry.doc.examples": "Beispiele: %s",
+    "better_weaponry.doc.required": "Pflichtfeld",
+    "better_weaponry.doc.max_entries": "Höchstens %s Einträge",
     "better_weaponry.doc.schema.weapon": "Better Weaponry – Waffendatei",
     "better_weaponry.doc.schema.rules": "Better Weaponry – globale Regeln",
     "better_weaponry.doc.readme.title": "Better Weaponry: Waffeneinstellungen",

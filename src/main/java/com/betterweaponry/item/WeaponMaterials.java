@@ -70,7 +70,8 @@ public final class WeaponMaterials {
 
     // Comme en vanilla : arme en diamant + modèle d'amélioration + lingot de netherite.
     public static final WeaponMaterial NETHERITE = register(WeaponMaterial.builder("netherite", Tiers.NETHERITE)
-            .smithingUpgrade(DIAMOND, "minecraft:netherite_upgrade_smithing_template", "#c:ingots/netherite"));
+            .smithingUpgrade(DIAMOND, "minecraft:netherite_upgrade_smithing_template", "#c:ingots/netherite")
+            .fireResistant());
 
     // =====================================================================
     // Métaux communs, fournis par plusieurs mods (actifs dès qu'un d'eux est installé)
@@ -215,6 +216,7 @@ public final class WeaponMaterials {
     public static final WeaponMaterial FIERY = register(WeaponMaterial.builder("fiery")
             .stats(1024, 10, 4.0F)
             .craftedFrom("#c:ingots/fiery", "twilightforest:fiery_ingot")
+            .fireResistant()
             .requiresAnyMod(TWILIGHT_FOREST));
 
     // =====================================================================
@@ -253,6 +255,7 @@ public final class WeaponMaterials {
     public static final WeaponMaterial WARDEN = register(WeaponMaterial.builder("warden")
             .stats(4000, 18, 5.0F)
             .smithingUpgrade(NETHERITE, "deeperdarker:warden_upgrade_smithing_template", "deeperdarker:reinforced_echo_shard")
+            .fireResistant() // amélioration du netherite : garde sa résistance au feu
             .requiresAnyMod(DEEPER_DARKER));
 
     // =====================================================================
@@ -319,6 +322,7 @@ public final class WeaponMaterials {
     public static final WeaponMaterial IGNITIUM = register(WeaponMaterial.builder("ignitium")
             .stats(3000, 16, 5.0F)
             .craftedFrom("#c:ingots/ignitium", "cataclysm:ignitium_ingot")
+            .fireResistant()
             .requiresAnyMod(CATACLYSM));
 
     public static final WeaponMaterial CURSIUM = register(WeaponMaterial.builder("cursium")

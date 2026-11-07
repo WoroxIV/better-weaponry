@@ -5,6 +5,7 @@ import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
+import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -27,13 +28,20 @@ public final class ModItems {
             for (WeaponMaterial material : WeaponMaterials.active()) {
                 byMaterial.put(material, ITEMS.registerItem(
                         material.itemName(type),
-                        properties -> new WeaponItem(type, material, properties.stacksTo(1))));
+                        properties -> new WeaponItem(type, material, properties(properties, material))));
             }
             WEAPONS.put(type, byMaterial);
         }
     }
 
     private ModItems() {
+    }
+
+    /** Une arme ne s'empile pas ; celles en netherite (et matériaux semblables) résistent au feu et à la lave. */
+    private static Item.Properties properties(Item.Properties properties, WeaponMaterial material) {
+        properties.stacksTo(1);
+        if (material.isFireResistant()) properties.fireResistant();
+        return properties;
     }
 
     /**

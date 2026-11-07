@@ -22,6 +22,7 @@ import java.util.Map;
 public final class Docs {
     private static final String FALLBACK_LANGUAGE = "en_us";
     private static final String FIELD_PREFIX = BetterWeaponry.MODID + ".field.";
+    private static final String DOC = BetterWeaponry.MODID + ".doc.";
 
     private final Map<String, String> texts;
 
@@ -59,14 +60,21 @@ public final class Docs {
         return text(FIELD_PREFIX + set.scope() + "." + field.name() + ".help");
     }
 
-    /** Ex : "Plage : 0,1 à 20 · Défaut : 1,6", selon le type du champ. */
+    /** Ex : "Plage : 0.1 à 20 · Défaut : 1.6", selon le type du champ. Peut être vide (objet). */
     public String fieldLimits(DataField<?> field) {
-        return switch (field.kind()) {
-            case NUMBER, INTEGER -> format(BetterWeaponry.MODID + ".doc.range", number(field.min()), number(field.max()))
-                    + " · " + format(BetterWeaponry.MODID + ".doc.default", formatValue(field.defaultValue()));
-            case BOOLEAN -> format(BetterWeaponry.MODID + ".doc.default", formatValue(field.defaultValue()));
-            case NUMBER_MAP -> format(BetterWeaponry.MODID + ".doc.range", number(field.min()), number(field.max()));
+        String limits = switch (field.kind()) {
+            case NUMBER, INTEGER -> format(DOC + "range", number(field.min()), number(field.max()))
+                    + " · " + format(DOC + "default", formatValue(field.defaultValue()));
+            case BOOLEAN -> format(DOC + "default", formatValue(field.defaultValue()));
+            case NUMBER_MAP -> format(DOC + "range", number(field.min()), number(field.max()));
+            case ID -> field.examples().isEmpty() ? "" : format(DOC + "examples", String.join(", ", field.examples()));
+            case OBJECT -> "";
+            case OBJECT_LIST -> format(DOC + "max_entries", (int) field.max());
         };
+        if (field.isRequired()) {
+            limits = limits.isEmpty() ? text(DOC + "required") : text(DOC + "required") + " · " + limits;
+        }
+        return limits;
     }
 
     /** Format des nombres dans les textes : "1.6", "20", sans zéros inutiles. (DecimalFormat n'est pas partageable entre threads.) */

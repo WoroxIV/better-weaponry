@@ -43,10 +43,23 @@ final class ReadmeWriter {
 
     private static void appendFields(StringBuilder out, Docs docs, FieldSet set, String titleKey) {
         out.append(docs.text(titleKey)).append('\n');
+        appendFieldList(out, docs, set, "");
+    }
+
+    /** Liste les champs, puis les sous-champs avec leur chemin (ex : "sweep.radius", "on_hit_effects[].level"). */
+    private static void appendFieldList(StringBuilder out, Docs docs, FieldSet set, String prefix) {
         for (DataField<?> field : set.fields()) {
-            out.append(INDENT).append(field.name()).append(" — ").append(docs.fieldName(set, field)).append('\n');
+            out.append(INDENT).append(prefix).append(field.name()).append(" — ").append(docs.fieldName(set, field)).append('\n');
             out.append(DETAIL_INDENT).append(docs.fieldHelp(set, field)).append('\n');
-            out.append(DETAIL_INDENT).append(docs.fieldLimits(field)).append("\n\n");
+            String limits = docs.fieldLimits(field);
+            if (!limits.isEmpty()) out.append(DETAIL_INDENT).append(limits).append('\n');
+            out.append('\n');
+
+            FieldSet children = field.children();
+            if (children != null) {
+                String childPrefix = prefix + field.name() + (field.kind() == DataField.Kind.OBJECT_LIST ? "[]." : ".");
+                appendFieldList(out, docs, children, childPrefix);
+            }
         }
     }
 }

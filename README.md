@@ -40,6 +40,8 @@ Example: `/give @s better_weaponry:netherite_katana`
 - In the **Combat** creative tab they appear just before the Trident.
 - Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute.
 - The sweep-attack particle appears at `reach / 3` blocks in front of the player (vanilla: always 1 block, which matches reach 3). A dagger sweeps close, a spear or scythe sweeps far away.
+- Each weapon can have **armor penetration**, **on-hit effects** (slowness...), its own **sweep attack** (none for thrusting weapons, wider for the scythe) and can **disable shields** like an axe (see [Combat properties](#combat-properties)).
+- Netherite weapons (and those made of fire-resistant modded materials: warden, fiery, ignitium) float in lava and do not burn, like vanilla netherite.
 
 - Every weapon can be crafted (see [Crafting recipes](#crafting-recipes)). Netherite versions are smithing-table upgrades of the diamond ones, like vanilla tools.
 
@@ -54,10 +56,12 @@ When Better Combat is installed, the mod turns this off and lets Better Combat h
 
 ### Dual wielding
 
-Hold a weapon (any `SwordItem`, `AxeItem` or `TridentItem`, vanilla or modded) in **both** hands. If neither one is two-handed, your attacks alternate between the main hand and the off hand:
+Hold a weapon (anything in the `better_weaponry:dual_wieldable` item tag: swords, axes, the trident and the common `c:tools/melee_weapon` tag, vanilla or modded) in **both** hands. If neither one is two-handed, your attacks alternate between the main hand and the off hand:
 
 - An off-hand hit really uses the off-hand weapon: its damage, attack speed, enchantments, knockback, sweep and durability. If it breaks, it breaks in the off hand.
 - The attack cooldown and the crosshair indicator follow the weapon whose turn it is, and `dual_wield_speed_multiplier` (in `rules.json`) makes the cooldown shorter.
+- A target is protected for only `dual_wield_invulnerability_seconds` (0.25 s by default, vanilla 0.5 s) after a dual-wield hit, so fast weapons such as daggers never lose a hit.
+- A data pack can add or remove items from the `better_weaponry:dual_wieldable` tag.
 
 > One-handed weapons (dagger, sai, sickle, rapier, chakram, broadsword, spear) can be dual wielded. With the default multiplier of 1.5, dual wielding is worth about as much as the two-handed bonus.
 
@@ -135,14 +139,21 @@ Layers, from lowest to highest priority (the last one wins):
 | `attack_reach` | 0.5 – 64 | Reach in blocks |
 | `base_damage` | 0 – 1024 | Damage of the wooden version. Each material multiplies it (stone ×1.25, iron ×1.5, diamond ×1.75, netherite ×2, gold ×1, modded `(4 + bonus) / 4`), rounded to 0.5 |
 | `material_damage` | 0 – 1024 each | Forces the damage of specific materials, by material id |
+| `armor_penetration` | 0 – 100 | % of the target's armor ignored by melee hits. Shown on the tooltip only above 0 |
+| `disables_shield` | `true` / `false` | Like an axe, a hit on a raised shield disables it for 5 seconds |
+| `on_hit_effects` | up to 8 | Effects given to the target: `{ "effect": "minecraft:slowness", "duration_seconds": 2, "level": 1, "chance": 100 }` (`effect` is required) |
+| `sweep.enabled` | `true` / `false` | `false`: no sweep attack at all |
+| `sweep.radius` | 0 – 8 | Size of the sweep zone around the target, in blocks (vanilla: 1), still limited by the reach |
+| `sweep.damage_ratio` | 0 – 100 | Sweep damage in % of the weapon's damage (vanilla: 0 = 1 damage). Adds up with Sweeping Edge |
 
-All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach).
+All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach). Objects such as `sweep` merge field by field across layers (`{ "sweep": { "radius": 2 } }` keeps the other sweep values); lists such as `on_hit_effects` are replaced as a whole. Misspelled fields are reported even inside `sweep` or `on_hit_effects`.
 
 ### rules.json
 
 | Field | Range | Default | Meaning |
 |---|---|---|---|
 | `dual_wield_speed_multiplier` | 1 – 5 | 1.5 | Attack speed multiplier while holding a weapon in each hand |
+| `dual_wield_invulnerability_seconds` | 0 – 1 | 0.25 | How long a target ignores new hits after a dual-wield hit (vanilla: 0.5) |
 
 ### Upgrading from 1.x
 
@@ -177,6 +188,26 @@ Every weapon lands within 0.98–1.05 of its target.
 
 Golden = wood damage, like vanilla. Material damage uses the vanilla sword scale (×1 / ×1.25 / ×1.5 / ×1.75 / ×2), so the balance holds at every tier. Modded materials use `(4 + damage bonus) / 4`. No weapon goes above 2.0 attacks/s: after a hit, a mob is invulnerable for 0.5 s, so anything faster would be wasted.
 
+### Combat properties
+
+| Weapon | Armor penetration | On hit | Sweep | Disables shields |
+|---|---|---|---|---|
+| Broadsword | — | — | vanilla | — |
+| Spear | 15% | — | none (thrust) | — |
+| Dagger | — | — | none | — |
+| Scythe | — | — | radius 2, 50% damage | — |
+| Rapier | 20% | — | none (thrust) | — |
+| Sickle | — | Slowness I, 1 s | radius 0.75 | — |
+| Katana | 10% | — | vanilla | — |
+| Battleaxe | 15% | — | vanilla | yes |
+| Glaive | 10% | — | radius 1.5 | — |
+| Hammer | 30% | Slowness II, 1.5 s | none | yes |
+| Claymore | 5% | — | radius 1.25 | — |
+| Chakram | — | — | vanilla | — |
+| Sai | — | — | none | — |
+
+These are starting values: damage has not been rebalanced yet to account for them.
+
 ---
 
 ## Better Combat compatibility
@@ -186,7 +217,19 @@ The mod checks at runtime whether `bettercombat` is loaded. If it is:
 - the two-handed off-hand restrictions and the off-hand render hiding are turned off
 - the dual-wield alternation is turned off
 
-Better Combat weapon attribute files go in `src/main/resources/data/better_weaponry/weapon_attributes/`. Right now only `wooden_broadsword.json` exists. The other weapons need their own files to get Better Combat attack animations.
+`./gradlew runData` writes one Better Combat weapon attribute file per weapon (`data/better_weaponry/weapon_attributes/<item>.json`, 650 files). Each one uses a Better Combat preset and forces the number of hands of Better Weaponry's defaults:
+
+| Weapon | Preset | Weapon | Preset |
+|---|---|---|---|
+| Broadsword | `sword` | Battleaxe | `heavy_axe` |
+| Spear | `spear` (one-handed) | Glaive | `glaive` |
+| Dagger | `dagger` | Hammer | `hammer` |
+| Scythe | `scythe` | Claymore | `claymore` |
+| Rapier | `rapier` | Chakram | `sickle` |
+| Sickle | `sickle` | Sai | `dagger` |
+| Katana | `katana` | | |
+
+The mapping is in `datagen/BetterCombatAttributesProvider.java`. Armor penetration, on-hit effects and shield disabling still work with Better Combat. Better Combat ignores the files of weapons whose mod is not installed.
 
 ---
 
@@ -204,6 +247,7 @@ Better Combat weapon attribute files go in `src/main/resources/data/better_weapo
 ```powershell
 ./gradlew runClient     # launch a dev client
 ./gradlew runServer     # launch a dev dedicated server (nogui)
+./gradlew runGameTestServer  # run the automated combat tests, then exit (fails if a test fails)
 ./gradlew runData       # regenerate item models, translations, tags and recipes into src/generated/resources
 ./gradlew build         # build the mod jar -> build/libs/better_weaponry-<version>.jar
 ```
@@ -217,6 +261,7 @@ src/main/java/com/betterweaponry/
 ├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
 ├── BetterWeaponryClient.java    # Client-only entry point (client config, config screen)
 ├── combat/
+│   ├── CombatEvents.java        # Armor penetration, sweep on/off, dual-wield invulnerability time
 │   ├── DualWieldSystem.java     # Rules for dual wielding + cooldown of the hand whose turn it is
 │   ├── HandSwap.java            # Swaps both hands (items + attributes) during an off-hand attack
 │   ├── TwoHandedSystem.java     # Rules for when the off hand is locked
@@ -229,13 +274,18 @@ src/main/java/com/betterweaponry/
 │   └── LegacyConfigMigration.java  # Converts the 1.x TOML
 ├── data/
 │   ├── WeaponDefinition.java    # Fields of a weapon file
+│   ├── OnHitEffect.java, SweepDefinition.java  # Sub-objects of a weapon file
 │   ├── RulesDefinition.java     # Fields of rules.json
 │   ├── DataField.java, FieldSet.java  # Field declarations, validation, merging of the layers
 │   ├── WeaponDataLoader.java    # Loads the files when a world loads and on /reload
 │   ├── WeaponData.java          # Data in effect (loaded by the server, or synced from it)
 │   └── WeaponDataEvents.java    # Reload listener, sync after /reload, error messages for operators
 ├── network/                     # Sends the weapon data to clients (at login and after /reload)
-├── registry/ModItems.java       # Registers one item per WeaponType × active WeaponMaterial
+├── registry/
+│   ├── ModItems.java            # Registers one item per WeaponType × active WeaponMaterial
+│   ├── ModAttributes.java       # Armor penetration attribute (on every living entity)
+│   └── ModTags.java             # better_weaponry:dual_wieldable
+├── gametest/CombatGameTests.java  # Automated tests (gradlew runGameTestServer)
 ├── item/
 │   ├── WeaponType.java          # The 13 weapon types (+ base model and crafting pattern)
 │   ├── WeaponMaterial.java      # One material: Tier, default stats, how it is crafted, required mod
@@ -244,14 +294,14 @@ src/main/java/com/betterweaponry/
 │   └── WeaponItem.java          # Single item class; stats read live from the weapon data
 ├── event/                       # Two-handed restrictions, tooltips, first-person hand hiding
 ├── mixin/                       # Dual-wield combat and third-person rendering hooks
-└── datagen/                     # Item model, item tag and recipe providers
+└── datagen/                     # Item model, item tag, recipe and Better Combat providers
     └── lang/                    # Builds the lang files from src/main/lang/ and checks they are complete
 
 src/main/lang/                   # Translation sources, one per language (not packaged, read by runData)
 
 src/main/resources/
 ├── assets/better_weaponry/      # Textures, hand-written models
-├── data/better_weaponry/        # Default weapon stats and rules (better_weaponry/), Better Combat weapon_attributes
+├── data/better_weaponry/        # Default weapon stats and rules (better_weaponry/), empty GameTest structure
 ├── META-INF/neoforge.mods.toml  # Mod metadata (filled in from gradle.properties)
 └── betterweaponry.mixins.json   # Mixin config
 
@@ -264,7 +314,7 @@ src/generated/resources/         # Output of runData (do not edit by hand)
 2. If you gave it a base model, add `assets/better_weaponry/models/item/<base>.json`.
 3. Add one texture per material under `assets/better_weaponry/textures/item/`. In each translation source `src/main/lang/<language>.json`, add the weapon's name in `names.types` (with its grammatical gender for German, Dutch, Portuguese and Russian) and its plural in `strings` (`better_weaponry.configuration.<type>`). The 50 item names per language are built automatically (see [Translations](#translations)).
 4. Run `./gradlew runData` to generate the models, translations, tags and recipes.
-5. (Optional) Add Better Combat `weapon_attributes` JSON files.
+5. Add the weapon's Better Combat preset in `datagen/BetterCombatAttributesProvider.java` (`runData` fails without one).
 
 ### Translations
 

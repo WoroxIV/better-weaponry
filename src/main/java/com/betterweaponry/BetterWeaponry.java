@@ -1,10 +1,12 @@
 package com.betterweaponry;
 
 import com.betterweaponry.config.ConfigFolder;
+import com.betterweaponry.datagen.BetterCombatAttributesProvider;
 import com.betterweaponry.datagen.ModItemModelProvider;
 import com.betterweaponry.datagen.ModItemTagsProvider;
 import com.betterweaponry.datagen.ModRecipeProvider;
 import com.betterweaponry.datagen.lang.ModLanguageProvider;
+import com.betterweaponry.registry.ModAttributes;
 import com.betterweaponry.registry.ModItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
@@ -43,6 +45,7 @@ public final class BetterWeaponry {
 
     public BetterWeaponry(IEventBus modEventBus, ModContainer modContainer) {
         ModItems.ITEMS.register(modEventBus);
+        ModAttributes.ATTRIBUTES.register(modEventBus);
 
         modEventBus.addListener(this::addToCreativeTab);
         modEventBus.addListener(this::gatherData);
@@ -70,7 +73,7 @@ public final class BetterWeaponry {
         }
     }
 
-    /** Lancé par "gradlew runData" : génère modèles, traductions, tags et recettes dans src/generated/resources. */
+    /** Lancé par "gradlew runData" : génère modèles, traductions, tags, recettes et fichiers Better Combat dans src/generated/resources. */
     private void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
@@ -83,6 +86,9 @@ public final class BetterWeaponry {
 
         generator.addProvider(event.includeServer(),
                 new ModRecipeProvider(output, event.getLookupProvider()));
+
+        // Fichiers lus par Better Combat (mod optionnel) : un preset d'attaques par arme
+        generator.addProvider(event.includeServer(), new BetterCombatAttributesProvider(output));
 
         // Le mod n'a pas de blocs : on donne au provider d'items une liste de tags de blocs vide
         // au lieu de générer un BlockTagsProvider vide.
