@@ -1,10 +1,13 @@
 package com.betterweaponry.event;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.config.ClientConfig;
+import com.betterweaponry.data.ComboDefinition;
+import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.DashDefinition;
 import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.OnHitEffect;
@@ -25,12 +28,13 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Complète les stats vertes (dégâts, vitesse, pénétration d'armure) des armes :
  * portée d'attaque, coup balayé, "Arme à deux mains", "Désactive les boucliers", effets à l'impact
- * et capacité du clic droit.
+ * capacité du clic droit et coups spéciaux du combo.
  * Chaque ligne ajoutée se place après la précédente, dans cet ordre.
  */
 @EventBusSubscriber(modid = BetterWeaponry.MODID, value = Dist.CLIENT)
@@ -49,6 +53,10 @@ public final class TooltipEventHandler {
     private static final String DASH_KEY = ABILITY_KEY + ".dash";
     private static final String DASH_INPUT_KEY = DASH_KEY + ".input";
     private static final String DASH_AIRBORNE_KEY = DASH_KEY + ".airborne";
+    private static final String COMBO_KEY = BetterWeaponry.MODID + ".tooltip.combo";
+    private static final String COMBO_STEP_KEY = COMBO_KEY + ".step";
+    private static final String COMBO_SEPARATOR_KEY = COMBO_KEY + ".separator";
+    private static final String COMBO_REQUIRES_DUAL_WIELD_KEY = COMBO_KEY + ".requires_dual_wield";
     // Morceaux des clés vanilla "attribute.name.player.entity_interaction_range" et "...sweeping_damage_ratio"
     private static final String VANILLA_REACH_KEY_PART = "entity_interaction_range";
     private static final String VANILLA_SWEEP_KEY_PART = "sweeping_damage_ratio";
@@ -59,7 +67,7 @@ public final class TooltipEventHandler {
 
     /** Clés qui marquent une ligne de stat : les lignes ajoutées se placent après la dernière d'entre elles. */
     private static final List<String> STAT_LINE_MARKERS = List.of("attack_damage", "attack_speed", "armor_penetration",
-            REACH_KEY, VANILLA_SWEEP_KEY_PART, TWO_HANDED_KEY, DISABLES_SHIELD_KEY, ON_HIT_KEY, ABILITY_KEY);
+            REACH_KEY, VANILLA_SWEEP_KEY_PART, TWO_HANDED_KEY, DISABLES_SHIELD_KEY, ON_HIT_KEY, ABILITY_KEY, COMBO_KEY);
 
     private TooltipEventHandler() {
     }
@@ -87,6 +95,44 @@ public final class TooltipEventHandler {
         }
         ParrySystem.parryOf(stack).ifPresent(parry -> addParryLines(parry, tooltip));
         DashAbility.dashOf(stack).ifPresent(dash -> addDashLines(dash, tooltip));
+        ComboSystem.comboOf(stack).ifPresent(combo -> addComboLines(combo, tooltip));
+    }
+
+    /**
+     * Une ligne par coup spécial du combo, ex : "Combo, coup 3 : zone 360°, 3.5 blocs, recharge ×1.6",
+     * puis "Combo avec la même arme dans chaque main" si besoin.
+     */
+    private static void addComboLines(ComboDefinition combo, List<Component> tooltip) {
+        List<ComboStep> steps = combo.steps();
+        for (int i = 0; i < steps.size(); i++) {
+            ComboStep step = steps.get(i);
+            if (!step.isSpecial()) continue;
+            List<Component> parts = new ArrayList<>();
+            if (step.bothHands()) parts.add(Component.translatable(COMBO_KEY + ".both_hands"));
+            if (step.hasArea()) parts.add(Component.translatable(COMBO_KEY + ".area", number(step.angle()), number(step.radius())));
+            if (step.damageMultiplier() != 1.0D) parts.add(Component.translatable(COMBO_KEY + ".damage", number(step.damageMultiplier())));
+            if (step.knockback() > 0.0D) parts.add(Component.translatable(COMBO_KEY + ".knockback", number(step.knockback())));
+            if (step.cooldownMultiplier() != 1.0D) parts.add(Component.translatable(COMBO_KEY + ".cooldown", number(step.cooldownMultiplier())));
+
+            MutableComponent description = Component.empty();
+            for (int part = 0; part < parts.size(); part++) {
+                if (part > 0) description.append(Component.translatable(COMBO_SEPARATOR_KEY));
+                description.append(parts.get(part));
+            }
+            insertAfterStats(tooltip, comboLine(Component.translatable(COMBO_STEP_KEY, i + 1, description)));
+        }
+        if (combo.requiresDualWield()) {
+            insertAfterStats(tooltip, comboLine(Component.translatable(COMBO_REQUIRES_DUAL_WIELD_KEY)));
+        }
+    }
+
+    /** Ligne de combo : indentée comme les stats, en jaune. */
+    private static Component comboLine(Component content) {
+        return Component.literal(" ").append(content).withStyle(ChatFormatting.YELLOW);
+    }
+
+    private static String number(double value) {
+        return ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value);
     }
 
     /** Ex : "Clic droit : Dash (~3.5 blocs, recharge 1.5 s)", puis la direction et le dash en l'air si besoin. */

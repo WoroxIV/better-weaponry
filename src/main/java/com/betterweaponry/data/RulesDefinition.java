@@ -16,9 +16,10 @@ import java.util.Map;
  *                                        porté en dual wield (vanilla : 0.5 s)
  * @param parryEnabled                    false = aucune arme ne pare, quel que soit son fichier
  * @param dashEnabled                     false = aucune arme ne fait de dash, quel que soit son fichier
+ * @param combosEnabled                   false = aucun combo, quel que soit le fichier de l'arme
  */
 public record RulesDefinition(int formatVersion, double dualWieldSpeedMultiplier, double dualWieldInvulnerabilitySeconds,
-                              boolean parryEnabled, boolean dashEnabled) {
+                              boolean parryEnabled, boolean dashEnabled, boolean combosEnabled) {
 
     public static final int FORMAT_VERSION = 1;
 
@@ -29,26 +30,30 @@ public record RulesDefinition(int formatVersion, double dualWieldSpeedMultiplier
     public static final DataField<Double> DUAL_WIELD_INVULNERABILITY = DataField.number("dual_wield_invulnerability_seconds", 0.0D, 1.0D, 0.25D);
     public static final DataField<Boolean> PARRY_ENABLED = DataField.bool("parry_enabled", true);
     public static final DataField<Boolean> DASH_ENABLED = DataField.bool("dash_enabled", true);
+    public static final DataField<Boolean> COMBOS_ENABLED = DataField.bool("combos_enabled", true);
 
     public static final FieldSet FIELDS = new FieldSet("rules",
-            List.of(FORMAT, DUAL_WIELD_SPEED_MULTIPLIER, DUAL_WIELD_INVULNERABILITY, PARRY_ENABLED, DASH_ENABLED),
+            List.of(FORMAT, DUAL_WIELD_SPEED_MULTIPLIER, DUAL_WIELD_INVULNERABILITY, PARRY_ENABLED, DASH_ENABLED, COMBOS_ENABLED),
             Map.of("dual_wield_multiplier", "dual_wield_speed_multiplier",
                     "dual_wield_invulnerability", "dual_wield_invulnerability_seconds",
                     "invulnerability_seconds", "dual_wield_invulnerability_seconds",
                     "parry", "parry_enabled",
                     "enable_parry", "parry_enabled",
                     "dash", "dash_enabled",
-                    "enable_dash", "dash_enabled"));
+                    "enable_dash", "dash_enabled",
+                    "combo_enabled", "combos_enabled",
+                    "combos", "combos_enabled"));
 
     public static final Codec<RulesDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             FORMAT.forGetter(RulesDefinition::formatVersion),
             DUAL_WIELD_SPEED_MULTIPLIER.forGetter(RulesDefinition::dualWieldSpeedMultiplier),
             DUAL_WIELD_INVULNERABILITY.forGetter(RulesDefinition::dualWieldInvulnerabilitySeconds),
             PARRY_ENABLED.forGetter(RulesDefinition::parryEnabled),
-            DASH_ENABLED.forGetter(RulesDefinition::dashEnabled)
+            DASH_ENABLED.forGetter(RulesDefinition::dashEnabled),
+            COMBOS_ENABLED.forGetter(RulesDefinition::combosEnabled)
     ).apply(instance, RulesDefinition::new));
 
     public static final RulesDefinition FALLBACK = new RulesDefinition(FORMAT_VERSION,
             DUAL_WIELD_SPEED_MULTIPLIER.defaultValue(), DUAL_WIELD_INVULNERABILITY.defaultValue(), PARRY_ENABLED.defaultValue(),
-            DASH_ENABLED.defaultValue());
+            DASH_ENABLED.defaultValue(), COMBOS_ENABLED.defaultValue());
 }

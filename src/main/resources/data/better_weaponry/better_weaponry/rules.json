@@ -3,5 +3,6 @@
   "dual_wield_speed_multiplier": 1.5,
   "dual_wield_invulnerability_seconds": 0.25,
   "parry_enabled": true,
-  "dash_enabled": true
+  "dash_enabled": true,
+  "combos_enabled": true
 }

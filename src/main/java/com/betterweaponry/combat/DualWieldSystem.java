@@ -45,11 +45,16 @@ public final class DualWieldSystem {
      * Durée de recharge (en ticks) de la main qui va frapper, multiplicateur des règles (rules.json) inclus.
      * Pendant un échange de mains, les attributs reflètent déjà l'arme secondaire.
      */
-    public static float attackStrengthDelay(Player player, IDualWieldPlayer state) {
-        double speed = state.betterweaponry$isOffhandTurn() && state.betterweaponry$getActiveSwap() == null
+    public static float attackStrengthDelay(Player player, PlayerCombatState state) {
+        double speed = state.offhandTurn && state.activeSwap == null
                 ? HandSwap.attackSpeedWithHandsSwapped(player)
                 : player.getAttributeValue(Attributes.ATTACK_SPEED);
+        return delayForSpeed(speed);
+    }
+
+    /** Recharge en ticks d'une arme de cette vitesse tenue en dual wield. */
+    public static float delayForSpeed(double attackSpeed) {
         double multiplier = WeaponData.rules().dualWieldSpeedMultiplier();
-        return (float) (TICKS_PER_SECOND / (speed * multiplier));
+        return (float) (TICKS_PER_SECOND / (attackSpeed * multiplier));
     }
 }

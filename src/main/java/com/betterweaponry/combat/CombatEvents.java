@@ -17,7 +17,8 @@ import net.neoforged.neoforge.event.entity.player.SweepAttackEvent;
 
 /**
  * Règles de combat ajoutées par les stats des armes : pénétration d'armure, coup balayé,
- * temps d'invulnérabilité en dual wield. (Les effets à l'impact sont dans {@link WeaponItem#hurtEnemy}.)
+ * temps d'invulnérabilité en dual wield. (Les effets à l'impact sont dans {@link WeaponItem#hurtEnemy},
+ * les combos dans {@link ComboSystem}.)
  */
 @EventBusSubscriber(modid = BetterWeaponry.MODID)
 public final class CombatEvents {
@@ -56,10 +57,15 @@ public final class CombatEvents {
         event.getContainer().addModifier(DamageContainer.Reduction.ARMOR, (container, reduction) -> reduction * kept);
     }
 
-    /** Armes configurées sans coup balayé (estoc) : le balayage vanilla est annulé. */
+    /**
+     * Le balayage vanilla est annulé pour les armes configurées sans coup balayé (estoc), et pendant un coup
+     * spécial en zone d'un combo (la zone le remplace).
+     */
     @SubscribeEvent
     public static void onSweepAttack(SweepAttackEvent event) {
-        if (event.getEntity().getMainHandItem().getItem() instanceof WeaponItem weapon && !weapon.definition().sweep().enabled()) {
+        Player player = event.getEntity();
+        boolean noSweep = player.getMainHandItem().getItem() instanceof WeaponItem weapon && !weapon.definition().sweep().enabled();
+        if (noSweep || ComboSystem.isAreaAttackInProgress(player)) {
             event.setSweeping(false);
         }
     }

@@ -6,11 +6,14 @@
   "client": [
     "ItemInHandLayerMixin",
     "PlayerRendererMixin",
-    "ItemInHandRendererMixin"
+    "ItemInHandRendererMixin",
+    "DualSwingFirstPersonMixin",
+    "DualSwingModelMixin"
   ],
   "mixins": [
     "PlayerCombatMixin",
     "LivingEntityMixin",
+    "LivingEntityAccessor",
     "SweepParticleMixin"
   ],
   "injectors": {

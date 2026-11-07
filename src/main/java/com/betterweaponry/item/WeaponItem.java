@@ -122,14 +122,18 @@ public class WeaponItem extends SwordItem {
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         boolean result = super.hurtEnemy(stack, target, attacker);
-        if (!attacker.level().isClientSide) {
-            for (OnHitEffect effect : definition().onHitEffects()) {
-                if (attacker.getRandom().nextDouble() * PERCENT < effect.chance()) {
-                    effect.createInstance().ifPresent(instance -> target.addEffect(instance, attacker));
-                }
+        applyOnHitEffects(target, attacker);
+        return result;
+    }
+
+    /** Donne à la cible les effets à l'impact de cette arme (côté serveur), chacun selon sa chance. */
+    public void applyOnHitEffects(LivingEntity target, LivingEntity attacker) {
+        if (attacker.level().isClientSide) return;
+        for (OnHitEffect effect : definition().onHitEffects()) {
+            if (attacker.getRandom().nextDouble() * PERCENT < effect.chance()) {
+                effect.createInstance().ifPresent(instance -> target.addEffect(instance, attacker));
             }
         }
-        return result;
     }
 
     /** Zone touchée par le coup balayé autour de la cible (vanilla : 1 bloc). La portée d'attaque la limite aussi. */

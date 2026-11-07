@@ -1,9 +1,13 @@
 package com.betterweaponry.gametest;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
+import com.betterweaponry.combat.PlayerCombatState;
+import com.betterweaponry.data.ComboDefinition;
+import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.DashDefinition;
 import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.DataProblem;
@@ -15,7 +19,9 @@ import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
+import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
+import com.betterweaponry.mixin.LivingEntityAccessor;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModItems;
 import com.google.gson.JsonObject;
@@ -319,6 +325,122 @@ public final class CombatGameTests {
         helper.succeed();
     }
 
+    /**
+     * Combos d'une arme seule (faux, katana, hache de guerre...) : les coups normaux ne touchent que la cible ;
+     * le coup en zone touche aussi l'ennemi proche, mais ni l'ennemi trop loin ni celui hors de l'angle ;
+     * la recharge suivante est allongée ; un coup peu chargé remet le combo à zéro.
+     */
+    @GameTest(template = ARENA)
+    public static void comboAreaFinisher(GameTestHelper helper) {
+        int tested = 0;
+        for (WeaponType type : WeaponType.values()) {
+            ComboDefinition combo = WeaponData.weapon(type).combo();
+            int finisher = firstStep(combo, step -> step.hasArea() && !step.bothHands());
+            if (!combo.enabled() || combo.requiresDualWield() || finisher < 0) continue;
+            ComboStep area = combo.steps().get(finisher);
+
+            // Le joueur est au bord de l'arène et regarde vers le sud (+Z).
+            Vec3 origin = new Vec3(2.5D, 1.0D, 0.5D);
+            Player player = player(helper, weapon(type), ItemStack.EMPTY);
+            player.setPos(helper.absoluteVec(origin));
+            player.setYRot(0.0F);
+            player.setYHeadRot(0.0F);
+            double sideAngle = Math.toRadians(Math.min(20.0D, area.angle() / 4.0D));
+            double sideDistance = area.radius() * 0.7D;
+            Pig target = pigAt(helper, origin.add(0.0D, 0.0D, 1.5D));
+            Pig nearby = pigAt(helper, origin.add(Math.sin(sideAngle) * sideDistance, 0.0D, Math.cos(sideAngle) * sideDistance));
+            Pig tooFar = pigAt(helper, origin.add(0.0D, 0.0D, area.radius() + 1.2D));
+            Pig behind = pigAt(helper, origin.add(0.0D, 0.0D, -1.5D));
+            List<Pig> pigs = List.of(target, nearby, tooFar, behind);
+
+            for (int hit = 0; hit <= finisher; hit++) {
+                ComboStep step = combo.steps().get(hit);
+                pigs.forEach(CombatGameTests::heal);
+                fullyCharge(player);
+                player.attack(target);
+                helper.assertTrue(isHurt(target), type.id() + " hit " + (hit + 1) + ": the target should be hurt");
+                helper.assertTrue(isHurt(nearby) == step.hasArea(),
+                        type.id() + " hit " + (hit + 1) + ": the nearby pig should " + (step.hasArea() ? "" : "not ") + "be hurt");
+                helper.assertFalse(isHurt(tooFar), type.id() + " hit " + (hit + 1) + ": a pig out of the radius was hurt");
+                if (step.angle() < 360.0D) {
+                    helper.assertFalse(isHurt(behind), type.id() + " hit " + (hit + 1) + ": a pig out of the angle was hurt");
+                }
+            }
+
+            if (area.cooldownMultiplier() != 1.0D) {
+                double expectedDelay = 20.0D / player.getAttributeValue(Attributes.ATTACK_SPEED) * area.cooldownMultiplier();
+                helper.assertTrue(Math.abs(player.getCurrentItemAttackStrengthDelay() - expectedDelay) < EPSILON,
+                        type.id() + ": cooldown after the finisher " + player.getCurrentItemAttackStrengthDelay() + " instead of " + expectedDelay);
+            }
+            PlayerCombatState state = PlayerCombatState.of(player);
+            helper.assertTrue(state.comboStep == (finisher + 1) % combo.steps().size(), type.id() + ": wrong combo step " + state.comboStep);
+
+            // Un coup peu chargé remet le combo à zéro.
+            pigs.forEach(CombatGameTests::heal);
+            fullyCharge(player);
+            player.attack(target);
+            target.invulnerableTime = 0;
+            ((LivingEntityAccessor) player).betterweaponry$setAttackStrengthTicker(0);
+            player.attack(target);
+            helper.assertTrue(state.comboStep == 0, type.id() + ": a weak hit should reset the combo, step " + state.comboStep);
+
+            pigs.forEach(Pig::discard);
+            tested++;
+        }
+        helper.assertTrue(tested > 0, "no single-weapon combo with an area hit");
+        helper.succeed();
+    }
+
+    /**
+     * Combo à deux armes (dague, faucille, chakram) : actif seulement avec le même type d'arme dans chaque main ;
+     * le coup à deux armes fait la moyenne des dégâts des deux armes et use aussi l'arme secondaire.
+     */
+    @GameTest(template = ARENA)
+    public static void comboBothHandsAverage(GameTestHelper helper) {
+        assertModTagsLoaded(helper);
+        int tested = 0;
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            ComboDefinition combo = definition.combo();
+            int bothHands = firstStep(combo, ComboStep::bothHands);
+            if (!combo.enabled() || !combo.requiresDualWield() || bothHands < 0) continue;
+
+            WeaponType other = type == WeaponType.DAGGER ? WeaponType.SAI : WeaponType.DAGGER;
+            helper.assertTrue(ComboSystem.activeCombo(player(helper, weapon(type), ItemStack.EMPTY)).isEmpty(),
+                    type.id() + ": no combo with an empty off hand");
+            helper.assertTrue(ComboSystem.activeCombo(player(helper, weapon(type), weapon(other))).isEmpty(),
+                    type.id() + ": no combo with another weapon type in the off hand");
+
+            ItemStack main = weapon(type, WeaponMaterials.IRON);
+            ItemStack off = weapon(type, WeaponMaterials.DIAMOND);
+            Player player = player(helper, main, off);
+            Vec3 origin = new Vec3(2.5D, 1.0D, 1.5D);
+            player.setPos(helper.absoluteVec(origin));
+            player.setYRot(0.0F);
+            helper.assertTrue(ComboSystem.activeCombo(player).isPresent(), type.id() + ": the combo should be active with a pair");
+            Pig target = pigAt(helper, origin.add(0.0D, 0.0D, 1.5D));
+
+            for (int hit = 0; hit <= bothHands; hit++) {
+                heal(target);
+                fullyCharge(player);
+                int offWear = off.getDamageValue();
+                player.attack(target);
+                if (hit < bothHands) continue;
+
+                double expected = (definition.damageFor(WeaponMaterials.IRON) + definition.damageFor(WeaponMaterials.DIAMOND)) / 2.0D
+                        * combo.steps().get(hit).damageMultiplier();
+                double dealt = TEST_HEALTH - target.getHealth();
+                helper.assertTrue(Math.abs(dealt - expected) < EPSILON,
+                        type.id() + ": the two-weapon hit did " + dealt + " damage instead of the average " + expected);
+                helper.assertTrue(off.getDamageValue() == offWear + 1, type.id() + ": the off-hand weapon should lose 1 durability");
+            }
+            target.discard();
+            tested++;
+        }
+        helper.assertTrue(tested > 0, "no two-weapon combo with a both-hands hit");
+        helper.succeed();
+    }
+
     private static void expectDash(GameTestHelper helper, WeaponType type, ItemStack offhand, boolean onGround, boolean expected,
                                    String situation) {
         ItemStack main = weapon(type);
@@ -374,7 +496,42 @@ public final class CombatGameTests {
     }
 
     private static ItemStack weapon(WeaponType type) {
-        return new ItemStack(ModItems.get(type, WeaponMaterials.IRON).get());
+        return weapon(type, WeaponMaterials.IRON);
+    }
+
+    private static ItemStack weapon(WeaponType type, WeaponMaterial material) {
+        return new ItemStack(ModItems.get(type, material).get());
+    }
+
+    /** Cochon immobile sans armure, 100 PV, à cette position (relative à l'arène, au bloc près). */
+    private static Pig pigAt(GameTestHelper helper, Vec3 relative) {
+        Pig pig = helper.spawnWithNoFreeWill(EntityType.PIG, relative);
+        pig.setNoGravity(true);
+        setBase(pig.getAttribute(Attributes.MAX_HEALTH), TEST_HEALTH);
+        pig.setHealth(TEST_HEALTH);
+        return pig;
+    }
+
+    /** Remet un cochon à 100 PV, sans invulnérabilité : prêt pour le coup suivant. */
+    private static void heal(Pig pig) {
+        pig.setHealth(TEST_HEALTH);
+        pig.invulnerableTime = 0;
+    }
+
+    private static boolean isHurt(Pig pig) {
+        return pig.getHealth() < TEST_HEALTH;
+    }
+
+    /** Le prochain coup du joueur sera chargé à fond. */
+    private static void fullyCharge(Player player) {
+        ((LivingEntityAccessor) player).betterweaponry$setAttackStrengthTicker(1000);
+    }
+
+    private static int firstStep(ComboDefinition combo, java.util.function.Predicate<ComboStep> condition) {
+        for (int i = 0; i < combo.steps().size(); i++) {
+            if (condition.test(combo.steps().get(i))) return i;
+        }
+        return -1;
     }
 
     /** Cochon immobile, 100 PV, armure de diamant complète (20 points, 8 de solidité). */

@@ -19,6 +19,9 @@ public final class ModSounds {
     /** Dash (bruit de souffle). */
     public static final DeferredHolder<SoundEvent, SoundEvent> DASH = SOUNDS.register("item.weapon.dash", SoundEvent::createVariableRangeEvent);
 
+    /** Le prochain coup est le coup spécial du combo (entendu seulement par le joueur qui attaque). */
+    public static final DeferredHolder<SoundEvent, SoundEvent> COMBO_READY = SOUNDS.register("combo.ready", SoundEvent::createVariableRangeEvent);
+
     private ModSounds() {
     }
 }

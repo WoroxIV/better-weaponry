@@ -19,5 +19,16 @@
         "pitch": 1.4
       }
     ]
+  },
+  "combo.ready": {
+    "subtitle": "subtitles.better_weaponry.combo.ready",
+    "sounds": [
+      {
+        "name": "minecraft:block.amethyst_block.chime",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 1.5
+      }
+    ]
   }
 }

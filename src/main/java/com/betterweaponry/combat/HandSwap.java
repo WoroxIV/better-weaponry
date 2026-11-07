@@ -71,17 +71,24 @@ public final class HandSwap {
     }
 
     /**
-     * Vitesse d'attaque qu'aurait le joueur avec les mains échangées, sans rien modifier :
-     * le calcul se fait sur une copie de l'attribut. Sert à afficher la recharge de l'arme secondaire.
+     * Vitesse d'attaque qu'aurait le joueur avec les mains échangées. Sert à afficher la recharge de l'arme secondaire.
      */
     public static double attackSpeedWithHandsSwapped(Player player) {
-        AttributeInstance real = player.getAttribute(Attributes.ATTACK_SPEED);
-        if (real == null) return Attributes.ATTACK_SPEED.value().getDefaultValue();
+        return attributeWithHandsSwapped(player, Attributes.ATTACK_SPEED);
+    }
 
-        AttributeInstance copy = new AttributeInstance(Attributes.ATTACK_SPEED, ignored -> {});
+    /**
+     * Valeur qu'aurait un attribut avec les mains échangées (ex : dégâts de l'arme secondaire), sans rien modifier :
+     * le calcul se fait sur une copie de l'attribut.
+     */
+    public static double attributeWithHandsSwapped(Player player, Holder<Attribute> attribute) {
+        AttributeInstance real = player.getAttribute(attribute);
+        if (real == null) return attribute.value().getDefaultValue();
+
+        AttributeInstance copy = new AttributeInstance(attribute, ignored -> {});
         copy.replaceFrom(real);
         swapModifiers(player.getMainHandItem(), player.getOffhandItem(),
-                attribute -> attribute.equals(Attributes.ATTACK_SPEED) ? copy : null, null);
+                candidate -> candidate.equals(attribute) ? copy : null, null);
         return copy.getValue();
     }
 

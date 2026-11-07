@@ -25,5 +25,21 @@
     "direction": "look",
     "allow_airborne": false,
     "hunger_cost": 0.1
+  },
+  "combo": {
+    "enabled": true,
+    "requires_dual_wield": true,
+    "reset_after_seconds": 2.5,
+    "min_charge": 90,
+    "steps": [
+      {},
+      {},
+      {
+        "both_hands": true,
+        "radius": 3.0,
+        "angle": 360,
+        "cooldown_multiplier": 1.6
+      }
+    ]
   }
 }

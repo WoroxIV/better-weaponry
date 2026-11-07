@@ -67,6 +67,32 @@ Hold a weapon (anything in the `better_weaponry:dual_wieldable` item tag: swords
 
 Dual wielding is turned off when Better Combat is installed, because Better Combat has its own dual-wield system.
 
+### Combos
+
+Each weapon can have a **combo**: a series of hits that repeats, set by the `combo` object of its JSON file. By default, every combo is "two normal hits, then a special third hit":
+
+| Weapon | Needs | Third hit |
+|---|---|---|
+| Dagger | two daggers | both daggers at once, 90° cone, 2.5 blocks |
+| Sickle | two sickles | both sickles at once, 120° cone, 3 blocks |
+| Chakram | two chakrams | both chakrams at once, all around, 3 blocks |
+| Scythe | — | all around, 4 blocks |
+| Katana | — | half circle, 3.5 blocks |
+| Battleaxe | — | all around, 3.5 blocks |
+| Hammer | — | shockwave all around, 2.5 blocks, strong knockback |
+| Claymore | — | half circle, 4 blocks |
+
+- Only hits that land count: a swing in the air does not move the combo forward.
+- A hit charged below `min_charge` (90% by default, see the attack indicator under the crosshair) resets the combo, so spamming clicks does not work. The combo also starts over after `reset_after_seconds` without landing a hit, or when you switch weapons.
+- `requires_dual_wield: true`: the combo only exists with the **same weapon type** in the other hand. `false`: the weapon alone has its combo.
+- A special hit is always made with the main-hand weapon, and the next combo starts again from the main hand.
+- **Area hit** (`radius`, `angle`): hits every enemy within `radius` blocks in front of you (`angle` 360 = all around), with the vanilla sweep rules (charge, enchantments, Fire Aspect...) and the weapon's on-hit effects. It replaces the vanilla sweep for that hit. It never hits your allies, your tamed animals, marker armor stands, your mount, or players when PvP is off.
+- **Both weapons** (`both_hands`, with the same weapon type in each hand): **both arms swing at the same time** (first and third person, also seen by other players), damage = **average** of the two weapons, the effects of both weapons apply and both lose durability.
+- `damage_multiplier`, `knockback` and `cooldown_multiplier` change one hit. After a special hit, the next hit takes `cooldown_multiplier` times longer to charge (for a both-weapons hit, the average cooldown of the two weapons).
+- Feedback: a chime and sparkles when the next hit is the special one, and progress dots under the crosshair (client option `show_combo_hud`).
+- Your game predicts the combo for the animation and the dots; the server decides the damage and corrects the combo if they ever disagree.
+- `combos_enabled: false` in `rules.json` turns every combo off. Combos are also off when Better Combat is installed (it has its own).
+
 ### Right-click abilities
 
 Each weapon has at most one right-click ability, set by the `ability` field of its JSON file: `"parry"`, `"dash"` or `"none"`. Only the main-hand weapon's ability is used.
@@ -101,7 +127,7 @@ By default the dagger (sideways dodge) and the rapier (forward lunge) can **dash
 
 ### Tooltips
 
-Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button). Weapons with an ability show a gold line such as "Right Button: Parry (-50% damage from the front)" or "Right Button: Dash (~3.5 blocks, 1.5 s cooldown)", with the key the player actually bound to "Use Item".
+Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button). Weapons with an ability show a gold line such as "Right Button: Parry (-50% damage from the front)" or "Right Button: Dash (~3.5 blocks, 1.5 s cooldown)", with the key the player actually bound to "Use Item". Weapons with a combo show a yellow line per special hit, such as "Combo, hit 3: 360° area, 3.5 blocks, recovery ×1.6".
 
 ### Localization
 
@@ -140,7 +166,7 @@ config/better_weaponry/             ← created at first launch, applies to ever
 ├── weapons/<weapon>.json           ← your weapon changes (only what you change)
 └── defaults/                       ← the mod's default values, rewritten at every launch (read only)
 
-config/better_weaponry-client.toml  ← display preferences (tooltips)
+config/better_weaponry-client.toml  ← display preferences (tooltips, combo dots)
 ```
 
 Layers, from lowest to highest priority (the last one wins):
@@ -186,8 +212,19 @@ Layers, from lowest to highest priority (the last one wins):
 | `dash.direction` | `"look"` / `"input"` | Where you look, or where your movement keys point (default `"look"`) |
 | `dash.allow_airborne` | `true` / `false` | `true`: also dashes while jumping or falling (default `false`) |
 | `dash.hunger_cost` | 0 – 20 | Food points used per dash, 1 = half a drumstick (default 0.1) |
+| `combo.enabled` | `true` / `false` | This weapon has a combo (default `false`) |
+| `combo.requires_dual_wield` | `true` / `false` | The combo needs the same weapon type in the other hand (default `false`) |
+| `combo.reset_after_seconds` | 0.5 – 10 | The combo starts over after this long without landing a hit (default 2) |
+| `combo.min_charge` | 0 – 100 | A hit charged below this % resets the combo (default 90) |
+| `combo.steps` | up to 8 | The hits, in order. `{}` = normal hit. Fields of a hit below |
+| `combo.steps[].both_hands` | `true` / `false` | Strike with both weapons at once (same type in each hand) |
+| `combo.steps[].radius` | 0 – 8 | 0 = normal hit; above 0, area hit of this radius in blocks |
+| `combo.steps[].angle` | 10 – 360 | Width of the area in front of you, in degrees (default 360) |
+| `combo.steps[].damage_multiplier` | 0 – 10 | Damage of this hit × this value (default 1) |
+| `combo.steps[].knockback` | 0 – 5 | Extra knockback, in Knockback enchantment levels (default 0) |
+| `combo.steps[].cooldown_multiplier` | 0.1 – 5 | Cooldown of the next hit × this value (default 1) |
 
-All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach). Objects such as `sweep`, `parry` and `dash` merge field by field across layers (`{ "sweep": { "radius": 2 } }` keeps the other sweep values); lists such as `on_hit_effects` are replaced as a whole. Misspelled fields are reported even inside `sweep`, `parry`, `dash` or `on_hit_effects`.
+All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach). Objects such as `sweep`, `parry`, `dash` and `combo` merge field by field across layers (`{ "sweep": { "radius": 2 } }` keeps the other sweep values); lists such as `on_hit_effects` and `combo.steps` are replaced as a whole. Misspelled fields are reported even inside `sweep`, `parry`, `dash`, `combo` or `combo.steps`.
 
 Example: give the spear a parry that blocks 30% of the damage.
 
@@ -206,6 +243,7 @@ Example: give the spear a parry that blocks 30% of the damage.
 | `dual_wield_invulnerability_seconds` | 0 – 1 | 0.25 | How long a target ignores new hits after a dual-wield hit (vanilla: 0.5) |
 | `parry_enabled` | `true` / `false` | `true` | `false`: no weapon can parry, whatever its file says |
 | `dash_enabled` | `true` / `false` | `true` | `false`: no weapon can dash, whatever its file says |
+| `combos_enabled` | `true` / `false` | `true` | `false`: no weapon has a combo, whatever its file says |
 
 ### Upgrading from 1.x
 
@@ -242,21 +280,21 @@ Golden = wood damage, like vanilla. Material damage uses the vanilla sword scale
 
 ### Combat properties
 
-| Weapon | Armor penetration | On hit | Sweep | Disables shields | Right click |
-|---|---|---|---|---|---|
-| Broadsword | — | — | vanilla | — | parry |
-| Spear | 15% | — | none (thrust) | — | — |
-| Dagger | — | — | none | — | dash (dodge, ~3.5 blocks, 1.5 s) |
-| Scythe | — | — | radius 2, 50% damage | — | — |
-| Rapier | 20% | — | none (thrust) | — | dash (lunge, ~4.5 blocks, 2.5 s) |
-| Sickle | — | Slowness I, 1 s | radius 0.75 | — | — |
-| Katana | 10% | — | vanilla | — | parry |
-| Battleaxe | 15% | — | vanilla | yes | — |
-| Glaive | 10% | — | radius 1.5 | — | parry |
-| Hammer | 30% | Slowness II, 1.5 s | none | yes | — |
-| Claymore | 5% | — | radius 1.25 | — | parry |
-| Chakram | — | — | vanilla | — | — |
-| Sai | — | — | none | — | parry, even with a weapon in each hand |
+| Weapon | Armor penetration | On hit | Sweep | Disables shields | Right click | Combo |
+|---|---|---|---|---|---|---|
+| Broadsword | — | — | vanilla | — | parry | — |
+| Spear | 15% | — | none (thrust) | — | — | — |
+| Dagger | — | — | none | — | dash (dodge, ~3.5 blocks, 1.5 s) | two daggers: 3rd hit with both |
+| Scythe | — | — | radius 2, 50% damage | — | — | 3rd hit 360° |
+| Rapier | 20% | — | none (thrust) | — | dash (lunge, ~4.5 blocks, 2.5 s) | — |
+| Sickle | — | Slowness I, 1 s | radius 0.75 | — | — | two sickles: 3rd hit with both |
+| Katana | 10% | — | vanilla | — | parry | 3rd hit 180° |
+| Battleaxe | 15% | — | vanilla | yes | — | 3rd hit 360° |
+| Glaive | 10% | — | radius 1.5 | — | parry | — |
+| Hammer | 30% | Slowness II, 1.5 s | none | yes | — | 3rd hit 360° shockwave |
+| Claymore | 5% | — | radius 1.25 | — | parry | 3rd hit 180° |
+| Chakram | — | — | vanilla | — | — | two chakrams: 3rd hit with both, 360° |
+| Sai | — | — | none | — | parry, even with a weapon in each hand | — |
 
 Every parry blocks 50% of the damage and costs 1 durability per point of damage blocked. Every dash costs 0.1 food point.
 
@@ -269,7 +307,7 @@ These are starting values: damage has not been rebalanced yet to account for the
 The mod checks at runtime whether `bettercombat` is loaded. If it is:
 
 - the two-handed off-hand restrictions and the off-hand render hiding are turned off
-- the dual-wield alternation is turned off
+- the dual-wield alternation and the combos are turned off (Better Combat has its own)
 
 `./gradlew runData` writes one Better Combat weapon attribute file per weapon (`data/better_weaponry/weapon_attributes/<item>.json`, 650 files). Each one uses a Better Combat preset and forces the number of hands of Better Weaponry's defaults:
 
@@ -314,7 +352,7 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 src/main/java/com/betterweaponry/
 ├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
 ├── BetterWeaponryClient.java    # Client-only entry point (client config, config screen, render extensions)
-├── client/                     # 1.8 parry pose in first person (both hands when parrying with two weapons)
+├── client/                     # 1.8 parry pose in first person (both hands with two weapons), combo dots (ComboHud)
 ├── combat/
 │   ├── CombatEvents.java        # Armor penetration, sweep on/off, dual-wield invulnerability time
 │   ├── ParrySystem.java         # When a right click parries, frontal damage reduction, wear and sound
@@ -322,7 +360,9 @@ src/main/java/com/betterweaponry/
 │   ├── DualWieldSystem.java     # Rules for dual wielding + cooldown of the hand whose turn it is
 │   ├── HandSwap.java            # Swaps both hands (items + attributes) during an off-hand attack
 │   ├── TwoHandedSystem.java     # Rules for when the off hand is locked
-│   └── IDualWieldPlayer.java    # Duck interface mixed into Player for dual-wield state
+│   ├── ComboSystem.java         # Combo progress, special hits (area, both weapons), cooldown after a special hit
+│   ├── PlayerCombatState.java   # Per-player state: dual-wield turn, combo, two-arm animation
+│   └── ICombatPlayer.java       # Duck interface mixed into Player to hold its PlayerCombatState
 ├── compat/BetterCombatCompat.java  # Detects Better Combat (turns off our systems)
 ├── config/
 │   ├── ClientConfig.java        # Display preferences (client TOML)
@@ -331,18 +371,19 @@ src/main/java/com/betterweaponry/
 │   └── LegacyConfigMigration.java  # Converts the 1.x TOML
 ├── data/
 │   ├── WeaponDefinition.java    # Fields of a weapon file
-│   ├── OnHitEffect.java, SweepDefinition.java, ParryDefinition.java, DashDefinition.java  # Sub-objects of a weapon file
+│   ├── OnHitEffect.java, SweepDefinition.java, ParryDefinition.java, DashDefinition.java,
+│   │   ComboDefinition.java, ComboStep.java  # Sub-objects of a weapon file
 │   ├── WeaponAbility.java, DashDirection.java  # Values of the "ability" and "dash.direction" fields
 │   ├── RulesDefinition.java     # Fields of rules.json
 │   ├── DataField.java, FieldSet.java  # Field declarations, validation, merging of the layers
 │   ├── WeaponDataLoader.java    # Loads the files when a world loads and on /reload
 │   ├── WeaponData.java          # Data in effect (loaded by the server, or synced from it)
 │   └── WeaponDataEvents.java    # Reload listener, sync after /reload, error messages for operators
-├── network/                     # Sends the weapon data to clients (at login and after /reload)
+├── network/                     # Weapon data (login, /reload), combo correction, two-arm swing for other players
 ├── registry/
 │   ├── ModItems.java            # Registers one item per WeaponType × active WeaponMaterial
 │   ├── ModAttributes.java       # Armor penetration attribute (on every living entity)
-│   ├── ModSounds.java           # Parry and dash sounds (files and subtitles in assets/better_weaponry/sounds.json)
+│   ├── ModSounds.java           # Parry, dash and combo-ready sounds (files and subtitles in assets/better_weaponry/sounds.json)
 │   └── ModTags.java             # better_weaponry:dual_wieldable
 ├── gametest/CombatGameTests.java  # Automated tests (gradlew runGameTestServer)
 ├── item/
@@ -352,7 +393,7 @@ src/main/java/com/betterweaponry/
 │   ├── WeaponRecipe.java        # Crafting pattern with M (material) and S (stick)
 │   └── WeaponItem.java          # Single item class; stats read live from the weapon data
 ├── event/                       # Two-handed restrictions, tooltips, first-person hand hiding
-├── mixin/                       # Dual-wield combat and third-person rendering hooks
+├── mixin/                       # Dual-wield and combo attacks, two-arm swing (first and third person), rendering hooks
 └── datagen/                     # Item model, item tag, recipe and Better Combat providers
     └── lang/                    # Builds the lang files from src/main/lang/ and checks they are complete
 

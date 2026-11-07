@@ -28,6 +28,7 @@ import java.util.Map;
  * @param ability          capacité du clic droit (une seule par arme)
  * @param parry            réglages de la parade, utilisés si {@code ability} vaut "parry"
  * @param dash             réglages du dash, utilisés si {@code ability} vaut "dash"
+ * @param combo            combo : suite de coups qui se répète, avec des coups spéciaux
  */
 public record WeaponDefinition(int formatVersion,
                                boolean twoHanded,
@@ -41,7 +42,8 @@ public record WeaponDefinition(int formatVersion,
                                SweepDefinition sweep,
                                WeaponAbility ability,
                                ParryDefinition parry,
-                               DashDefinition dash) {
+                               DashDefinition dash,
+                               ComboDefinition combo) {
 
     public static final int FORMAT_VERSION = 1;
     /** Les dégâts calculés sont arrondis au demi-point pour des tooltips lisibles. */
@@ -66,10 +68,12 @@ public record WeaponDefinition(int formatVersion,
             DataField.object("parry", ParryDefinition.FIELDS, ParryDefinition.CODEC, ParryDefinition.DEFAULT);
     public static final DataField<DashDefinition> DASH =
             DataField.object("dash", DashDefinition.FIELDS, DashDefinition.CODEC, DashDefinition.DEFAULT);
+    public static final DataField<ComboDefinition> COMBO =
+            DataField.object("combo", ComboDefinition.FIELDS, ComboDefinition.CODEC, ComboDefinition.NONE);
 
     public static final FieldSet FIELDS = new FieldSet("weapon",
             List.of(FORMAT, TWO_HANDED, ATTACK_SPEED, ATTACK_REACH, BASE_DAMAGE, MATERIAL_DAMAGE,
-                    ARMOR_PENETRATION, DISABLES_SHIELD, ON_HIT_EFFECTS, SWEEP, ABILITY, PARRY, DASH),
+                    ARMOR_PENETRATION, DISABLES_SHIELD, ON_HIT_EFFECTS, SWEEP, ABILITY, PARRY, DASH, COMBO),
             // Noms de l'ancienne config TOML et variantes courantes
             Map.ofEntries(
                     Map.entry("attack_damage", "base_damage"),
@@ -88,7 +92,8 @@ public record WeaponDefinition(int formatVersion,
                     Map.entry("block", "parry"),
                     Map.entry("blocking", "parry"),
                     Map.entry("dodge", "dash"),
-                    Map.entry("lunge", "dash")));
+                    Map.entry("lunge", "dash"),
+                    Map.entry("combos", "combo")));
 
     public static final Codec<WeaponDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             FORMAT.forGetter(WeaponDefinition::formatVersion),
@@ -103,13 +108,15 @@ public record WeaponDefinition(int formatVersion,
             SWEEP.forGetter(WeaponDefinition::sweep),
             ABILITY.forGetter(WeaponDefinition::ability),
             PARRY.forGetter(WeaponDefinition::parry),
-            DASH.forGetter(WeaponDefinition::dash)
+            DASH.forGetter(WeaponDefinition::dash),
+            COMBO.forGetter(WeaponDefinition::combo)
     ).apply(instance, WeaponDefinition::new));
 
     /** Utilisé si une arme n'a aucune donnée (fichier du mod introuvable) : une épée vanilla en bois. */
     public static final WeaponDefinition FALLBACK = new WeaponDefinition(FORMAT_VERSION,
             false, ATTACK_SPEED.defaultValue(), ATTACK_REACH.defaultValue(), BASE_DAMAGE.defaultValue(), Map.of(),
-            0.0D, false, List.of(), SweepDefinition.VANILLA, WeaponAbility.NONE, ParryDefinition.DEFAULT, DashDefinition.DEFAULT);
+            0.0D, false, List.of(), SweepDefinition.VANILLA, WeaponAbility.NONE, ParryDefinition.DEFAULT, DashDefinition.DEFAULT,
+            ComboDefinition.NONE);
 
     public WeaponDefinition {
         materialDamage = Map.copyOf(materialDamage);

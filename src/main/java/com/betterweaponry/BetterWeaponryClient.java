@@ -1,10 +1,12 @@
 package com.betterweaponry;
 
+import com.betterweaponry.client.ComboHud;
 import com.betterweaponry.client.WeaponClientExtensions;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -12,9 +14,11 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
 
 /** Point d'entrée client uniquement (jamais chargé sur un serveur dédié). */
@@ -33,6 +37,7 @@ public final class BetterWeaponryClient {
         BetterWeaponry.setLanguageSupplier(BetterWeaponryClient::gameLanguage);
 
         modEventBus.addListener(BetterWeaponryClient::registerClientExtensions);
+        modEventBus.addListener(BetterWeaponryClient::registerGuiLayers);
         NeoForge.EVENT_BUS.addListener(BetterWeaponryClient::onLoggingOut);
     }
 
@@ -40,6 +45,12 @@ public final class BetterWeaponryClient {
     private static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         Item[] weapons = ModItems.ITEMS.getEntries().stream().map(holder -> holder.get()).toArray(Item[]::new);
         event.registerItem(new WeaponClientExtensions(), weapons);
+    }
+
+    /** Indicateur du combo, dessiné juste au-dessus du viseur vanilla. */
+    private static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAbove(VanillaGuiLayers.CROSSHAIR,
+                ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "combo_progress"), ComboHud::render);
     }
 
     /** Langue choisie dans les options du jeu (ex : "fr_fr"), ou l'anglais si les options ne sont pas encore chargées. */

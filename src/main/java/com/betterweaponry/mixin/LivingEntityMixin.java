@@ -1,7 +1,7 @@
 package com.betterweaponry.mixin;
 
 import com.betterweaponry.combat.DualWieldSystem;
-import com.betterweaponry.combat.IDualWieldPlayer;
+import com.betterweaponry.combat.PlayerCombatState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Partie "LivingEntity" du dual wield. Ces méthodes sont définies dans LivingEntity,
- * mais on n'agit que sur les joueurs (seuls à implémenter IDualWieldPlayer).
+ * Partie "LivingEntity" du dual wield et des combos. Ces méthodes sont définies dans LivingEntity,
+ * mais on n'agit que sur les joueurs.
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
@@ -22,30 +22,45 @@ public abstract class LivingEntityMixin {
     /**
      * Le jeu fait toujours balancer la main principale quand on frappe :
      * en dual wield, on redirige l'animation vers la main dont c'est le tour.
+     * Un coup à deux armes arme aussi l'animation des deux bras pour ce coup de bras.
      */
     @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"), cancellable = true)
     private void betterweaponry$alternateSwing(InteractionHand hand, boolean updateSelf, CallbackInfo ci) {
-        if (!((Object) this instanceof IDualWieldPlayer dw)) return;
-        Player player = (Player) (Object) this;
-
-        // Consommé à chaque swing pour qu'une ancienne attaque n'influence jamais un swing plus tard.
-        boolean justAttacked = dw.betterweaponry$consumeJustAttacked();
-
+        if (!((Object) this instanceof Player player)) return;
+        PlayerCombatState state = PlayerCombatState.of(player);
         // Pendant notre propre appel redirigé, on laisse le jeu faire.
-        if (dw.betterweaponry$isRedirectingSwing() || !DualWieldSystem.isDualWielding(player)) return;
+        if (state.redirectingSwing) return;
 
-        // Après une attaque, on anime la main qui a réellement frappé ; sinon (clic dans le vide) on suit le tour.
-        boolean offhandTurn = justAttacked ? dw.betterweaponry$isLastAttackOffhand() : dw.betterweaponry$isOffhandTurn();
-        dw.betterweaponry$toggleTurn();
+        // L'animation à deux bras ne vaut que pour le coup de bras qui suit le coup à deux armes.
+        state.dualSwingActive = state.dualSwingPending;
+        state.dualSwingPending = false;
+        // Consommé à chaque swing pour qu'une ancienne attaque n'influence jamais un swing plus tard.
+        boolean justAttacked = state.justAttacked;
+        state.justAttacked = false;
 
-        InteractionHand expectedHand = offhandTurn ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (!DualWieldSystem.isDualWielding(player)) return;
+        // Les autres joueurs vus par ce client : le serveur envoie déjà la bonne main, on ne l'alterne pas une 2e fois.
+        if (player.level().isClientSide() && !player.isLocalPlayer()) return;
+
+        boolean offhandSwing;
+        if (justAttacked && state.lastAttackSpecial) {
+            // Coup spécial du combo : porté par l'arme principale, et la suite repart de la main principale.
+            offhandSwing = false;
+            state.offhandTurn = false;
+        } else {
+            // Après une attaque, on anime la main qui a réellement frappé ; sinon (clic dans le vide) on suit le tour.
+            offhandSwing = justAttacked ? state.lastAttackOffhand : state.offhandTurn;
+            state.offhandTurn = !state.offhandTurn;
+        }
+
+        InteractionHand expectedHand = offhandSwing ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         if (hand != expectedHand) {
             ci.cancel();
-            dw.betterweaponry$setRedirectingSwing(true);
+            state.redirectingSwing = true;
             try {
                 player.swing(expectedHand, updateSelf);
             } finally {
-                dw.betterweaponry$setRedirectingSwing(false);
+                state.redirectingSwing = false;
             }
         }
     }
@@ -57,7 +72,7 @@ public abstract class LivingEntityMixin {
      */
     @ModifyVariable(method = "onEquippedItemBroken", at = @At("HEAD"), argsOnly = true)
     private EquipmentSlot betterweaponry$reportBrokenHandCorrectly(EquipmentSlot slot) {
-        if ((Object) this instanceof IDualWieldPlayer dw && dw.betterweaponry$getActiveSwap() != null) {
+        if ((Object) this instanceof Player player && PlayerCombatState.of(player).activeSwap != null) {
             if (slot == EquipmentSlot.MAINHAND) return EquipmentSlot.OFFHAND;
             if (slot == EquipmentSlot.OFFHAND) return EquipmentSlot.MAINHAND;
         }

@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 @EventBusSubscriber(modid = BetterWeaponry.MODID)
 public final class ModNetwork {
     /** À augmenter quand le format d'un paquet change : un client et un serveur différents refuseront de se connecter. */
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
 
     private ModNetwork() {
     }
@@ -19,7 +19,10 @@ public final class ModNetwork {
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
         event.registrar(PROTOCOL_VERSION)
                 // "common" : utilisable pendant la connexion (configuration) et en jeu (après /reload)
-                .commonToClient(WeaponDataSyncPayload.TYPE, WeaponDataSyncPayload.STREAM_CODEC, WeaponDataSyncPayload::handle);
+                .commonToClient(WeaponDataSyncPayload.TYPE, WeaponDataSyncPayload.STREAM_CODEC, WeaponDataSyncPayload::handle)
+                // en jeu seulement : combo corrigé par le serveur, animation à deux bras des autres joueurs
+                .playToClient(ComboSyncPayload.TYPE, ComboSyncPayload.STREAM_CODEC, ComboSyncPayload::handle)
+                .playToClient(DualSwingPayload.TYPE, DualSwingPayload.STREAM_CODEC, DualSwingPayload::handle);
     }
 
     @SubscribeEvent
