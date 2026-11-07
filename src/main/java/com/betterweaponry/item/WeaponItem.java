@@ -1,6 +1,7 @@
 package com.betterweaponry.item;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.WeaponAbility;
@@ -147,14 +148,20 @@ public class WeaponItem extends SwordItem {
     // --- Capacité du clic droit ---
 
     /**
-     * Clic droit : lance la parade si l'arme pare et que les conditions sont remplies ({@link ParrySystem#canParry}).
-     * Sinon PASS : le jeu essaie alors l'objet de la main secondaire (un bouclier se lève, une torche se pose...).
+     * Clic droit : lance la capacité de l'arme si ses conditions sont remplies (parade : {@link ParrySystem#canParry},
+     * dash : {@link DashAbility#canDash}). Sinon PASS : le jeu essaie alors l'objet de la main secondaire
+     * (un bouclier se lève, une torche se pose...). Appelé côté client puis côté serveur.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (ParrySystem.canParry(player, hand, stack)) {
             player.startUsingItem(hand);
+            return InteractionResultHolder.consume(stack);
+        }
+        if (DashAbility.canDash(player, hand, stack)) {
+            DashAbility.dash(level, player, stack, definition().dash());
+            // CONSUME et pas SUCCESS : pas de coup de bras, qui ferait alterner les mains en dual wield.
             return InteractionResultHolder.consume(stack);
         }
         return super.use(level, player, hand);

@@ -8,5 +8,16 @@
         "pitch": 1.7
       }
     ]
+  },
+  "item.weapon.dash": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.dash",
+    "sounds": [
+      {
+        "name": "minecraft:entity.player.attack.sweep",
+        "type": "event",
+        "volume": 0.7,
+        "pitch": 1.4
+      }
+    ]
   }
 }

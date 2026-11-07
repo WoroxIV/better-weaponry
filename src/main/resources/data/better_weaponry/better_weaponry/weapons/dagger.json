@@ -13,10 +13,17 @@
     "radius": 1.0,
     "damage_ratio": 0
   },
-  "ability": "none",
+  "ability": "dash",
   "parry": {
     "damage_reduction": 50,
     "durability_per_damage": 1.0,
     "while_dual_wielding": false
+  },
+  "dash": {
+    "distance": 3.5,
+    "cooldown_seconds": 1.5,
+    "direction": "input",
+    "allow_airborne": false,
+    "hunger_cost": 0.1
   }
 }

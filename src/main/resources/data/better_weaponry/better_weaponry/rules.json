@@ -2,5 +2,6 @@
   "format_version": 1,
   "dual_wield_speed_multiplier": 1.5,
   "dual_wield_invulnerability_seconds": 0.25,
-  "parry_enabled": true
+  "parry_enabled": true,
+  "dash_enabled": true
 }

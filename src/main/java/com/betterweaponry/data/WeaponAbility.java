@@ -11,7 +11,9 @@ public enum WeaponAbility implements StringRepresentable {
     /** Le clic droit garde son action normale. */
     NONE("none"),
     /** Parade comme en 1.8 : réglages dans {@link ParryDefinition}. */
-    PARRY("parry");
+    PARRY("parry"),
+    /** Bond rapide : réglages dans {@link DashDefinition}. */
+    DASH("dash");
 
     private final String serializedName;
 

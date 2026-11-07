@@ -9,6 +9,8 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -54,5 +56,10 @@ public final class ModItems {
             throw new IllegalStateException("Aucune arme " + material.itemName(type) + " : matériau inactif");
         }
         return item;
+    }
+
+    /** Toutes les armes d'un type, une par matériau actif (ex : pour une recharge commune à tous les matériaux). */
+    public static Collection<DeferredItem<WeaponItem>> allOfType(WeaponType type) {
+        return Collections.unmodifiableCollection(WEAPONS.get(type).values());
     }
 }

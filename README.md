@@ -67,9 +67,13 @@ Hold a weapon (anything in the `better_weaponry:dual_wieldable` item tag: swords
 
 Dual wielding is turned off when Better Combat is installed, because Better Combat has its own dual-wield system.
 
-### Parry (right click)
+### Right-click abilities
 
-Each weapon has at most one right-click ability, set by the `ability` field of its JSON file. By default the broadsword, katana, glaive, claymore and sai can **parry**, like swords in Minecraft 1.8:
+Each weapon has at most one right-click ability, set by the `ability` field of its JSON file: `"parry"`, `"dash"` or `"none"`. Only the main-hand weapon's ability is used.
+
+#### Parry
+
+By default the broadsword, katana, glaive, claymore and sai can **parry**, like swords in Minecraft 1.8:
 
 - Hold right click with the weapon in the **main hand**: the weapon tilts in front of you (1.8 pose in first person, arm raised in third person) and you move slowly.
 - Hits from the **front** are reduced by `parry.damage_reduction` (50% by default, like 1.8). Hits from behind, falls, fire, poison and other damage that a shield cannot block go through.
@@ -81,9 +85,22 @@ Each weapon has at most one right-click ability, set by the `ability` field of i
 - A two-handed weapon always parries, since the off hand is locked.
 - `parry_enabled: false` in `rules.json` turns the parry off for every weapon.
 
+#### Dash
+
+By default the dagger (sideways dodge) and the rapier (forward lunge) can **dash**:
+
+- Right click with the weapon in the **main hand**: you leap about `dash.distance` blocks (farther on ice or in mid-air), with a small hop, a whoosh (`better_weaponry:item.weapon.dash`) and a puff of cloud.
+- `dash.direction`: `"look"` goes where you look (horizontally), `"input"` goes where your movement keys point (A/D to dodge sideways, S to step back, forward when no key is held).
+- Then the weapon type has a cooldown (`dash.cooldown_seconds`), shown on the hotbar like an ender pearl's. It is shared by every material: switching to another dagger does not reset it.
+- Each dash uses a little food (`dash.hunger_cost`, 0.1 food point by default, about two sprint jumps). Like sprinting, it is impossible with 3 drumsticks or less.
+- It only works with the off hand **empty or holding a weapon** (dual wielding is fine): a shield is raised instead, a torch or food keeps its normal action. A two-handed weapon always dashes.
+- Never while riding, gliding with an elytra, or in water or lava. On the ground only, unless `dash.allow_airborne` is `true`.
+- The movement is done by the player's own game (like vanilla movement); the server handles the cooldown and the hunger.
+- `dash_enabled: false` in `rules.json` turns the dash off for every weapon.
+
 ### Tooltips
 
-Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button). Weapons that parry show a gold line such as "Right Button: Parry (-50% damage from the front)", with the key the player actually bound to "Use Item".
+Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button). Weapons with an ability show a gold line such as "Right Button: Parry (-50% damage from the front)" or "Right Button: Dash (~3.5 blocks, 1.5 s cooldown)", with the key the player actually bound to "Use Item".
 
 ### Localization
 
@@ -159,12 +176,17 @@ Layers, from lowest to highest priority (the last one wins):
 | `sweep.enabled` | `true` / `false` | `false`: no sweep attack at all |
 | `sweep.radius` | 0 – 8 | Size of the sweep zone around the target, in blocks (vanilla: 1), still limited by the reach |
 | `sweep.damage_ratio` | 0 – 100 | Sweep damage in % of the weapon's damage (vanilla: 0 = 1 damage). Adds up with Sweeping Edge |
-| `ability` | `"none"` / `"parry"` | What holding right click does with the weapon in the main hand |
+| `ability` | `"none"` / `"parry"` / `"dash"` | What a right click does with the weapon in the main hand |
 | `parry.damage_reduction` | 0 – 100 | % of the damage blocked by the parry, front hits only (default 50) |
 | `parry.durability_per_damage` | 0 – 10 | Durability lost per point of damage blocked, rounded, at least 1 per hit (0 = no wear; default 1) |
 | `parry.while_dual_wielding` | `true` / `false` | `true`: also parries with a weapon in the off hand (default `false`) |
+| `dash.distance` | 0.5 – 16 | Approximate length of the dash on flat ground, in blocks (default 4) |
+| `dash.cooldown_seconds` | 0.1 – 60 | Time before the next dash, shared by every material of the type (default 2) |
+| `dash.direction` | `"look"` / `"input"` | Where you look, or where your movement keys point (default `"look"`) |
+| `dash.allow_airborne` | `true` / `false` | `true`: also dashes while jumping or falling (default `false`) |
+| `dash.hunger_cost` | 0 – 20 | Food points used per dash, 1 = half a drumstick (default 0.1) |
 
-All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach). Objects such as `sweep` and `parry` merge field by field across layers (`{ "sweep": { "radius": 2 } }` keeps the other sweep values); lists such as `on_hit_effects` are replaced as a whole. Misspelled fields are reported even inside `sweep`, `parry` or `on_hit_effects`.
+All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach). Objects such as `sweep`, `parry` and `dash` merge field by field across layers (`{ "sweep": { "radius": 2 } }` keeps the other sweep values); lists such as `on_hit_effects` are replaced as a whole. Misspelled fields are reported even inside `sweep`, `parry`, `dash` or `on_hit_effects`.
 
 Example: give the spear a parry that blocks 30% of the damage.
 
@@ -182,6 +204,7 @@ Example: give the spear a parry that blocks 30% of the damage.
 | `dual_wield_speed_multiplier` | 1 – 5 | 1.5 | Attack speed multiplier while holding a weapon in each hand |
 | `dual_wield_invulnerability_seconds` | 0 – 1 | 0.25 | How long a target ignores new hits after a dual-wield hit (vanilla: 0.5) |
 | `parry_enabled` | `true` / `false` | `true` | `false`: no weapon can parry, whatever its file says |
+| `dash_enabled` | `true` / `false` | `true` | `false`: no weapon can dash, whatever its file says |
 
 ### Upgrading from 1.x
 
@@ -222,9 +245,9 @@ Golden = wood damage, like vanilla. Material damage uses the vanilla sword scale
 |---|---|---|---|---|---|
 | Broadsword | — | — | vanilla | — | parry |
 | Spear | 15% | — | none (thrust) | — | — |
-| Dagger | — | — | none | — | — |
+| Dagger | — | — | none | — | dash (dodge, ~3.5 blocks, 1.5 s) |
 | Scythe | — | — | radius 2, 50% damage | — | — |
-| Rapier | 20% | — | none (thrust) | — | — |
+| Rapier | 20% | — | none (thrust) | — | dash (lunge, ~4.5 blocks, 2.5 s) |
 | Sickle | — | Slowness I, 1 s | radius 0.75 | — | — |
 | Katana | 10% | — | vanilla | — | parry |
 | Battleaxe | 15% | — | vanilla | yes | — |
@@ -234,7 +257,7 @@ Golden = wood damage, like vanilla. Material damage uses the vanilla sword scale
 | Chakram | — | — | vanilla | — | — |
 | Sai | — | — | none | — | parry, even with a weapon in each hand |
 
-Every parry blocks 50% of the damage and costs 1 durability per point of damage blocked.
+Every parry blocks 50% of the damage and costs 1 durability per point of damage blocked. Every dash costs 0.1 food point.
 
 These are starting values: damage has not been rebalanced yet to account for them.
 
@@ -259,7 +282,7 @@ The mod checks at runtime whether `bettercombat` is loaded. If it is:
 | Sickle | `sickle` | Sai | `dagger` |
 | Katana | `katana` | | |
 
-The mapping is in `datagen/BetterCombatAttributesProvider.java`. Armor penetration, on-hit effects, shield disabling and the parry still work with Better Combat. Better Combat ignores the files of weapons whose mod is not installed.
+The mapping is in `datagen/BetterCombatAttributesProvider.java`. Armor penetration, on-hit effects, shield disabling, the parry and the dash still work with Better Combat. Better Combat ignores the files of weapons whose mod is not installed.
 
 ---
 
@@ -294,6 +317,7 @@ src/main/java/com/betterweaponry/
 ├── combat/
 │   ├── CombatEvents.java        # Armor penetration, sweep on/off, dual-wield invulnerability time
 │   ├── ParrySystem.java         # When a right click parries, frontal damage reduction, wear and sound
+│   ├── DashAbility.java         # When a right click dashes, impulse (client), cooldown and hunger (server)
 │   ├── DualWieldSystem.java     # Rules for dual wielding + cooldown of the hand whose turn it is
 │   ├── HandSwap.java            # Swaps both hands (items + attributes) during an off-hand attack
 │   ├── TwoHandedSystem.java     # Rules for when the off hand is locked
@@ -306,8 +330,8 @@ src/main/java/com/betterweaponry/
 │   └── LegacyConfigMigration.java  # Converts the 1.x TOML
 ├── data/
 │   ├── WeaponDefinition.java    # Fields of a weapon file
-│   ├── OnHitEffect.java, SweepDefinition.java, ParryDefinition.java  # Sub-objects of a weapon file
-│   ├── WeaponAbility.java       # Values of the "ability" field (none, parry)
+│   ├── OnHitEffect.java, SweepDefinition.java, ParryDefinition.java, DashDefinition.java  # Sub-objects of a weapon file
+│   ├── WeaponAbility.java, DashDirection.java  # Values of the "ability" and "dash.direction" fields
 │   ├── RulesDefinition.java     # Fields of rules.json
 │   ├── DataField.java, FieldSet.java  # Field declarations, validation, merging of the layers
 │   ├── WeaponDataLoader.java    # Loads the files when a world loads and on /reload
@@ -317,7 +341,7 @@ src/main/java/com/betterweaponry/
 ├── registry/
 │   ├── ModItems.java            # Registers one item per WeaponType × active WeaponMaterial
 │   ├── ModAttributes.java       # Armor penetration attribute (on every living entity)
-│   ├── ModSounds.java           # Parry sound (file and subtitle in assets/better_weaponry/sounds.json)
+│   ├── ModSounds.java           # Parry and dash sounds (files and subtitles in assets/better_weaponry/sounds.json)
 │   └── ModTags.java             # better_weaponry:dual_wieldable
 ├── gametest/CombatGameTests.java  # Automated tests (gradlew runGameTestServer)
 ├── item/

@@ -1,8 +1,11 @@
 package com.betterweaponry.gametest;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
+import com.betterweaponry.data.DashDefinition;
+import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.DataProblem;
 import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.JsonUtil;
@@ -35,6 +38,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
@@ -240,6 +244,95 @@ public final class CombatGameTests {
                     type.id() + " held in the off hand must not parry");
         }
         helper.succeed();
+    }
+
+    /**
+     * Dash : un clic droit au sol lance le dash, met tous les matériaux du type en recharge et coûte de la faim ;
+     * pas de second dash pendant la recharge. En l'air, avec une torche ou un bouclier en main secondaire,
+     * ou presque affamé, le dash ne part pas (sauf réglages contraires).
+     */
+    @GameTest(template = ARENA)
+    public static void dashConditionsAndCosts(GameTestHelper helper) {
+        assertModTagsLoaded(helper);
+        int tested = 0;
+        for (WeaponType type : WeaponType.values()) {
+            Optional<DashDefinition> settings = DashAbility.dashOf(weapon(type));
+            if (settings.isEmpty()) continue;
+            DashDefinition dash = settings.get();
+            boolean twoHanded = WeaponData.weapon(type).twoHanded();
+
+            ItemStack stack = weapon(type);
+            Player player = dasher(helper, stack, ItemStack.EMPTY, true);
+            helper.assertTrue(useMainHand(helper, player, stack), type.id() + ": a right click on the ground should dash");
+            for (DeferredItem<WeaponItem> item : ModItems.allOfType(type)) {
+                helper.assertTrue(player.getCooldowns().isOnCooldown(item.get()),
+                        type.id() + ": " + item.getId() + " should be on cooldown too");
+            }
+            float expectedExhaustion = (float) dash.hungerCost() * 4.0F;
+            helper.assertTrue(Math.abs(player.getFoodData().getExhaustionLevel() - expectedExhaustion) < EPSILON,
+                    type.id() + ": exhaustion " + player.getFoodData().getExhaustionLevel() + " instead of " + expectedExhaustion);
+            helper.assertFalse(useMainHand(helper, player, stack), type.id() + ": no second dash during the cooldown");
+
+            expectDash(helper, type, ItemStack.EMPTY, false, dash.allowAirborne(), "in mid-air");
+            expectDash(helper, type, weapon(WeaponType.DAGGER), true, true, "with a dagger in the off hand");
+            expectDash(helper, type, new ItemStack(Items.TORCH), true, twoHanded, "with a torch in the off hand");
+            expectDash(helper, type, new ItemStack(Items.SHIELD), true, twoHanded, "with a shield in the off hand");
+
+            ItemStack hungryStack = weapon(type);
+            Player hungry = dasher(helper, hungryStack, ItemStack.EMPTY, true);
+            hungry.getFoodData().setFoodLevel(6);
+            helper.assertTrue(useMainHand(helper, hungry, hungryStack) == (dash.hungerCost() <= 0.0D),
+                    type.id() + ": a dash with 3 drumsticks of food should only work if it costs no hunger");
+            tested++;
+        }
+        helper.assertTrue(tested > 0, "no weapon has the dash ability");
+        helper.succeed();
+    }
+
+    /** Direction du dash : vers le regard ("look") ou vers les touches de déplacement ("input"), et vitesse de départ. */
+    @GameTest(template = ARENA)
+    public static void dashDirection(GameTestHelper helper) {
+        Player player = mockPlayerAt(helper, helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
+        player.setYRot(0.0F);  // regarde vers le sud (+Z)
+        player.xxa = 1.0F;     // touche "gauche" : vers l'est (+X) quand on regarde au sud
+        player.zza = 0.0F;
+        assertDirection(helper, DashAbility.direction(player, DashDirection.LOOK), new Vec3(0.0D, 0.0D, 1.0D), "look");
+        assertDirection(helper, DashAbility.direction(player, DashDirection.INPUT), new Vec3(1.0D, 0.0D, 0.0D), "input, left key");
+        player.xxa = 0.0F;
+        assertDirection(helper, DashAbility.direction(player, DashDirection.INPUT), new Vec3(0.0D, 0.0D, 1.0D), "input, no key");
+
+        player.setOnGround(true);
+        DashDefinition dash = new DashDefinition(4.0D, 1.0D, DashDirection.LOOK, false, 0.0D);
+        DashAbility.launch(player, dash);
+        Vec3 motion = player.getDeltaMovement();
+        double expectedSpeed = DashAbility.initialSpeed(dash.distance());
+        helper.assertTrue(Math.abs(motion.horizontalDistance() - expectedSpeed) < EPSILON && motion.z > 0.0D && motion.y > 0.0D,
+                "launch: motion " + motion + ", expected a speed of " + expectedSpeed + " toward +Z with a small hop");
+        helper.succeed();
+    }
+
+    private static void expectDash(GameTestHelper helper, WeaponType type, ItemStack offhand, boolean onGround, boolean expected,
+                                   String situation) {
+        ItemStack main = weapon(type);
+        Player player = dasher(helper, main, offhand.copy(), onGround);
+        helper.assertTrue(useMainHand(helper, player, main) == expected,
+                type.id() + " " + situation + ": the dash should " + (expected ? "" : "not ") + "start");
+    }
+
+    /** Joueur factice placé dans l'arène (pour que "au sol" ait un sens), avec ces objets en main. */
+    private static Player dasher(GameTestHelper helper, ItemStack mainHand, ItemStack offHand, boolean onGround) {
+        Player player = player(helper, mainHand, offHand);
+        player.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
+        player.setOnGround(onGround);
+        return player;
+    }
+
+    private static boolean useMainHand(GameTestHelper helper, Player player, ItemStack stack) {
+        return stack.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult().consumesAction();
+    }
+
+    private static void assertDirection(GameTestHelper helper, Vec3 actual, Vec3 expected, String situation) {
+        helper.assertTrue(actual.distanceTo(expected) < EPSILON, "dash direction (" + situation + "): " + actual + " instead of " + expected);
     }
 
     private static void expectParry(GameTestHelper helper, WeaponType type, ItemStack offhand, boolean expected) {

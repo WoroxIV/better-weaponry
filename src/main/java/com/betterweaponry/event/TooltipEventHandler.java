@@ -1,9 +1,12 @@
 package com.betterweaponry.event;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.config.ClientConfig;
+import com.betterweaponry.data.DashDefinition;
+import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.WeaponDefinition;
@@ -43,6 +46,9 @@ public final class TooltipEventHandler {
     private static final String ABILITY_KEY = BetterWeaponry.MODID + ".tooltip.ability";
     private static final String PARRY_KEY = ABILITY_KEY + ".parry";
     private static final String PARRY_DUAL_WIELD_KEY = PARRY_KEY + ".dual_wield";
+    private static final String DASH_KEY = ABILITY_KEY + ".dash";
+    private static final String DASH_INPUT_KEY = DASH_KEY + ".input";
+    private static final String DASH_AIRBORNE_KEY = DASH_KEY + ".airborne";
     // Morceaux des clés vanilla "attribute.name.player.entity_interaction_range" et "...sweeping_damage_ratio"
     private static final String VANILLA_REACH_KEY_PART = "entity_interaction_range";
     private static final String VANILLA_SWEEP_KEY_PART = "sweeping_damage_ratio";
@@ -80,6 +86,21 @@ public final class TooltipEventHandler {
             addEffectLine(effect, tooltip);
         }
         ParrySystem.parryOf(stack).ifPresent(parry -> addParryLines(parry, tooltip));
+        DashAbility.dashOf(stack).ifPresent(dash -> addDashLines(dash, tooltip));
+    }
+
+    /** Ex : "Clic droit : Dash (~3.5 blocs, recharge 1.5 s)", puis la direction et le dash en l'air si besoin. */
+    private static void addDashLines(DashDefinition dash, List<Component> tooltip) {
+        Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
+        String distance = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(dash.distance());
+        String cooldown = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(dash.cooldownSeconds());
+        insertAfterStats(tooltip, abilityLine(Component.translatable(DASH_KEY, useKey, distance, cooldown)));
+        if (dash.direction() == DashDirection.INPUT) {
+            insertAfterStats(tooltip, abilityLine(Component.translatable(DASH_INPUT_KEY)));
+        }
+        if (dash.allowAirborne()) {
+            insertAfterStats(tooltip, abilityLine(Component.translatable(DASH_AIRBORNE_KEY)));
+        }
     }
 
     /**

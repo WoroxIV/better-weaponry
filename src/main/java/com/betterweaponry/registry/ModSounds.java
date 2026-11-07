@@ -16,6 +16,9 @@ public final class ModSounds {
     /** Coup arrêté par une parade (bruit métallique). */
     public static final DeferredHolder<SoundEvent, SoundEvent> PARRY = SOUNDS.register("item.weapon.parry", SoundEvent::createVariableRangeEvent);
 
+    /** Dash (bruit de souffle). */
+    public static final DeferredHolder<SoundEvent, SoundEvent> DASH = SOUNDS.register("item.weapon.dash", SoundEvent::createVariableRangeEvent);
+
     private ModSounds() {
     }
 }
