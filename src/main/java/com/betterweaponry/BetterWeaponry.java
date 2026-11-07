@@ -4,6 +4,7 @@ import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.datagen.ModItemModelProvider;
 import com.betterweaponry.datagen.ModItemTagsProvider;
 import com.betterweaponry.datagen.ModRecipeProvider;
+import com.betterweaponry.datagen.lang.ModLanguageProvider;
 import com.betterweaponry.registry.ModItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
@@ -69,13 +70,16 @@ public final class BetterWeaponry {
         }
     }
 
-    /** Lancé par "gradlew runData" : génère modèles, tags et recettes dans src/generated/resources. */
+    /** Lancé par "gradlew runData" : génère modèles, traductions, tags et recettes dans src/generated/resources. */
     private void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
 
         generator.addProvider(event.includeClient(),
                 new ModItemModelProvider(output, event.getExistingFileHelper()));
+
+        // Fichiers de langue, construits depuis src/main/lang/ (voir ModLanguageProvider)
+        generator.addProvider(event.includeClient(), new ModLanguageProvider(output));
 
         generator.addProvider(event.includeServer(),
                 new ModRecipeProvider(output, event.getLookupProvider()));

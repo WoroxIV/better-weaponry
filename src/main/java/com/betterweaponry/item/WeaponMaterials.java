@@ -17,8 +17,9 @@ import java.util.List;
  * <ol>
  *   <li>Le déclarer ci-dessous avec {@code stats}, {@code craftedFrom} et {@code requiresAnyMod}.</li>
  *   <li>Ajouter les 13 textures {@code textures/item/<matériau>_<type>.png}.</li>
- *   <li>Ajouter les noms des 13 armes dans chaque fichier de langue.</li>
- *   <li>Lancer {@code gradlew runData} : modèles, tags et recettes sont générés automatiquement.</li>
+ *   <li>Ajouter le nom du matériau dans chaque source de traduction {@code src/main/lang/<langue>.json}
+ *       ({@code names.materials}) : les 13 noms d'armes sont construits automatiquement.</li>
+ *   <li>Lancer {@code gradlew runData} : modèles, traductions, tags et recettes sont générés automatiquement.</li>
  * </ol>
  * Pour les ingrédients, mettre d'abord le tag commun ({@code #c:ingots/...}) puis l'item exact du mod :
  * toutes les entrées sont optionnelles, donc un item mal nommé ou absent ne casse rien.

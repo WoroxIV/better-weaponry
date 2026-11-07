@@ -1,0 +1,252 @@
+{
+  "_info": "Source de traduction de Better Weaponry. Les noms d'armes sont construits avec 'pattern' : {type} et {material} sont remplacés par les noms ci-dessous ({type|lower} = première lettre en minuscule). Un matériau peut avoir une forme par genre (clé = 'gender' du type) et son propre 'pattern'. 'overrides' force le nom d'un objet précis. Après modification : gradlew runData.",
+  "names": {
+    "pattern": "{type} {material}",
+    "types": {
+      "broadsword": {
+        "name": "Палаш",
+        "gender": "m"
+      },
+      "spear": {
+        "name": "Копьё",
+        "gender": "n"
+      },
+      "dagger": {
+        "name": "Кинжал",
+        "gender": "m"
+      },
+      "scythe": {
+        "name": "Коса",
+        "gender": "f"
+      },
+      "rapier": {
+        "name": "Рапира",
+        "gender": "f"
+      },
+      "sickle": {
+        "name": "Серп",
+        "gender": "m"
+      },
+      "katana": {
+        "name": "Катана",
+        "gender": "f"
+      },
+      "battleaxe": {
+        "name": "Боевой топор",
+        "gender": "m"
+      },
+      "glaive": {
+        "name": "Глефа",
+        "gender": "f"
+      },
+      "hammer": {
+        "name": "Молот",
+        "gender": "m"
+      },
+      "claymore": {
+        "name": "Клеймор",
+        "gender": "m"
+      },
+      "chakram": {
+        "name": "Чакрам",
+        "gender": "m"
+      },
+      "sai": {
+        "name": "Сай",
+        "gender": "m"
+      }
+    },
+    "materials": {
+      "wooden": {
+        "pattern": "{material} {type|lower}",
+        "m": "Деревянный",
+        "f": "Деревянная",
+        "n": "Деревянное"
+      },
+      "stone": {
+        "pattern": "{material} {type|lower}",
+        "m": "Каменный",
+        "f": "Каменная",
+        "n": "Каменное"
+      },
+      "iron": {
+        "pattern": "{material} {type|lower}",
+        "m": "Железный",
+        "f": "Железная",
+        "n": "Железное"
+      },
+      "golden": {
+        "pattern": "{material} {type|lower}",
+        "m": "Золотой",
+        "f": "Золотая",
+        "n": "Золотое"
+      },
+      "diamond": {
+        "pattern": "{material} {type|lower}",
+        "m": "Алмазный",
+        "f": "Алмазная",
+        "n": "Алмазное"
+      },
+      "netherite": {
+        "pattern": "{material} {type|lower}",
+        "m": "Незеритовый",
+        "f": "Незеритовая",
+        "n": "Незеритовое"
+      },
+      "steel": {
+        "pattern": "{material} {type|lower}",
+        "m": "Стальной",
+        "f": "Стальная",
+        "n": "Стальное"
+      },
+      "bronze": {
+        "pattern": "{material} {type|lower}",
+        "m": "Бронзовый",
+        "f": "Бронзовая",
+        "n": "Бронзовое"
+      },
+      "silver": {
+        "pattern": "{material} {type|lower}",
+        "m": "Серебряный",
+        "f": "Серебряная",
+        "n": "Серебряное"
+      },
+      "lead": {
+        "pattern": "{material} {type|lower}",
+        "m": "Свинцовый",
+        "f": "Свинцовая",
+        "n": "Свинцовое"
+      },
+      "nickel": {
+        "pattern": "{material} {type|lower}",
+        "m": "Никелевый",
+        "f": "Никелевая",
+        "n": "Никелевое"
+      },
+      "aluminum": {
+        "pattern": "{material} {type|lower}",
+        "m": "Алюминиевый",
+        "f": "Алюминиевая",
+        "n": "Алюминиевое"
+      },
+      "electrum": "из электрума",
+      "constantan": "из константана",
+      "osmium": {
+        "pattern": "{material} {type|lower}",
+        "m": "Осмиевый",
+        "f": "Осмиевая",
+        "n": "Осмиевое"
+      },
+      "refined_obsidian": "из очищенного обсидиана",
+      "refined_glowstone": "из очищенного светокамня",
+      "invar": "из инвара",
+      "signalum": "из сигналума",
+      "lumium": "из люмиума",
+      "enderium": "из эндериума",
+      "brass": {
+        "pattern": "{material} {type|lower}",
+        "m": "Латунный",
+        "f": "Латунная",
+        "n": "Латунное"
+      },
+      "andesite_alloy": "из андезитового сплава",
+      "manasteel": "из манастали",
+      "elementium": "из элементия",
+      "terrasteel": "из терростали",
+      "ironwood": "из железного дерева",
+      "steeleaf": "из стального листа",
+      "knightmetal": "из рыцарского металла",
+      "fiery": {
+        "pattern": "{material} {type|lower}",
+        "m": "Огненный",
+        "f": "Огненная",
+        "n": "Огненное"
+      },
+      "certus_quartz": "из истинного кварца",
+      "fluix": "из флюикса",
+      "zanite": "из занита",
+      "gravitite": "из гравитита",
+      "warden": "хранителя",
+      "dragonbone": "из драконьей кости",
+      "fire_dragonsteel": "из огненной драконьей стали",
+      "ice_dragonsteel": "из ледяной драконьей стали",
+      "lightning_dragonsteel": "из грозовой драконьей стали",
+      "cobalt": {
+        "pattern": "{material} {type|lower}",
+        "m": "Кобальтовый",
+        "f": "Кобальтовая",
+        "n": "Кобальтовое"
+      },
+      "manyullyn": "из маньюллина",
+      "allthemodium": "из аллтемодиума",
+      "vibranium": "из вибраниума",
+      "unobtainium": "из анобтаниума",
+      "ignitium": "из игнития",
+      "cursium": "из курсиума",
+      "cloggrum": "из клоггрума",
+      "froststeel": "из морозной стали",
+      "utherium": "из утерия",
+      "forgotten": "из забытого металла"
+    },
+    "overrides": {}
+  },
+  "strings": {
+    "attribute.betterweaponry.attack_reach": "Дальность атаки",
+    "attribute.betterweaponry.two_handed": "Двуручное оружие",
+    "better_weaponry.configuration.show_attack_reach_tooltip": "Показывать дальность атаки",
+    "better_weaponry.configuration.show_attack_reach_tooltip.tooltip": "Показывать характеристику «Дальность атаки» в описании оружия.",
+    "better_weaponry.configuration.show_two_handed_tooltip": "Показывать «Двуручное оружие»",
+    "better_weaponry.configuration.show_two_handed_tooltip.tooltip": "Показывать «Двуручное оружие» в описании оружия, настроенного как двуручное.",
+    "better_weaponry.data.problems.header": "[Better Weaponry] Проблем в файлах оружия: %s",
+    "better_weaponry.data.problems.more": "... и ещё %s. Подробности в logs/latest.log.",
+    "better_weaponry.data.problem.syntax": "%1$s: ошибка синтаксиса JSON, файл пропущен (%2$s)",
+    "better_weaponry.data.problem.not_an_object": "%1$s: файл должен содержать JSON-объект { ... }, файл пропущен",
+    "better_weaponry.data.problem.invalid": "%1$s › %2$s: %3$s (значение пропущено)",
+    "better_weaponry.data.problem.unknown_field": "%1$s › неизвестное поле «%2$s» (пропущено)",
+    "better_weaponry.data.problem.unknown_field.suggestion": "%1$s › неизвестное поле «%2$s» (пропущено). Возможно, вы имели в виду «%3$s»?",
+    "better_weaponry.data.problem.unknown_material": "%1$s › material_damage: неизвестный материал «%2$s» (пропущен)",
+    "better_weaponry.data.problem.io": "%1$s: не удалось прочитать файл (%2$s)",
+    "better_weaponry.field.weapon.format_version": "Версия формата",
+    "better_weaponry.field.weapon.format_version.help": "Версия формата файла. Оставьте 1.",
+    "better_weaponry.field.weapon.two_handed": "Двуручное оружие",
+    "better_weaponry.field.weapon.two_handed.help": "true: пока оружие в основной руке, вторая рука скрыта и не используется, а оружие нельзя совмещать с оружием во второй руке.",
+    "better_weaponry.field.weapon.attack_speed": "Скорость атаки",
+    "better_weaponry.field.weapon.attack_speed.help": "Количество ударов в секунду при полной силе (ванильный меч: 1.6). Выше 2 часть ударов по одной цели теряется из-за её времени неуязвимости.",
+    "better_weaponry.field.weapon.attack_reach": "Дальность атаки",
+    "better_weaponry.field.weapon.attack_reach.help": "Расстояние в блоках, на котором можно ударить существо (в ванилле: 3).",
+    "better_weaponry.field.weapon.base_damage": "Базовый урон",
+    "better_weaponry.field.weapon.base_damage.help": "Урон деревянной версии, как в её описании. Каждый материал умножает его на свой коэффициент (камень ×1.25, железо ×1.5, алмаз ×1.75, незерит ×2, золото ×1) с округлением до половины единицы.",
+    "better_weaponry.field.weapon.material_damage": "Урон по материалам",
+    "better_weaponry.field.weapon.material_damage.help": "Задаёт урон отдельных материалов, например { \"golden\": 6 }. Остальные материалы используют base_damage × свой коэффициент.",
+    "better_weaponry.field.rules.format_version": "Версия формата",
+    "better_weaponry.field.rules.format_version.help": "Версия формата файла. Оставьте 1.",
+    "better_weaponry.field.rules.dual_wield_speed_multiplier": "Множитель скорости с оружием в обеих руках",
+    "better_weaponry.field.rules.dual_wield_speed_multiplier.help": "Множитель скорости атаки, когда в каждой руке по оружию (1.5 = на 50% быстрее).",
+    "better_weaponry.doc.range": "Диапазон: от %s до %s",
+    "better_weaponry.doc.default": "По умолчанию: %s",
+    "better_weaponry.doc.schema.weapon": "Файл оружия Better Weaponry",
+    "better_weaponry.doc.schema.rules": "Общие правила Better Weaponry",
+    "better_weaponry.doc.readme.title": "Better Weaponry: настройки оружия",
+    "better_weaponry.doc.readme.intro": "Эта папка меняет характеристики оружия Better Weaponry во всех ваших мирах. Ваши файлы содержат только то, что вы меняете: всё остальное сохраняет значения мода по умолчанию, даже после обновления.",
+    "better_weaponry.doc.readme.folders": "Содержимое папки:\n  weapons/          по одному файлу на тип оружия: добавьте поля, которые хотите изменить.\n  rules.json        общие правила (бой с оружием в обеих руках...).\n  defaults/         значения мода по умолчанию, перезаписываются при каждом запуске. Читайте их и копируйте поля, но не изменяйте.\n  *.schema.json     используются редакторами кода, например VS Code: автодополнение, подсказки при наведении, подчёркивание ошибок.\n  README.txt        этот файл, перезаписывается при каждом запуске на языке игры.",
+    "better_weaponry.doc.readme.example": "Пример: чтобы катана стала быстрее, откройте weapons/katana.json и напишите:\n  {\n    \"$schema\": \"../weapon.schema.json\",\n    \"attack_speed\": 1.8\n  }\nЗатем введите /reload в игре или откройте мир заново. Меняются только написанные поля. Внимание: в файлах дробные числа пишутся через точку (1.8), а не через запятую.",
+    "better_weaponry.doc.readme.priority": "Порядок приоритета, последний побеждает:\n  1. значения мода по умолчанию;\n  2. эта папка (все миры);\n  3. наборы данных мира (<мир>/datapacks), для настроек конкретного мира.\n     Путь в наборе данных: data/better_weaponry/better_weaponry/weapons/<оружие>.json (и .../rules.json).",
+    "better_weaponry.doc.readme.errors": "Если значение неверно (не тот тип, вне диапазона), оно пропускается и сохраняется предыдущее значение. Ошибки показываются в чате операторам и хосту одиночной игры и записываются в logs/latest.log. Разрешены комментарии, начинающиеся с //, и ключи, начинающиеся с _ (например \"_note\").",
+    "better_weaponry.doc.readme.weapon_files": "Файлы оружия:",
+    "better_weaponry.doc.readme.weapon_fields": "Поля файла оружия (все необязательны):",
+    "better_weaponry.doc.readme.rules_fields": "Поля rules.json (все необязательны):",
+    "better_weaponry.configuration.broadsword": "Палаши",
+    "better_weaponry.configuration.spear": "Копья",
+    "better_weaponry.configuration.dagger": "Кинжалы",
+    "better_weaponry.configuration.scythe": "Косы",
+    "better_weaponry.configuration.rapier": "Рапиры",
+    "better_weaponry.configuration.sickle": "Серпы",
+    "better_weaponry.configuration.katana": "Катаны",
+    "better_weaponry.configuration.battleaxe": "Боевые топоры",
+    "better_weaponry.configuration.glaive": "Глефы",
+    "better_weaponry.configuration.hammer": "Молоты",
+    "better_weaponry.configuration.claymore": "Клейморы",
+    "better_weaponry.configuration.chakram": "Чакрамы",
+    "better_weaponry.configuration.sai": "Саи"
+  }
+}

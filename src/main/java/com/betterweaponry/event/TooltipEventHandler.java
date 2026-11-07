@@ -29,6 +29,8 @@ public final class TooltipEventHandler {
     private static final String TWO_HANDED_KEY = "attribute.betterweaponry.two_handed";
     // Morceau de la clé vanilla "attribute.name.player.entity_interaction_range"
     private static final String VANILLA_REACH_KEY_PART = "entity_interaction_range";
+    // Format vanilla d'une stat de base ("%s %s" en anglais, "%s en %s" en français, "%2$s: %1$s" en italien...)
+    private static final String VANILLA_STAT_FORMAT_KEY = "attribute.modifier.equals.0";
 
     private TooltipEventHandler() {
     }
@@ -68,7 +70,9 @@ public final class TooltipEventHandler {
 
         // Format vanilla "#.##" : affiche "3.5" ou "4" et évite les "3.6000000000000005" des calculs en double.
         String reachText = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(totalReach);
-        insertAfterStats(tooltip, statLine(Component.literal(reachText + " ").append(Component.translatable(REACH_KEY))));
+        // Même clé que les stats vanilla : l'ordre des mots suit la langue
+        // ("3 Attack Reach", "3 en Portée d'attaque", "Portata d'attacco: 3"...).
+        insertAfterStats(tooltip, statLine(Component.translatable(VANILLA_STAT_FORMAT_KEY, reachText, Component.translatable(REACH_KEY))));
     }
 
     /** Met en forme une ligne comme les stats vanilla : indentée d'un espace, en vert foncé. */

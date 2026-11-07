@@ -69,7 +69,23 @@ Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player 
 
 ### Localization
 
-English (`en_us`), French (`fr_fr`), Spanish (`es_es`), Russian (`ru_ru`) and Simplified Chinese (`zh_cn`). Weapon names follow the official naming style of each language (for example *Épée large en netherite*, *Espada ancha de netherita*, *Незеритовый палаш*, *下界合金阔剑*). The client config screen is translated too. The README and schemas of `config/better_weaponry/` are written in the game's language (English and French for now, other languages fall back to English).
+10 languages: English (`en_us`), French (`fr_fr`), Spanish (`es_es`), German (`de_de`), Dutch (`nl_nl`), Italian (`it_it`), Brazilian Portuguese (`pt_br`), European Portuguese (`pt_pt`), Russian (`ru_ru`) and Simplified Chinese (`zh_cn`).
+
+Weapon names follow the official naming style of each language in vanilla Minecraft:
+
+| Language | Vanilla reference | Rule | Example |
+|---|---|---|---|
+| English | Netherite Sword | material + weapon | Netherite Broadsword |
+| French | Épée en netherite | weapon + "en" + material | Épée large en netherite |
+| Spanish | Espada de netherita | weapon + "de" + material | Espada ancha de netherita |
+| German | Netheritschwert | compound word | Netheritbreitschwert |
+| Dutch | Netherieten zwaard | material adjective + weapon | Netherieten breedzwaard |
+| Italian | Spada d'oro | weapon + "di" + material, elision | Ascia da battaglia d'oro |
+| Portuguese (BR / PT) | Espada de Netherita / de Netherite | weapon + "de" + Material, Title Case | Espada Larga de Netherita |
+| Russian | Незеритовый меч | adjective agreeing with the weapon's gender | Незеритовая коса |
+| Chinese | 下界合金剑 | material + weapon | 下界合金阔剑 |
+
+Materials from other mods reuse those mods' official translations when they exist (Create, Mekanism, Botania, Twilight Forest, AE2, Immersive Engineering, Tinkers' Construct, Undergarden). Stat lines use the vanilla word order of each language ("3 en Portée d'attaque", "Portata d'attacco: 3"). The client config screen, the chat messages and the README and schemas of `config/better_weaponry/` are translated in every language.
 
 ---
 
@@ -188,7 +204,7 @@ Better Combat weapon attribute files go in `src/main/resources/data/better_weapo
 ```powershell
 ./gradlew runClient     # launch a dev client
 ./gradlew runServer     # launch a dev dedicated server (nogui)
-./gradlew runData       # regenerate item models, tags and recipes into src/generated/resources
+./gradlew runData       # regenerate item models, translations, tags and recipes into src/generated/resources
 ./gradlew build         # build the mod jar -> build/libs/better_weaponry-<version>.jar
 ```
 
@@ -225,13 +241,16 @@ src/main/java/com/betterweaponry/
 │   ├── WeaponMaterial.java      # One material: Tier, default stats, how it is crafted, required mod
 │   ├── WeaponMaterials.java     # List of all materials (vanilla + mod compatibilities)
 │   ├── WeaponRecipe.java        # Crafting pattern with M (material) and S (stick)
-│   └── WeaponItem.java          # Single item class; stats read live from config
+│   └── WeaponItem.java          # Single item class; stats read live from the weapon data
 ├── event/                       # Two-handed restrictions, tooltips, first-person hand hiding
 ├── mixin/                       # Dual-wield combat and third-person rendering hooks
 └── datagen/                     # Item model, item tag and recipe providers
+    └── lang/                    # Builds the lang files from src/main/lang/ and checks they are complete
+
+src/main/lang/                   # Translation sources, one per language (not packaged, read by runData)
 
 src/main/resources/
-├── assets/better_weaponry/      # Textures, hand-written models, lang files
+├── assets/better_weaponry/      # Textures, hand-written models
 ├── data/better_weaponry/        # Default weapon stats and rules (better_weaponry/), Better Combat weapon_attributes
 ├── META-INF/neoforge.mods.toml  # Mod metadata (filled in from gradle.properties)
 └── betterweaponry.mixins.json   # Mixin config
@@ -243,9 +262,37 @@ src/generated/resources/         # Output of runData (do not edit by hand)
 
 1. Add one line to `item/WeaponType.java`, for example `CUTLASS("cutlass", "cutlass_base", null)`. Pass `null` as the base model to use vanilla `item/handheld`. The third argument is the crafting pattern (`null` = no recipe). The items, models, tags and recipes all come from this enum. Then add its stats file `data/better_weaponry/better_weaponry/weapons/cutlass.json` (copy an existing one).
 2. If you gave it a base model, add `assets/better_weaponry/models/item/<base>.json`.
-3. Add one texture per material under `assets/better_weaponry/textures/item/`. In each of the 5 lang files, add the item names and a `better_weaponry.configuration.<type>` entry.
-4. Run `./gradlew runData` to generate the models, tags and recipes.
+3. Add one texture per material under `assets/better_weaponry/textures/item/`. In each translation source `src/main/lang/<language>.json`, add the weapon's name in `names.types` (with its grammatical gender for German, Dutch, Portuguese and Russian) and its plural in `strings` (`better_weaponry.configuration.<type>`). The 50 item names per language are built automatically (see [Translations](#translations)).
+4. Run `./gradlew runData` to generate the models, translations, tags and recipes.
 5. (Optional) Add Better Combat `weapon_attributes` JSON files.
+
+### Translations
+
+The lang files in `src/generated/resources/assets/better_weaponry/lang/` are **generated**: edit the sources in `src/main/lang/<language>.json`, then run `./gradlew runData`.
+
+A source has two parts:
+
+```json
+{
+  "names": {
+    "pattern": "{material}{type|lower}",
+    "types": { "scythe": { "name": "Sense", "gender": "f" }, "katana": { "name": "Katana", "gender": "n" } },
+    "materials": {
+      "netherite": "Netherit",
+      "forgotten": { "pattern": "{material} {type}", "m": "Vergessener", "f": "Vergessene", "n": "Vergessenes" }
+    },
+    "overrides": { "golden_sai": "A name that breaks the rule" }
+  },
+  "strings": { "better_weaponry.configuration.scythe": "Sensen" }
+}
+```
+
+- The 650 weapon names (13 types × 50 materials) are built from `pattern`: `{type}` and `{material}` are replaced by the names above. `{type|lower}` puts the first letter in lower case (German compounds, Dutch and Russian adjectives), `|upper` in upper case.
+- A type can have a grammatical `gender`. A material can then give one form per gender (the key is the gender), a common form `name`, and its own `pattern`.
+- `overrides` forces the full name of one item.
+- `strings` holds every other text, with exactly the same keys as `en_us`.
+
+`runData` fails with the list of problems if a language misses a text, a weapon type or a material, or contains an unknown key. Nothing is written until every language is complete.
 
 ### Crafting recipes
 
@@ -303,7 +350,7 @@ public static final WeaponMaterial STEEL = register(WeaponMaterial.builder("stee
 - `craftedFrom` with several entries generates a tag `better_weaponry:weapon_materials/<id>` whose entries are all **optional**. Put the common `c:` tag first and the mod's exact item as a fallback. A wrong or missing ID breaks nothing.
 - Generated recipes only load if one of the mods is installed **and** the ingredient tag is not empty, so you never get load errors or uncraftable recipes.
 - For upgrade-style materials, use `.smithingUpgrade(baseMaterial, "template", "addition")` instead of `.craftedFrom(...)`.
-- Add the 13 item names to each lang file and the 13 textures `<material>_<type>.png`. A missing texture does not stop `runData`: the model is still generated and the console lists the missing textures.
+- Add the material's name to `names.materials` in each translation source `src/main/lang/<language>.json` (one entry per language, not 13 item names; see [Translations](#translations)), and the 13 textures `<material>_<type>.png`. A missing texture does not stop `runData`: the model is still generated and the console lists the missing textures.
 - Modded weapons are added to `minecraft:swords` as optional entries, so the tag keeps working when the mod is absent.
 
 ---
