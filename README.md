@@ -82,6 +82,7 @@ By default the broadsword, katana, glaive, claymore and sai can **parry**, like 
   - a **shield** in the off hand is raised instead;
   - a torch, food or a block in the off hand keeps its normal right-click action;
   - with a weapon in the off hand, only weapons with `parry.while_dual_wielding` parry (the sai, by default).
+    Both weapons then take the parry pose, in first and third person.
 - A two-handed weapon always parries, since the off hand is locked.
 - `parry_enabled: false` in `rules.json` turns the parry off for every weapon.
 
@@ -313,7 +314,7 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 src/main/java/com/betterweaponry/
 ├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
 ├── BetterWeaponryClient.java    # Client-only entry point (client config, config screen, render extensions)
-├── client/WeaponClientExtensions.java  # 1.8 parry pose in first person
+├── client/                     # 1.8 parry pose in first person (both hands when parrying with two weapons)
 ├── combat/
 │   ├── CombatEvents.java        # Armor penetration, sweep on/off, dual-wield invulnerability time
 │   ├── ParrySystem.java         # When a right click parries, frontal damage reduction, wear and sound

@@ -77,6 +77,18 @@ public final class ParrySystem {
     }
 
     /**
+     * Vrai si le joueur pare avec une arme dans chaque main (option while_dual_wielding, ex : deux saïs) :
+     * les deux armes prennent alors la pose de parade (première et troisième personne).
+     */
+    public static boolean isParryingWithBothHands(Player player) {
+        ItemStack offhand = player.getOffhandItem();
+        return isParrying(player)
+                && !offhand.isEmpty()
+                && DualWieldSystem.isWeapon(offhand)
+                && !WeaponItem.isTwoHanded(player.getMainHandItem());
+    }
+
+    /**
      * Mêmes règles qu'un bouclier : le coup doit venir de devant (moitié avant, d'après la tête du joueur),
      * ne pas être une flèche perçante, ni un dégât qui ignore les boucliers. Les dégâts sans origine
      * (chute, feu, noyade, poison...) ne sont jamais parés.

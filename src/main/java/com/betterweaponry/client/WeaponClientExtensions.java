@@ -12,6 +12,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 /**
  * Rendu des armes en première personne : pendant une parade, l'arme se couche devant le joueur comme en 1.8.
  * (En troisième personne, la pose vanilla "bloquer" est déjà celle de la 1.8 : bras levé et tourné vers l'intérieur.)
+ * L'arme de la main secondaire d'une parade à deux armes est dessinée par {@link DualParryHandRenderer}.
  */
 public final class WeaponClientExtensions implements IClientItemExtensions {
 
@@ -23,7 +24,16 @@ public final class WeaponClientExtensions implements IClientItemExtensions {
     public boolean applyForgeHandTransform(PoseStack poseStack, LocalPlayer player, HumanoidArm arm, ItemStack itemInHand,
                                            float partialTick, float equipProcess, float swingProcess) {
         if (!isParryingWith(player, arm, itemInHand)) return false;
+        applyParryPose(poseStack, arm, equipProcess);
+        return true;
+    }
 
+    /**
+     * Place l'objet tenu par ce bras dans la pose de parade 1.8.
+     *
+     * @param equipProcess 0 = arme levée, 1 = arme baissée (changement d'objet en cours)
+     */
+    public static void applyParryPose(PoseStack poseStack, HumanoidArm arm, float equipProcess) {
         int side = arm == HumanoidArm.RIGHT ? 1 : -1;
         // Position normale de l'objet en main (comme ItemInHandRenderer.applyItemArmTransform).
         poseStack.translate(side * 0.56F, -0.52F + equipProcess * -0.6F, -0.72F);
@@ -33,7 +43,6 @@ public final class WeaponClientExtensions implements IClientItemExtensions {
         poseStack.mulPose(Axis.XP.rotationDegrees(-102.25F));
         poseStack.mulPose(Axis.YP.rotationDegrees(side * 13.365F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(side * 78.05F));
-        return true;
     }
 
     /** Le joueur utilise l'objet de cette main, et cet objet pare (pose "bloquer"). */

@@ -238,6 +238,14 @@ public final class CombatGameTests {
             expectParry(helper, type, torch, parries && twoHanded);
             expectParry(helper, type, dagger, parries && (twoHanded || definition.parry().whileDualWielding()));
 
+            // Avec une arme dans chaque main (saïs), les deux armes prennent la pose de parade.
+            ItemStack dualMain = weapon(type);
+            Player dualParrier = player(helper, dualMain, dagger.copy());
+            dualMain.use(helper.getLevel(), dualParrier, InteractionHand.MAIN_HAND);
+            boolean bothHands = parries && !twoHanded && definition.parry().whileDualWielding();
+            helper.assertTrue(ParrySystem.isParryingWithBothHands(dualParrier) == bothHands,
+                    type.id() + " with a dagger in the off hand: both hands should " + (bothHands ? "" : "not ") + "parry");
+
             ItemStack offhandWeapon = weapon(type);
             Player offhandOnly = player(helper, ItemStack.EMPTY, offhandWeapon);
             helper.assertFalse(offhandWeapon.use(helper.getLevel(), offhandOnly, InteractionHand.OFF_HAND).getResult().consumesAction(),
