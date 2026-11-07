@@ -2,8 +2,11 @@ package com.betterweaponry;
 
 import com.betterweaponry.client.ComboHud;
 import com.betterweaponry.client.WeaponClientExtensions;
+import com.betterweaponry.client.editor.ClientEditorHooks;
+import com.betterweaponry.client.editor.WeaponEditorScreen;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.editor.EditorHooks;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +19,6 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.common.NeoForge;
@@ -29,9 +31,10 @@ public final class BetterWeaponryClient {
         // Préférences d'affichage du joueur : config/better_weaponry-client.toml
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
 
-        // Bouton "Config" dans la liste des mods. Les libellés viennent des clés
-        // "better_weaponry.configuration.*" des fichiers de langue.
-        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        // Bouton "Config" dans la liste des mods : l'éditeur des armes (avec une page pour les préférences d'affichage).
+        container.registerExtensionPoint(IConfigScreenFactory.class, (mod, parent) -> WeaponEditorScreen.fromModList(parent));
+        // Paquets du serveur pour l'éditeur (ouverture par /betterweaponry, résultat d'un enregistrement).
+        EditorHooks.setClient(new ClientEditorHooks());
 
         // Le README et les schémas du dossier de config sont écrits dans la langue du jeu.
         BetterWeaponry.setLanguageSupplier(BetterWeaponryClient::gameLanguage);

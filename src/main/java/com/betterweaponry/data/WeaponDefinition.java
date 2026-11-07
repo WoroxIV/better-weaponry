@@ -123,6 +123,14 @@ public record WeaponDefinition(int formatVersion,
         onHitEffects = List.copyOf(onHitEffects);
     }
 
+    /** Dégâts par seconde de l'épée en fer vanilla (6 × 1.6), la référence de l'équilibrage. */
+    public static final double VANILLA_IRON_SWORD_DPS = 9.6D;
+
+    /** Dégâts par seconde pour ce matériau, en frappant chargé à fond (sans armure, critiques ni combos). */
+    public double dps(WeaponMaterial material) {
+        return damageFor(material) * attackSpeed;
+    }
+
     /**
      * Dégâts affichés pour ce matériau : la valeur imposée dans {@code material_damage} s'il y en a une,
      * sinon {@code base_damage × facteur du matériau}, arrondi au demi-point.

@@ -70,6 +70,15 @@ public enum WeaponType implements StringRepresentable {
         return id;
     }
 
+    /** Type de cet id ("katana"), ou null s'il n'existe pas. */
+    @Nullable
+    public static WeaponType byId(String id) {
+        for (WeaponType type : values()) {
+            if (type.id.equals(id)) return type;
+        }
+        return null;
+    }
+
     @Override
     public String getSerializedName() {
         return id;

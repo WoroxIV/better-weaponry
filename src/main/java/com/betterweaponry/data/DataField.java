@@ -136,6 +136,13 @@ public final class DataField<T> {
         return result.error().map(DataResult.Error::message);
     }
 
+    /** Valeur par défaut au format JSON, ou null pour un champ obligatoire (sans valeur par défaut). */
+    @Nullable
+    public JsonElement defaultJson() {
+        if (defaultValue == null) return null;
+        return codec.encodeStart(JsonOps.INSTANCE, defaultValue).result().orElse(null);
+    }
+
     /** Un champ sans valeur par défaut doit être écrit (ex : l'effet d'un effet à l'impact). */
     public boolean isRequired() {
         return defaultValue == null;

@@ -16,6 +16,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -37,7 +38,8 @@ import java.util.stream.Collectors;
  * <ol>
  *   <li>les valeurs par défaut du mod (et d'éventuels autres mods) ;</li>
  *   <li>le dossier {@code config/better_weaponry/} (tous les mondes) ;</li>
- *   <li>les datapacks du monde ({@code <monde>/datapacks}), pour des réglages propres à un monde.</li>
+ *   <li>les datapacks du monde ({@code <monde>/datapacks}), pour des réglages propres à un monde
+ *       (dont celui écrit par l'éditeur en jeu, {@value #EDITOR_PACK}).</li>
  * </ol>
  * Chemin dans un datapack : {@code data/better_weaponry/better_weaponry/weapons/<type>.json} et
  * {@code data/better_weaponry/better_weaponry/rules.json}.
@@ -50,6 +52,9 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
 
     /** Les datapacks placés dans le dossier du monde ont un identifiant qui commence par "file/". */
     private static final String WORLD_DATAPACK_PREFIX = "file/";
+    /** Dossier du datapack écrit par l'éditeur en jeu pour les réglages "ce monde seulement". */
+    public static final String EDITOR_PACK = "better_weaponry_editor";
+    public static final String EDITOR_PACK_ID = WORLD_DATAPACK_PREFIX + EDITOR_PACK;
 
     /** Problèmes du dernier chargement, montrés aux opérateurs qui se connectent. */
     private static volatile List<DataProblem> lastProblems = List.of();
@@ -65,6 +70,16 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
 
     @Override
     protected Result prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+        return load(resourceManager);
+    }
+
+    @Override
+    protected void apply(Result result, ResourceManager resourceManager, ProfilerFiller profiler) {
+        install(result);
+    }
+
+    /** Lit et fusionne tous les fichiers (aussi utilisé par l'éditeur pour recharger sans /reload complet). */
+    public static Result load(ResourceManager resourceManager) {
         List<DataProblem> problems = new ArrayList<>();
         Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(WeaponType.class);
         for (WeaponType type : WeaponType.values()) {
@@ -78,8 +93,8 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         return new Result(new WeaponData.Snapshot(weapons, rules), List.copyOf(problems));
     }
 
-    @Override
-    protected void apply(Result result, ResourceManager resourceManager, ProfilerFiller profiler) {
+    /** Met en vigueur un chargement et signale ses problèmes dans le log. */
+    public static void install(Result result) {
         lastProblems = result.problems();
         for (DataProblem problem : result.problems()) {
             BetterWeaponry.LOGGER.warn("[Better Weaponry] {}", problem.toLogString());
@@ -127,6 +142,32 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         });
     }
 
+    // --- Couches pour l'éditeur ---
+
+    /** Les couches sous lesquelles l'éditeur écrit : seules les différences avec elles sont enregistrées. */
+    public enum Base {
+        /** Valeurs par défaut des mods (cible "tous les mondes", qui écrit dans config/better_weaponry). */
+        MOD_DEFAULTS,
+        /** Tout sauf le datapack de l'éditeur (cible "ce monde seulement", qui écrit dans ce datapack). */
+        BELOW_EDITOR_PACK
+    }
+
+    /** Fusion des couches qui forment cette base, pour un fichier (ex : "weapons/katana.json"). */
+    public static JsonObject mergedJson(ResourceManager resourceManager, FieldSet set, String relativePath, Path configFile, Base base) {
+        List<DataProblem> ignored = new ArrayList<>();
+        List<FieldSet.Layer> layers = base == Base.MOD_DEFAULTS
+                ? collectLayers(resourceManager, relativePath, null, false, ignored)
+                : collectLayers(resourceManager, relativePath, configFile, true, ignored);
+        return set.merge(layers, ignored);
+    }
+
+    /** Fusion des valeurs du jar et du dossier config (menu principal : pas de monde, donc pas de datapack). */
+    public static JsonObject localJson(FieldSet set, String relativePath, Path configFile, List<DataProblem> problems) {
+        List<FieldSet.Layer> layers = new ArrayList<>(builtinLayer(relativePath, problems));
+        readConfigFile(configFile, problems).ifPresent(layers::add);
+        return set.merge(layers, problems);
+    }
+
     // --- Lecture des couches ---
 
     public static String weaponPath(WeaponType type) {
@@ -135,19 +176,42 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
 
     private static List<FieldSet.Layer> collectLayers(ResourceManager resourceManager, String relativePath,
                                                       Path configFile, List<DataProblem> problems) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, DATA_DIRECTORY + "/" + relativePath);
+        List<FieldSet.Layer> layers = collectLayers(resourceManager, relativePath, configFile, true, problems);
+        resourceManager.getResourceStack(resourceId(relativePath)).stream()
+                .filter(resource -> resource.sourcePackId().equals(EDITOR_PACK_ID))
+                .forEach(resource -> readResource(resource, relativePath, problems).ifPresent(layers::add));
+        return layers;
+    }
+
+    /**
+     * Couches d'un fichier, de la moins prioritaire à la plus prioritaire, sans le datapack de l'éditeur
+     * (toujours le dernier, voir ci-dessus) : mods, puis config/better_weaponry, puis datapacks du monde.
+     *
+     * @param configFile null = sans le dossier config
+     * @param worldPacks avec les datapacks du monde
+     */
+    private static List<FieldSet.Layer> collectLayers(ResourceManager resourceManager, String relativePath, @Nullable Path configFile,
+                                                      boolean worldPacks, List<DataProblem> problems) {
         // getResourceStack renvoie les fichiers du moins prioritaire au plus prioritaire.
-        List<Resource> stack = resourceManager.getResourceStack(id);
+        List<Resource> stack = resourceManager.getResourceStack(resourceId(relativePath));
         List<FieldSet.Layer> layers = new ArrayList<>();
 
         for (Resource resource : stack) {
             if (!isWorldDatapack(resource)) readResource(resource, relativePath, problems).ifPresent(layers::add);
         }
-        readConfigFile(configFile, problems).ifPresent(layers::add);
-        for (Resource resource : stack) {
-            if (isWorldDatapack(resource)) readResource(resource, relativePath, problems).ifPresent(layers::add);
+        if (configFile != null) readConfigFile(configFile, problems).ifPresent(layers::add);
+        if (worldPacks) {
+            for (Resource resource : stack) {
+                if (isWorldDatapack(resource) && !resource.sourcePackId().equals(EDITOR_PACK_ID)) {
+                    readResource(resource, relativePath, problems).ifPresent(layers::add);
+                }
+            }
         }
         return layers;
+    }
+
+    private static ResourceLocation resourceId(String relativePath) {
+        return ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, DATA_DIRECTORY + "/" + relativePath);
     }
 
     private static List<FieldSet.Layer> builtinLayer(String relativePath, List<DataProblem> problems) {

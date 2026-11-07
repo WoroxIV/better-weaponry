@@ -18,6 +18,10 @@ import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
+import com.betterweaponry.data.JsonTree;
+import com.betterweaponry.editor.EditorDocument;
+import com.betterweaponry.editor.EditorService;
+import com.betterweaponry.editor.EditorTarget;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
@@ -29,6 +33,7 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -47,6 +52,7 @@ import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -438,6 +444,64 @@ public final class CombatGameTests {
             tested++;
         }
         helper.assertTrue(tested > 0, "no two-weapon combo with a both-hands hit");
+        helper.succeed();
+    }
+
+    /** Outils de l'éditeur : un fichier complété contient tous les champs, et seule une vraie modification est un écart. */
+    @GameTest(template = ARENA)
+    public static void editorJsonTools(GameTestHelper helper) {
+        EditorDocument document = EditorDocument.weapon(WeaponType.KATANA);
+        JsonObject defaults = document.defaults();
+        for (var field : document.fields().fields()) {
+            helper.assertTrue(defaults.has(field.name()), "the expanded file should contain " + field.name());
+        }
+        helper.assertTrue(JsonTree.diff(document.fields(), defaults, defaults).isEmpty(), "no difference between a file and itself");
+
+        JsonObject edited = defaults.deepCopy();
+        edited.getAsJsonObject("sweep").addProperty("radius", defaults.getAsJsonObject("sweep").get("radius").getAsDouble() + 1.5D);
+        edited.addProperty("attack_speed", defaults.get("attack_speed").getAsDouble());  // même valeur, écrite autrement
+        List<String> changed = JsonTree.paths(JsonTree.diff(document.fields(), edited, defaults));
+        helper.assertTrue(changed.equals(List.of("sweep.radius")), "only sweep.radius should differ, got " + changed);
+        helper.succeed();
+    }
+
+    /**
+     * Enregistrement "tous les mondes" : seul le champ modifié est écrit dans config/better_weaponry, il s'applique
+     * tout de suite, une valeur invalide est refusée, puis tout est remis comme avant.
+     */
+    @GameTest(template = ARENA)
+    public static void editorSavesOnlyDifferences(GameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        EditorDocument document = EditorDocument.weapon(WeaponType.GLAIVE);
+        JsonObject original = document.json(WeaponData.current());
+        double reach = original.get("attack_reach").getAsDouble() + 0.25D;
+        List<EditorService.Outcome> outcomes = new ArrayList<>();
+        try {
+            JsonObject edited = original.deepCopy();
+            edited.addProperty("attack_reach", reach);
+            EditorService.save(server, document.id(), EditorTarget.ALL_WORLDS, edited.toString(), outcomes::add);
+            helper.assertTrue(outcomes.size() == 1 && outcomes.getFirst().success(), "the save should succeed: " + outcomes);
+            helper.assertTrue(WeaponData.weapon(WeaponType.GLAIVE).attackReach() == reach, "the new reach should apply at once");
+
+            JsonObject written = JsonUtil.parseLenient(Files.readString(document.configFile())).getAsJsonObject();
+            written.remove(FieldSet.SCHEMA_KEY);
+            JsonObject defaultsDiff = JsonTree.diff(document.fields(), original, document.defaults());
+            JsonObject expected = defaultsDiff.deepCopy();
+            expected.addProperty("attack_reach", reach);
+            helper.assertTrue(JsonTree.sameValue(written, expected), "the file should only contain the changes, got " + written);
+
+            JsonObject invalid = original.deepCopy();
+            invalid.addProperty("attack_speed", 50);
+            outcomes.clear();
+            EditorService.save(server, document.id(), EditorTarget.ALL_WORLDS, invalid.toString(), outcomes::add);
+            helper.assertTrue(outcomes.size() == 1 && !outcomes.getFirst().success(), "an out-of-range value should be refused");
+            helper.assertTrue(WeaponData.weapon(WeaponType.GLAIVE).attackReach() == reach, "a refused save should change nothing");
+        } catch (java.io.IOException e) {
+            helper.fail("could not read " + document.configFile() + ": " + e.getMessage());
+        } finally {
+            EditorService.save(server, document.id(), EditorTarget.ALL_WORLDS, original.toString(), outcome -> { });
+        }
+        helper.assertTrue(JsonTree.sameValue(document.json(WeaponData.current()), original), "the original values should be back");
         helper.succeed();
     }
 

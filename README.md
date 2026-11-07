@@ -127,7 +127,7 @@ By default the dagger (sideways dodge) and the rapier (forward lunge) can **dash
 
 ### Tooltips
 
-Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button). Weapons with an ability show a gold line such as "Right Button: Parry (-50% damage from the front)" or "Right Button: Dash (~3.5 blocks, 1.5 s cooldown)", with the key the player actually bound to "Use Item". Weapons with a combo show a yellow line per special hit, such as "Combo, hit 3: 360° area, 3.5 blocks, recovery ×1.6".
+Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the "Display preferences" page of the editor). Weapons with an ability show a gold line such as "Right Button: Parry (-50% damage from the front)" or "Right Button: Dash (~3.5 blocks, 1.5 s cooldown)", with the key the player actually bound to "Use Item". Weapons with a combo show a yellow line per special hit, such as "Combo, hit 3: 360° area, 3.5 blocks, recovery ×1.6".
 
 ### Localization
 
@@ -153,7 +153,32 @@ Materials from other mods reuse those mods' official translations when they exis
 
 ## Configuration
 
-Weapon stats and global rules are **JSON files**. Each player's display preferences are in a small client TOML.
+Weapon stats and global rules are **JSON files**, which you can change **in game** with the editor or by hand. Each player's display preferences are in a small client TOML.
+
+### In-game editor and Codex
+
+Open it with `/betterweaponry`, or with the **Config** button of the mod list (also from the main menu).
+
+- On the left: global rules, the 13 weapons, and your display preferences. A `*` marks a file with unsaved changes.
+- On the right: every field of the file, grouped in sections (stats, on-hit effects, sweep, parry, dash, combo). The parry, dash and combo sections are folded when the weapon does not use them; click a title to fold or unfold it.
+- Hover a field's name to read its help, range and default value. A **yellow** name differs from the mod's default value (the `↺` button puts it back); a **red** name is an invalid value, which cannot be saved.
+- Lists (on-hit effects, combo hits) have buttons to add, remove and reorder their entries.
+- Above the fields: the weapon's DPS with iron, compared to the vanilla iron sword, updated as you type.
+- **Save** writes only the values that differ from the lower layers, then applies them right away without a full `/reload` (players receive the new values). Comments in a rewritten file are lost.
+- **Target** (in game): *All worlds* writes to `config/better_weaponry/` (on a server, the server's folder); *This world* writes to the data pack `<world>/datapacks/better_weaponry_editor/`, which has priority over everything else. If a value you saved for all worlds is overridden by a world setting, the editor tells you which fields.
+- **Copy JSON** copies what differs from the mod's defaults (to share a setup or paste it into a file); **Paste JSON** applies JSON from the clipboard (invalid fields are ignored); **Reset** puts every value back to the mod's defaults (until you save).
+- Only operators (and the host of a single-player world) can save. Other players get the **Codex**: the same screen, read only (`/betterweaponry codex`).
+- From the main menu, the editor changes the files of `config/better_weaponry/` directly; they apply when a world is loaded.
+
+Commands:
+
+| Command | Who | What |
+|---|---|---|
+| `/betterweaponry` | everyone | editor for operators, Codex for the others |
+| `/betterweaponry editor` | operators | the editor |
+| `/betterweaponry codex` | everyone | the Codex (read only) |
+| `/betterweaponry dps` | everyone | DPS of every weapon with iron and netherite, compared to the vanilla iron sword |
+| `/betterweaponry reload` | operators | reloads only the weapon data (faster than `/reload`) |
 
 ### Where the files are
 
@@ -173,7 +198,8 @@ Layers, from lowest to highest priority (the last one wins):
 
 1. the mod's defaults, `data/better_weaponry/better_weaponry/` in the mod jar;
 2. `config/better_weaponry/` (every world);
-3. the world's data packs (`<world>/datapacks/`), with the same path as the defaults, for per-world settings.
+3. the world's data packs (`<world>/datapacks/`), with the same path as the defaults, for per-world settings;
+4. the data pack written by the in-game editor for "this world" (`<world>/datapacks/better_weaponry_editor/`), always last.
 
 - Files only contain what you change. When an update changes a default, it still applies to everything you did not touch.
 - Changes apply with `/reload` (or when a world is loaded), without restarting the game. Clients receive the server's values automatically.
@@ -351,8 +377,11 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 ```
 src/main/java/com/betterweaponry/
 ├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
-├── BetterWeaponryClient.java    # Client-only entry point (client config, config screen, render extensions)
+├── BetterWeaponryClient.java    # Client-only entry point (client config, editor as config screen, render extensions)
 ├── client/                     # 1.8 parry pose in first person (both hands with two weapons), combo dots (ComboHud)
+│   └── editor/                 # Editor / Codex screen: document list, field rows built from the FieldSets, model
+├── command/BetterWeaponryCommand.java  # /betterweaponry (editor, codex, dps, reload)
+├── editor/                     # Server side of the editor: documents, save (differences only), targets, client bridge
 ├── combat/
 │   ├── CombatEvents.java        # Armor penetration, sweep on/off, dual-wield invulnerability time
 │   ├── ParrySystem.java         # When a right click parries, frontal damage reduction, wear and sound
@@ -379,7 +408,7 @@ src/main/java/com/betterweaponry/
 │   ├── WeaponDataLoader.java    # Loads the files when a world loads and on /reload
 │   ├── WeaponData.java          # Data in effect (loaded by the server, or synced from it)
 │   └── WeaponDataEvents.java    # Reload listener, sync after /reload, error messages for operators
-├── network/                     # Weapon data (login, /reload), combo correction, two-arm swing for other players
+├── network/                     # Weapon data (login, /reload), combo correction, two-arm swing, editor (open, save, result)
 ├── registry/
 │   ├── ModItems.java            # Registers one item per WeaponType × active WeaponMaterial
 │   ├── ModAttributes.java       # Armor penetration attribute (on every living entity)

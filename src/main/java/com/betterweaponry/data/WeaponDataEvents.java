@@ -64,11 +64,11 @@ public final class WeaponDataEvents {
     }
 
     /** Les opérateurs, et le joueur qui héberge une partie solo (même sans triches), voient les erreurs. */
-    private static boolean canSeeProblems(ServerPlayer player) {
+    public static boolean canSeeProblems(ServerPlayer player) {
         return player.hasPermissions(OPERATOR_LEVEL) || player.server.isSingleplayerOwner(player.getGameProfile());
     }
 
-    private static void sendProblems(ServerPlayer player, List<DataProblem> problems) {
+    public static void sendProblems(ServerPlayer player, List<DataProblem> problems) {
         if (problems.isEmpty()) return;
         player.sendSystemMessage(Component.translatable("better_weaponry.data.problems.header", problems.size())
                 .withStyle(ChatFormatting.GOLD));
