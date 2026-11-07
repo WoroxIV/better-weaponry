@@ -2,23 +2,10 @@
   "attribute.betterweaponry.attack_reach": "攻击距离",
   "attribute.betterweaponry.two_handed": "双手武器",
 
-  "better_weaponry.configuration.weapon_stats": "武器属性",
-  "better_weaponry.configuration.attack_damage": "攻击伤害",
-  "better_weaponry.configuration.attack_damage.tooltip": "此武器造成的总伤害，与其提示框中显示的数值一致。唯一随材料变化的属性。",
-  "better_weaponry.configuration.attack_speed": "攻击速度",
-  "better_weaponry.configuration.attack_speed.tooltip": "满蓄力时每秒的攻击次数。此武器的所有材料共用该数值。",
-  "better_weaponry.configuration.attack_reach": "攻击距离",
-  "better_weaponry.configuration.attack_reach.tooltip": "能够攻击到实体的距离（以方块为单位）。此武器的所有材料共用该数值。",
-  "better_weaponry.configuration.two_handed": "双手武器",
-  "better_weaponry.configuration.two_handed.tooltip": "持于主手时，副手会被隐藏且无法使用。双手武器无法与另一把武器双持。",
-
-  "better_weaponry.configuration.other": "其他",
   "better_weaponry.configuration.show_attack_reach_tooltip": "显示攻击距离",
   "better_weaponry.configuration.show_attack_reach_tooltip.tooltip": "在武器的提示框中显示“攻击距离”属性。",
   "better_weaponry.configuration.show_two_handed_tooltip": "显示“双手武器”",
   "better_weaponry.configuration.show_two_handed_tooltip.tooltip": "在设为双手武器的武器提示框中显示“双手武器”。",
-  "better_weaponry.configuration.dual_wield_speed_multiplier": "双持攻击速度倍率",
-  "better_weaponry.configuration.dual_wield_speed_multiplier.tooltip": "两只手各持一把武器时的攻击速度倍率（1.5 = 快50%）。",
 
   "better_weaponry.configuration.broadsword": "阔剑",
   "better_weaponry.configuration.spear": "矛",

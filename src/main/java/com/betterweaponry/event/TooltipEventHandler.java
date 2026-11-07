@@ -2,7 +2,7 @@ package com.betterweaponry.event;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DualWieldSystem;
-import com.betterweaponry.config.ServerConfig;
+import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.item.WeaponItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -38,11 +38,11 @@ public final class TooltipEventHandler {
         ItemStack stack = event.getItemStack();
         List<Component> tooltip = event.getToolTip();
 
-        if (ServerConfig.get(ServerConfig.SHOW_ATTACK_REACH_TOOLTIP)) {
+        if (ClientConfig.get(ClientConfig.SHOW_ATTACK_REACH_TOOLTIP)) {
             addReachLine(stack, tooltip);
         }
 
-        if (ServerConfig.get(ServerConfig.SHOW_TWO_HANDED_TOOLTIP) && WeaponItem.isTwoHanded(stack)) {
+        if (ClientConfig.get(ClientConfig.SHOW_TWO_HANDED_TOOLTIP) && WeaponItem.isTwoHanded(stack)) {
             // Inséré après la portée, qui compte comme une ligne de stat (voir findStatsEnd)
             insertAfterStats(tooltip, statLine(Component.translatable(TWO_HANDED_KEY)));
         }

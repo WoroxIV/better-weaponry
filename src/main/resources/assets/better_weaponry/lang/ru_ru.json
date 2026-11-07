@@ -2,23 +2,10 @@
   "attribute.betterweaponry.attack_reach": "Дальность атаки",
   "attribute.betterweaponry.two_handed": "Двуручное оружие",
 
-  "better_weaponry.configuration.weapon_stats": "Характеристики оружия",
-  "better_weaponry.configuration.attack_damage": "Урон атаки",
-  "better_weaponry.configuration.attack_damage.tooltip": "Общий урон этого оружия, как в его описании. Единственная характеристика, зависящая от материала.",
-  "better_weaponry.configuration.attack_speed": "Скорость атаки",
-  "better_weaponry.configuration.attack_speed.tooltip": "Количество ударов в секунду при полной силе. Одинаково для всех материалов этого оружия.",
-  "better_weaponry.configuration.attack_reach": "Дальность атаки",
-  "better_weaponry.configuration.attack_reach.tooltip": "Расстояние в блоках, на котором можно ударить существо. Одинаково для всех материалов этого оружия.",
-  "better_weaponry.configuration.two_handed": "Двуручное оружие",
-  "better_weaponry.configuration.two_handed.tooltip": "Пока оружие в основной руке, вторая рука скрыта и не используется. Двуручное оружие нельзя совмещать с оружием во второй руке.",
-
-  "better_weaponry.configuration.other": "Прочее",
   "better_weaponry.configuration.show_attack_reach_tooltip": "Показывать дальность атаки",
   "better_weaponry.configuration.show_attack_reach_tooltip.tooltip": "Показывать характеристику «Дальность атаки» в описании оружия.",
   "better_weaponry.configuration.show_two_handed_tooltip": "Показывать «Двуручное оружие»",
   "better_weaponry.configuration.show_two_handed_tooltip.tooltip": "Показывать «Двуручное оружие» в описании оружия, настроенного как двуручное.",
-  "better_weaponry.configuration.dual_wield_speed_multiplier": "Множитель скорости с оружием в обеих руках",
-  "better_weaponry.configuration.dual_wield_speed_multiplier.tooltip": "Множитель скорости атаки, когда в каждой руке по оружию (1.5 = на 50% быстрее).",
 
   "better_weaponry.configuration.broadsword": "Палаши",
   "better_weaponry.configuration.spear": "Копья",

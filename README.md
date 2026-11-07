@@ -1,9 +1,9 @@
 # Better Weaponry
 
-A NeoForge mod for Minecraft **1.21.1** that adds 13 new weapon types in every vanilla material tier, plus two-handed weapon handling and dual wielding. Every weapon's damage, attack speed, reach and two-handed behaviour can be changed in the server config.
+A NeoForge mod for Minecraft **1.21.1** that adds 13 new weapon types in every vanilla material tier, plus two-handed weapon handling and dual wielding. Every weapon's damage, attack speed, reach and two-handed behaviour can be changed in JSON files, for all worlds or per world.
 
 - **Mod ID:** `better_weaponry`
-- **Version:** 1.1.4
+- **Version:** 2.0.0 (in development: the 2.0 rework is being done in phases)
 - **Author:** WoroxIV
 - **Loader:** NeoForge 21.1.x (built against 21.1.220)
 - **Java:** 21
@@ -45,7 +45,7 @@ Example: `/give @s better_weaponry:netherite_katana`
 
 ### Two-handed weapons
 
-By default, the katana, claymore, battleaxe, hammer, glaive and scythe are two-handed. You can change this per weapon type in the config. While a two-handed weapon is in your main hand:
+By default, the katana, claymore, battleaxe, hammer, glaive and scythe are two-handed. You can change this per weapon type with the `two_handed` field of its JSON file (see [Configuration](#configuration)). While a two-handed weapon is in your main hand:
 
 - the off-hand item is hidden in first person
 - you can't use the off hand to use items, place blocks or interact with entities
@@ -57,7 +57,7 @@ When Better Combat is installed, the mod turns this off and lets Better Combat h
 Hold a weapon (any `SwordItem`, `AxeItem` or `TridentItem`, vanilla or modded) in **both** hands. If neither one is two-handed, your attacks alternate between the main hand and the off hand:
 
 - An off-hand hit really uses the off-hand weapon: its damage, attack speed, enchantments, knockback, sweep and durability. If it breaks, it breaks in the off hand.
-- The attack cooldown and the crosshair indicator follow the weapon whose turn it is, and `dual_wield_speed_multiplier` makes the cooldown shorter.
+- The attack cooldown and the crosshair indicator follow the weapon whose turn it is, and `dual_wield_speed_multiplier` (in `rules.json`) makes the cooldown shorter.
 
 > One-handed weapons (dagger, sai, sickle, rapier, chakram, broadsword, spear) can be dual wielded. With the default multiplier of 1.5, dual wielding is worth about as much as the two-handed bonus.
 
@@ -65,50 +65,72 @@ Dual wielding is turned off when Better Combat is installed, because Better Comb
 
 ### Tooltips
 
-Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. You can turn each one off in the config.
+Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button).
 
 ### Localization
 
-English (`en_us`), French (`fr_fr`), Spanish (`es_es`), Russian (`ru_ru`) and Simplified Chinese (`zh_cn`). Weapon names follow the official naming style of each language (for example *Épée large en netherite*, *Espada ancha de netherita*, *Незеритовый палаш*, *下界合金阔剑*). The config screen is translated too, tooltips included.
+English (`en_us`), French (`fr_fr`), Spanish (`es_es`), Russian (`ru_ru`) and Simplified Chinese (`zh_cn`). Weapon names follow the official naming style of each language (for example *Épée large en netherite*, *Espada ancha de netherita*, *Незеритовый палаш*, *下界合金阔剑*). The client config screen is translated too. The README and schemas of `config/better_weaponry/` are written in the game's language (English and French for now, other languages fall back to English).
 
 ---
 
 ## Configuration
 
-The config is a **server** config, so each world has its own copy:
+Weapon stats and global rules are **JSON files**. Each player's display preferences are in a small client TOML.
+
+### Where the files are
 
 ```
-<world>/serverconfig/better_weaponry-server.toml
+config/better_weaponry/             ← created at first launch, applies to every world
+├── README.txt                      ← how to use this folder, written in the game's language
+├── weapon.schema.json              ← autocompletion and help on hover in VS Code
+├── rules.schema.json
+├── rules.json                      ← your global rules (only what you change)
+├── weapons/<weapon>.json           ← your weapon changes (only what you change)
+└── defaults/                       ← the mod's default values, rewritten at every launch (read only)
+
+config/better_weaponry-client.toml  ← display preferences (tooltips)
 ```
 
-For a new world, copy a tuned file into `defaultconfigs/` before you create the world.
+Layers, from lowest to highest priority (the last one wins):
 
-### Structure
+1. the mod's defaults, `data/better_weaponry/better_weaponry/` in the mod jar;
+2. `config/better_weaponry/` (every world);
+3. the world's data packs (`<world>/datapacks/`), with the same path as the defaults, for per-world settings.
 
-```toml
-[weapon_stats]
-  [weapon_stats.katana]
-    attack_speed = 1.6      # attacks per second (0–1024)
-    attack_reach = 3.0      # blocks (0–64)
-    two_handed   = true
+- Files only contain what you change. When an update changes a default, it still applies to everything you did not touch.
+- Changes apply with `/reload` (or when a world is loaded), without restarting the game. Clients receive the server's values automatically.
+- An invalid value is ignored and the previous layer's value is kept. Problems (syntax errors, values out of range, misspelled fields with a suggestion) are shown in the chat to operators and to the host of a single-player game, and written to `logs/latest.log`.
+- `//` comments are allowed, and so are keys starting with `_` (for example `"_note"`).
 
-    [weapon_stats.katana.wooden_katana]
-      attack_damage = 6.0   # total damage shown on the tooltip (0–1024)
-    # ...stone / iron / golden / diamond / netherite / modded materials
+### Weapon file
 
-  # ...one block per weapon type
-
-[other]
-  show_attack_reach_tooltip   = true
-  show_two_handed_tooltip     = true
-  dual_wield_speed_multiplier = 1.5   # 1.0–5.0
+```json
+{
+  "$schema": "../weapon.schema.json",
+  "attack_speed": 1.8,
+  "material_damage": { "golden": 6 }
+}
 ```
 
-- `attack_damage`, `attack_speed` and `attack_reach` are the **final** values the player sees. The mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach).
-- **Only damage depends on the material.** Speed, reach and two-handed are set per weapon type.
-- Stats are read live from the config, so when you edit the file they apply without restarting the game.
-- Materials from other mods only appear in the config when that mod is installed.
-- A config file that already exists keeps its old values. Delete it to get the current defaults.
+| Field | Range | Meaning |
+|---|---|---|
+| `two_handed` | `true` / `false` | While held in the main hand, the off hand is hidden and locked |
+| `attack_speed` | 0.1 – 20 | Attacks per second at full strength |
+| `attack_reach` | 0.5 – 64 | Reach in blocks |
+| `base_damage` | 0 – 1024 | Damage of the wooden version. Each material multiplies it (stone ×1.25, iron ×1.5, diamond ×1.75, netherite ×2, gold ×1, modded `(4 + bonus) / 4`), rounded to 0.5 |
+| `material_damage` | 0 – 1024 each | Forces the damage of specific materials, by material id |
+
+All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach).
+
+### rules.json
+
+| Field | Range | Default | Meaning |
+|---|---|---|---|
+| `dual_wield_speed_multiplier` | 1 – 5 | 1.5 | Attack speed multiplier while holding a weapon in each hand |
+
+### Upgrading from 1.x
+
+1.x used `config/better_weaponry-server.toml`. At first launch, 2.0 copies the values you had changed into `config/better_weaponry/` and renames the old file to `better_weaponry-server.toml.old`. The tooltip options are now in the client config. A 1.x file in `<world>/serverconfig/` or `defaultconfigs/` is not converted; a warning is written to the log.
 
 ### Default stats
 
@@ -176,15 +198,27 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 
 ```
 src/main/java/com/betterweaponry/
-├── BetterWeaponry.java          # Mod entry point: registers items, config, creative tab, datagen
-├── BetterWeaponryClient.java    # Client-only entry point (config screen)
+├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
+├── BetterWeaponryClient.java    # Client-only entry point (client config, config screen)
 ├── combat/
 │   ├── DualWieldSystem.java     # Rules for dual wielding + cooldown of the hand whose turn it is
 │   ├── HandSwap.java            # Swaps both hands (items + attributes) during an off-hand attack
 │   ├── TwoHandedSystem.java     # Rules for when the off hand is locked
 │   └── IDualWieldPlayer.java    # Duck interface mixed into Player for dual-wield state
 ├── compat/BetterCombatCompat.java  # Detects Better Combat (turns off our systems)
-├── config/ServerConfig.java     # All weapon stats and toggles, generated from types × materials
+├── config/
+│   ├── ClientConfig.java        # Display preferences (client TOML)
+│   ├── ConfigFolder.java        # config/better_weaponry/: defaults copy, user files, schemas, README
+│   ├── Docs.java, ReadmeWriter.java, SchemaWriter.java  # Documentation generated from the field declarations
+│   └── LegacyConfigMigration.java  # Converts the 1.x TOML
+├── data/
+│   ├── WeaponDefinition.java    # Fields of a weapon file
+│   ├── RulesDefinition.java     # Fields of rules.json
+│   ├── DataField.java, FieldSet.java  # Field declarations, validation, merging of the layers
+│   ├── WeaponDataLoader.java    # Loads the files when a world loads and on /reload
+│   ├── WeaponData.java          # Data in effect (loaded by the server, or synced from it)
+│   └── WeaponDataEvents.java    # Reload listener, sync after /reload, error messages for operators
+├── network/                     # Sends the weapon data to clients (at login and after /reload)
 ├── registry/ModItems.java       # Registers one item per WeaponType × active WeaponMaterial
 ├── item/
 │   ├── WeaponType.java          # The 13 weapon types (+ base model and crafting pattern)
@@ -198,7 +232,7 @@ src/main/java/com/betterweaponry/
 
 src/main/resources/
 ├── assets/better_weaponry/      # Textures, hand-written models, lang files
-├── data/better_weaponry/        # Better Combat weapon_attributes
+├── data/better_weaponry/        # Default weapon stats and rules (better_weaponry/), Better Combat weapon_attributes
 ├── META-INF/neoforge.mods.toml  # Mod metadata (filled in from gradle.properties)
 └── betterweaponry.mixins.json   # Mixin config
 
@@ -207,7 +241,7 @@ src/generated/resources/         # Output of runData (do not edit by hand)
 
 ### Adding a new weapon type
 
-1. Add one line to `item/WeaponType.java`, for example `CUTLASS("cutlass", "cutlass_base", null)`. Pass `null` as the base model to use vanilla `item/handheld`. The third argument is the crafting pattern (`null` = no recipe). The items, config entries, models, tags and recipes all come from this enum.
+1. Add one line to `item/WeaponType.java`, for example `CUTLASS("cutlass", "cutlass_base", null)`. Pass `null` as the base model to use vanilla `item/handheld`. The third argument is the crafting pattern (`null` = no recipe). The items, models, tags and recipes all come from this enum. Then add its stats file `data/better_weaponry/better_weaponry/weapons/cutlass.json` (copy an existing one).
 2. If you gave it a base model, add `assets/better_weaponry/models/item/<base>.json`.
 3. Add one texture per material under `assets/better_weaponry/textures/item/`. In each of the 5 lang files, add the item names and a `better_weaponry.configuration.<type>` entry.
 4. Run `./gradlew runData` to generate the models, tags and recipes.
@@ -235,7 +269,7 @@ WeaponRecipe.of("MLM", " S ", " S ").with('L', Tags.Items.LEATHERS)
 
 ### Mod compatibility
 
-44 materials from other mods are declared in `item/WeaponMaterials.java`. Each one only exists (items, config entries, recipes) when at least one of its mods is installed.
+44 materials from other mods are declared in `item/WeaponMaterials.java`. Each one only exists (items, recipes) when at least one of its mods is installed. Its damage follows the weapon's `base_damage` and can be forced with `material_damage`.
 
 | Mod | Materials |
 |---|---|
@@ -269,7 +303,7 @@ public static final WeaponMaterial STEEL = register(WeaponMaterial.builder("stee
 - `craftedFrom` with several entries generates a tag `better_weaponry:weapon_materials/<id>` whose entries are all **optional**. Put the common `c:` tag first and the mod's exact item as a fallback. A wrong or missing ID breaks nothing.
 - Generated recipes only load if one of the mods is installed **and** the ingredient tag is not empty, so you never get load errors or uncraftable recipes.
 - For upgrade-style materials, use `.smithingUpgrade(baseMaterial, "template", "addition")` instead of `.craftedFrom(...)`.
-- Add the 13 item names to each lang file and the 13 textures `<material>_<type>.png`. The config screen reuses the item names. A missing texture does not stop `runData`: the model is still generated and the console lists the missing textures.
+- Add the 13 item names to each lang file and the 13 textures `<material>_<type>.png`. A missing texture does not stop `runData`: the model is still generated and the console lists the missing textures.
 - Modded weapons are added to `minecraft:swords` as optional entries, so the tag keeps working when the mod is absent.
 
 ---

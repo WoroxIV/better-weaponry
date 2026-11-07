@@ -1,7 +1,8 @@
 package com.betterweaponry.item;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.config.ServerConfig;
+import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.data.WeaponDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -12,8 +13,8 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 
 /**
  * Item unique pour toutes les armes du mod.
- * Ses stats (dégâts, vitesse, portée) sont lues dans la config serveur à chaque demande,
- * donc une modification de la config s'applique sans redémarrer.
+ * Ses stats (dégâts, vitesse, portée) sont lues dans les données des armes ({@link WeaponData}) à chaque demande,
+ * donc un {@code /reload} ou une synchronisation du serveur s'applique sans redémarrer.
  */
 public class WeaponItem extends SwordItem {
     // Valeurs de base du joueur : les modificateurs s'y ajoutent.
@@ -25,7 +26,7 @@ public class WeaponItem extends SwordItem {
     private final WeaponMaterial material;
     private final ResourceLocation reachModifierId;
 
-    /** Derniers modificateurs construits, réutilisés tant que la config n'a pas changé. */
+    /** Derniers modificateurs construits, réutilisés tant que les données n'ont pas changé. */
     private volatile CachedModifiers cache;
 
     public WeaponItem(WeaponType type, WeaponMaterial material, Properties properties) {
@@ -43,28 +44,32 @@ public class WeaponItem extends SwordItem {
         return material;
     }
 
+    /** Stats actuelles du type de cette arme. */
+    public WeaponDefinition definition() {
+        return WeaponData.weapon(type);
+    }
+
     /** Vrai si l'objet est une arme du mod configurée comme arme à deux mains. */
     public static boolean isTwoHanded(ItemStack stack) {
-        return stack.getItem() instanceof WeaponItem weapon && ServerConfig.isTwoHanded(weapon.type);
+        return stack.getItem() instanceof WeaponItem weapon && weapon.definition().twoHanded();
     }
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        double damage = ServerConfig.attackDamage(type, material);
-        double speed = ServerConfig.attackSpeed(type);
-        double reach = ServerConfig.attackReach(type);
-
         // Cette méthode est appelée très souvent (tooltips, changements d'équipement...) :
-        // on ne reconstruit l'objet que si une valeur de config a changé.
+        // on ne reconstruit l'objet que si les données des armes ont été remplacées depuis.
+        WeaponData.Versioned data = WeaponData.versioned();
         CachedModifiers current = cache;
-        if (current == null || !current.matches(damage, speed, reach)) {
-            current = new CachedModifiers(damage, speed, reach, buildModifiers(damage, speed, reach));
+        if (current == null || current.generation() != data.generation()) {
+            WeaponDefinition definition = data.snapshot().weapon(type);
+            current = new CachedModifiers(data.generation(), buildModifiers(
+                    definition.damageFor(material), definition.attackSpeed(), definition.attackReach()));
             cache = current;
         }
         return current.modifiers();
     }
 
-    // La config stocke les valeurs finales affichées au joueur, on retire donc ses valeurs de base.
+    // Les données stockent les valeurs finales affichées au joueur, on retire donc ses valeurs de base.
     private ItemAttributeModifiers buildModifiers(double damage, double speed, double reach) {
         return ItemAttributeModifiers.builder()
                 .add(Attributes.ATTACK_DAMAGE,
@@ -80,9 +85,6 @@ public class WeaponItem extends SwordItem {
     }
 
     // Record immuable : l'item est partagé entre le thread client et le thread serveur en solo.
-    private record CachedModifiers(double damage, double speed, double reach, ItemAttributeModifiers modifiers) {
-        boolean matches(double damage, double speed, double reach) {
-            return this.damage == damage && this.speed == speed && this.reach == reach;
-        }
+    private record CachedModifiers(int generation, ItemAttributeModifiers modifiers) {
     }
 }

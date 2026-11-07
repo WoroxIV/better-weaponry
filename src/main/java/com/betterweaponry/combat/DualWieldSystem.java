@@ -1,7 +1,7 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.compat.BetterCombatCompat;
-import com.betterweaponry.config.ServerConfig;
+import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.item.WeaponItem;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.TridentItem;
  * <ul>
  *   <li>les coups alternent entre les deux mains (LivingEntityMixin) ;</li>
  *   <li>un coup de la main secondaire utilise réellement l'arme secondaire ({@link HandSwap}) ;</li>
- *   <li>la recharge suit l'arme qui va frapper, accélérée par le multiplicateur de la config.</li>
+ *   <li>la recharge suit l'arme qui va frapper, accélérée par le multiplicateur des règles (rules.json).</li>
  * </ul>
  */
 public final class DualWieldSystem {
@@ -43,14 +43,14 @@ public final class DualWieldSystem {
     }
 
     /**
-     * Durée de recharge (en ticks) de la main qui va frapper, multiplicateur de la config inclus.
+     * Durée de recharge (en ticks) de la main qui va frapper, multiplicateur des règles (rules.json) inclus.
      * Pendant un échange de mains, les attributs reflètent déjà l'arme secondaire.
      */
     public static float attackStrengthDelay(Player player, IDualWieldPlayer state) {
         double speed = state.betterweaponry$isOffhandTurn() && state.betterweaponry$getActiveSwap() == null
                 ? HandSwap.attackSpeedWithHandsSwapped(player)
                 : player.getAttributeValue(Attributes.ATTACK_SPEED);
-        double multiplier = ServerConfig.get(ServerConfig.DUAL_WIELD_SPEED_MULTIPLIER);
+        double multiplier = WeaponData.rules().dualWieldSpeedMultiplier();
         return (float) (TICKS_PER_SECOND / (speed * multiplier));
     }
 }

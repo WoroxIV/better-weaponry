@@ -1,0 +1,8 @@
+{
+  "format_version": 1,
+  "two_handed": false,
+  "attack_speed": 1.4,
+  "attack_reach": 2.5,
+  "base_damage": 5.5,
+  "material_damage": {}
+}

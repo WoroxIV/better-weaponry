@@ -2,23 +2,10 @@
   "attribute.betterweaponry.attack_reach": "Alcance de ataque",
   "attribute.betterweaponry.two_handed": "A dos manos",
 
-  "better_weaponry.configuration.weapon_stats": "Estadísticas de las armas",
-  "better_weaponry.configuration.attack_damage": "Daño de ataque",
-  "better_weaponry.configuration.attack_damage.tooltip": "Daño total que inflige esta arma, tal y como aparece en su descripción. Es la única estadística que depende del material.",
-  "better_weaponry.configuration.attack_speed": "Velocidad de ataque",
-  "better_weaponry.configuration.attack_speed.tooltip": "Ataques por segundo con la fuerza al máximo. Es la misma para todos los materiales de esta arma.",
-  "better_weaponry.configuration.attack_reach": "Alcance de ataque",
-  "better_weaponry.configuration.attack_reach.tooltip": "Distancia en bloques a la que puedes golpear a las entidades. Es la misma para todos los materiales de esta arma.",
-  "better_weaponry.configuration.two_handed": "A dos manos",
-  "better_weaponry.configuration.two_handed.tooltip": "Mientras está en la mano principal, la mano secundaria se oculta y no se puede usar. Las armas a dos manos no permiten llevar un arma en cada mano.",
-
-  "better_weaponry.configuration.other": "Otros",
   "better_weaponry.configuration.show_attack_reach_tooltip": "Mostrar el alcance de ataque",
   "better_weaponry.configuration.show_attack_reach_tooltip.tooltip": "Muestra la estadística «Alcance de ataque» en la descripción de las armas.",
   "better_weaponry.configuration.show_two_handed_tooltip": "Mostrar «A dos manos»",
   "better_weaponry.configuration.show_two_handed_tooltip.tooltip": "Muestra «A dos manos» en la descripción de las armas configuradas así.",
-  "better_weaponry.configuration.dual_wield_speed_multiplier": "Multiplicador de velocidad con dos armas",
-  "better_weaponry.configuration.dual_wield_speed_multiplier.tooltip": "Multiplicador de la velocidad de ataque al llevar un arma en cada mano (1.5 = un 50 % más rápido).",
 
   "better_weaponry.configuration.broadsword": "Espadas anchas",
   "better_weaponry.configuration.spear": "Lanzas",

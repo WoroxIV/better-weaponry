@@ -1,5 +1,14 @@
-# Disable autocrlf on generated files, they always generate with LF
-# Add any extra files or paths here to make git stop saying they
-# are changed when only line endings change.
-src/generated/**/.cache/* text eol=lf
-src/generated/**/*.json text eol=lf
+# Fins de ligne : LF partout dans le dépôt ET dans le dossier de travail (comme les fichiers actuels),
+# pour que gradlew reste exécutable sur le CI Linux et que Git ne signale pas de faux changements.
+* text=auto eol=lf
+
+# Scripts Windows : CRLF obligatoire
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Fichiers binaires (jamais convertis)
+*.png binary
+*.jar binary
+*.nbt binary
+*.ogg binary
+*.zip binary
