@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:ingots/signalum",
+      "required": false
+    },
+    {
+      "id": "thermal:signalum_ingot",
+      "required": false
+    }
+  ]
+}

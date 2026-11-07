@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/chakram_base",
+  "textures": {
+    "layer0": "better_weaponry:item/ice_dragonsteel_chakram"
+  }
+}

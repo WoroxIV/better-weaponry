@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:ingots/lumium",
+      "required": false
+    },
+    {
+      "id": "thermal:lumium_ingot",
+      "required": false
+    }
+  ]
+}

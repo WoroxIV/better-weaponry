@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:ingots/cursium",
+      "required": false
+    },
+    {
+      "id": "cataclysm:cursium_ingot",
+      "required": false
+    }
+  ]
+}

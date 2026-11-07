@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:ingots/manyullyn",
+      "required": false
+    },
+    {
+      "id": "tconstruct:manyullyn_ingot",
+      "required": false
+    }
+  ]
+}

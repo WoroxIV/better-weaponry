@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.betterweaponry.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ItemInHandLayerMixin",
+    "PlayerRendererMixin",
+    "ItemInHandRendererMixin"
+  ],
+  "mixins": [
+    "PlayerCombatMixin",
+    "LivingEntityMixin",
+    "SweepParticleMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

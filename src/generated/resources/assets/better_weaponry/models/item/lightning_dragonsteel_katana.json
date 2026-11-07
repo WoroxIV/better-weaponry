@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/katana_base",
+  "textures": {
+    "layer0": "better_weaponry:item/lightning_dragonsteel_katana"
+  }
+}

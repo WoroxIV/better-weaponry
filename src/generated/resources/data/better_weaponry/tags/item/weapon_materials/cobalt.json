@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:ingots/cobalt",
+      "required": false
+    },
+    {
+      "id": "tconstruct:cobalt_ingot",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/dagger_base",
+  "textures": {
+    "layer0": "better_weaponry:item/bronze_dagger"
+  }
+}

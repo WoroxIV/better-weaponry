@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/sai_base",
+  "textures": {
+    "layer0": "better_weaponry:item/constantan_sai"
+  }
+}

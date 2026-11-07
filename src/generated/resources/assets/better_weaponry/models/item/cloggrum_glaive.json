@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/glaive_base",
+  "textures": {
+    "layer0": "better_weaponry:item/cloggrum_glaive"
+  }
+}

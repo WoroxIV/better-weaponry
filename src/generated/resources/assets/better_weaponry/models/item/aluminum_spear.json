@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/spear_base",
+  "textures": {
+    "layer0": "better_weaponry:item/aluminum_spear"
+  }
+}

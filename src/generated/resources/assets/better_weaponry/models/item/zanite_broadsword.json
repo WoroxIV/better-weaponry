@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/broadsword_base",
+  "textures": {
+    "layer0": "better_weaponry:item/zanite_broadsword"
+  }
+}

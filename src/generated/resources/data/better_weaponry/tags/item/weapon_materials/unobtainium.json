@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:ingots/unobtainium",
+      "required": false
+    },
+    {
+      "id": "allthemodium:unobtainium_ingot",
+      "required": false
+    }
+  ]
+}

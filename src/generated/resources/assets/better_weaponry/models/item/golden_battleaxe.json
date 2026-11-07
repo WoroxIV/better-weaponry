@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/battleaxe_base",
+  "textures": {
+    "layer0": "better_weaponry:item/golden_battleaxe"
+  }
+}

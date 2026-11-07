@@ -1,0 +1,6 @@
+{
+  "parent": "better_weaponry:item/katana_base",
+  "textures": {
+    "layer0": "better_weaponry:item/refined_obsidian_katana"
+  }
+}
