@@ -2,10 +2,13 @@ package com.betterweaponry.gametest;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DualWieldSystem;
+import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.data.DataProblem;
 import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.OnHitEffect;
+import com.betterweaponry.data.ParryDefinition;
+import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
@@ -17,6 +20,7 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
@@ -29,11 +33,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Tests automatiques du combat, lancés par {@code gradlew runGameTestServer} (ou {@code /test runall} en jeu, en dev).
@@ -59,7 +65,7 @@ public final class CombatGameTests {
         JsonObject defaults = json("{ \"armor_penetration\": 10, \"sweep\": { \"enabled\": true, \"radius\": 1.0, \"damage_ratio\": 0 },"
                 + " \"on_hit_effects\": [ { \"effect\": \"minecraft:slowness\" } ] }");
         JsonObject user = json("{ \"armor_penetration\": 150, \"sweep\": { \"radus\": 3, \"radius\": 2.5 },"
-                + " \"on_hit_effects\": [ { \"effect\": \"minecraft:slownes\" } ], \"atack_speed\": 2 }");
+                + " \"on_hit_effects\": [ { \"effect\": \"minecraft:slownes\" } ], \"atack_speed\": 2, \"ability\": \"parade\" }");
         List<DataProblem> problems = new ArrayList<>();
         JsonObject merged = WeaponDefinition.FIELDS.merge(List.of(new FieldSet.Layer("defaults", defaults), new FieldSet.Layer("user", user)), problems);
         WeaponDefinition definition = WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, merged).getOrThrow();
@@ -67,7 +73,8 @@ public final class CombatGameTests {
         helper.assertTrue(definition.armorPenetration() == 10.0D, "armor_penetration 150 must be ignored, got " + definition.armorPenetration());
         helper.assertTrue(definition.sweep().radius() == 2.5D && definition.sweep().enabled(), "sweep must merge field by field: " + definition.sweep());
         helper.assertTrue(definition.onHitEffects().size() == 1, "an invalid effect list must keep the previous list");
-        helper.assertTrue(problems.size() == 4, "4 problems expected, got " + problems.stream().map(DataProblem::toLogString).toList());
+        helper.assertTrue(definition.ability() == WeaponAbility.NONE, "an unknown ability must be ignored, got " + definition.ability());
+        helper.assertTrue(problems.size() == 5, "5 problems expected, got " + problems.stream().map(DataProblem::toLogString).toList());
         helper.assertTrue(problems.stream().anyMatch(p -> "sweep.radus".equals(p.field()) && "radius".equals(p.detail())),
                 "the typo sweep.radus must suggest radius");
         helper.assertTrue(problems.stream().anyMatch(p -> "atack_speed".equals(p.field()) && "attack_speed".equals(p.detail())),
@@ -126,6 +133,7 @@ public final class CombatGameTests {
     public static void dualWieldInvulnerability(GameTestHelper helper) {
         Player dualWielder = player(helper, weapon(WeaponType.DAGGER), weapon(WeaponType.DAGGER));
         Player singleWeapon = player(helper, weapon(WeaponType.DAGGER), ItemStack.EMPTY);
+        assertModTagsLoaded(helper);
         helper.assertTrue(DualWieldSystem.isDualWielding(dualWielder), "two daggers should count as dual wielding");
 
         Pig dualTarget = armoredPig(helper, new BlockPos(1, 1, 1));
@@ -159,7 +167,106 @@ public final class CombatGameTests {
         helper.succeed();
     }
 
+    /**
+     * Parade : un coup de face est réduit de damage_reduction % et use l'arme ; un coup dans le dos passe en entier.
+     * Testé sur chaque arme qui pare.
+     */
+    @GameTest(template = ARENA)
+    public static void parryBlocksFrontalHits(GameTestHelper helper) {
+        int tested = 0;
+        for (WeaponType type : WeaponType.values()) {
+            ItemStack stack = weapon(type);
+            Optional<ParryDefinition> settings = ParrySystem.parryOf(stack);
+            if (settings.isEmpty()) continue;
+            ParryDefinition parry = settings.get();
+
+            // Le défenseur regarde vers le sud (+Z) : devant lui = Z plus grand.
+            Player defender = player(helper, stack, ItemStack.EMPTY);
+            Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+            defender.setPos(position);
+            defender.setYRot(0.0F);
+            defender.setYHeadRot(0.0F);
+            setBase(defender.getAttribute(Attributes.MAX_HEALTH), TEST_HEALTH);
+            defender.setHealth(TEST_HEALTH);
+            helper.assertTrue(stack.use(helper.getLevel(), defender, InteractionHand.MAIN_HAND).getResult().consumesAction()
+                    && ParrySystem.isParrying(defender), type.id() + ": a right click should start the parry");
+
+            defender.hurt(defender.damageSources().playerAttack(mockPlayerAt(helper, position.add(0.0D, 0.0D, 2.0D))), RAW_DAMAGE);
+            double blocked = RAW_DAMAGE * parry.damageReduction() / 100.0D;
+            double frontDamage = TEST_HEALTH - defender.getHealth();
+            helper.assertTrue(Math.abs(frontDamage - (RAW_DAMAGE - blocked)) < EPSILON,
+                    type.id() + ": a hit from the front did " + frontDamage + " damage instead of " + (RAW_DAMAGE - blocked));
+            int expectedWear = parry.durabilityPerDamage() <= 0.0D || blocked <= 0.0D
+                    ? 0 : Math.max(1, (int) Math.round(blocked * parry.durabilityPerDamage()));
+            helper.assertTrue(stack.getDamageValue() == expectedWear,
+                    type.id() + ": the parry wore the weapon by " + stack.getDamageValue() + " instead of " + expectedWear);
+
+            defender.invulnerableTime = 0;
+            defender.setHealth(TEST_HEALTH);
+            defender.hurt(defender.damageSources().playerAttack(mockPlayerAt(helper, position.add(0.0D, 0.0D, -2.0D))), RAW_DAMAGE);
+            double backDamage = TEST_HEALTH - defender.getHealth();
+            helper.assertTrue(Math.abs(backDamage - RAW_DAMAGE) < EPSILON,
+                    type.id() + ": a hit in the back did " + backDamage + " damage instead of " + RAW_DAMAGE);
+            tested++;
+        }
+        helper.assertTrue(tested > 0, "no weapon has the parry ability");
+        helper.succeed();
+    }
+
+    /**
+     * Quand le clic droit lance une parade : arme qui pare en main principale, main secondaire vide,
+     * arme à deux mains, ou arme en main secondaire avec while_dual_wielding. Un bouclier ou une torche
+     * en main secondaire gardent leur action ; une arme tenue en main secondaire ne pare jamais.
+     */
+    @GameTest(template = ARENA)
+    public static void parryConditions(GameTestHelper helper) {
+        assertModTagsLoaded(helper);
+        ItemStack shield = new ItemStack(Items.SHIELD);
+        ItemStack torch = new ItemStack(Items.TORCH);
+        ItemStack dagger = weapon(WeaponType.DAGGER);
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            boolean parries = definition.ability() == WeaponAbility.PARRY && WeaponData.rules().parryEnabled();
+            boolean twoHanded = definition.twoHanded();
+
+            expectParry(helper, type, ItemStack.EMPTY, parries);
+            expectParry(helper, type, shield, parries && twoHanded);
+            expectParry(helper, type, torch, parries && twoHanded);
+            expectParry(helper, type, dagger, parries && (twoHanded || definition.parry().whileDualWielding()));
+
+            ItemStack offhandWeapon = weapon(type);
+            Player offhandOnly = player(helper, ItemStack.EMPTY, offhandWeapon);
+            helper.assertFalse(offhandWeapon.use(helper.getLevel(), offhandOnly, InteractionHand.OFF_HAND).getResult().consumesAction(),
+                    type.id() + " held in the off hand must not parry");
+        }
+        helper.succeed();
+    }
+
+    private static void expectParry(GameTestHelper helper, WeaponType type, ItemStack offhand, boolean expected) {
+        ItemStack main = weapon(type);
+        Player player = player(helper, main, offhand.copy());
+        boolean started = main.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult().consumesAction();
+        String offhandName = offhand.isEmpty() ? "an empty off hand" : offhand.getItem().toString();
+        helper.assertTrue(started == expected && player.isUsingItem() == expected,
+                type.id() + " with " + offhandName + ": the parry should " + (expected ? "" : "not ") + "start");
+    }
+
     // --- Outils ---
+
+    /**
+     * Les tags du mod (générés par runData) doivent être chargés. S'ils manquent, le dossier build/resources/main
+     * était incomplet au lancement : souvent l'IDE qui recompile en même temps. Relancer suffit.
+     */
+    private static void assertModTagsLoaded(GameTestHelper helper) {
+        helper.assertTrue(weapon(WeaponType.DAGGER).is(ItemTags.SWORDS), "the mod's item tags are not loaded: build/resources/main "
+                + "was incomplete when the server started (an IDE build running at the same time?). Run the tests again.");
+    }
+
+    private static Player mockPlayerAt(GameTestHelper helper, Vec3 position) {
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.setPos(position);
+        return player;
+    }
 
     private static JsonObject json(String text) {
         return JsonUtil.parseLenient(text).getAsJsonObject();

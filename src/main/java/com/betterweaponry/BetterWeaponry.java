@@ -8,6 +8,7 @@ import com.betterweaponry.datagen.ModRecipeProvider;
 import com.betterweaponry.datagen.lang.ModLanguageProvider;
 import com.betterweaponry.registry.ModAttributes;
 import com.betterweaponry.registry.ModItems;
+import com.betterweaponry.registry.ModSounds;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -46,6 +47,7 @@ public final class BetterWeaponry {
     public BetterWeaponry(IEventBus modEventBus, ModContainer modContainer) {
         ModItems.ITEMS.register(modEventBus);
         ModAttributes.ATTRIBUTES.register(modEventBus);
+        ModSounds.SOUNDS.register(modEventBus);
 
         modEventBus.addListener(this::addToCreativeTab);
         modEventBus.addListener(this::gatherData);

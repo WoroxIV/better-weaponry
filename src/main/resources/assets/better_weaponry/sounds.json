@@ -1,0 +1,12 @@
+{
+  "item.weapon.parry": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.parry",
+    "sounds": [
+      {
+        "name": "minecraft:random/anvil_land",
+        "volume": 0.35,
+        "pitch": 1.7
+      }
+    ]
+  }
+}

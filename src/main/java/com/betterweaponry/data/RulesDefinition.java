@@ -14,8 +14,10 @@ import java.util.Map;
  * @param dualWieldSpeedMultiplier        multiplicateur de vitesse d'attaque avec une arme dans chaque main
  * @param dualWieldInvulnerabilitySeconds temps pendant lequel une cible ignore les nouveaux coups après un coup
  *                                        porté en dual wield (vanilla : 0.5 s)
+ * @param parryEnabled                    false = aucune arme ne pare, quel que soit son fichier
  */
-public record RulesDefinition(int formatVersion, double dualWieldSpeedMultiplier, double dualWieldInvulnerabilitySeconds) {
+public record RulesDefinition(int formatVersion, double dualWieldSpeedMultiplier, double dualWieldInvulnerabilitySeconds,
+                              boolean parryEnabled) {
 
     public static final int FORMAT_VERSION = 1;
 
@@ -24,19 +26,23 @@ public record RulesDefinition(int formatVersion, double dualWieldSpeedMultiplier
     public static final DataField<Double> DUAL_WIELD_SPEED_MULTIPLIER = DataField.number("dual_wield_speed_multiplier", 1.0D, 5.0D, 1.5D);
     // 0.25 s : une dague en dual wield (3 coups/s, un coup toutes les 0.33 s) ne perd plus aucun coup.
     public static final DataField<Double> DUAL_WIELD_INVULNERABILITY = DataField.number("dual_wield_invulnerability_seconds", 0.0D, 1.0D, 0.25D);
+    public static final DataField<Boolean> PARRY_ENABLED = DataField.bool("parry_enabled", true);
 
     public static final FieldSet FIELDS = new FieldSet("rules",
-            List.of(FORMAT, DUAL_WIELD_SPEED_MULTIPLIER, DUAL_WIELD_INVULNERABILITY),
+            List.of(FORMAT, DUAL_WIELD_SPEED_MULTIPLIER, DUAL_WIELD_INVULNERABILITY, PARRY_ENABLED),
             Map.of("dual_wield_multiplier", "dual_wield_speed_multiplier",
                     "dual_wield_invulnerability", "dual_wield_invulnerability_seconds",
-                    "invulnerability_seconds", "dual_wield_invulnerability_seconds"));
+                    "invulnerability_seconds", "dual_wield_invulnerability_seconds",
+                    "parry", "parry_enabled",
+                    "enable_parry", "parry_enabled"));
 
     public static final Codec<RulesDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             FORMAT.forGetter(RulesDefinition::formatVersion),
             DUAL_WIELD_SPEED_MULTIPLIER.forGetter(RulesDefinition::dualWieldSpeedMultiplier),
-            DUAL_WIELD_INVULNERABILITY.forGetter(RulesDefinition::dualWieldInvulnerabilitySeconds)
+            DUAL_WIELD_INVULNERABILITY.forGetter(RulesDefinition::dualWieldInvulnerabilitySeconds),
+            PARRY_ENABLED.forGetter(RulesDefinition::parryEnabled)
     ).apply(instance, RulesDefinition::new));
 
     public static final RulesDefinition FALLBACK = new RulesDefinition(FORMAT_VERSION,
-            DUAL_WIELD_SPEED_MULTIPLIER.defaultValue(), DUAL_WIELD_INVULNERABILITY.defaultValue());
+            DUAL_WIELD_SPEED_MULTIPLIER.defaultValue(), DUAL_WIELD_INVULNERABILITY.defaultValue(), PARRY_ENABLED.defaultValue());
 }

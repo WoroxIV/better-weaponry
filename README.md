@@ -67,9 +67,23 @@ Hold a weapon (anything in the `better_weaponry:dual_wieldable` item tag: swords
 
 Dual wielding is turned off when Better Combat is installed, because Better Combat has its own dual-wield system.
 
+### Parry (right click)
+
+Each weapon has at most one right-click ability, set by the `ability` field of its JSON file. By default the broadsword, katana, glaive, claymore and sai can **parry**, like swords in Minecraft 1.8:
+
+- Hold right click with the weapon in the **main hand**: the weapon tilts in front of you (1.8 pose in first person, arm raised in third person) and you move slowly.
+- Hits from the **front** are reduced by `parry.damage_reduction` (50% by default, like 1.8). Hits from behind, falls, fire, poison and other damage that a shield cannot block go through.
+- Each parried hit costs durability (`parry.durability_per_damage`, at least 1) and makes a metallic sound (`better_weaponry:item.weapon.parry`, with a subtitle; a resource pack can replace it).
+- It works with one-handed and two-handed weapons. A one-handed weapon only parries with an **empty off hand**:
+  - a **shield** in the off hand is raised instead;
+  - a torch, food or a block in the off hand keeps its normal right-click action;
+  - with a weapon in the off hand, only weapons with `parry.while_dual_wielding` parry (the sai, by default).
+- A two-handed weapon always parries, since the off hand is locked.
+- `parry_enabled: false` in `rules.json` turns the parry off for every weapon.
+
 ### Tooltips
 
-Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button).
+Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the mod's Config button). Weapons that parry show a gold line such as "Right Button: Parry (-50% damage from the front)", with the key the player actually bound to "Use Item".
 
 ### Localization
 
@@ -145,8 +159,21 @@ Layers, from lowest to highest priority (the last one wins):
 | `sweep.enabled` | `true` / `false` | `false`: no sweep attack at all |
 | `sweep.radius` | 0 – 8 | Size of the sweep zone around the target, in blocks (vanilla: 1), still limited by the reach |
 | `sweep.damage_ratio` | 0 – 100 | Sweep damage in % of the weapon's damage (vanilla: 0 = 1 damage). Adds up with Sweeping Edge |
+| `ability` | `"none"` / `"parry"` | What holding right click does with the weapon in the main hand |
+| `parry.damage_reduction` | 0 – 100 | % of the damage blocked by the parry, front hits only (default 50) |
+| `parry.durability_per_damage` | 0 – 10 | Durability lost per point of damage blocked, rounded, at least 1 per hit (0 = no wear; default 1) |
+| `parry.while_dual_wielding` | `true` / `false` | `true`: also parries with a weapon in the off hand (default `false`) |
 
-All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach). Objects such as `sweep` merge field by field across layers (`{ "sweep": { "radius": 2 } }` keeps the other sweep values); lists such as `on_hit_effects` are replaced as a whole. Misspelled fields are reported even inside `sweep` or `on_hit_effects`.
+All values are the **final** values the player sees: the mod subtracts the player's base values for you (1 damage, 4 speed, 3 reach). Objects such as `sweep` and `parry` merge field by field across layers (`{ "sweep": { "radius": 2 } }` keeps the other sweep values); lists such as `on_hit_effects` are replaced as a whole. Misspelled fields are reported even inside `sweep`, `parry` or `on_hit_effects`.
+
+Example: give the spear a parry that blocks 30% of the damage.
+
+```json
+{
+  "ability": "parry",
+  "parry": { "damage_reduction": 30 }
+}
+```
 
 ### rules.json
 
@@ -154,6 +181,7 @@ All values are the **final** values the player sees: the mod subtracts the playe
 |---|---|---|---|
 | `dual_wield_speed_multiplier` | 1 – 5 | 1.5 | Attack speed multiplier while holding a weapon in each hand |
 | `dual_wield_invulnerability_seconds` | 0 – 1 | 0.25 | How long a target ignores new hits after a dual-wield hit (vanilla: 0.5) |
+| `parry_enabled` | `true` / `false` | `true` | `false`: no weapon can parry, whatever its file says |
 
 ### Upgrading from 1.x
 
@@ -190,21 +218,23 @@ Golden = wood damage, like vanilla. Material damage uses the vanilla sword scale
 
 ### Combat properties
 
-| Weapon | Armor penetration | On hit | Sweep | Disables shields |
-|---|---|---|---|---|
-| Broadsword | — | — | vanilla | — |
-| Spear | 15% | — | none (thrust) | — |
-| Dagger | — | — | none | — |
-| Scythe | — | — | radius 2, 50% damage | — |
-| Rapier | 20% | — | none (thrust) | — |
-| Sickle | — | Slowness I, 1 s | radius 0.75 | — |
-| Katana | 10% | — | vanilla | — |
-| Battleaxe | 15% | — | vanilla | yes |
-| Glaive | 10% | — | radius 1.5 | — |
-| Hammer | 30% | Slowness II, 1.5 s | none | yes |
-| Claymore | 5% | — | radius 1.25 | — |
-| Chakram | — | — | vanilla | — |
-| Sai | — | — | none | — |
+| Weapon | Armor penetration | On hit | Sweep | Disables shields | Right click |
+|---|---|---|---|---|---|
+| Broadsword | — | — | vanilla | — | parry |
+| Spear | 15% | — | none (thrust) | — | — |
+| Dagger | — | — | none | — | — |
+| Scythe | — | — | radius 2, 50% damage | — | — |
+| Rapier | 20% | — | none (thrust) | — | — |
+| Sickle | — | Slowness I, 1 s | radius 0.75 | — | — |
+| Katana | 10% | — | vanilla | — | parry |
+| Battleaxe | 15% | — | vanilla | yes | — |
+| Glaive | 10% | — | radius 1.5 | — | parry |
+| Hammer | 30% | Slowness II, 1.5 s | none | yes | — |
+| Claymore | 5% | — | radius 1.25 | — | parry |
+| Chakram | — | — | vanilla | — | — |
+| Sai | — | — | none | — | parry, even with a weapon in each hand |
+
+Every parry blocks 50% of the damage and costs 1 durability per point of damage blocked.
 
 These are starting values: damage has not been rebalanced yet to account for them.
 
@@ -229,7 +259,7 @@ The mod checks at runtime whether `bettercombat` is loaded. If it is:
 | Sickle | `sickle` | Sai | `dagger` |
 | Katana | `katana` | | |
 
-The mapping is in `datagen/BetterCombatAttributesProvider.java`. Armor penetration, on-hit effects and shield disabling still work with Better Combat. Better Combat ignores the files of weapons whose mod is not installed.
+The mapping is in `datagen/BetterCombatAttributesProvider.java`. Armor penetration, on-hit effects, shield disabling and the parry still work with Better Combat. Better Combat ignores the files of weapons whose mod is not installed.
 
 ---
 
@@ -259,9 +289,11 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 ```
 src/main/java/com/betterweaponry/
 ├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
-├── BetterWeaponryClient.java    # Client-only entry point (client config, config screen)
+├── BetterWeaponryClient.java    # Client-only entry point (client config, config screen, render extensions)
+├── client/WeaponClientExtensions.java  # 1.8 parry pose in first person
 ├── combat/
 │   ├── CombatEvents.java        # Armor penetration, sweep on/off, dual-wield invulnerability time
+│   ├── ParrySystem.java         # When a right click parries, frontal damage reduction, wear and sound
 │   ├── DualWieldSystem.java     # Rules for dual wielding + cooldown of the hand whose turn it is
 │   ├── HandSwap.java            # Swaps both hands (items + attributes) during an off-hand attack
 │   ├── TwoHandedSystem.java     # Rules for when the off hand is locked
@@ -274,7 +306,8 @@ src/main/java/com/betterweaponry/
 │   └── LegacyConfigMigration.java  # Converts the 1.x TOML
 ├── data/
 │   ├── WeaponDefinition.java    # Fields of a weapon file
-│   ├── OnHitEffect.java, SweepDefinition.java  # Sub-objects of a weapon file
+│   ├── OnHitEffect.java, SweepDefinition.java, ParryDefinition.java  # Sub-objects of a weapon file
+│   ├── WeaponAbility.java       # Values of the "ability" field (none, parry)
 │   ├── RulesDefinition.java     # Fields of rules.json
 │   ├── DataField.java, FieldSet.java  # Field declarations, validation, merging of the layers
 │   ├── WeaponDataLoader.java    # Loads the files when a world loads and on /reload
@@ -284,6 +317,7 @@ src/main/java/com/betterweaponry/
 ├── registry/
 │   ├── ModItems.java            # Registers one item per WeaponType × active WeaponMaterial
 │   ├── ModAttributes.java       # Armor penetration attribute (on every living entity)
+│   ├── ModSounds.java           # Parry sound (file and subtitle in assets/better_weaponry/sounds.json)
 │   └── ModTags.java             # better_weaponry:dual_wieldable
 ├── gametest/CombatGameTests.java  # Automated tests (gradlew runGameTestServer)
 ├── item/
@@ -300,7 +334,7 @@ src/main/java/com/betterweaponry/
 src/main/lang/                   # Translation sources, one per language (not packaged, read by runData)
 
 src/main/resources/
-├── assets/better_weaponry/      # Textures, hand-written models
+├── assets/better_weaponry/      # Textures, hand-written models, sounds.json
 ├── data/better_weaponry/        # Default weapon stats and rules (better_weaponry/), empty GameTest structure
 ├── META-INF/neoforge.mods.toml  # Mod metadata (filled in from gradle.properties)
 └── betterweaponry.mixins.json   # Mixin config

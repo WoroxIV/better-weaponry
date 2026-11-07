@@ -2,11 +2,14 @@ package com.betterweaponry.event;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DualWieldSystem;
+import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.data.OnHitEffect;
+import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
@@ -23,7 +26,8 @@ import java.util.List;
 
 /**
  * Complète les stats vertes (dégâts, vitesse, pénétration d'armure) des armes :
- * portée d'attaque, coup balayé, "Arme à deux mains", "Désactive les boucliers" et effets à l'impact.
+ * portée d'attaque, coup balayé, "Arme à deux mains", "Désactive les boucliers", effets à l'impact
+ * et capacité du clic droit.
  * Chaque ligne ajoutée se place après la précédente, dans cet ordre.
  */
 @EventBusSubscriber(modid = BetterWeaponry.MODID, value = Dist.CLIENT)
@@ -36,6 +40,9 @@ public final class TooltipEventHandler {
     private static final String DISABLES_SHIELD_KEY = "attribute.betterweaponry.disables_shield";
     private static final String ON_HIT_KEY = BetterWeaponry.MODID + ".tooltip.on_hit_effect";
     private static final String ON_HIT_CHANCE_KEY = ON_HIT_KEY + ".chance";
+    private static final String ABILITY_KEY = BetterWeaponry.MODID + ".tooltip.ability";
+    private static final String PARRY_KEY = ABILITY_KEY + ".parry";
+    private static final String PARRY_DUAL_WIELD_KEY = PARRY_KEY + ".dual_wield";
     // Morceaux des clés vanilla "attribute.name.player.entity_interaction_range" et "...sweeping_damage_ratio"
     private static final String VANILLA_REACH_KEY_PART = "entity_interaction_range";
     private static final String VANILLA_SWEEP_KEY_PART = "sweeping_damage_ratio";
@@ -46,7 +53,7 @@ public final class TooltipEventHandler {
 
     /** Clés qui marquent une ligne de stat : les lignes ajoutées se placent après la dernière d'entre elles. */
     private static final List<String> STAT_LINE_MARKERS = List.of("attack_damage", "attack_speed", "armor_penetration",
-            REACH_KEY, VANILLA_SWEEP_KEY_PART, TWO_HANDED_KEY, DISABLES_SHIELD_KEY, ON_HIT_KEY);
+            REACH_KEY, VANILLA_SWEEP_KEY_PART, TWO_HANDED_KEY, DISABLES_SHIELD_KEY, ON_HIT_KEY, ABILITY_KEY);
 
     private TooltipEventHandler() {
     }
@@ -72,6 +79,25 @@ public final class TooltipEventHandler {
         for (OnHitEffect effect : definition.onHitEffects()) {
             addEffectLine(effect, tooltip);
         }
+        ParrySystem.parryOf(stack).ifPresent(parry -> addParryLines(parry, tooltip));
+    }
+
+    /**
+     * Ex : "Clic droit : Parade (-50 % de dégâts de face)". La touche affichée est celle des contrôles du joueur
+     * ("Utiliser l'objet/placer un bloc"), même s'il l'a changée.
+     */
+    private static void addParryLines(ParryDefinition parry, List<Component> tooltip) {
+        Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
+        String percent = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(parry.damageReduction());
+        insertAfterStats(tooltip, abilityLine(Component.translatable(PARRY_KEY, useKey, percent)));
+        if (parry.whileDualWielding()) {
+            insertAfterStats(tooltip, abilityLine(Component.translatable(PARRY_DUAL_WIELD_KEY)));
+        }
+    }
+
+    /** Ligne de capacité : indentée comme les stats, en doré pour la distinguer. */
+    private static Component abilityLine(Component content) {
+        return Component.literal(" ").append(content).withStyle(ChatFormatting.GOLD);
     }
 
     /** Remplace la ligne bleue vanilla de portée par une ligne verte alignée sur les autres stats. */

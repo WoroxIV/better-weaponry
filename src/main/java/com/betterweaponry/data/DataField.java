@@ -6,8 +6,10 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,7 @@ import java.util.function.Supplier;
  */
 public final class DataField<T> {
     /** Nature du champ, utilisée pour le schéma JSON et le README. */
-    public enum Kind { NUMBER, INTEGER, BOOLEAN, NUMBER_MAP, ID, OBJECT, OBJECT_LIST }
+    public enum Kind { NUMBER, INTEGER, BOOLEAN, CHOICE, NUMBER_MAP, ID, OBJECT, OBJECT_LIST }
 
     private final String name;
     private final Kind kind;
@@ -41,7 +43,7 @@ public final class DataField<T> {
     @Nullable private final FieldSet children;
     /** Identifiants acceptés (champ ID), pour la validation et l'autocomplétion. */
     @Nullable private final Supplier<Collection<ResourceLocation>> knownIds;
-    /** Quelques valeurs typiques (champ ID), citées dans la documentation. */
+    /** Quelques valeurs typiques (champ ID) ou toutes les valeurs acceptées (champ CHOICE), citées dans la documentation. */
     private final List<String> examples;
 
     private DataField(String name, Kind kind, Codec<T> codec, @Nullable T defaultValue, double min, double max,
@@ -70,6 +72,20 @@ public final class DataField<T> {
 
     public static DataField<Boolean> bool(String name, boolean defaultValue) {
         return new DataField<>(name, Kind.BOOLEAN, Codec.BOOL, defaultValue, 0, 1, null, null, List.of());
+    }
+
+    /**
+     * Un mot parmi une liste, ex : "ability": "parry". Les valeurs sont celles de l'enum ({@link StringRepresentable}).
+     */
+    public static <E extends Enum<E> & StringRepresentable> DataField<E> choice(String name, E[] values, E defaultValue) {
+        List<String> names = Arrays.stream(values).map(StringRepresentable::getSerializedName).toList();
+        Codec<E> codec = Codec.STRING.comapFlatMap(text -> Arrays.stream(values)
+                        .filter(value -> value.getSerializedName().equals(text))
+                        .findFirst()
+                        .map(DataResult::success)
+                        .orElseGet(() -> DataResult.error(() -> "unknown value \"" + text + "\" (accepted: " + String.join(", ", names) + ")")),
+                StringRepresentable::getSerializedName);
+        return new DataField<>(name, Kind.CHOICE, codec, defaultValue, 0, 0, null, null, names);
     }
 
     /** Objet { "clé": nombre, ... }, chaque nombre compris entre {@code min} et {@code max}. Vide par défaut. */
@@ -152,7 +168,7 @@ public final class DataField<T> {
         return children;
     }
 
-    /** Valeurs typiques d'un champ ID, pour la documentation. */
+    /** Valeurs typiques d'un champ ID, ou valeurs acceptées d'un champ CHOICE, pour la documentation. */
     public List<String> examples() {
         return examples;
     }

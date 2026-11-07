@@ -7,6 +7,7 @@ import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.ModFiles;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import net.minecraft.util.StringRepresentable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -66,6 +67,8 @@ public final class Docs {
             case NUMBER, INTEGER -> format(DOC + "range", number(field.min()), number(field.max()))
                     + " · " + format(DOC + "default", formatValue(field.defaultValue()));
             case BOOLEAN -> format(DOC + "default", formatValue(field.defaultValue()));
+            case CHOICE -> format(DOC + "choices", String.join(", ", field.examples()))
+                    + " · " + format(DOC + "default", formatValue(field.defaultValue()));
             case NUMBER_MAP -> format(DOC + "range", number(field.min()), number(field.max()));
             case ID -> field.examples().isEmpty() ? "" : format(DOC + "examples", String.join(", ", field.examples()));
             case OBJECT -> "";
@@ -83,7 +86,9 @@ public final class Docs {
     }
 
     private static String formatValue(Object value) {
-        return value instanceof Number number ? number(number.doubleValue()) : String.valueOf(value);
+        if (value instanceof Number number) return number(number.doubleValue());
+        if (value instanceof StringRepresentable choice) return choice.getSerializedName();
+        return String.valueOf(value);
     }
 
     private static Map<String, String> readLanguage(String code) {

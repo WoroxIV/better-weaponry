@@ -1,11 +1,15 @@
 package com.betterweaponry.item;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.data.OnHitEffect;
+import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.registry.ModAttributes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
@@ -14,7 +18,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -136,6 +142,42 @@ public class WeaponItem extends SwordItem {
     @Override
     public boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
         return definition().disablesShield();
+    }
+
+    // --- Capacité du clic droit ---
+
+    /**
+     * Clic droit : lance la parade si l'arme pare et que les conditions sont remplies ({@link ParrySystem#canParry}).
+     * Sinon PASS : le jeu essaie alors l'objet de la main secondaire (un bouclier se lève, une torche se pose...).
+     */
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (ParrySystem.canParry(player, hand, stack)) {
+            player.startUsingItem(hand);
+            return InteractionResultHolder.consume(stack);
+        }
+        return super.use(level, player, hand);
+    }
+
+    /** Pose "bloquer" pendant la parade : bras levé en troisième personne, comme en 1.8. */
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return definition().ability() == WeaponAbility.PARRY ? UseAnim.BLOCK : super.getUseAnimation(stack);
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        return definition().ability() == WeaponAbility.PARRY ? ParrySystem.USE_DURATION : super.getUseDuration(stack, entity);
+    }
+
+    /**
+     * Vue première personne : pas d'animation de "rééquipement" (l'arme descend puis remonte) quand seule
+     * la durabilité change, par exemple à chaque coup paré. Changer d'objet ou d'emplacement l'anime toujours.
+     */
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged || shouldCauseBlockBreakReset(oldStack, newStack);
     }
 
     // Record immuable : l'item est partagé entre le thread client et le thread serveur en solo.

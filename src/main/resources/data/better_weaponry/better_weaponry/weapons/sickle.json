@@ -19,5 +19,11 @@
     "enabled": true,
     "radius": 0.75,
     "damage_ratio": 0
+  },
+  "ability": "none",
+  "parry": {
+    "damage_reduction": 50,
+    "durability_per_damage": 1.0,
+    "while_dual_wielding": false
   }
 }

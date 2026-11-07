@@ -7,6 +7,7 @@ import com.betterweaponry.item.WeaponMaterials;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 
 /**
  * Écrit les schémas JSON (format "JSON Schema") du dossier de config.
@@ -60,6 +61,14 @@ final class SchemaWriter {
             case NUMBER -> numberSchema(field, "number");
             case INTEGER -> numberSchema(field, "integer");
             case BOOLEAN -> typed("boolean");
+            case CHOICE -> {
+                // Liste fermée : l'éditeur propose les valeurs et souligne les autres.
+                JsonObject choice = typed("string");
+                JsonArray values = new JsonArray();
+                field.examples().forEach(values::add);
+                choice.add("enum", values);
+                yield choice;
+            }
             case NUMBER_MAP -> {
                 JsonObject map = typed("object");
                 // Les matériaux connus sont proposés par l'autocomplétion ; les autres restent acceptés.
@@ -91,6 +100,7 @@ final class SchemaWriter {
         Object defaultValue = field.defaultValue();
         if (defaultValue instanceof Number number) property.addProperty("default", number);
         else if (defaultValue instanceof Boolean bool) property.addProperty("default", bool);
+        else if (defaultValue instanceof StringRepresentable choice) property.addProperty("default", choice.getSerializedName());
         return property;
     }
 

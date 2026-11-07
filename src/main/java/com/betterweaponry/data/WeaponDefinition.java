@@ -25,6 +25,8 @@ import java.util.Map;
  * @param disablesShield   un coup sur un bouclier levé le désactive, comme une hache
  * @param onHitEffects     effets donnés à la cible touchée
  * @param sweep            coup balayé
+ * @param ability          capacité du clic droit (une seule par arme)
+ * @param parry            réglages de la parade, utilisés si {@code ability} vaut "parry"
  */
 public record WeaponDefinition(int formatVersion,
                                boolean twoHanded,
@@ -35,7 +37,9 @@ public record WeaponDefinition(int formatVersion,
                                double armorPenetration,
                                boolean disablesShield,
                                List<OnHitEffect> onHitEffects,
-                               SweepDefinition sweep) {
+                               SweepDefinition sweep,
+                               WeaponAbility ability,
+                               ParryDefinition parry) {
 
     public static final int FORMAT_VERSION = 1;
     /** Les dégâts calculés sont arrondis au demi-point pour des tooltips lisibles. */
@@ -55,10 +59,13 @@ public record WeaponDefinition(int formatVersion,
             DataField.objectList("on_hit_effects", OnHitEffect.FIELDS, OnHitEffect.CODEC, MAX_ON_HIT_EFFECTS);
     public static final DataField<SweepDefinition> SWEEP =
             DataField.object("sweep", SweepDefinition.FIELDS, SweepDefinition.CODEC, SweepDefinition.VANILLA);
+    public static final DataField<WeaponAbility> ABILITY = DataField.choice("ability", WeaponAbility.values(), WeaponAbility.NONE);
+    public static final DataField<ParryDefinition> PARRY =
+            DataField.object("parry", ParryDefinition.FIELDS, ParryDefinition.CODEC, ParryDefinition.DEFAULT);
 
     public static final FieldSet FIELDS = new FieldSet("weapon",
             List.of(FORMAT, TWO_HANDED, ATTACK_SPEED, ATTACK_REACH, BASE_DAMAGE, MATERIAL_DAMAGE,
-                    ARMOR_PENETRATION, DISABLES_SHIELD, ON_HIT_EFFECTS, SWEEP),
+                    ARMOR_PENETRATION, DISABLES_SHIELD, ON_HIT_EFFECTS, SWEEP, ABILITY, PARRY),
             // Noms de l'ancienne config TOML et variantes courantes
             Map.ofEntries(
                     Map.entry("attack_damage", "base_damage"),
@@ -71,7 +78,11 @@ public record WeaponDefinition(int formatVersion,
                     Map.entry("effects", "on_hit_effects"),
                     Map.entry("slowness", "on_hit_effects"),
                     Map.entry("sweeping", "sweep"),
-                    Map.entry("disable_shield", "disables_shield")));
+                    Map.entry("disable_shield", "disables_shield"),
+                    Map.entry("abilities", "ability"),
+                    Map.entry("right_click", "ability"),
+                    Map.entry("block", "parry"),
+                    Map.entry("blocking", "parry")));
 
     public static final Codec<WeaponDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             FORMAT.forGetter(WeaponDefinition::formatVersion),
@@ -83,13 +94,15 @@ public record WeaponDefinition(int formatVersion,
             ARMOR_PENETRATION.forGetter(WeaponDefinition::armorPenetration),
             DISABLES_SHIELD.forGetter(WeaponDefinition::disablesShield),
             ON_HIT_EFFECTS.forGetter(WeaponDefinition::onHitEffects),
-            SWEEP.forGetter(WeaponDefinition::sweep)
+            SWEEP.forGetter(WeaponDefinition::sweep),
+            ABILITY.forGetter(WeaponDefinition::ability),
+            PARRY.forGetter(WeaponDefinition::parry)
     ).apply(instance, WeaponDefinition::new));
 
     /** Utilisé si une arme n'a aucune donnée (fichier du mod introuvable) : une épée vanilla en bois. */
     public static final WeaponDefinition FALLBACK = new WeaponDefinition(FORMAT_VERSION,
             false, ATTACK_SPEED.defaultValue(), ATTACK_REACH.defaultValue(), BASE_DAMAGE.defaultValue(), Map.of(),
-            0.0D, false, List.of(), SweepDefinition.VANILLA);
+            0.0D, false, List.of(), SweepDefinition.VANILLA, WeaponAbility.NONE, ParryDefinition.DEFAULT);
 
     public WeaponDefinition {
         materialDamage = Map.copyOf(materialDamage);
