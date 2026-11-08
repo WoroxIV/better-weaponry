@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -53,6 +52,8 @@ final class TutorialRenderer {
     private static final float GUARD_YAW = 0.5235988F;
     private static final float RISE_BLOCKS = 0.9F;
     private static final float RISE_SIDE_PIXELS = 26.0F;
+    /** La version à bras larges, comme le modèle : celle à bras fins laisse des trous transparents. */
+    private static final ResourceLocation PLAYER_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/player/wide/steve.png");
     private static final ResourceLocation ZOMBIE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/zombie/zombie.png");
     private static final ResourceLocation ARMOR_OUTER_TEXTURE = ResourceLocation.withDefaultNamespace("textures/models/armor/iron_layer_1.png");
     private static final ResourceLocation ARMOR_INNER_TEXTURE = ResourceLocation.withDefaultNamespace("textures/models/armor/iron_layer_2.png");
@@ -216,7 +217,7 @@ final class TutorialRenderer {
         if (!zombie) pose.scale(PLAYER_SCALE, PLAYER_SCALE, PLAYER_SCALE);
         pose.translate(0.0F, -MODEL_OFFSET, 0.0F);
 
-        ResourceLocation texture = zombie ? ZOMBIE_TEXTURE : DefaultPlayerSkin.getDefaultTexture();
+        ResourceLocation texture = zombie ? ZOMBIE_TEXTURE : PLAYER_TEXTURE;
         model.renderToBuffer(pose, buffers.getBuffer(model.renderType(texture)), LIGHT, overlay);
         if (actor.armored()) drawArmor(pose, buffers, model, overlay);
         drawHeldItem(pose, buffers, model.rightArm, state.mainHand(), false, model);
