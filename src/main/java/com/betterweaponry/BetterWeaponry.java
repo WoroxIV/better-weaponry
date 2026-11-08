@@ -7,6 +7,8 @@ import com.betterweaponry.datagen.ModItemTagsProvider;
 import com.betterweaponry.datagen.ModRecipeProvider;
 import com.betterweaponry.datagen.lang.ModLanguageProvider;
 import com.betterweaponry.registry.ModAttachments;
+import com.betterweaponry.registry.ModCreativeTabs;
+import com.betterweaponry.registry.ModStats;
 import com.betterweaponry.registry.ModAttributes;
 import com.betterweaponry.registry.ModEffects;
 import com.betterweaponry.registry.ModEntities;
@@ -53,6 +55,8 @@ public final class BetterWeaponry {
 
     public BetterWeaponry(IEventBus modEventBus, ModContainer modContainer) {
         ModItems.ITEMS.register(modEventBus);
+        ModCreativeTabs.TABS.register(modEventBus);
+        ModStats.STATS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModAttributes.ATTRIBUTES.register(modEventBus);
@@ -73,22 +77,17 @@ public final class BetterWeaponry {
 
     /** Prépare config/better_weaponry/ (et convertit l'ancienne config 1.x) avant le chargement de tout monde. */
     private void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(ModStats::registerFormats);
         if (DatagenModLoader.isRunningDataGen()) return;
         ConfigFolder.prepare(languageSupplier.get());
     }
 
-    /** Place toutes les armes dans l'onglet Combat, juste avant le trident, dans l'ordre d'enregistrement. */
+    /** Le bouclier, l'arc et l'arbalète vanilla sont remplacés par ceux du mod, qui ont leur propre onglet ({@link ModCreativeTabs}). */
     private void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() != CreativeModeTabs.COMBAT) return;
 
-        // Le bouclier, l'arc et l'arbalète vanilla sont remplacés par ceux du mod.
         for (Item replaced : List.of(Items.SHIELD, Items.BOW, Items.CROSSBOW)) {
             event.remove(new ItemStack(replaced), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        }
-
-        ItemStack trident = new ItemStack(Items.TRIDENT);
-        for (var item : ModItems.ITEMS.getEntries()) {
-            event.insertBefore(trident, new ItemStack(item.get()), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         }
     }
 

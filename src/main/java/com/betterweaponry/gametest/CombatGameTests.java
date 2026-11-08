@@ -29,7 +29,9 @@ import com.betterweaponry.data.MobGearDefinition;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.RulesDefinition;
+import com.betterweaponry.data.RulesPreset;
 import com.betterweaponry.data.WeaponAbility;
+import com.betterweaponry.data.WeaponComparison;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.data.JsonTree;
@@ -52,6 +54,8 @@ import com.betterweaponry.mixin.LivingEntityAccessor;
 import com.betterweaponry.mixin.MobAccessor;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModAttributes;
+import com.betterweaponry.registry.ModCreativeTabs;
+import com.betterweaponry.registry.ModStats;
 import com.betterweaponry.registry.ModEffects;
 import com.betterweaponry.registry.ModItems;
 import com.google.gson.JsonArray;
@@ -72,6 +76,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import com.google.common.collect.ImmutableMultimap;
+import net.minecraft.stats.Stats;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
@@ -79,6 +86,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
@@ -1088,6 +1097,101 @@ public final class CombatGameTests {
 
     private static Holder<Enchantment> enchantment(GameTestHelper helper, ResourceKey<Enchantment> key) {
         return helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key);
+    }
+
+    /** Onglet créatif : boucliers, mêlée de la plus courte à la plus longue, arcs, arbalètes, shurikens ; plus rien dans l'onglet Combat. */
+    @GameTest(template = ARENA)
+    public static void creativeTabOrder(GameTestHelper helper) {
+        List<ItemStack> order = ModCreativeTabs.displayOrder();
+        int rank = 0;
+        double reach = 0.0D;
+        for (ItemStack stack : order) {
+            int current = stack.getItem() instanceof WeaponShieldItem ? 0 : stack.getItem() instanceof WeaponItem ? 1 : stack.getItem() instanceof WeaponBowItem ? 2
+                    : stack.getItem() instanceof WeaponCrossbowItem ? 3 : stack.getItem() instanceof ShurikenItem ? 4 : -1;
+            helper.assertTrue(current >= rank, "wrong group order at " + stack);
+            rank = current;
+            if (stack.getItem() instanceof WeaponItem weapon) {
+                helper.assertTrue(weapon.definition().attackReach() >= reach, "melee weapons should be sorted by reach at " + stack);
+                reach = weapon.definition().attackReach();
+            }
+        }
+        helper.assertTrue(rank == 4, "the tab should end with the shurikens");
+        helper.assertTrue(order.size() == ModItems.ITEMS.getEntries().size(), "every item of the mod should be in the tab: " + order.size() + " of " + ModItems.ITEMS.getEntries().size());
+        helper.succeed();
+    }
+
+    /** Statistiques : parades parfaites, shurikens lancés, vie volée. */
+    @GameTest(template = ARENA)
+    public static void playerStatistics(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ItemStack katana = new ItemStack(ModItems.get(WeaponType.KATANA, WeaponMaterials.IRON).get());
+        Pig pig = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
+        int parriesBefore = statValue(player, ModStats.PERFECT_PARRIES.get());
+        ParrySystem.onPerfectParry(player, katana, player.damageSources().mobAttack(pig), RAW_DAMAGE, 0.0D, 1.0D);
+        helper.assertTrue(statValue(player, ModStats.PERFECT_PARRIES.get()) == parriesBefore + 1, "a perfect parry should be counted");
+
+        ShurikenItem iron = ModItems.shuriken(WeaponMaterials.IRON).get();
+        ItemStack multi = new ItemStack(iron);
+        multi.enchant(enchantment(helper, Enchantments.MULTISHOT), 1);
+        player.setItemInHand(InteractionHand.MAIN_HAND, multi);
+        int thrownBefore = statValue(player, ModStats.SHURIKENS_THROWN.get());
+        iron.throwFrom(helper.getLevel(), player, InteractionHand.MAIN_HAND, multi);
+        helper.assertTrue(statValue(player, ModStats.SHURIKENS_THROWN.get()) == thrownBefore + 3, "each shuriken of a volley should be counted");
+        helper.getLevel().getEntitiesOfClass(ShurikenEntity.class, player.getBoundingBox().inflate(6.0D)).forEach(ShurikenEntity::discard);
+
+        ItemStack vampiric = new ItemStack(ModItems.get(WeaponType.KATANA, WeaponMaterials.IRON).get());
+        vampiric.enchant(enchantment(helper, ModEnchantments.VAMPIRISM), 3);
+        player.setItemInHand(InteractionHand.MAIN_HAND, vampiric);
+        player.setHealth(4.0F);
+        int stolenBefore = statValue(player, ModStats.HEALTH_STOLEN.get());
+        player.getAttributes().addTransientAttributeModifiers(vampiric.getItem().getDefaultAttributeModifiers(vampiric).modifiers().stream()
+                .collect(ImmutableMultimap::<Holder<Attribute>, AttributeModifier>builder, (map, entry) -> map.put(entry.attribute(), entry.modifier()), (left, right) -> left.putAll(right.build())).build());
+        pig.hurt(player.damageSources().playerAttack(player), RAW_DAMAGE);
+        double regained = player.getHealth() - 4.0F;
+        helper.assertTrue(regained > 0.0D, "Vampirism should have healed the player");
+        helper.assertTrue(statValue(player, ModStats.HEALTH_STOLEN.get()) - stolenBefore == Math.round(regained * 10.0D), "the health stolen should be counted in tenths");
+        // Ce faux joueur n'accepte pas les paquets du mod : il ne doit pas rester connecté pour les autres tests.
+        helper.getLevel().getServer().getPlayerList().remove(player);
+        helper.succeed();
+    }
+
+    private static int statValue(ServerPlayer player, ResourceLocation stat) {
+        return player.getStats().getValue(Stats.CUSTOM.get(stat));
+    }
+
+    /** Préréglages : chacun fixe tous les interrupteurs, et le tableau comparatif trie comme demandé. */
+    @GameTest(template = ARENA)
+    public static void presetsAndComparison(GameTestHelper helper) {
+        RulesDefinition nearVanilla = presetRules(RulesPreset.NEAR_VANILLA);
+        helper.assertTrue(nearVanilla.reachActive() && !nearVanilla.dashActive() && !nearVanilla.combosActive() && !nearVanilla.parryActive() && !nearVanilla.dualWieldActive(), "near vanilla");
+        RulesDefinition pvp = presetRules(RulesPreset.PVP_1_8);
+        helper.assertTrue(pvp.parryActive() && !pvp.perfectParryActive() && !pvp.guardBreakActive() && !pvp.reachActive() && !pvp.sweepActive() && !pvp.dashActive(), "pvp 1.8");
+        RulesDefinition hard = presetRules(RulesPreset.HARD);
+        helper.assertTrue(hard.parryActive() && hard.perfectParryActive() && hard.combosActive() && hard.dashActive() && hard.dualWieldActive() && hard.dualWieldSpeedMultiplier() == 1.25D, "hard");
+
+        JsonObject gear = EditorDocument.gear().defaults();
+        RulesPreset.HARD.applyToGear(gear);
+        helper.assertTrue(gear.getAsJsonObject("mobs").get("guard_chance").getAsDouble() == 50.0D, "hard should make mobs guard more");
+        RulesPreset.NEAR_VANILLA.applyToGear(gear);
+        helper.assertTrue(gear.getAsJsonObject("mobs").get("guard_chance").getAsDouble() == MobGearDefinition.DEFAULT.guardChance(), "another preset should bring the mobs back");
+
+        Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(WeaponType.class);
+        for (WeaponType type : WeaponType.values()) weapons.put(type, WeaponData.weapon(type));
+        List<WeaponComparison.Row> byDps = WeaponComparison.rows(weapons, WeaponMaterials.IRON, WeaponComparison.Column.DPS, true);
+        for (int i = 1; i < byDps.size(); i++) helper.assertTrue(byDps.get(i - 1).dps() >= byDps.get(i).dps(), "the table should be sorted by DPS");
+        List<WeaponComparison.Row> byReach = WeaponComparison.rows(weapons, WeaponMaterials.IRON, WeaponComparison.Column.REACH, false);
+        for (int i = 1; i < byReach.size(); i++) helper.assertTrue(byReach.get(i - 1).reach() <= byReach.get(i).reach(), "the table should be sorted by reach");
+        WeaponComparison.Row katana = byDps.stream().filter(row -> row.type() == WeaponType.KATANA).findFirst().orElseThrow();
+        helper.assertTrue(Math.abs(katana.dps() - WeaponData.weapon(WeaponType.KATANA).dps(WeaponMaterials.IRON)) < EPSILON, "the DPS column should use the chosen material");
+        helper.assertTrue(WeaponComparison.rows(weapons, WeaponMaterials.NETHERITE, WeaponComparison.Column.DAMAGE, true).getFirst().damage()
+                > WeaponComparison.rows(weapons, WeaponMaterials.WOODEN, WeaponComparison.Column.DAMAGE, true).getFirst().damage(), "the material should change the damage");
+        helper.succeed();
+    }
+
+    private static RulesDefinition presetRules(RulesPreset preset) {
+        JsonObject rules = EditorDocument.rules().defaults();
+        preset.applyToRules(rules);
+        return RulesDefinition.CODEC.parse(JsonOps.INSTANCE, rules).getOrThrow();
     }
 
     /** Shuriken : −1 au lancer, +1 au ramassage, le dernier point recrée l'objet, un objet rangé ailleurs ne se copie pas. */

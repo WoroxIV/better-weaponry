@@ -7,6 +7,7 @@ import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModSounds;
+import com.betterweaponry.registry.ModStats;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -180,6 +181,7 @@ public final class ParrySystem {
      */
     public static void onPerfectParry(Player player, ItemStack guard, DamageSource source, float damage, double bonusPercent, double bonusSeconds) {
         playPerfectParry(player, guard);
+        player.awardStat(ModStats.PERFECT_PARRIES.get());
         int riposte = ModEnchantments.level(player.level(), guard, ModEnchantments.RIPOSTE);
         grantPerfectBonus(player, bonusPercent + riposte * ModEnchantments.RIPOSTE_PERCENT_PER_LEVEL, bonusSeconds);
         ModEnchantments.reflect(player, guard, source, damage);

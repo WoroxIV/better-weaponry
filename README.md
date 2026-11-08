@@ -167,6 +167,13 @@ The number of armed mobs does not change. A hostile mob that gets a vanilla weap
 
 Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, alternate hands when dual wielding, and can raise a guard with a shield or a parrying weapon; a guard reduces hits like a player's parry and an axe breaks it. 5% of skeletons throw shurikens, and patrol and raid captains carry a shield. All of this is off with `combat_changes_enabled: false`, Better Combat or Epic Fight, except for the weapons themselves.
 
+### Editor extras
+
+- **Creative tab**: the mod has its own tab: shields, melee weapons from the shortest to the longest reach, bows, crossbows, then shurikens.
+- **Comparison page**: compares damage, speed, DPS, reach and armor penetration for the material of your choice. Click a column to sort. It is also available in the Codex.
+- **Presets**, on the Rules page: "Close to vanilla", "PvP 1.8" and "Hard". Each one sets every switch of `rules.json` and the mobs of `gear.json`. Nothing is applied until you save.
+- **Statistics**, in the vanilla screen: perfect parries, shurikens thrown, health stolen.
+
 ### Enchantments
 
 | Enchantment | Effect | Goes on | How to get it |

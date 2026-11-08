@@ -3,6 +3,7 @@ package com.betterweaponry.item;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.entity.ShurikenEntity;
 import com.betterweaponry.registry.ModAttachments;
+import com.betterweaponry.registry.ModStats;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -103,6 +104,7 @@ public class ShurikenItem extends Item implements RangedWeapon {
             level.addFreshEntity(shuriken);
         }
         level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 0.6F, 1.6F);
+        player.awardStat(ModStats.SHURIKENS_THROWN.get(), count);
     }
 
     /** Lancer d'un mob : ne s'use pas et ne se ramasse pas. Vise au-dessus de la cible selon la vitesse. */

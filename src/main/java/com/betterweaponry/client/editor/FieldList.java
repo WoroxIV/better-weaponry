@@ -519,6 +519,67 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
         }
     }
 
+    /** Largeurs des colonnes du tableau comparatif : l'icône et le nom prennent ce que les autres laissent. */
+    private static final int TABLE_VALUE_WIDTH = 38;
+    private static final int TABLE_ICON_SPACE = 20;
+
+    private static int tableNameWidth(int width, int valueColumns) {
+        return width - 2 - valueColumns * TABLE_VALUE_WIDTH;
+    }
+
+    /** En-tête du tableau comparatif : cliquer sur une colonne trie le tableau. */
+    final class TableHeaderRow extends Row {
+        TableHeaderRow(List<Button> columns) {
+            super(0);
+            widgets.addAll(columns);
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
+                           boolean hovering, float partialTick) {
+            int nameWidth = tableNameWidth(width, widgets.size() - 1);
+            int x = left;
+            for (int i = 0; i < widgets.size(); i++) {
+                AbstractWidget widget = widgets.get(i);
+                widget.setWidth(i == 0 ? nameWidth : TABLE_VALUE_WIDTH);
+                widget.setPosition(x, top);
+                widget.render(graphics, mouseX, mouseY, partialTick);
+                x += widget.getWidth();
+            }
+        }
+    }
+
+    /** Ligne du tableau comparatif : icône, nom et valeurs alignées à droite. Survoler l'icône ou le nom montre le tooltip de l'arme. */
+    final class TableRow extends Row {
+        private final ItemStack stack;
+        private final List<String> values;
+        private final int highlighted;
+
+        /** @param highlighted indice de la valeur de la colonne triée, ou -1 */
+        TableRow(ItemStack stack, List<String> values, int highlighted) {
+            super(0);
+            this.stack = stack;
+            this.values = values;
+            this.highlighted = highlighted;
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
+                           boolean hovering, float partialTick) {
+            int nameWidth = tableNameWidth(width, values.size());
+            graphics.renderItem(stack, left + 1, top + 1);
+            drawLabel(graphics, stack.getHoverName().getString(), left + TABLE_ICON_SPACE, top, nameWidth - TABLE_ICON_SPACE - 2, LABEL_COLOR);
+            for (int i = 0; i < values.size(); i++) {
+                int right = left + nameWidth + (i + 1) * TABLE_VALUE_WIDTH - 4;
+                String value = values.get(i);
+                graphics.drawString(font(), value, right - font().width(value), top + 5, i == highlighted ? CHANGED_COLOR : TEXT_COLOR);
+            }
+            if (mouseX >= left && mouseX < left + nameWidth && mouseY >= top && mouseY < top + ROW_HEIGHT - 2) {
+                screen.setTooltipForNextRenderPass(Lists.transform(Screen.getTooltipFromItem(minecraft, stack), Component::getVisualOrderText));
+            }
+        }
+    }
+
     /** Aperçu d'un objet : son tooltip réel s'affiche quand on le survole. */
     final class ItemPreviewRow extends Row {
         private static final int ICON_SIZE = 16;

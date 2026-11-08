@@ -1,5 +1,6 @@
 package com.betterweaponry.combat;
 
+import com.betterweaponry.registry.ModStats;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.registry.ModEffects;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -65,7 +66,10 @@ public final class EnchantmentEvents {
         if (level <= 0 || damage <= 0.0F || now < state.vampirismReadyAt) return;
         state.vampirismReadyAt = now + VAMPIRISM_COOLDOWN_TICKS;
 
+        float healthBefore = attacker.getHealth();
         attacker.heal((float) ModEnchantments.vampirismHeal(damage, level));
+        // La statistique compte ce qui a vraiment été regagné, en dixièmes de point de vie.
+        if (attacker instanceof Player player) player.awardStat(ModStats.HEALTH_STOLEN.get(), Math.round((player.getHealth() - healthBefore) * 10.0F));
         ModEnchantments.trail(world, BLOOD, target.getEyePosition(), attacker.getEyePosition());
         world.playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.SCULK_BLOCK_CHARGE, SoundSource.PLAYERS, 0.6F, 1.4F);
     }

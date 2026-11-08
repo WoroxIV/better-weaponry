@@ -18,12 +18,15 @@ import com.betterweaponry.data.DataProblem;
 import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.JsonTree;
 import com.betterweaponry.data.JsonUtil;
+import com.betterweaponry.data.RulesPreset;
 import com.betterweaponry.data.WeaponAbility;
+import com.betterweaponry.data.WeaponComparison;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDataLoader;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.editor.EditorDocument;
 import com.betterweaponry.editor.EditorTarget;
+import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.network.SaveDocumentPayload;
@@ -48,6 +51,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +73,7 @@ public final class WeaponEditorScreen extends Screen {
     static final String KEY = BetterWeaponry.MODID + ".editor.";
     private static final String CLIENT_PAGE = "client";
     private static final String TOOLTIPS_PAGE = "tooltips";
+    private static final String COMPARISON_PAGE = "comparison";
     private static final int PLACEMENT_BUTTON_WIDTH = 88;
     private static final int COLOR_BUTTON_WIDTH = 34;
     private static final int RESET_BUTTON_WIDTH = 20;
@@ -103,6 +108,9 @@ public final class WeaponEditorScreen extends Screen {
     private String selected = EditorDocument.RULES_ID;
     /** Arme montrée dans l'aperçu de la page Tooltips. */
     private WeaponType previewType = WeaponType.KATANA;
+    private WeaponComparison.Column comparisonColumn = WeaponComparison.Column.DPS;
+    private boolean comparisonDescending = true;
+    private WeaponMaterial comparisonMaterial = WeaponMaterials.IRON;
     private EditorTarget target = EditorTarget.ALL_WORLDS;
     private Component status = Component.empty();
     private int statusColor = INFO_COLOR;
@@ -153,6 +161,7 @@ public final class WeaponEditorScreen extends Screen {
         documentList.setX(MARGIN);
         documentList.add(EditorDocument.RULES_ID, Component.translatable(KEY + "rules"));
         documentList.add(EditorDocument.GEAR_ID, Component.translatable(KEY + "gear"));
+        documentList.add(COMPARISON_PAGE, Component.translatable(KEY + "comparison"));
         for (EditorDocument document : model.documents()) {
             if (document.type() != null) {
                 documentList.add(document.id(), Component.translatable(BetterWeaponry.MODID + ".configuration." + document.id()));
@@ -262,10 +271,13 @@ public final class WeaponEditorScreen extends Screen {
             addClientRows();
         } else if (selected.equals(TOOLTIPS_PAGE)) {
             addTooltipRows();
+        } else if (selected.equals(COMPARISON_PAGE)) {
+            addComparisonRows();
         } else {
             CombatCompat.externalCombatModName().ifPresent(name -> fieldList.add(fieldList.new NoteRow(
                     Component.translatable(KEY + "external_combat_mod", name),
                     Component.translatable(KEY + "external_combat_mod.tooltip", name), WARNING_COLOR, 0)));
+            if (selected.equals(EditorDocument.RULES_ID) && canEdit) addPresetRow();
             EditorDocument document = model.document(selected);
             String sectionTitle = document.type() == null ? KEY + "section.rules" : KEY + "section.stats";
             addSection("", Component.translatable(sectionTitle), null, 0);
@@ -356,6 +368,65 @@ public final class WeaponEditorScreen extends Screen {
         return text;
     }
 
+    /** Préréglages de la page Règles. Comme toute modification, ils ne sont appliqués qu'une fois enregistrés. */
+    private void addPresetRow() {
+        List<Button> presets = new ArrayList<>();
+        for (RulesPreset preset : RulesPreset.values()) {
+            presets.add(Button.builder(Component.translatable(KEY + "preset." + preset.id()), pressed -> applyPreset(preset))
+                    .tooltip(Tooltip.create(Component.translatable(KEY + "preset." + preset.id() + ".tooltip"))).build());
+        }
+        fieldList.add(fieldList.new WideButtonsRow(presets));
+    }
+
+    private void applyPreset(RulesPreset preset) {
+        JsonObject rules = model.working(EditorDocument.RULES_ID).deepCopy();
+        preset.applyToRules(rules);
+        model.replace(EditorDocument.RULES_ID, rules);
+        JsonObject gear = model.working(EditorDocument.GEAR_ID).deepCopy();
+        preset.applyToGear(gear);
+        model.replace(EditorDocument.GEAR_ID, gear);
+        rebuildFields(false);
+        status(Component.translatable(KEY + "preset.applied", Component.translatable(KEY + "preset." + preset.id())), WARNING_COLOR);
+    }
+
+    /** Tableau comparatif : valeurs en cours de modification, donc un changement non enregistré s'y voit tout de suite. */
+    private void addComparisonRows() {
+        List<WeaponMaterial> materials = WeaponMaterials.active();
+        ItemStack sample = new ItemStack(ModItems.get(WeaponType.KATANA, comparisonMaterial).get());
+        fieldList.add(fieldList.new ItemPreviewRow(Component.translatable(KEY + "comparison.material", sample.getHoverName()), () -> sample,
+                Button.builder(Component.translatable(KEY + "comparison.next_material"), pressed -> {
+                    comparisonMaterial = materials.get((materials.indexOf(comparisonMaterial) + 1) % materials.size());
+                    rebuildFields(false);
+                }).size(PREVIEW_BUTTON_WIDTH, BUTTON_HEIGHT).build()));
+
+        List<Button> header = new ArrayList<>();
+        for (WeaponComparison.Column column : WeaponComparison.Column.values()) {
+            String arrow = column != comparisonColumn ? "" : comparisonDescending ? " ▼" : " ▲";
+            header.add(Button.builder(Component.translatable(KEY + "comparison.column." + column.id()).append(arrow), pressed -> sortComparison(column))
+                    .tooltip(Tooltip.create(Component.translatable(KEY + "comparison.column." + column.id() + ".tooltip"))).build());
+        }
+        fieldList.add(fieldList.new TableHeaderRow(header));
+
+        Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(WeaponType.class);
+        for (EditorDocument document : model.documents()) {
+            if (document.type() != null) {
+                weapons.put(document.type(), WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, model.working(document.id())).result().orElse(WeaponData.weapon(document.type())));
+            }
+        }
+        int highlighted = comparisonColumn.ordinal() - 1;
+        for (WeaponComparison.Row row : WeaponComparison.rows(weapons, comparisonMaterial, comparisonColumn, comparisonDescending)) {
+            fieldList.add(fieldList.new TableRow(new ItemStack(ModItems.get(row.type(), comparisonMaterial).get()),
+                    List.of(Docs.number(row.damage()), Docs.number(row.speed()), Docs.number(row.dps()), Docs.number(row.reach()), Docs.number(row.penetration())), highlighted));
+        }
+    }
+
+    /** Cliquer sur la colonne déjà triée inverse le sens. Les noms montent, les nombres descendent. */
+    private void sortComparison(WeaponComparison.Column column) {
+        comparisonDescending = column == comparisonColumn ? !comparisonDescending : column != WeaponComparison.Column.NAME;
+        comparisonColumn = column;
+        rebuildFields(false);
+    }
+
     private void addClientRows() {
         fieldList.add(fieldList.new NoteRow(Component.translatable(KEY + "client.note"), 0));
         for (HudElement element : HudElement.values()) {
@@ -421,7 +492,7 @@ public final class WeaponEditorScreen extends Screen {
 
     /** Pages des préférences du joueur, qui ne correspondent à aucun fichier d'arme. */
     private static boolean isLocalPage(String id) {
-        return id.equals(CLIENT_PAGE) || id.equals(TOOLTIPS_PAGE);
+        return id.equals(CLIENT_PAGE) || id.equals(TOOLTIPS_PAGE) || id.equals(COMPARISON_PAGE);
     }
 
     private void addToggle(Component label, Component tooltip, ModConfigSpec.BooleanValue value) {
@@ -433,7 +504,9 @@ public final class WeaponEditorScreen extends Screen {
         if (cachedVersion == model.version() && cachedFor.equals(selected)) return cachedInfo;
         cachedVersion = model.version();
         cachedFor = selected;
-        if (isLocalPage(selected)) {
+        if (selected.equals(COMPARISON_PAGE)) {
+            cachedInfo = Component.translatable(KEY + "info.comparison");
+        } else if (isLocalPage(selected)) {
             cachedInfo = Component.translatable(KEY + "info.client");
         } else if (selected.equals(EditorDocument.RULES_ID)) {
             cachedInfo = Component.translatable(KEY + "info.rules");
