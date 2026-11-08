@@ -18,16 +18,21 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.jetbrains.annotations.Nullable;
+
+import com.google.common.collect.Lists;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Liste des champs du fichier choisi, à droite de l'éditeur. Chaque ligne a son aide au survol du nom.
@@ -442,6 +447,85 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
             int labelWidth = button.getX() - x - 4;
             drawLabel(graphics, label.getString(), x, top, labelWidth, LABEL_COLOR);
             tooltipIfHovered(mouseX, mouseY, x, top, labelWidth, tooltip);
+            button.render(graphics, mouseX, mouseY, partialTick);
+        }
+    }
+
+    /** Un nom et des boutons alignés à droite (ex : placement et couleur d'une ligne de tooltip). */
+    final class ButtonsRow extends Row {
+        private final Component label;
+        @Nullable private final Component tooltip;
+
+        ButtonsRow(Component label, @Nullable Component tooltip, List<? extends AbstractWidget> buttons) {
+            super(0);
+            this.label = label;
+            this.tooltip = tooltip;
+            widgets.addAll(buttons);
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
+                           boolean hovering, float partialTick) {
+            int right = left + width - 2;
+            for (int i = widgets.size() - 1; i >= 0; i--) {
+                AbstractWidget widget = widgets.get(i);
+                widget.setPosition(right - widget.getWidth(), top);
+                right -= widget.getWidth() + 2;
+            }
+            int x = labelX(left);
+            int labelWidth = right - x - 2;
+            drawLabel(graphics, label.getString(), x, top, labelWidth, LABEL_COLOR);
+            tooltipIfHovered(mouseX, mouseY, x, top, labelWidth, tooltip);
+            for (AbstractWidget widget : widgets) widget.render(graphics, mouseX, mouseY, partialTick);
+        }
+    }
+
+    /** Une ligne de boutons répartis sur toute la largeur. */
+    final class WideButtonsRow extends Row {
+        WideButtonsRow(List<? extends AbstractWidget> buttons) {
+            super(0);
+            widgets.addAll(buttons);
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
+                           boolean hovering, float partialTick) {
+            int count = widgets.size();
+            int buttonWidth = (width - 2 - (count - 1) * 2) / count;
+            for (int i = 0; i < count; i++) {
+                AbstractWidget widget = widgets.get(i);
+                widget.setWidth(buttonWidth);
+                widget.setPosition(left + i * (buttonWidth + 2), top);
+                widget.render(graphics, mouseX, mouseY, partialTick);
+            }
+        }
+    }
+
+    /** Aperçu d'un objet : son tooltip réel s'affiche quand on le survole. */
+    final class ItemPreviewRow extends Row {
+        private static final int ICON_SIZE = 16;
+        private final Component label;
+        private final Supplier<ItemStack> stack;
+
+        ItemPreviewRow(Component label, Supplier<ItemStack> stack, AbstractWidget button) {
+            super(0);
+            this.label = label;
+            this.stack = stack;
+            widgets.add(button);
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
+                           boolean hovering, float partialTick) {
+            AbstractWidget button = widgets.getFirst();
+            button.setPosition(left + width - 2 - button.getWidth(), top);
+            int x = labelX(left);
+            graphics.renderItem(stack.get(), x, top + 1);
+            int textX = x + ICON_SIZE + 4;
+            drawLabel(graphics, label.getString(), textX, top, button.getX() - textX - 4, LABEL_COLOR);
+            if (mouseX >= x && mouseX < button.getX() - 4 && mouseY >= top && mouseY < top + ROW_HEIGHT - 2) {
+                screen.setTooltipForNextRenderPass(Lists.transform(Screen.getTooltipFromItem(minecraft, stack.get()), Component::getVisualOrderText));
+            }
             button.render(graphics, mouseX, mouseY, partialTick);
         }
     }

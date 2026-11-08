@@ -1,11 +1,14 @@
 package com.betterweaponry.client.editor;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.client.ModKeyMappings;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.config.Docs;
 import com.betterweaponry.config.EditorFiles;
+import com.betterweaponry.config.TooltipCategory;
+import com.betterweaponry.config.TooltipPlacement;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.DataField;
 import com.betterweaponry.data.DataProblem;
@@ -19,7 +22,9 @@ import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.editor.EditorDocument;
 import com.betterweaponry.editor.EditorTarget;
 import com.betterweaponry.item.WeaponMaterials;
+import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.network.SaveDocumentPayload;
+import com.betterweaponry.registry.ModItems;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -33,6 +38,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
@@ -43,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Éditeur des stats des armes et des règles, et Codex (même écran en lecture seule).
@@ -58,6 +65,11 @@ import java.util.Optional;
 public final class WeaponEditorScreen extends Screen {
     static final String KEY = BetterWeaponry.MODID + ".editor.";
     private static final String CLIENT_PAGE = "client";
+    private static final String TOOLTIPS_PAGE = "tooltips";
+    private static final int PLACEMENT_BUTTON_WIDTH = 88;
+    private static final int COLOR_BUTTON_WIDTH = 34;
+    private static final int RESET_BUTTON_WIDTH = 20;
+    private static final int PREVIEW_BUTTON_WIDTH = 100;
     private static final int OPERATOR_LEVEL = 2;
     private static final int MARGIN = 8;
     private static final int DOCUMENT_LIST_WIDTH = 112;
@@ -85,6 +97,8 @@ public final class WeaponEditorScreen extends Screen {
     private final Map<String, String> pendingSaves = new HashMap<>();
 
     private String selected = EditorDocument.RULES_ID;
+    /** Arme montrée dans l'aperçu de la page Tooltips. */
+    private WeaponType previewType = WeaponType.KATANA;
     private EditorTarget target = EditorTarget.ALL_WORLDS;
     private Component status = Component.empty();
     private int statusColor = INFO_COLOR;
@@ -131,7 +145,7 @@ public final class WeaponEditorScreen extends Screen {
     protected void init() {
         int listHeight = height - TOP - BOTTOM_SPACE;
         DocumentList documentList = new DocumentList(minecraft, DOCUMENT_LIST_WIDTH, listHeight, TOP, this::select,
-                id -> !id.equals(CLIENT_PAGE) && model.isDirty(id), id -> !id.equals(CLIENT_PAGE) && model.hasInvalid(id));
+                id -> !isLocalPage(id) && model.isDirty(id), id -> !isLocalPage(id) && model.hasInvalid(id));
         documentList.setX(MARGIN);
         documentList.add(EditorDocument.RULES_ID, Component.translatable(KEY + "rules"));
         for (EditorDocument document : model.documents()) {
@@ -139,6 +153,7 @@ public final class WeaponEditorScreen extends Screen {
                 documentList.add(document.id(), Component.translatable(BetterWeaponry.MODID + ".configuration." + document.id()));
             }
         }
+        documentList.add(TOOLTIPS_PAGE, Component.translatable(KEY + "tooltips"));
         documentList.add(CLIENT_PAGE, Component.translatable(KEY + "client"));
         documentList.select(selected);
         addRenderableWidget(documentList);
@@ -221,7 +236,7 @@ public final class WeaponEditorScreen extends Screen {
     private boolean isCollapsed(String key) {
         Boolean toggled = sectionToggles.get(key);
         if (toggled != null) return toggled;
-        if (selected.equals(EditorDocument.RULES_ID) || selected.equals(CLIENT_PAGE)) return false;
+        if (selected.equals(EditorDocument.RULES_ID) || isLocalPage(selected)) return false;
         JsonObject values = model.working(selected);
         String ability = values.has(WeaponDefinition.ABILITY.name()) ? values.get(WeaponDefinition.ABILITY.name()).getAsString() : "";
         return switch (key) {
@@ -240,6 +255,8 @@ public final class WeaponEditorScreen extends Screen {
         fieldList.clear(resetScroll);
         if (selected.equals(CLIENT_PAGE)) {
             addClientRows();
+        } else if (selected.equals(TOOLTIPS_PAGE)) {
+            addTooltipRows();
         } else {
             CombatCompat.externalCombatModName().ifPresent(name -> fieldList.add(fieldList.new NoteRow(
                     Component.translatable(KEY + "external_combat_mod", name),
@@ -336,9 +353,60 @@ public final class WeaponEditorScreen extends Screen {
 
     private void addClientRows() {
         fieldList.add(fieldList.new NoteRow(Component.translatable(KEY + "client.note"), 0));
-        addToggle("show_attack_reach_tooltip", ClientConfig.SHOW_ATTACK_REACH_TOOLTIP);
-        addToggle("show_two_handed_tooltip", ClientConfig.SHOW_TWO_HANDED_TOOLTIP);
         addToggle("show_combo_hud", ClientConfig.SHOW_COMBO_HUD);
+    }
+
+    /** Page Tooltips : aperçu, préréglages, puis placement et couleur de chaque catégorie de lignes. */
+    private void addTooltipRows() {
+        fieldList.add(fieldList.new NoteRow(Component.translatable(KEY + "tooltips.note", ModKeyMappings.weaponDetailsKeyName()),
+                Component.translatable(KEY + "tooltips.note.tooltip"), INFO_COLOR, 0));
+        fieldList.add(fieldList.new ItemPreviewRow(Component.translatable(KEY + "tooltips.preview"),
+                () -> new ItemStack(ModItems.get(previewType, WeaponMaterials.IRON).get()),
+                Button.builder(Component.translatable(KEY + "tooltips.next_weapon"), pressed -> {
+                    WeaponType[] types = WeaponType.values();
+                    previewType = types[(previewType.ordinal() + 1) % types.length];
+                }).size(PREVIEW_BUTTON_WIDTH, BUTTON_HEIGHT).build()));
+
+        List<Button> presets = new ArrayList<>();
+        for (ClientConfig.TooltipPreset preset : ClientConfig.TooltipPreset.values()) {
+            presets.add(Button.builder(Component.translatable(KEY + "tooltips.preset." + preset.id()), pressed -> {
+                ClientConfig.applyPreset(preset);
+                rebuildFields(false);
+            }).tooltip(Tooltip.create(Component.translatable(KEY + "tooltips.preset." + preset.id() + ".tooltip"))).build());
+        }
+        fieldList.add(fieldList.new WideButtonsRow(presets));
+
+        for (TooltipCategory category : TooltipCategory.values()) {
+            ModConfigSpec.EnumValue<TooltipPlacement> placement = ClientConfig.placement(category);
+            ModConfigSpec.EnumValue<ChatFormatting> color = ClientConfig.color(category);
+            Button reset = Button.builder(Component.literal("↺"), pressed -> {
+                placement.set(category.defaultPlacement());
+                color.set(category.defaultColor());
+                ClientConfig.SPEC.save();
+                rebuildFields(false);
+            }).size(RESET_BUTTON_WIDTH, BUTTON_HEIGHT).tooltip(Tooltip.create(Component.translatable(KEY + "reset_field"))).build();
+            fieldList.add(fieldList.new ButtonsRow(Component.translatable(KEY + "tooltips.category." + category.id()), null, List.of(
+                    cycleButton(placement, List.of(TooltipPlacement.values()),
+                            value -> Component.translatable(KEY + "tooltips.placement." + value.id()), PLACEMENT_BUTTON_WIDTH),
+                    cycleButton(color, ClientConfig.TOOLTIP_COLORS,
+                            value -> Component.literal("■■■").withStyle(value), COLOR_BUTTON_WIDTH),
+                    reset)));
+        }
+    }
+
+    /** Bouton qui fait défiler les valeurs d'une préférence (enregistrée tout de suite). */
+    private <T extends Enum<T>> Button cycleButton(ModConfigSpec.EnumValue<T> value, List<T> values, Function<T, Component> label, int buttonWidth) {
+        return Button.builder(label.apply(value.get()), pressed -> {
+            T next = values.get((values.indexOf(value.get()) + 1) % values.size());
+            value.set(next);
+            ClientConfig.SPEC.save();
+            pressed.setMessage(label.apply(next));
+        }).size(buttonWidth, BUTTON_HEIGHT).build();
+    }
+
+    /** Pages des préférences du joueur, qui ne correspondent à aucun fichier d'arme. */
+    private static boolean isLocalPage(String id) {
+        return id.equals(CLIENT_PAGE) || id.equals(TOOLTIPS_PAGE);
     }
 
     private void addToggle(String name, ModConfigSpec.BooleanValue value) {
@@ -351,7 +419,7 @@ public final class WeaponEditorScreen extends Screen {
         if (cachedVersion == model.version() && cachedFor.equals(selected)) return cachedInfo;
         cachedVersion = model.version();
         cachedFor = selected;
-        if (selected.equals(CLIENT_PAGE)) {
+        if (isLocalPage(selected)) {
             cachedInfo = Component.translatable(KEY + "info.client");
         } else if (selected.equals(EditorDocument.RULES_ID)) {
             cachedInfo = Component.translatable(KEY + "info.rules");
@@ -423,7 +491,7 @@ public final class WeaponEditorScreen extends Screen {
 
     /** Copie les différences avec les valeurs du mod, prêtes à coller dans un fichier ou dans l'éditeur. */
     private void copyJson() {
-        if (selected.equals(CLIENT_PAGE)) return;
+        if (isLocalPage(selected)) return;
         EditorDocument document = model.document(selected);
         JsonObject differences = JsonTree.diff(document.fields(), model.working(selected), model.defaults(selected));
         minecraft.keyboardHandler.setClipboard(JsonUtil.PRETTY.toJson(differences));
@@ -432,7 +500,7 @@ public final class WeaponEditorScreen extends Screen {
 
     /** Colle du JSON par-dessus les valeurs affichées : seuls les champs valides sont repris. */
     private void pasteJson() {
-        if (selected.equals(CLIENT_PAGE)) return;
+        if (isLocalPage(selected)) return;
         EditorDocument document = model.document(selected);
         JsonObject pasted;
         try {
@@ -457,7 +525,7 @@ public final class WeaponEditorScreen extends Screen {
     }
 
     private void resetDocument() {
-        if (selected.equals(CLIENT_PAGE)) return;
+        if (isLocalPage(selected)) return;
         model.resetToDefaults(selected);
         rebuildFields(false);
         status(Component.translatable(KEY + "status.reset"), INFO_COLOR);

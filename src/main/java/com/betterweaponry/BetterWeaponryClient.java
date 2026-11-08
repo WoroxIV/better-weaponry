@@ -1,6 +1,7 @@
 package com.betterweaponry;
 
 import com.betterweaponry.client.ComboHud;
+import com.betterweaponry.client.ModKeyMappings;
 import com.betterweaponry.client.WeaponClientExtensions;
 import com.betterweaponry.client.editor.ClientEditorHooks;
 import com.betterweaponry.client.editor.WeaponEditorScreen;
@@ -18,6 +19,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -41,6 +43,7 @@ public final class BetterWeaponryClient {
 
         modEventBus.addListener(BetterWeaponryClient::registerClientExtensions);
         modEventBus.addListener(BetterWeaponryClient::registerGuiLayers);
+        modEventBus.addListener(BetterWeaponryClient::registerKeyMappings);
         NeoForge.EVENT_BUS.addListener(BetterWeaponryClient::onLoggingOut);
     }
 
@@ -48,6 +51,10 @@ public final class BetterWeaponryClient {
     private static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         Item[] weapons = ModItems.ITEMS.getEntries().stream().map(holder -> holder.get()).toArray(Item[]::new);
         event.registerItem(new WeaponClientExtensions(), weapons);
+    }
+
+    private static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(ModKeyMappings.WEAPON_DETAILS);
     }
 
     /** Indicateur du combo, dessiné juste au-dessus du viseur vanilla. */

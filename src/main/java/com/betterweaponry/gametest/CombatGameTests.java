@@ -1,6 +1,7 @@
 package com.betterweaponry.gametest;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.client.TooltipLayout;
 import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
@@ -9,6 +10,8 @@ import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.combat.TwoHandedSystem;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.compat.CombatCompat;
+import com.betterweaponry.config.TooltipCategory;
+import com.betterweaponry.config.TooltipPlacement;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.DashDefinition;
@@ -36,9 +39,12 @@ import com.betterweaponry.registry.ModItems;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -701,6 +707,56 @@ public final class CombatGameTests {
         for (String item : items) list.add(item);
         json.add(WeaponDefinition.ITEMS.name(), list);
         return WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
+    }
+
+    /**
+     * Rangement du tooltip : deux mains au-dessus des stats sans indentation, portée placée avant les dégâts,
+     * détails remplacés par l'invite tant que la touche n'est pas maintenue, couleur appliquée, catégorie cachée absente.
+     */
+    @GameTest(template = ARENA)
+    public static void tooltipLayout(GameTestHelper helper) {
+        TooltipLayout.Settings defaults = new TooltipLayout.Settings(TooltipCategory::defaultPlacement, TooltipCategory::defaultColor);
+        Component hint = Component.literal("hint");
+
+        List<Component> closed = arrangedTooltip(defaults, false, hint);
+        helper.assertTrue(texts(closed).equals(List.of("Weapon", "two", "", "When in Main Hand:",
+                " reach", " Attack Damage", " Attack Speed", "hint", "ID")),
+                "wrong layout without the key: " + texts(closed));
+        helper.assertTrue(closed.get(1).getStyle().getColor().equals(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)),
+                "the hands line should be dark gray");
+        helper.assertTrue(closed.get(4).getStyle().getColor().equals(TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN)),
+                "the stats should be dark green");
+
+        List<Component> open = arrangedTooltip(defaults, true, hint);
+        helper.assertTrue(texts(open).equals(List.of("Weapon", "two", "", "When in Main Hand:",
+                " reach", " Attack Damage", " Attack Speed", " parry", "ID")),
+                "wrong layout with the key: " + texts(open));
+
+        // Tout caché : le titre des stats et sa ligne vide disparaissent aussi.
+        TooltipLayout.Settings hidden = new TooltipLayout.Settings(category -> TooltipPlacement.HIDDEN, TooltipCategory::defaultColor);
+        List<Component> empty = arrangedTooltip(hidden, true, hint);
+        helper.assertTrue(texts(empty).equals(List.of("Weapon", "ID")), "wrong layout with everything hidden: " + texts(empty));
+        helper.succeed();
+    }
+
+    private static List<Component> arrangedTooltip(TooltipLayout.Settings settings, boolean detailsVisible, Component hint) {
+        List<Component> tooltip = new ArrayList<>(List.of(Component.literal("Weapon"), Component.empty(),
+                Component.translatable("item.modifiers.mainhand"),
+                Component.literal(" ").append(Component.translatable("attribute.name.generic.attack_damage")),
+                Component.literal(" ").append(Component.translatable("attribute.name.generic.attack_speed")),
+                Component.literal("ID")));
+        Map<TooltipCategory, List<Component>> lines = new EnumMap<>(TooltipCategory.class);
+        lines.put(TooltipCategory.DAMAGE, TooltipLayout.takeLines(tooltip, "attack_damage"));
+        lines.put(TooltipCategory.SPEED, TooltipLayout.takeLines(tooltip, "attack_speed"));
+        lines.put(TooltipCategory.HANDS, List.of(Component.literal(" ").append("two")));
+        lines.put(TooltipCategory.REACH, List.of(Component.literal(" ").append("reach")));
+        lines.put(TooltipCategory.ABILITY, List.of(Component.literal(" ").append("parry")));
+        TooltipLayout.arrange(tooltip, lines, settings, detailsVisible, hint);
+        return tooltip;
+    }
+
+    private static List<String> texts(List<Component> tooltip) {
+        return tooltip.stream().map(Component::getString).toList();
     }
 
     /**
