@@ -7,7 +7,10 @@ import com.betterweaponry.datagen.ModItemTagsProvider;
 import com.betterweaponry.datagen.ModRecipeProvider;
 import com.betterweaponry.datagen.lang.ModLanguageProvider;
 import com.betterweaponry.registry.ModAttributes;
+import com.betterweaponry.registry.ModEffects;
 import com.betterweaponry.registry.ModItems;
+import com.betterweaponry.registry.ModLootModifiers;
+import com.betterweaponry.registry.ModRecipes;
 import com.betterweaponry.registry.ModSounds;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
@@ -48,6 +51,9 @@ public final class BetterWeaponry {
         ModItems.ITEMS.register(modEventBus);
         ModAttributes.ATTRIBUTES.register(modEventBus);
         ModSounds.SOUNDS.register(modEventBus);
+        ModRecipes.SERIALIZERS.register(modEventBus);
+        ModEffects.EFFECTS.register(modEventBus);
+        ModLootModifiers.SERIALIZERS.register(modEventBus);
 
         modEventBus.addListener(this::addToCreativeTab);
         modEventBus.addListener(this::gatherData);
@@ -68,6 +74,9 @@ public final class BetterWeaponry {
     /** Place toutes les armes dans l'onglet Combat, juste avant le trident, dans l'ordre d'enregistrement. */
     private void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() != CreativeModeTabs.COMBAT) return;
+
+        // Le bouclier vanilla est remplacé par ceux du mod.
+        event.remove(new ItemStack(Items.SHIELD), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
 
         ItemStack trident = new ItemStack(Items.TRIDENT);
         for (var item : ModItems.ITEMS.getEntries()) {

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "minecraft:stone_tool_materials"
+    },
+    "o": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    "MoM",
+    "MMM",
+    " M "
+  ],
+  "result": {
+    "count": 1,
+    "id": "better_weaponry:stone_shield"
+  }
+}

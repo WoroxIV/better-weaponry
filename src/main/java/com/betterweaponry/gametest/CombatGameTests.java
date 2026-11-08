@@ -6,7 +6,9 @@ import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
+import com.betterweaponry.combat.ModEnchantments;
 import com.betterweaponry.combat.PlayerCombatState;
+import com.betterweaponry.combat.ShieldSystem;
 import com.betterweaponry.combat.TwoHandedSystem;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.compat.CombatCompat;
@@ -18,6 +20,7 @@ import com.betterweaponry.data.DashDefinition;
 import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.DataProblem;
 import com.betterweaponry.data.FieldSet;
+import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.ParryDefinition;
@@ -29,22 +32,32 @@ import com.betterweaponry.data.JsonTree;
 import com.betterweaponry.editor.EditorDocument;
 import com.betterweaponry.editor.EditorService;
 import com.betterweaponry.editor.EditorTarget;
+import com.betterweaponry.event.VanillaGearEvents;
+import com.betterweaponry.item.ModShieldDecorationRecipe;
+import com.betterweaponry.item.VanillaGear;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
+import com.betterweaponry.item.WeaponShieldItem;
 import com.betterweaponry.mixin.LivingEntityAccessor;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModAttributes;
+import com.betterweaponry.registry.ModEffects;
 import com.betterweaponry.registry.ModItems;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -54,13 +67,29 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.trading.ItemCost;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -578,7 +607,7 @@ public final class CombatGameTests {
         WeaponData.Snapshot original = WeaponData.current();
         try {
             WeaponData.install(new WeaponData.Snapshot(original.weapons(),
-                    new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, true, false, true, true, true)));
+                    new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, true, false, true, true, true), original.gear()));
             defender.stopUsingItem();
             state.perfectParryReadyAt = 0L;
             startParry(helper, defender, stack);
@@ -667,7 +696,7 @@ public final class CombatGameTests {
         // Le marteau revendique aussi tout le tag des épées, et même une arme du mod.
         weapons.put(WeaponType.HAMMER, withItems(original.weapon(WeaponType.HAMMER), "minecraft:golden_sword", "#minecraft:swords", "better_weaponry:iron_dagger"));
         try {
-            WeaponData.install(new WeaponData.Snapshot(weapons, original.rules()));
+            WeaponData.install(new WeaponData.Snapshot(weapons, original.rules(), original.gear()));
 
             // Parade reprise, dégâts de l'objet conservés.
             ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
@@ -775,6 +804,239 @@ public final class CombatGameTests {
         return tooltip.stream().map(Component::getString).toList();
     }
 
+    /** Boucliers : durabilité (bois et or relevés, les autres comme leurs outils), réparation avec le matériau. */
+    @GameTest(template = ARENA)
+    public static void shieldDurability(GameTestHelper helper) {
+        helper.assertTrue(new ItemStack(ModItems.shield(WeaponMaterials.WOODEN).get()).getMaxDamage() == 118, "wooden shield durability");
+        helper.assertTrue(new ItemStack(ModItems.shield(WeaponMaterials.GOLDEN).get()).getMaxDamage() == 64, "golden shield durability");
+        helper.assertTrue(new ItemStack(ModItems.shield(WeaponMaterials.IRON).get()).getMaxDamage() == 250, "iron shield durability");
+        helper.assertTrue(new ItemStack(ModItems.shield(WeaponMaterials.NETHERITE).get()).getMaxDamage() == 2031, "netherite shield durability");
+        ItemStack iron = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
+        helper.assertTrue(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.IRON_INGOT)), "an iron shield is repaired with iron");
+        helper.assertFalse(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.OAK_PLANKS)), "not with planks");
+        helper.assertTrue(iron.is(Tags.Items.TOOLS_SHIELD) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "shield tags should be loaded");
+        helper.succeed();
+    }
+
+    /** Parade parfaite au bouclier : pas d'usure, pas de garde brisée, recul de l'attaquant, flèche renvoyée vers le tireur. */
+    @GameTest(template = ARENA)
+    public static void shieldPerfectParry(GameTestHelper helper) {
+        Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+        Vec3 front = position.add(0.0D, 0.0D, 2.0D);
+        ItemStack shield = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
+        Player defender = shieldBearer(helper, shield, position);
+        PlayerCombatState state = PlayerCombatState.of(defender);
+        Player axeUser = player(helper, new ItemStack(Items.IRON_AXE), ItemStack.EMPTY);
+        axeUser.setPos(front);
+
+        helper.assertTrue(defender.isBlocking() && ParrySystem.isInPerfectWindow(defender), "the window should be open");
+        defender.hurt(defender.damageSources().playerAttack(axeUser), RAW_DAMAGE);
+        helper.assertTrue(defender.getHealth() == TEST_HEALTH && shield.getDamageValue() == 0, "a perfect parry should not hurt nor wear the shield");
+        helper.assertTrue(defender.isBlocking(), "a perfect parry should not be broken by an axe");
+        helper.assertTrue(axeUser.getDeltaMovement().horizontalDistance() > 0.0D, "the attacker should be pushed back");
+        helper.assertTrue(state.perfectBonus > 0.0D, "a perfect parry should give the damage bonus");
+
+        // Hors de la fenêtre : usure et garde brisée, comme en vanilla.
+        state.perfectParryUntil = 0L;
+        defender.invulnerableTime = 0;
+        defender.hurt(defender.damageSources().playerAttack(axeUser), RAW_DAMAGE);
+        helper.assertTrue(shield.getDamageValue() > 0, "a normal block should wear the shield");
+        helper.assertFalse(defender.isUsingItem(), "an axe should disable a shield outside of the window");
+
+        // Flèche renvoyée vers le tireur.
+        ItemStack arrowShield = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
+        Player archerTarget = shieldBearer(helper, arrowShield, position);
+        Pig shooter = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
+        Arrow arrow = new Arrow(helper.getLevel(), shooter, new ItemStack(Items.ARROW), null);
+        arrow.setPos(position.add(0.0D, 1.0D, 1.0D));
+        arrow.setDeltaMovement(0.0D, 0.0D, -2.0D);
+        helper.assertTrue(ShieldSystem.tryReflectArrow(arrow, archerTarget), "the arrow should be reflected");
+        helper.assertTrue(arrow.getOwner() == archerTarget && arrow.getDeltaMovement().z > 0.0D, "the arrow should fly back toward its shooter");
+        PlayerCombatState.of(archerTarget).perfectParryUntil = 0L;
+        Arrow late = new Arrow(helper.getLevel(), shooter, new ItemStack(Items.ARROW), null);
+        late.setPos(position.add(0.0D, 1.0D, 1.0D));
+        helper.assertFalse(ShieldSystem.tryReflectArrow(late, archerTarget), "no reflection outside of the window");
+        helper.succeed();
+    }
+
+    /** Le bouclier vanilla devient une version du mod : butin, conversion de l'inventaire, usure proportionnelle, enchantements gardés. */
+    @GameTest(template = ARENA)
+    public static void vanillaShieldReplaced(GameTestHelper helper) {
+        ItemStack vanilla = new ItemStack(Items.SHIELD);
+        vanilla.setDamageValue(vanilla.getMaxDamage() / 2);
+        vanilla.enchant(enchantment(helper, Enchantments.UNBREAKING), 2);
+        ItemStack converted = VanillaGear.convert(vanilla, WeaponMaterials.DIAMOND);
+        helper.assertTrue(converted.is(ModItems.shield(WeaponMaterials.DIAMOND).get()), "the shield should become a diamond shield");
+        helper.assertTrue(Math.abs((double) converted.getDamageValue() / converted.getMaxDamage() - 0.5D) < 0.01D, "the wear should stay proportional");
+        helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.UNBREAKING), converted) == 2, "enchantments should be kept");
+
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.getInventory().setItem(3, new ItemStack(Items.SHIELD));
+        player.getEnderChestInventory().setItem(1, new ItemStack(Items.SHIELD));
+        VanillaGear.convertInventory(player);
+        helper.assertTrue(player.getInventory().getItem(3).is(ModItems.shield(WeaponMaterials.WOODEN).get()), "the inventory should be converted");
+        helper.assertTrue(player.getEnderChestInventory().getItem(1).is(ModItems.shield(WeaponMaterials.WOODEN).get()), "the ender chest should be converted");
+
+        List<ItemStack> loot = new ArrayList<>(List.of(new ItemStack(Items.SHIELD), new ItemStack(Items.DIAMOND)));
+        VanillaGear.replaceInLoot(loot, helper.getLevel().getRandom(), WeaponData.gear());
+        helper.assertTrue(loot.get(0).getItem() instanceof WeaponShieldItem && loot.get(1).is(Items.DIAMOND), "only the shield should be replaced in loot");
+        helper.assertTrue(VanillaGear.rollMaterial(helper.getLevel().getRandom(), 0.0D) == WeaponMaterials.WOODEN, "no upgrade at 0%");
+        helper.assertTrue(VanillaGear.rollMaterial(helper.getLevel().getRandom(), 100.0D) == WeaponMaterials.NETHERITE, "always upgraded at 100%");
+
+        MerchantOffer offer = new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(Items.SHIELD), 12, 10, 0.05F);
+        helper.assertTrue(VanillaGearEvents.convertOffer(offer, WeaponMaterials.IRON).getResult().is(ModItems.shield(WeaponMaterials.IRON).get()), "the trade should sell an iron shield");
+
+        // Recettes : celle du bouclier vanilla est coupée, celles du mod existent.
+        RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
+        helper.assertTrue(recipes.byKey(ResourceLocation.withDefaultNamespace("shield")).isEmpty(), "the vanilla shield recipe should be disabled");
+        for (String id : List.of("wooden_shield", "iron_shield", "netherite_shield_smithing", "shield_decoration")) {
+            helper.assertTrue(recipes.byKey(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, id)).isPresent(), "missing recipe " + id);
+        }
+        CraftingInput decoration = CraftingInput.of(2, 1, List.of(new ItemStack(ModItems.shield(WeaponMaterials.IRON).get()), new ItemStack(Items.RED_BANNER)));
+        ModShieldDecorationRecipe bannerRecipe = new ModShieldDecorationRecipe(CraftingBookCategory.MISC);
+        helper.assertTrue(bannerRecipe.matches(decoration, helper.getLevel()), "a banner should go on a shield of the mod");
+        helper.assertTrue(bannerRecipe.assemble(decoration, helper.getLevel().registryAccess()).get(DataComponents.BASE_COLOR) == DyeColor.RED, "the shield should take the banner's color");
+
+        // Vrai butin : les fichiers de loot_modifiers doivent être lus et leurs conditions justes.
+        WeaponData.Snapshot original = WeaponData.current();
+        GearDefinition gear = original.gear();
+        WeaponData.install(new WeaponData.Snapshot(original.weapons(), original.rules(), new GearDefinition(1, gear.shieldPerfectWindow(), gear.shieldPerfectCooldown(),
+                gear.shieldPerfectDamageBonus(), gear.shieldPerfectBonusSeconds(), gear.shieldPerfectKnockback(), gear.reflectArrows(), gear.replaceVanillaGear(),
+                gear.lootUpgradeChance(), 100.0D)));
+        try {
+            LootParams params = new LootParams.Builder(helper.getLevel()).withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO)).create(LootContextParamSets.CHEST);
+            var tables = helper.getLevel().getServer().reloadableRegistries();
+            helper.assertTrue(tables.getLootTable(BuiltInLootTables.NETHER_BRIDGE).getRandomItems(params).stream().anyMatch(item -> item.is(Items.ENCHANTED_BOOK)),
+                    "a nether fortress chest should hold a book");
+            helper.assertFalse(tables.getLootTable(BuiltInLootTables.SIMPLE_DUNGEON).getRandomItems(params).stream().anyMatch(item ->
+                    EnchantmentHelper.getEnchantmentsForCrafting(item).keySet().stream().anyMatch(holder -> holder.getRegisteredName().startsWith(BetterWeaponry.MODID))),
+                    "an overworld dungeon should not hold the mod's dedicated books");
+        } finally {
+            WeaponData.install(original);
+        }
+        helper.succeed();
+    }
+
+    /** Reflective : renvoie 10 % par niveau d'un coup au corps à corps sur parade parfaite, jamais sur un projectile. */
+    @GameTest(template = ARENA)
+    public static void reflectiveEnchantment(GameTestHelper helper) {
+        Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+        ItemStack shield = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
+        shield.enchant(enchantment(helper, ModEnchantments.REFLECTIVE), 3);
+        Player defender = shieldBearer(helper, shield, position);
+        Pig attacker = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
+
+        defender.hurt(defender.damageSources().mobAttack(attacker), RAW_DAMAGE);
+        double reflected = TEST_HEALTH - attacker.getHealth();
+        helper.assertTrue(Math.abs(reflected - RAW_DAMAGE * 0.3D) < EPSILON, "reflective III should send back 30%, sent " + reflected);
+
+        heal(attacker);
+        Arrow arrow = new Arrow(helper.getLevel(), attacker, new ItemStack(Items.ARROW), null);
+        ModEnchantments.reflect(defender, shield, defender.damageSources().arrow(arrow, attacker), RAW_DAMAGE);
+        helper.assertTrue(attacker.getHealth() == TEST_HEALTH, "projectiles should not be reflected by the enchantment");
+
+        // Sans parade parfaite (mod de combat installé), n'importe quel coup bloqué au bouclier compte.
+        ItemStack secondShield = shield.copy();
+        Player other = parrier(helper, secondShield, position);
+        try {
+            CombatCompat.simulateForTests(true);
+            other.startUsingItem(InteractionHand.MAIN_HAND);
+            ((LivingEntityAccessor) other).betterweaponry$setUseItemRemaining(ParrySystem.USE_DURATION - 6);
+            heal(attacker);
+            other.hurt(other.damageSources().mobAttack(attacker), RAW_DAMAGE);
+            helper.assertTrue(attacker.getHealth() < TEST_HEALTH, "with a combat mod, any shield block should reflect");
+            helper.assertFalse(weapon(WeaponType.BROADSWORD).supportsEnchantment(enchantment(helper, ModEnchantments.REFLECTIVE)), "with a combat mod, reflective is for shields only");
+        } finally {
+            CombatCompat.simulateForTests(false);
+        }
+        helper.succeed();
+    }
+
+    /** Vampirisme (courbe, demi-seconde entre deux soins), Exécution, Saignement, et enchantements suivant la capacité de l'arme. */
+    @GameTest(template = ARENA)
+    public static void weaponEnchantments(GameTestHelper helper) {
+        helper.assertTrue(Math.abs(ModEnchantments.vampirismHeal(8.0D, 3) - 1.577D) < EPSILON, "vampirism III on 8 damage");
+        helper.assertTrue(Math.abs(ModEnchantments.vampirismHeal(100.0D, 3) - 5.55D) < EPSILON, "vampirism III on 100 damage");
+
+        ItemStack sword = weapon(WeaponType.KATANA);
+        sword.enchant(enchantment(helper, ModEnchantments.VAMPIRISM), 3);
+        Player player = player(helper, sword, ItemStack.EMPTY);
+        setBase(player.getAttribute(Attributes.MAX_HEALTH), TEST_HEALTH);
+        player.setHealth(50.0F);
+        Pig pig = pigAt(helper, new Vec3(1.5D, 1.0D, 1.5D));
+        pig.hurt(player.damageSources().playerAttack(player), 8.0F);
+        double healed = player.getHealth() - 50.0D;
+        helper.assertTrue(Math.abs(healed - ModEnchantments.vampirismHeal(8.0D, 3)) < EPSILON, "vampirism healed " + healed);
+        heal(pig);
+        pig.hurt(player.damageSources().playerAttack(player), 8.0F);
+        helper.assertTrue(player.getHealth() - 50.0D == healed, "no second heal within half a second");
+
+        // Exécution : seulement sous 30 % de vie.
+        ItemStack executioner = weapon(WeaponType.KATANA);
+        executioner.enchant(enchantment(helper, ModEnchantments.EXECUTION), 2);
+        Player headsman = player(helper, executioner, ItemStack.EMPTY);
+        Pig healthy = pigAt(helper, new Vec3(2.5D, 1.0D, 1.5D));
+        healthy.hurt(headsman.damageSources().playerAttack(headsman), RAW_DAMAGE);
+        helper.assertTrue(TEST_HEALTH - healthy.getHealth() == RAW_DAMAGE, "execution should not work on a healthy target");
+        Pig wounded = pigAt(helper, new Vec3(3.5D, 1.0D, 1.5D));
+        wounded.setHealth(20.0F);
+        wounded.hurt(headsman.damageSources().playerAttack(headsman), RAW_DAMAGE);
+        helper.assertTrue(Math.abs(20.0D - wounded.getHealth() - RAW_DAMAGE * 1.2D) < EPSILON, "execution II should add 20% on a wounded target");
+
+        // Saignement : coup chargé seulement, squelettes immunisés.
+        ItemStack bleeder = weapon(WeaponType.KATANA);
+        bleeder.enchant(enchantment(helper, ModEnchantments.BLEEDING), 1);
+        Player butcher = player(helper, bleeder, ItemStack.EMPTY);
+        PlayerCombatState butcherState = PlayerCombatState.of(butcher);
+        Pig weak = pigAt(helper, new Vec3(1.5D, 1.0D, 3.5D));
+        butcherState.lastAttackStrength = 0.2F;
+        weak.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
+        helper.assertFalse(weak.hasEffect(ModEffects.BLEEDING), "a weak hit should not cause bleeding");
+        butcherState.lastAttackStrength = 1.0F;
+        heal(weak);
+        weak.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
+        helper.assertTrue(weak.hasEffect(ModEffects.BLEEDING), "a charged hit should cause bleeding");
+        Skeleton skeleton = helper.spawnWithNoFreeWill(EntityType.SKELETON, new BlockPos(3, 1, 3));
+        skeleton.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
+        helper.assertFalse(skeleton.hasEffect(ModEffects.BLEEDING), "skeletons should not bleed");
+        Holder<Enchantment> bleeding = enchantment(helper, ModEnchantments.BLEEDING);
+        helper.assertFalse(Enchantment.areCompatible(bleeding, enchantment(helper, Enchantments.FIRE_ASPECT)), "bleeding is incompatible with fire aspect");
+        helper.assertFalse(weapon(WeaponType.DAGGER).supportsEnchantment(bleeding), "a dagger cannot bleed");
+
+        // Élan raccourcit la recharge du dash.
+        helper.assertTrue(Math.abs(ModEnchantments.momentumMultiplier(3) - 0.55D) < EPSILON, "momentum III leaves 55% of the cooldown");
+
+        // Reflective et Riposte suivent la capacité configurée, pas un tag figé.
+        Holder<Enchantment> reflective = enchantment(helper, ModEnchantments.REFLECTIVE);
+        helper.assertTrue(weapon(WeaponType.BROADSWORD).supportsEnchantment(reflective), "a broadsword parries");
+        ItemStack dagger = weapon(WeaponType.DAGGER);
+        helper.assertFalse(dagger.supportsEnchantment(reflective), "a dagger does not parry");
+        WeaponData.Snapshot original = WeaponData.current();
+        Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(original.weapons());
+        JsonObject parrying = WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, original.weapon(WeaponType.DAGGER)).getOrThrow().getAsJsonObject();
+        parrying.addProperty("ability", "parry");
+        weapons.put(WeaponType.DAGGER, WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, parrying).getOrThrow());
+        try {
+            WeaponData.install(new WeaponData.Snapshot(weapons, original.rules(), original.gear()));
+            helper.assertTrue(dagger.supportsEnchantment(reflective), "a dagger configured to parry should accept reflective");
+        } finally {
+            WeaponData.install(original);
+        }
+        helper.succeed();
+    }
+
+    /** Joueur factice qui tient un bouclier levé depuis assez longtemps pour qu'il soit efficace. */
+    private static Player shieldBearer(GameTestHelper helper, ItemStack shield, Vec3 position) {
+        Player player = parrier(helper, shield, position);
+        player.startUsingItem(InteractionHand.MAIN_HAND);
+        ((LivingEntityAccessor) player).betterweaponry$setUseItemRemaining(ParrySystem.USE_DURATION - 6);
+        return player;
+    }
+
+    private static Holder<Enchantment> enchantment(GameTestHelper helper, ResourceKey<Enchantment> key) {
+        return helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key);
+    }
+
     /**
      * Dual wield réservé aux armes qui ont l'option : les deux mains doivent l'avoir, une arme à deux mains ne l'a
      * jamais, et une épée vanilla ne se manie plus par paire.
@@ -837,7 +1099,7 @@ public final class CombatGameTests {
         double reachBefore = twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE);
         helper.assertTrue(reachBefore == WeaponData.weapon(WeaponType.KATANA).attackReach(), "the katana's reach should apply at first");
         try {
-            WeaponData.install(new WeaponData.Snapshot(original.weapons(), rules(false, true)));
+            WeaponData.install(new WeaponData.Snapshot(original.weapons(), rules(false, true), original.gear()));
             WeaponItem.refreshEquippedModifiers(twoHands);
             helper.assertTrue(twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE) == 3.0D,
                     "main switch off: the held weapon should fall back to the vanilla reach");

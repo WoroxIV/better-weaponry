@@ -4,6 +4,7 @@ import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.HandSwap;
 import com.betterweaponry.combat.ICombatPlayer;
+import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.data.WeaponData;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -56,6 +58,7 @@ public abstract class PlayerCombatMixin implements ICombatPlayer {
         }
 
         ComboSystem.Hit hit = ComboSystem.beginHit(player, state);
+        state.lastAttackStrength = hit.strength();
         boolean special = hit.special();
         boolean dualWielding = DualWieldSystem.isDualWielding(player);
         boolean offhandAttack = dualWielding && state.offhandTurn && !special;
@@ -93,6 +96,12 @@ public abstract class PlayerCombatMixin implements ICombatPlayer {
             return WeaponItem.sweepZone(WeaponProfiles.definition(stack).orElseThrow(), target);
         }
         return original.call(stack, player, target);
+    }
+
+    /** Une parade parfaite au bouclier n'est jamais brisée par une hache. */
+    @Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
+    private void betterweaponry$perfectParryKeepsShield(CallbackInfo ci) {
+        if (ParrySystem.isInPerfectWindow((Player) (Object) this)) ci.cancel();
     }
 
     /**

@@ -1,12 +1,14 @@
 package com.betterweaponry.datagen;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.item.GearType;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
@@ -45,6 +47,15 @@ public class ModItemModelProvider extends ItemModelProvider {
                 }
                 withExistingParent(name, parent).texture("layer0", texture);
             }
+        }
+
+        // Même modèle que le bouclier vanilla, et son modèle "levé" pendant le blocage. La texture est choisie par ShieldItemRenderer.
+        for (WeaponMaterial material : WeaponMaterials.all()) {
+            withExistingParent(material.itemName(GearType.SHIELD), mcLoc("item/shield"))
+                    .override()
+                    .predicate(mcLoc("blocking"), 1.0F)
+                    .model(new ModelFile.UncheckedModelFile(mcLoc("item/shield_blocking")))
+                    .end();
         }
 
         if (!missingTextures.isEmpty()) {

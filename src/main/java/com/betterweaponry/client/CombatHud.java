@@ -81,7 +81,7 @@ public final class CombatHud {
         }
         Optional<DashDefinition> dash = DashAbility.dashOf(stack);
         if (dash.isPresent() && isShown(HudElement.ABILITY_COOLDOWN)) {
-            Component text = cooldownText(minecraft, Component.translatable(KEY + "ability.dash"), seconds(cooldown * dash.get().cooldownSeconds()));
+            Component text = cooldownText(minecraft, Component.translatable(KEY + "ability.dash"), seconds(cooldown * DashAbility.cooldownSeconds(player, stack, dash.get())));
             drawAtConfiguredPosition(graphics, HudElement.ABILITY_COOLDOWN, textSize(text), (x, y) -> drawText(graphics, text, COOLDOWN_TEXT_COLOR, x, y));
         }
     }

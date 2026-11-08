@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -142,7 +143,7 @@ public final class ParrySystem {
         if (!(event.getEntity() instanceof Player player) || !isParrying(player)) return;
         float damage = event.getAmount();
         DamageSource source = event.getSource();
-        if (damage <= 0.0F || !comesFromFront(player, source)) return;
+        if (damage <= 0.0F || source.is(DamageTypes.THORNS) || !comesFromFront(player, source)) return;
 
         ItemStack weapon = player.getMainHandItem();
         ParryDefinition parry = parryOf(weapon).orElseThrow();
@@ -152,10 +153,7 @@ public final class ParrySystem {
         if (isInPerfectWindow(player)) {
             // Rien ne passe : ni dégâts, ni recul, ni usure. La garde ne peut pas être brisée.
             event.setCanceled(true);
-            if (!ignoredAnyway) {
-                playPerfectParry(player, weapon);
-                grantPerfectBonus(player, parry.perfectDamageBonus(), parry.perfectBonusSeconds());
-            }
+            if (!ignoredAnyway) onPerfectParry(player, weapon, source, damage, parry.perfectDamageBonus(), parry.perfectBonusSeconds());
             return;
         }
 
@@ -170,6 +168,19 @@ public final class ParrySystem {
                 ModSounds.PARRY.get(), SoundSource.PLAYERS, 1.0F, pitch);
 
         if (breaksGuard(source, parry)) breakGuard(player, weapon, parry);
+    }
+
+    /**
+     * Effets communs d'une parade parfaite, à l'arme ou au bouclier : son et particules, bonus sur le prochain coup
+     * (Riposte s'y ajoute), renvoi des dégâts (Reflective).
+     *
+     * @param guard objet qui a paré
+     */
+    public static void onPerfectParry(Player player, ItemStack guard, DamageSource source, float damage, double bonusPercent, double bonusSeconds) {
+        playPerfectParry(player, guard);
+        int riposte = ModEnchantments.level(player.level(), guard, ModEnchantments.RIPOSTE);
+        grantPerfectBonus(player, bonusPercent + riposte * ModEnchantments.RIPOSTE_PERCENT_PER_LEVEL, bonusSeconds);
+        ModEnchantments.reflect(player, guard, source, damage);
     }
 
     /** Après une parade parfaite, le prochain coup porté dans le temps imparti fait plus de dégâts. */
@@ -187,7 +198,8 @@ public final class ParrySystem {
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onHitWithPerfectBonus(LivingIncomingDamageEvent event) {
         DamageSource source = event.getSource();
-        if (!(source.getEntity() instanceof Player attacker) || source.getDirectEntity() != attacker) return;
+        // Pas les dégâts renvoyés (épines, Reflective) : le bonus est pour le prochain vrai coup.
+        if (!(ModEnchantments.meleeAttacker(source) instanceof Player attacker)) return;
         PlayerCombatState state = PlayerCombatState.of(attacker);
         if (state.perfectBonus <= 0.0D) return;
         if (attacker.level().getGameTime() >= state.perfectBonusUntil) {
@@ -224,7 +236,7 @@ public final class ParrySystem {
     }
 
     /** Son et particules de la parade parfaite, selon le matériau de l'arme. */
-    private static void playPerfectParry(Player player, ItemStack weapon) {
+    public static void playPerfectParry(Player player, ItemStack weapon) {
         ParryMaterial material = ParryMaterial.of(weapon);
         float pitch = 0.95F + player.getRandom().nextFloat() * 0.1F;
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),

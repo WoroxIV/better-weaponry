@@ -32,7 +32,8 @@ public final class CombatEvents {
     public static void onIncomingDamage(LivingIncomingDamageEvent event) {
         DamageSource source = event.getSource();
         // Coups directs au corps à corps uniquement (pas les flèches, ni les dégâts d'épines, d'explosion...).
-        if (!(source.getEntity() instanceof LivingEntity attacker) || source.getDirectEntity() != attacker) return;
+        LivingEntity attacker = ModEnchantments.meleeAttacker(source);
+        if (attacker == null) return;
 
         applyArmorPenetration(event, attacker);
 

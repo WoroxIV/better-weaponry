@@ -1,9 +1,11 @@
 package com.betterweaponry.registry;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.item.GearType;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
+import com.betterweaponry.item.WeaponShieldItem;
 import com.betterweaponry.item.WeaponType;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -13,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -23,6 +26,7 @@ public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(BetterWeaponry.MODID);
 
     private static final Map<WeaponType, Map<WeaponMaterial, DeferredItem<WeaponItem>>> WEAPONS = new EnumMap<>(WeaponType.class);
+    private static final Map<WeaponMaterial, DeferredItem<WeaponShieldItem>> SHIELDS = new LinkedHashMap<>();
 
     static {
         for (WeaponType type : WeaponType.values()) {
@@ -33,6 +37,9 @@ public final class ModItems {
                         properties -> new WeaponItem(type, material, properties(properties, material))));
             }
             WEAPONS.put(type, byMaterial);
+        }
+        for (WeaponMaterial material : WeaponMaterials.active()) {
+            SHIELDS.put(material, ITEMS.registerItem(material.itemName(GearType.SHIELD), properties -> new WeaponShieldItem(material, properties)));
         }
     }
 
@@ -56,6 +63,18 @@ public final class ModItems {
             throw new IllegalStateException("Aucune arme " + material.itemName(type) + " : matériau inactif");
         }
         return item;
+    }
+
+    /** Lève une exception si le matériau n'est pas actif (mod requis absent). */
+    public static DeferredItem<WeaponShieldItem> shield(WeaponMaterial material) {
+        DeferredItem<WeaponShieldItem> item = SHIELDS.get(material);
+        if (item == null) throw new IllegalStateException("Aucun bouclier " + material.itemName(GearType.SHIELD) + " : matériau inactif");
+        return item;
+    }
+
+    /** Un bouclier par matériau actif. */
+    public static Collection<DeferredItem<WeaponShieldItem>> allShields() {
+        return Collections.unmodifiableCollection(SHIELDS.values());
     }
 
     /** Toutes les armes d'un type, une par matériau actif (ex : pour une recharge commune à tous les matériaux). */

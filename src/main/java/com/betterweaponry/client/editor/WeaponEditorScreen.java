@@ -152,6 +152,7 @@ public final class WeaponEditorScreen extends Screen {
                 id -> !isLocalPage(id) && model.isDirty(id), id -> !isLocalPage(id) && model.hasInvalid(id));
         documentList.setX(MARGIN);
         documentList.add(EditorDocument.RULES_ID, Component.translatable(KEY + "rules"));
+        documentList.add(EditorDocument.GEAR_ID, Component.translatable(KEY + "gear"));
         for (EditorDocument document : model.documents()) {
             if (document.type() != null) {
                 documentList.add(document.id(), Component.translatable(BetterWeaponry.MODID + ".configuration." + document.id()));
@@ -240,7 +241,7 @@ public final class WeaponEditorScreen extends Screen {
     private boolean isCollapsed(String key) {
         Boolean toggled = sectionToggles.get(key);
         if (toggled != null) return toggled;
-        if (selected.equals(EditorDocument.RULES_ID) || isLocalPage(selected)) return false;
+        if (isLocalPage(selected) || model.document(selected).type() == null) return false;
         JsonObject values = model.working(selected);
         String ability = values.has(WeaponDefinition.ABILITY.name()) ? values.get(WeaponDefinition.ABILITY.name()).getAsString() : "";
         return switch (key) {
@@ -436,6 +437,8 @@ public final class WeaponEditorScreen extends Screen {
             cachedInfo = Component.translatable(KEY + "info.client");
         } else if (selected.equals(EditorDocument.RULES_ID)) {
             cachedInfo = Component.translatable(KEY + "info.rules");
+        } else if (selected.equals(EditorDocument.GEAR_ID)) {
+            cachedInfo = Component.translatable(KEY + "info.gear");
         } else {
             Optional<WeaponDefinition> definition = WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, model.working(selected)).result();
             cachedInfo = definition.map(weapon -> {

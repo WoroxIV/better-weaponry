@@ -78,7 +78,7 @@ public final class DashAbility {
 
     /** Lance le dash (appelé des deux côtés par {@link WeaponItem#use}, après {@link #canDash}). */
     public static void dash(Level level, Player player, ItemStack stack, DashDefinition dash) {
-        AbilityCooldowns.start(player, stack, dash.cooldownSeconds());
+        AbilityCooldowns.start(player, stack, cooldownSeconds(player, stack, dash));
         if (level.isClientSide) {
             launch(player, dash);
             return;
@@ -122,6 +122,11 @@ public final class DashAbility {
     /** Vitesse de départ (blocs par tick) pour parcourir à peu près {@code distance} blocs sur sol plat. */
     public static double initialSpeed(double distance) {
         return distance / DISTANCE_PER_SPEED;
+    }
+
+    /** Recharge réelle de ce dash, enchantement Élan compris. */
+    public static double cooldownSeconds(Player player, ItemStack stack, DashDefinition dash) {
+        return dash.cooldownSeconds() * ModEnchantments.momentumMultiplier(ModEnchantments.level(player.level(), stack, ModEnchantments.MOMENTUM));
     }
 
     private static boolean hasEnoughFood(Player player) {

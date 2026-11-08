@@ -2,6 +2,7 @@ package com.betterweaponry.config;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.FieldSet;
+import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponDataLoader;
@@ -23,7 +24,9 @@ import java.util.Optional;
  * ├── README.txt            mode d'emploi, dans la langue du jeu
  * ├── weapon.schema.json    autocomplétion et aide au survol dans VS Code
  * ├── rules.schema.json
+ * ├── gear.schema.json
  * ├── rules.json            règles globales modifiées par l'utilisateur (jamais écrasé)
+ * ├── gear.json             réglages de l'équipement modifiés par l'utilisateur (jamais écrasé)
  * ├── weapons/&lt;type&gt;.json   stats modifiées par l'utilisateur (jamais écrasés)
  * └── defaults/             copie des valeurs par défaut du mod, réécrite à chaque lancement
  * </pre>
@@ -34,6 +37,7 @@ public final class ConfigFolder {
     public static final String README_FILE = "README.txt";
     public static final String WEAPON_SCHEMA = "weapon.schema.json";
     public static final String RULES_SCHEMA = "rules.schema.json";
+    public static final String GEAR_SCHEMA = "gear.schema.json";
     private static final String DEFAULTS_DIRECTORY = "defaults";
 
     private ConfigFolder() {
@@ -49,6 +53,10 @@ public final class ConfigFolder {
 
     public static Path rulesFile() {
         return root().resolve(WeaponDataLoader.RULES_FILE);
+    }
+
+    public static Path gearFile() {
+        return root().resolve(WeaponDataLoader.GEAR_FILE);
     }
 
     /** Chemin affiché dans les messages, relatif au dossier du jeu, ex : "config/better_weaponry/weapons/katana.json". */
@@ -76,6 +84,8 @@ public final class ConfigFolder {
                     docs.text(BetterWeaponry.MODID + ".doc.schema.weapon"), docs));
             writeJson(root().resolve(RULES_SCHEMA), SchemaWriter.schema(RulesDefinition.FIELDS,
                     docs.text(BetterWeaponry.MODID + ".doc.schema.rules"), docs));
+            writeJson(root().resolve(GEAR_SCHEMA), SchemaWriter.schema(GearDefinition.FIELDS,
+                    docs.text(BetterWeaponry.MODID + ".doc.schema.gear"), docs));
             writeText(root().resolve(README_FILE), ReadmeWriter.write(docs));
         } catch (IOException e) {
             BetterWeaponry.LOGGER.error("Could not prepare the config folder {}", root(), e);
@@ -88,6 +98,7 @@ public final class ConfigFolder {
             createIfAbsent(weaponFile(type), withSchema(new JsonObject(), "../" + WEAPON_SCHEMA));
         }
         createIfAbsent(rulesFile(), withSchema(new JsonObject(), "./" + RULES_SCHEMA));
+        createIfAbsent(gearFile(), withSchema(new JsonObject(), "./" + GEAR_SCHEMA));
     }
 
     /** Copie des valeurs par défaut du jar, réécrite à chaque lancement pour rester à jour. */
@@ -100,6 +111,8 @@ public final class ConfigFolder {
         }
         Optional<JsonObject> rules = WeaponDataLoader.builtinJson(WeaponDataLoader.RULES_FILE);
         if (rules.isPresent()) writeJson(defaults.resolve(WeaponDataLoader.RULES_FILE), withSchema(rules.get(), "../" + RULES_SCHEMA));
+        Optional<JsonObject> gear = WeaponDataLoader.builtinJson(WeaponDataLoader.GEAR_FILE);
+        if (gear.isPresent()) writeJson(defaults.resolve(WeaponDataLoader.GEAR_FILE), withSchema(gear.get(), "../" + GEAR_SCHEMA));
     }
 
     /** Copie de {@code content} avec le lien vers le schéma en premier (c'est ce qui active l'aide dans VS Code). */

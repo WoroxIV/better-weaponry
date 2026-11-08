@@ -55,6 +55,10 @@
       "sai": {
         "name": "Sai",
         "gender": "de"
+      },
+      "shield": {
+        "name": "Schild",
+        "gender": "het"
       }
     },
     "materials": {
@@ -441,6 +445,45 @@
     "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Schadebonus na perfecte parering",
     "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Na een perfecte parering extra schade bij je volgende melee-klap, in %. 0: geen bonus.",
     "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Duur van de bonus",
-    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Hoe lang de bonus beschikbaar blijft als je niet raakt, in seconden."
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Hoe lang de bonus beschikbaar blijft als je niet raakt, in seconden.",
+    "better_weaponry.doc.schema.gear": "Better Weaponry: uitrustingsinstellingen",
+    "better_weaponry.doc.readme.gear_fields": "Velden van gear.json (schilden, buit):",
+    "better_weaponry.editor.gear": "Uitrusting",
+    "better_weaponry.editor.info.gear": "Instellingen voor schilden en buit.",
+    "better_weaponry.field.gear.format_version": "Formaatversie",
+    "better_weaponry.field.gear.format_version.help": "Versie van het bestandsformaat. Laat op 1 staan.",
+    "better_weaponry.field.gear.shield_perfect_window_seconds": "Venster perfecte schildparering",
+    "better_weaponry.field.gear.shield_perfect_window_seconds.help": "Hoe lang een klap na het heffen van het schild als perfecte parering telt, in seconden. 0: nooit.",
+    "better_weaponry.field.gear.shield_perfect_cooldown_seconds": "Tijd tussen perfecte schildpareringen",
+    "better_weaponry.field.gear.shield_perfect_cooldown_seconds.help": "Hoe lang het na het venster duurt voordat het heffen van het schild er weer een kan openen, in seconden.",
+    "better_weaponry.field.gear.shield_perfect_damage_bonus": "Schadebonus na perfecte schildparering",
+    "better_weaponry.field.gear.shield_perfect_damage_bonus.help": "Extra schade bij je volgende melee-klap na een perfecte schildparering, in %. 0: geen bonus.",
+    "better_weaponry.field.gear.shield_perfect_bonus_seconds": "Duur van de schildbonus",
+    "better_weaponry.field.gear.shield_perfect_bonus_seconds.help": "Hoe lang deze bonus beschikbaar blijft als je niet raakt, in seconden.",
+    "better_weaponry.field.gear.shield_perfect_knockback": "Terugslag van perfecte schildparering",
+    "better_weaponry.field.gear.shield_perfect_knockback.help": "Hoe ver een perfecte schildparering een melee-aanvaller terugduwt. 0: geen terugslag.",
+    "better_weaponry.field.gear.reflect_arrows": "Perfecte pareringen kaatsen pijlen terug",
+    "better_weaponry.field.gear.reflect_arrows.help": "true: een pijl die door een perfecte schildparering wordt gestopt, vliegt terug naar de schutter.",
+    "better_weaponry.field.gear.replace_vanilla_gear": "Vanilla-uitrusting in buit en ruilhandel vervangen",
+    "better_weaponry.field.gear.replace_vanilla_gear.help": "true: buit en dorpelingen geven de versies van de mod in plaats van het vanilla-voorwerp.",
+    "better_weaponry.field.gear.loot_upgrade_chance": "Kans op beter materiaal in buit",
+    "better_weaponry.field.gear.loot_upgrade_chance.help": "In buit, beginnend bij hout: kans in % op het volgende materiaal (goud, steen, ijzer, diamant, netheriet). Bij elke stap opnieuw bepaald.",
+    "better_weaponry.field.gear.enchanted_book_chance": "Kans op betoverd boek in kisten",
+    "better_weaponry.field.gear.enchanted_book_chance.help": "Kans in % dat een kist in de Nether of het End een boek met een betovering van de mod bevat.",
+    "enchantment.better_weaponry.reflective": "Weerkaatsing",
+    "enchantment.better_weaponry.reflective.desc": "Een perfecte parering kaatst 10/20/30% van een melee-aanval met zijn effecten terug naar de aanvaller. Voor schilden en alles wat kan pareren.",
+    "enchantment.better_weaponry.vampirism": "Vampirisme",
+    "enchantment.better_weaponry.vampirism.desc": "Geneest je met een deel van de melee-schade die je toebrengt. Bij grote klappen groeit de genezing steeds langzamer.",
+    "enchantment.better_weaponry.riposte": "Riposte",
+    "enchantment.better_weaponry.riposte.desc": "Na een perfecte parering doet je volgende klap 25/50/75% meer schade, bovenop de gebruikelijke bonus.",
+    "enchantment.better_weaponry.momentum": "Vaart",
+    "enchantment.better_weaponry.momentum.desc": "Verkort de herlaadtijd van de dash met 15/30/45%.",
+    "enchantment.better_weaponry.execution": "Executie",
+    "enchantment.better_weaponry.execution.desc": "Doet 10/20/30% meer schade aan doelwitten onder 30% van hun gezondheid.",
+    "enchantment.better_weaponry.bleeding": "Bloeding",
+    "enchantment.better_weaponry.bleeding.desc": "Volledig opgeladen klappen laten het doelwit 2/3/4 seconden bloeden. Alleen sikkels, zeisen en katana's. Skeletten zijn immuun. Onverenigbaar met Vuuraspect.",
+    "effect.better_weaponry.bleeding": "Bloeding",
+    "death.attack.better_weaponry.bleeding": "%1$s is doodgebloed",
+    "death.attack.better_weaponry.bleeding.player": "%1$s is doodgebloed tijdens het vechten tegen %2$s"
   }
 }

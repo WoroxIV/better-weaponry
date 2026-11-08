@@ -2,14 +2,17 @@ package com.betterweaponry;
 
 import com.betterweaponry.client.CombatHud;
 import com.betterweaponry.client.ModKeyMappings;
+import com.betterweaponry.client.ShieldClientExtensions;
 import com.betterweaponry.client.WeaponClientExtensions;
 import com.betterweaponry.client.editor.ClientEditorHooks;
 import com.betterweaponry.client.editor.WeaponEditorScreen;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.editor.EditorHooks;
+import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.neoforged.api.distmarker.Dist;
@@ -17,6 +20,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -44,13 +48,24 @@ public final class BetterWeaponryClient {
         modEventBus.addListener(BetterWeaponryClient::registerClientExtensions);
         modEventBus.addListener(BetterWeaponryClient::registerGuiLayers);
         modEventBus.addListener(BetterWeaponryClient::registerKeyMappings);
+        modEventBus.addListener(BetterWeaponryClient::clientSetup);
         NeoForge.EVENT_BUS.addListener(BetterWeaponryClient::onLoggingOut);
     }
 
     /** Rendu spécial des armes en main (pose de parade en première personne). */
     private static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-        Item[] weapons = ModItems.ITEMS.getEntries().stream().map(holder -> holder.get()).toArray(Item[]::new);
+        Item[] weapons = ModItems.ITEMS.getEntries().stream().<Item>map(holder -> holder.get())
+                .filter(item -> item instanceof WeaponItem).toArray(Item[]::new);
         event.registerItem(new WeaponClientExtensions(), weapons);
+        Item[] shields = ModItems.allShields().stream().<Item>map(holder -> holder.get()).toArray(Item[]::new);
+        event.registerItem(new ShieldClientExtensions(), shields);
+    }
+
+    /** La pose "bouclier levé" est un modèle différent, choisi par cette propriété (comme pour le bouclier vanilla). */
+    private static void clientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ModItems.allShields().forEach(shield -> ItemProperties.register(shield.get(),
+                ResourceLocation.withDefaultNamespace("blocking"),
+                (stack, level, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F)));
     }
 
     private static void registerKeyMappings(RegisterKeyMappingsEvent event) {

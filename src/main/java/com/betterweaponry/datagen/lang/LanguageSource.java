@@ -1,7 +1,6 @@
 package com.betterweaponry.datagen.lang;
 
 import com.betterweaponry.data.JsonUtil;
-import com.betterweaponry.item.WeaponType;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
@@ -86,13 +85,13 @@ public record LanguageSource(String locale,
      *
      * @throws IllegalArgumentException si le type ou le matériau manque, ou si le matériau n'a pas de forme pour ce genre
      */
-    public String itemName(WeaponType type, String materialId) {
-        String override = overrides.get(materialId + "_" + type.id());
+    public String itemName(String typeId, String materialId) {
+        String override = overrides.get(materialId + "_" + typeId);
         if (override != null) return override;
 
-        TypeName typeName = types.get(type.id());
+        TypeName typeName = types.get(typeId);
         JsonElement material = materials.get(materialId);
-        if (typeName == null) throw new IllegalArgumentException("no name for the weapon type \"" + type.id() + "\"");
+        if (typeName == null) throw new IllegalArgumentException("no name for the weapon type \"" + typeId + "\"");
         if (material == null) throw new IllegalArgumentException("no name for the material \"" + materialId + "\"");
 
         String usedPattern = pattern;
@@ -105,7 +104,7 @@ public record LanguageSource(String locale,
             if (form == null) form = forms.get(NAME);
             if (form == null) {
                 throw new IllegalArgumentException("the material \"" + materialId + "\" has no form for the gender \""
-                        + typeName.gender() + "\" of \"" + type.id() + "\", and no \"name\"");
+                        + typeName.gender() + "\" of \"" + typeId + "\", and no \"name\"");
             }
             materialForm = form.getAsString();
             if (forms.has(PATTERN)) usedPattern = forms.get(PATTERN).getAsString();

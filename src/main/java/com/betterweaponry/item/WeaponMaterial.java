@@ -113,6 +113,11 @@ public final class WeaponMaterial {
         return id + "_" + type.id();
     }
 
+    /** Nom de l'item pour ce matériau et cet équipement, ex : "netherite_shield". */
+    public String itemName(GearType type) {
+        return id + "_" + type.id();
+    }
+
     @Override
     public String toString() {
         return id;

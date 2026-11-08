@@ -3,10 +3,12 @@ package com.betterweaponry.combat;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
+import com.betterweaponry.item.WeaponShieldItem;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
@@ -45,6 +47,8 @@ public enum ParryMaterial {
     /** Famille de cet objet. Tout ce qui n'est pas reconnu (matériaux d'autres mods, objets sans palier) est du métal. */
     public static ParryMaterial of(ItemStack stack) {
         if (stack.getItem() instanceof WeaponItem weapon) return of(weapon.getMaterial());
+        if (stack.getItem() instanceof WeaponShieldItem shield) return of(shield.getMaterial());
+        if (stack.is(Items.SHIELD)) return WOOD;
         if (stack.getItem() instanceof TieredItem tiered) return of(tiered.getTier());
         return METAL;
     }

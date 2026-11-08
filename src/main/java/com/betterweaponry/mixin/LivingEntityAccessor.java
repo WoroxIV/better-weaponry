@@ -9,4 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface LivingEntityAccessor {
     @Accessor("attackStrengthTicker")
     void betterweaponry$setAttackStrengthTicker(int ticks);
+
+    @Accessor("useItemRemaining")
+    void betterweaponry$setUseItemRemaining(int ticks);
 }

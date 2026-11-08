@@ -50,6 +50,7 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
     public static final String DATA_DIRECTORY = "better_weaponry";
     public static final String WEAPONS_DIRECTORY = "weapons";
     public static final String RULES_FILE = "rules.json";
+    public static final String GEAR_FILE = "gear.json";
 
     /** Les datapacks placés dans le dossier du monde ont un identifiant qui commence par "file/". */
     private static final String WORLD_DATAPACK_PREFIX = "file/";
@@ -92,7 +93,10 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         List<FieldSet.Layer> ruleLayers = collectLayers(resourceManager, RULES_FILE, ConfigFolder.rulesFile(), problems);
         RulesDefinition rules = decode(RulesDefinition.CODEC, RulesDefinition.FIELDS.merge(ruleLayers, problems),
                 RulesDefinition.FALLBACK, RULES_FILE, problems);
-        return new Result(new WeaponData.Snapshot(weapons, rules), List.copyOf(problems));
+        List<FieldSet.Layer> gearLayers = collectLayers(resourceManager, GEAR_FILE, ConfigFolder.gearFile(), problems);
+        GearDefinition gear = decode(GearDefinition.CODEC, GearDefinition.FIELDS.merge(gearLayers, problems),
+                GearDefinition.FALLBACK, GEAR_FILE, problems);
+        return new Result(new WeaponData.Snapshot(weapons, rules, gear), List.copyOf(problems));
     }
 
     /** Met en vigueur un chargement et signale ses problèmes dans le log. */
@@ -126,10 +130,13 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         RulesDefinition rules = decode(RulesDefinition.CODEC,
                 RulesDefinition.FIELDS.merge(builtinLayer(RULES_FILE, problems), problems),
                 RulesDefinition.FALLBACK, RULES_FILE, problems);
+        GearDefinition gear = decode(GearDefinition.CODEC,
+                GearDefinition.FIELDS.merge(builtinLayer(GEAR_FILE, problems), problems),
+                GearDefinition.FALLBACK, GEAR_FILE, problems);
         for (DataProblem problem : problems) {
             BetterWeaponry.LOGGER.error("[Better Weaponry] Problem in the mod's own default data: {}", problem.toLogString());
         }
-        return new WeaponData.Snapshot(weapons, rules);
+        return new WeaponData.Snapshot(weapons, rules, gear);
     }
 
     /** Contenu JSON brut d'un fichier par défaut du jar, ex : {@code builtinJson("weapons/katana.json")}. */

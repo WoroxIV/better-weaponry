@@ -1,0 +1,19 @@
+{
+  "type": "better_weaponry:add_enchanted_book",
+  "conditions": [
+    {
+      "condition": "minecraft:any_of",
+      "terms": [
+        {
+          "condition": "neoforge:loot_table_id",
+          "loot_table_id": "minecraft:chests/end_city_treasure"
+        }
+      ]
+    }
+  ],
+  "enchantments": [
+    "better_weaponry:reflective",
+    "better_weaponry:riposte",
+    "better_weaponry:momentum"
+  ]
+}

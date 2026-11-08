@@ -1,6 +1,7 @@
 package com.betterweaponry.datagen.lang;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.item.GearType;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
@@ -116,7 +117,8 @@ public final class ModLanguageProvider implements DataProvider {
     /** Un nom pour chaque type et chaque matériau, et aucun id inconnu. */
     private static boolean checkNames(LanguageSource source, List<String> problems) {
         int before = problems.size();
-        Set<String> typeIds = Arrays.stream(WeaponType.values()).map(WeaponType::id).collect(Collectors.toSet());
+        Set<String> typeIds = Stream.concat(Arrays.stream(WeaponType.values()).map(WeaponType::id), Arrays.stream(GearType.values()).map(GearType::id))
+                .collect(Collectors.toSet());
         Set<String> materialIds = WeaponMaterials.all().stream().map(WeaponMaterial::id).collect(Collectors.toSet());
 
         typeIds.stream().filter(id -> !source.types().containsKey(id)).sorted()
@@ -134,7 +136,16 @@ public final class ModLanguageProvider implements DataProvider {
         for (WeaponType type : WeaponType.values()) {
             for (WeaponMaterial material : WeaponMaterials.all()) {
                 try {
-                    json.addProperty("item." + BetterWeaponry.MODID + "." + material.itemName(type), source.itemName(type, material.id()));
+                    json.addProperty("item." + BetterWeaponry.MODID + "." + material.itemName(type), source.itemName(type.id(), material.id()));
+                } catch (IllegalArgumentException e) {
+                    problems.add(source.locale() + ": " + e.getMessage());
+                }
+            }
+        }
+        for (GearType type : GearType.values()) {
+            for (WeaponMaterial material : WeaponMaterials.all()) {
+                try {
+                    json.addProperty("item." + BetterWeaponry.MODID + "." + material.itemName(type), source.itemName(type.id(), material.id()));
                 } catch (IllegalArgumentException e) {
                     problems.add(source.locale() + ": " + e.getMessage());
                 }

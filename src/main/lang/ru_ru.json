@@ -54,6 +54,10 @@
       "sai": {
         "name": "Сай",
         "gender": "m"
+      },
+      "shield": {
+        "name": "Щит",
+        "gender": "m"
       }
     },
     "materials": {
@@ -487,6 +491,45 @@
     "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Бонус урона после идеального парирования",
     "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "После идеального парирования дополнительный урон следующего удара в ближнем бою, в %. 0: без бонуса.",
     "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Длительность бонуса",
-    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Сколько секунд бонус доступен, если вы не наносите удар."
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Сколько секунд бонус доступен, если вы не наносите удар.",
+    "better_weaponry.doc.schema.gear": "Настройки снаряжения Better Weaponry",
+    "better_weaponry.doc.readme.gear_fields": "Поля gear.json (щиты, добыча):",
+    "better_weaponry.editor.gear": "Снаряжение",
+    "better_weaponry.editor.info.gear": "Настройки щитов и добычи.",
+    "better_weaponry.field.gear.format_version": "Версия формата",
+    "better_weaponry.field.gear.format_version.help": "Версия формата файла. Оставьте 1.",
+    "better_weaponry.field.gear.shield_perfect_window_seconds": "Окно идеального блока щитом",
+    "better_weaponry.field.gear.shield_perfect_window_seconds.help": "Сколько секунд после поднятия щита удар считается идеальным блоком. 0: никогда.",
+    "better_weaponry.field.gear.shield_perfect_cooldown_seconds": "Пауза между идеальными блоками",
+    "better_weaponry.field.gear.shield_perfect_cooldown_seconds.help": "Сколько секунд после окна должно пройти, прежде чем поднятие щита откроет новое.",
+    "better_weaponry.field.gear.shield_perfect_damage_bonus": "Бонус урона после идеального блока",
+    "better_weaponry.field.gear.shield_perfect_damage_bonus.help": "Дополнительный урон следующего удара в ближнем бою после идеального блока щитом, в %. 0: без бонуса.",
+    "better_weaponry.field.gear.shield_perfect_bonus_seconds": "Длительность бонуса щита",
+    "better_weaponry.field.gear.shield_perfect_bonus_seconds.help": "Сколько секунд этот бонус доступен, если вы не наносите удар.",
+    "better_weaponry.field.gear.shield_perfect_knockback": "Отбрасывание при идеальном блоке",
+    "better_weaponry.field.gear.shield_perfect_knockback.help": "Насколько идеальный блок щитом отбрасывает атакующего в ближнем бою. 0: без отбрасывания.",
+    "better_weaponry.field.gear.reflect_arrows": "Идеальные блоки отражают стрелы",
+    "better_weaponry.field.gear.reflect_arrows.help": "true: стрела, остановленная идеальным блоком щитом, летит обратно в стрелка.",
+    "better_weaponry.field.gear.replace_vanilla_gear": "Заменять обычное снаряжение (добыча, торговля)",
+    "better_weaponry.field.gear.replace_vanilla_gear.help": "true: добыча и жители дают версии мода вместо обычного предмета.",
+    "better_weaponry.field.gear.loot_upgrade_chance": "Шанс лучшего материала в добыче",
+    "better_weaponry.field.gear.loot_upgrade_chance.help": "В добыче, начиная с дерева: шанс в % перейти к следующему материалу (золото, камень, железо, алмаз, незерит). Бросается заново на каждом шаге.",
+    "better_weaponry.field.gear.enchanted_book_chance": "Шанс зачарованной книги в сундуках",
+    "better_weaponry.field.gear.enchanted_book_chance.help": "Шанс в %, что сундук в Незере или Энде содержит книгу с зачарованием мода.",
+    "enchantment.better_weaponry.reflective": "Отражение",
+    "enchantment.better_weaponry.reflective.desc": "Идеальное парирование возвращает атакующему 10/20/30% удара в ближнем бою вместе с его эффектами. Для щитов и всего, что может парировать.",
+    "enchantment.better_weaponry.vampirism": "Вампиризм",
+    "enchantment.better_weaponry.vampirism.desc": "Исцеляет на часть урона, нанесённого в ближнем бою. На сильных ударах исцеление растёт всё медленнее.",
+    "enchantment.better_weaponry.riposte": "Ответный удар",
+    "enchantment.better_weaponry.riposte.desc": "После идеального парирования следующий удар наносит на 25/50/75% больше урона, сверх обычного бонуса.",
+    "enchantment.better_weaponry.momentum": "Разгон",
+    "enchantment.better_weaponry.momentum.desc": "Сокращает перезарядку рывка на 15/30/45%.",
+    "enchantment.better_weaponry.execution": "Казнь",
+    "enchantment.better_weaponry.execution.desc": "Наносит на 10/20/30% больше урона целям с менее чем 30% здоровья.",
+    "enchantment.better_weaponry.bleeding": "Кровотечение",
+    "enchantment.better_weaponry.bleeding.desc": "Полностью заряженные удары вызывают кровотечение на 2/3/4 секунды. Только серпы, косы и катаны. Скелеты невосприимчивы. Несовместимо с заговором огня.",
+    "effect.better_weaponry.bleeding": "Кровотечение",
+    "death.attack.better_weaponry.bleeding": "%1$s истёк кровью",
+    "death.attack.better_weaponry.bleeding.player": "%1$s истёк кровью в бою с %2$s"
   }
 }

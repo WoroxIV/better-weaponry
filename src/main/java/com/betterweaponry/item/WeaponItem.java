@@ -2,6 +2,7 @@ package com.betterweaponry.item;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DashAbility;
+import com.betterweaponry.combat.ModEnchantments;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.data.OnHitEffect;
@@ -26,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
@@ -228,6 +230,12 @@ public class WeaponItem extends SwordItem {
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged || shouldCauseBlockBreakReset(oldStack, newStack);
+    }
+
+    /** Reflective, Riposte et Élan suivent la capacité configurée de l'arme ; les autres enchantements, leur tag. */
+    @Override
+    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
+        return ModEnchantments.supportedByAbility(definition(), enchantment).orElseGet(() -> super.supportsEnchantment(stack, enchantment));
     }
 
     // Record immuable : l'item est partagé entre le thread client et le thread serveur en solo.

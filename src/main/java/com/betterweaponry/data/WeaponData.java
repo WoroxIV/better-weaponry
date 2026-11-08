@@ -26,10 +26,11 @@ public final class WeaponData {
     }
 
     /** Un jeu de données complet, immuable : on le remplace en bloc, jamais champ par champ. */
-    public record Snapshot(Map<WeaponType, WeaponDefinition> weapons, RulesDefinition rules) {
+    public record Snapshot(Map<WeaponType, WeaponDefinition> weapons, RulesDefinition rules, GearDefinition gear) {
         public static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.unboundedMap(WeaponType.CODEC, WeaponDefinition.CODEC).fieldOf("weapons").forGetter(Snapshot::weapons),
-                RulesDefinition.CODEC.fieldOf("rules").forGetter(Snapshot::rules)
+                RulesDefinition.CODEC.fieldOf("rules").forGetter(Snapshot::rules),
+                GearDefinition.CODEC.fieldOf("gear").forGetter(Snapshot::gear)
         ).apply(instance, Snapshot::new));
 
         public Snapshot {
@@ -69,6 +70,10 @@ public final class WeaponData {
 
     public static RulesDefinition rules() {
         return current().rules();
+    }
+
+    public static GearDefinition gear() {
+        return current().gear();
     }
 
     /** Remplace les données en vigueur (chargement serveur ou synchronisation reçue). */

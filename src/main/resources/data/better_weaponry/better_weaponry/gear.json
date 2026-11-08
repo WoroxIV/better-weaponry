@@ -1,0 +1,12 @@
+{
+  "format_version": 1,
+  "shield_perfect_window_seconds": 0.25,
+  "shield_perfect_cooldown_seconds": 1.0,
+  "shield_perfect_damage_bonus": 20,
+  "shield_perfect_bonus_seconds": 3.0,
+  "shield_perfect_knockback": 0.4,
+  "reflect_arrows": true,
+  "replace_vanilla_gear": true,
+  "loot_upgrade_chance": 20,
+  "enchanted_book_chance": 20
+}

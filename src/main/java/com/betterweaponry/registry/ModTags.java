@@ -20,6 +20,18 @@ public final class ModTags {
      */
     public static final TagKey<Item> MELEE_WEAPONS = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "melee_weapons"));
 
+    /** Tous les boucliers du mod. */
+    public static final TagKey<Item> SHIELDS = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "shields"));
+
+    /** Armes qui parent : elles peuvent recevoir Riposte. */
+    public static final TagKey<Item> ENCHANTABLE_PARRY_WEAPONS = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/parry_weapons"));
+    /** Tout ce qui peut parer ou bloquer (armes qui parent et boucliers) : peut recevoir Reflective. */
+    public static final TagKey<Item> ENCHANTABLE_PARRYING = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/parrying"));
+    /** Armes qui peuvent recevoir Élan. */
+    public static final TagKey<Item> ENCHANTABLE_DASHING = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/dashing"));
+    /** Faucilles, faux et katanas : les armes qui peuvent recevoir Saignement. */
+    public static final TagKey<Item> ENCHANTABLE_BLEEDING = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/bleeding"));
+
     private ModTags() {
     }
 }

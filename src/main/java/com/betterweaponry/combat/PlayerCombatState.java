@@ -63,6 +63,13 @@ public final class PlayerCombatState {
     /** Moment où ce bonus se perd s'il n'a pas servi. */
     public long perfectBonusUntil;
 
+    // --- Enchantements ---
+
+    /** Force de la dernière attaque (1 = chargée à fond), pour le Saignement. */
+    public float lastAttackStrength;
+    /** Avant ce moment, Vampirisme ne soigne pas à nouveau. */
+    public long vampirismReadyAt;
+
     /** Remet le combo au début (arme changée, combo désactivé...). */
     public void resetCombo() {
         comboStep = 0;

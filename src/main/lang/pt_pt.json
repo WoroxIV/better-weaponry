@@ -55,6 +55,10 @@
       "sai": {
         "name": "Sai",
         "gender": "m"
+      },
+      "shield": {
+        "name": "Escudo",
+        "gender": "m"
       }
     },
     "materials": {
@@ -411,6 +415,45 @@
     "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Bónus de dano após aparo perfeito",
     "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Após um aparo perfeito, dano extra no próximo golpe corpo a corpo, em %. 0: sem bónus.",
     "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Duração do bónus",
-    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Durante quanto tempo o bónus fica disponível se não acertares, em segundos."
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Durante quanto tempo o bónus fica disponível se não acertares, em segundos.",
+    "better_weaponry.doc.schema.gear": "Definições de equipamento do Better Weaponry",
+    "better_weaponry.doc.readme.gear_fields": "Campos de gear.json (escudos, saque):",
+    "better_weaponry.editor.gear": "Equipamento",
+    "better_weaponry.editor.info.gear": "Definições de escudos e saque.",
+    "better_weaponry.field.gear.format_version": "Versão do formato",
+    "better_weaponry.field.gear.format_version.help": "Versão do formato do ficheiro. Deixa em 1.",
+    "better_weaponry.field.gear.shield_perfect_window_seconds": "Janela de aparo perfeito com escudo",
+    "better_weaponry.field.gear.shield_perfect_window_seconds.help": "Depois de levantar o escudo, durante quanto tempo um golpe conta como aparo perfeito, em segundos. 0: nunca.",
+    "better_weaponry.field.gear.shield_perfect_cooldown_seconds": "Intervalo entre aparos perfeitos com escudo",
+    "better_weaponry.field.gear.shield_perfect_cooldown_seconds.help": "Depois da janela, tempo até que levantar o escudo possa abrir outra, em segundos.",
+    "better_weaponry.field.gear.shield_perfect_damage_bonus": "Bónus de dano após aparo perfeito com escudo",
+    "better_weaponry.field.gear.shield_perfect_damage_bonus.help": "Dano extra no próximo golpe corpo a corpo após um aparo perfeito com escudo, em %. 0: sem bónus.",
+    "better_weaponry.field.gear.shield_perfect_bonus_seconds": "Duração do bónus do escudo",
+    "better_weaponry.field.gear.shield_perfect_bonus_seconds.help": "Durante quanto tempo este bónus fica disponível se não acertares, em segundos.",
+    "better_weaponry.field.gear.shield_perfect_knockback": "Repulsão do aparo perfeito com escudo",
+    "better_weaponry.field.gear.shield_perfect_knockback.help": "Com que força um aparo perfeito com escudo repele um atacante corpo a corpo. 0: sem repulsão.",
+    "better_weaponry.field.gear.reflect_arrows": "Aparos perfeitos refletem flechas",
+    "better_weaponry.field.gear.reflect_arrows.help": "true: uma flecha parada por um aparo perfeito com escudo volta para quem a disparou.",
+    "better_weaponry.field.gear.replace_vanilla_gear": "Substituir equipamento vanilla (saque, trocas)",
+    "better_weaponry.field.gear.replace_vanilla_gear.help": "true: saque e aldeões dão as versões do mod em vez do item vanilla.",
+    "better_weaponry.field.gear.loot_upgrade_chance": "Probabilidade de material melhor no saque",
+    "better_weaponry.field.gear.loot_upgrade_chance.help": "No saque, a partir da madeira, probabilidade em % de passar ao material seguinte (ouro, pedra, ferro, diamante, netherite). Sorteada de novo a cada etapa.",
+    "better_weaponry.field.gear.enchanted_book_chance": "Probabilidade de livro encantado em baús",
+    "better_weaponry.field.gear.enchanted_book_chance.help": "Probabilidade em % de um baú do Nether ou do End ter um livro com um encantamento do mod.",
+    "enchantment.better_weaponry.reflective": "Reflexão",
+    "enchantment.better_weaponry.reflective.desc": "Um aparo perfeito devolve 10/20/30% de um ataque corpo a corpo ao atacante, com os seus efeitos. Vai em escudos e em tudo o que pode aparar.",
+    "enchantment.better_weaponry.vampirism": "Vampirismo",
+    "enchantment.better_weaponry.vampirism.desc": "Cura-te com parte do dano corpo a corpo causado. A cura cresce cada vez mais devagar nos golpes fortes.",
+    "enchantment.better_weaponry.riposte": "Contra-ataque",
+    "enchantment.better_weaponry.riposte.desc": "Após um aparo perfeito, o teu próximo golpe causa 25/50/75% mais dano, além do bónus habitual.",
+    "enchantment.better_weaponry.momentum": "Impulso",
+    "enchantment.better_weaponry.momentum.desc": "Reduz a recarga do avanço em 15/30/45%.",
+    "enchantment.better_weaponry.execution": "Execução",
+    "enchantment.better_weaponry.execution.desc": "Causa 10/20/30% mais dano a alvos abaixo de 30% da vida.",
+    "enchantment.better_weaponry.bleeding": "Sangramento",
+    "enchantment.better_weaponry.bleeding.desc": "Golpes carregados fazem o alvo sangrar durante 2/3/4 segundos. Só foices, gadanhas e katanas. Esqueletos são imunes. Incompatível com Aspeto Flamejante.",
+    "effect.better_weaponry.bleeding": "Sangramento",
+    "death.attack.better_weaponry.bleeding": "%1$s sangrou até à morte",
+    "death.attack.better_weaponry.bleeding.player": "%1$s sangrou até à morte a lutar contra %2$s"
   }
 }

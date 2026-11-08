@@ -111,6 +111,7 @@ By default the broadsword, katana, glaive, claymore and sai can **parry**, like 
     Both weapons then take the parry pose, in first and third person.
 - A two-handed weapon always parries, since the off hand is locked.
 - **Perfect parry**: a hit taken during the first `parry.perfect_window_seconds` of the parry (0.25 s by default) is blocked entirely, without wear, with a sound and particles that depend on the weapon's material. Raising the guard again right after does not open a new window (`parry.perfect_cooldown_seconds`).
+- After a perfect parry, your next melee hit within `parry.perfect_bonus_seconds` (3 s) deals `parry.perfect_damage_bonus` % more damage (20% by default).
 - **Guard break**: a hit from an axe or a weapon with `disables_shield` is still reduced, but it stops the parry and the weapon cannot parry for `parry.guard_break_seconds` (1.5 s by default, shared by every material). A perfect parry is never broken.
 - `parry_enabled: false` in `rules.json` turns the parry off for every weapon; `perfect_parry_enabled` and `guard_break_enabled` turn off only those two.
 
@@ -126,6 +127,30 @@ By default the dagger (sideways dodge) and the rapier (forward lunge) can **dash
 - Never while riding, gliding with an elytra, or in water or lava. On the ground only, unless `dash.allow_airborne` is `true`.
 - The movement is done by the player's own game (like vanilla movement); the server handles the cooldown and the hunger.
 - `dash_enabled: false` in `rules.json` turns the dash off for every weapon.
+
+### Shields
+
+Shields exist in every material (`wooden_shield`, `iron_shield`, `netherite_shield`...). They block like the vanilla shield, take banners, and accept the same enchantments.
+
+- Durability: that of the material's tools, except wood (118) and gold (64).
+- Recipe: the vanilla shape, with the material instead of planks and the iron ingot in the middle. Netherite and other upgrade materials use the smithing table.
+- Texture: `textures/entity/shield/<material>_shield.png` (64×64, like the vanilla one). Without that file, the shield looks like the vanilla one.
+- **Perfect parry**: a hit taken just after the shield is up does not wear it and cannot disable it. It pushes melee attackers back and sends arrows back to their shooter, and your next hit deals 20% more damage. See `gear.json`.
+
+The vanilla shield is replaced everywhere it can be: its recipe is off, it is gone from the creative tab, loot and villagers give the mod's shields (better materials are rarer), armorers sell better ones as they level up, and vanilla shields in a player's inventory or ender chest become wooden shields at login. Turn off `replace_vanilla_gear` in `gear.json` for loot, trades and the login conversion.
+
+### Enchantments
+
+| Enchantment | Effect | Goes on | How to get it |
+|---|---|---|---|
+| Reflective I-III | On a perfect parry, sends 10/20/30% of a melee hit back, with its effects (Fire Aspect, on-hit effects, knockback, a cave spider's poison...) | Shields and weapons that parry | End cities |
+| Vampirism I-III | Heals `2 × ln(1 + damage × (10/20/30%) / 2)` per melee hit, at most every 0.5 s | Melee weapons | Nether chests |
+| Riposte I-III | After a perfect parry, the next hit deals 25/50/75% more | Weapons that parry | Enchanting table, End cities |
+| Momentum I-III | Dash cooldown −15/30/45% | Weapons that dash | Enchanting table, End cities |
+| Execution I-III | +10/20/30% damage on targets below 30% health | Melee weapons | Enchanting table, Nether chests |
+| Bleeding I-III | Charged hits make the target bleed 0.5 HP per second for 2/3/4 s (skeletons are immune, incompatible with Fire Aspect) | Sickles, scythes, katanas | Enchanting table, Nether chests |
+
+Reflective, Riposte and Momentum follow the weapon's configured `ability`: giving `parry` to a weapon in the editor makes it accept them. Descriptions are provided for the Enchantment Descriptions mod. With Better Combat or Epic Fight, Reflective only goes on shields and works on any block; Riposte and Momentum no longer apply.
 
 ### Tooltips
 
@@ -205,6 +230,7 @@ config/better_weaponry/             ← created at first launch, applies to ever
 ├── weapons/<weapon>.json           ← your weapon changes (only what you change)
 └── defaults/                       ← the mod's default values, rewritten at every launch (read only)
 
+config/better_weaponry/gear.json    ← your shield and loot settings (only what you change)
 config/better_weaponry-client.toml  ← display preferences (tooltips, on-screen elements)
 ```
 
@@ -251,6 +277,8 @@ Layers, from lowest to highest priority (the last one wins):
 | `parry.perfect_window_seconds` | 0 – 2 | Start of the parry during which a hit is blocked entirely (default 0.25, 0 = never) |
 | `parry.perfect_cooldown_seconds` | 0 – 10 | Delay before raising the guard can open a new perfect window (default 1) |
 | `parry.guard_break_seconds` | 0 – 10 | How long the weapon cannot parry after a guard break (default 1.5, 0 = never broken) |
+| `parry.perfect_damage_bonus` | 0 – 500 | Extra damage on the next melee hit after a perfect parry, in % (default 20) |
+| `parry.perfect_bonus_seconds` | 0.5 – 30 | How long that bonus stays available (default 3) |
 | `dash.distance` | 0.5 – 16 | Approximate length of the dash on flat ground, in blocks (default 4) |
 | `dash.cooldown_seconds` | 0.1 – 60 | Time before the next dash, shared by every material of the type (default 2) |
 | `dash.direction` | `"look"` / `"input"` | Where you look, or where your movement keys point (default `"look"`) |
@@ -308,6 +336,20 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 | `guard_break_enabled` | `true` / `false` | `true` | `false`: axes no longer interrupt a parry |
 | `dash_enabled` | `true` / `false` | `true` | `false`: no weapon can dash, whatever its file says |
 | `combos_enabled` | `true` / `false` | `true` | `false`: no weapon has a combo, whatever its file says |
+
+### gear.json
+
+| Field | Range | Default | Meaning |
+|---|---|---|---|
+| `shield_perfect_window_seconds` | 0 – 2 | 0.25 | Once the shield is up, how long a hit counts as a perfect parry (0 = never) |
+| `shield_perfect_cooldown_seconds` | 0 – 10 | 1 | Delay before raising the shield can open a new window |
+| `shield_perfect_damage_bonus` | 0 – 500 | 20 | Extra damage on the next melee hit, in % |
+| `shield_perfect_bonus_seconds` | 0.5 – 30 | 3 | How long that bonus stays available |
+| `shield_perfect_knockback` | 0 – 5 | 0.4 | How far a melee attacker is pushed back |
+| `reflect_arrows` | `true` / `false` | `true` | A perfect parry with a shield sends arrows back |
+| `replace_vanilla_gear` | `true` / `false` | `true` | Loot, trades and the login conversion use the mod's versions |
+| `loot_upgrade_chance` | 0 – 100 | 20 | In loot, chance to move up one material, rolled at each step (wood, gold, stone, iron, diamond, netherite) |
+| `enchanted_book_chance` | 0 – 100 | 20 | Chance for a Nether or End chest to hold a book with one of the mod's enchantments |
 
 ### Upgrading from 1.x
 
@@ -425,6 +467,8 @@ src/main/java/com/betterweaponry/
 │   ├── WeaponProfiles.java      # "Which weapon is this item?": the mod's weapons and the items adopted with "items"
 │   ├── AdoptedItemEvents.java   # Right click and attributes of adopted items
 │   ├── AbilityCooldowns.java, ParryMaterial.java  # Shared cooldowns, sound and particles of a perfect parry per material
+│   ├── ShieldSystem.java        # Perfect parry with a shield, arrows sent back
+│   ├── ModEnchantments.java, EnchantmentEvents.java  # Effects of the mod's enchantments
 │   ├── HandSwap.java            # Swaps both hands (items + attributes) during an off-hand attack
 │   ├── TwoHandedSystem.java     # Rules for when the off hand is locked
 │   ├── ComboSystem.java         # Combo progress, special hits (area, both weapons), cooldown after a special hit
@@ -442,6 +486,7 @@ src/main/java/com/betterweaponry/
 │   │   ComboDefinition.java, ComboStep.java  # Sub-objects of a weapon file
 │   ├── WeaponAbility.java, DashDirection.java  # Values of the "ability" and "dash.direction" fields
 │   ├── RulesDefinition.java     # Fields of rules.json
+│   ├── GearDefinition.java      # Fields of gear.json
 │   ├── DataField.java, FieldSet.java  # Field declarations, validation, merging of the layers
 │   ├── WeaponDataLoader.java    # Loads the files when a world loads and on /reload
 │   ├── WeaponData.java          # Data in effect (loaded by the server, or synced from it)
@@ -458,7 +503,10 @@ src/main/java/com/betterweaponry/
 │   ├── WeaponMaterial.java      # One material: Tier, default stats, how it is crafted, required mod
 │   ├── WeaponMaterials.java     # List of all materials (vanilla + mod compatibilities)
 │   ├── WeaponRecipe.java        # Crafting pattern with M (material) and S (stick)
-│   └── WeaponItem.java          # Single item class; stats read live from the weapon data
+│   ├── WeaponItem.java          # Single item class; stats read live from the weapon data
+│   ├── WeaponShieldItem.java, GearType.java, ModShieldDecorationRecipe.java  # Shields per material
+│   └── VanillaGear.java         # Replaces vanilla gear (loot, inventories)
+├── loot/                        # Global loot modifiers (vanilla gear replaced, enchanted books)
 ├── event/                       # Two-handed restrictions, tooltips, first-person hand hiding
 ├── mixin/                       # Dual-wield and combo attacks, two-arm swing (first and third person), rendering hooks
 └── datagen/                     # Item model, item tag, recipe and Better Combat providers

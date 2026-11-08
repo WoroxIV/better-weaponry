@@ -1,6 +1,7 @@
 package com.betterweaponry.datagen;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.item.GearType;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponRecipe;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 /**
  * Génère les recettes de toutes les armes à partir du motif de chaque {@link WeaponType} :
@@ -44,6 +46,9 @@ public class ModRecipeProvider extends RecipeProvider {
         super(output, registries);
     }
 
+    /** Forme du bouclier vanilla : les planches sont remplacées par le matériau, le lingot de fer central reste. */
+    private static final WeaponRecipe SHIELD_RECIPE = WeaponRecipe.of("MoM", "MMM", " M ").with('o', Tags.Items.INGOTS_IRON);
+
     @Override
     protected void buildRecipes(RecipeOutput output) {
         for (WeaponType type : WeaponType.values()) {
@@ -51,19 +56,29 @@ public class ModRecipeProvider extends RecipeProvider {
             if (recipe == null) continue; // pas encore de motif pour ce type
 
             for (WeaponMaterial material : WeaponMaterials.all()) {
-                RecipeOutput conditionalOutput = withLoadConditions(output, material);
-                if (material.craftingIngredient() != null) {
-                    shaped(conditionalOutput, type, material, recipe, material.craftingIngredient().tag());
-                } else if (material.smithingUpgrade() != null) {
-                    smithing(conditionalOutput, type, material, material.smithingUpgrade());
-                }
+                addRecipes(output, material, recipe, ModItems.get(type, material).get(), material.itemName(type),
+                        base -> ModItems.get(type, base).get());
             }
+        }
+        for (WeaponMaterial material : WeaponMaterials.all()) {
+            addRecipes(output, material, SHIELD_RECIPE, ModItems.shield(material).get(), material.itemName(GearType.SHIELD),
+                    base -> ModItems.shield(base).get());
         }
     }
 
-    private void shaped(RecipeOutput output, WeaponType type, WeaponMaterial material,
-                        WeaponRecipe recipe, TagKey<Item> materialTag) {
-        ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.get(type, material).get());
+    /** Recette d'établi, ou de table de forge pour un matériau obtenu par amélioration. */
+    private void addRecipes(RecipeOutput output, WeaponMaterial material, WeaponRecipe recipe, Item result, String name,
+                            Function<WeaponMaterial, Item> itemOfMaterial) {
+        RecipeOutput conditionalOutput = withLoadConditions(output, material);
+        if (material.craftingIngredient() != null) {
+            shaped(conditionalOutput, result, name, recipe, material.craftingIngredient().tag());
+        } else if (material.smithingUpgrade() != null) {
+            smithing(conditionalOutput, result, name, itemOfMaterial.apply(material.smithingUpgrade().base()), material.smithingUpgrade());
+        }
+    }
+
+    private void shaped(RecipeOutput output, Item result, String name, WeaponRecipe recipe, TagKey<Item> materialTag) {
+        ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, result);
         recipe.pattern().forEach(builder::pattern);
 
         // On ne définit que les symboles présents : un ingrédient inutilisé fait échouer le datagen.
@@ -74,18 +89,18 @@ public class ModRecipeProvider extends RecipeProvider {
         }
 
         builder.unlockedBy("has_material", has(materialTag))
-                .save(output, recipeId(material.itemName(type)));
+                .save(output, recipeId(name));
     }
 
-    private void smithing(RecipeOutput output, WeaponType type, WeaponMaterial material, WeaponMaterial.SmithingUpgrade upgrade) {
+    private void smithing(RecipeOutput output, Item result, String name, Item base, WeaponMaterial.SmithingUpgrade upgrade) {
         SmithingTransformRecipeBuilder.smithing(
                         Ingredient.of(upgrade.template().tag()),
-                        Ingredient.of(ModItems.get(type, upgrade.base()).get()),
+                        Ingredient.of(base),
                         Ingredient.of(upgrade.addition().tag()),
                         RecipeCategory.COMBAT,
-                        ModItems.get(type, material).get())
+                        result)
                 .unlocks("has_addition", has(upgrade.addition().tag()))
-                .save(output, recipeId(material.itemName(type) + "_smithing"));
+                .save(output, recipeId(name + "_smithing"));
     }
 
     /**
