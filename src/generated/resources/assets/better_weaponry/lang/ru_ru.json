@@ -205,7 +205,13 @@
   "better_weaponry.field.weapon.parry.damage_reduction.help": "Доля блокируемого урона в % (100 = без урона). Удары в спину, падения, огонь, яд и другой урон, который не блокирует щит, не снижаются.",
   "better_weaponry.field.weapon.parry.durability_per_damage": "Износ",
   "better_weaponry.field.weapon.parry.durability_per_damage.help": "Потеря прочности за каждую единицу заблокированного урона, с округлением, минимум 1 за парированный удар (0 = парирование никогда не изнашивает оружие).",
+  "better_weaponry.field.weapon.parry.guard_break_seconds": "Длительность пробития защиты",
+  "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Сколько секунд это оружие не может парировать после удара топором или оружием, отключающим щиты. Идеальное парирование не пробивается. 0: защита этого оружия никогда не пробивается.",
   "better_weaponry.field.weapon.parry.help": "Настройки парирования, используются, если ability равно \"parry\". Пока правая кнопка зажата, вы двигаетесь медленно, а удары спереди ослабляются. Работает только с пустой второй рукой, с двуручным оружием или с оружием во второй руке, если while_dual_wielding равно true. Щит во второй руке поднимается вместо этого.",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Пауза между идеальными парированиями",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Сколько секунд после окна должно пройти, прежде чем новая защита сможет открыть следующее. Не даёт спамить правым кликом.",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds": "Окно идеального парирования",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "В самом начале парирования: сколько секунд удар блокируется полностью, не изнашивая оружие. 0: никогда.",
   "better_weaponry.field.weapon.parry.while_dual_wielding": "Парирование с двумя оружиями",
   "better_weaponry.field.weapon.parry.while_dual_wielding.help": "true: парирование работает и с оружием во второй руке (задумано для саи). false: вторая рука должна быть пустой.",
   "better_weaponry.field.weapon.sweep": "Разящий удар",
@@ -223,6 +229,7 @@
   "better_weaponry.tooltip.ability.dash.input": "В направлении движения",
   "better_weaponry.tooltip.ability.parry": "%1$s: парирование (-%2$s%% урона спереди)",
   "better_weaponry.tooltip.ability.parry.dual_wield": "Парирует и с оружием в каждой руке",
+  "better_weaponry.tooltip.ability.parry.perfect": "Идеальное парирование: блокирует всё в первые %s с",
   "better_weaponry.tooltip.combo.area": "область %1$s°, %2$s бл.",
   "better_weaponry.tooltip.combo.both_hands": "оба оружия",
   "better_weaponry.tooltip.combo.cooldown": "восстановление ×%s",
@@ -885,5 +892,6 @@
   "item.better_weaponry.zanite_spear": "Копьё из занита",
   "subtitles.better_weaponry.combo.ready": "Комбо готово",
   "subtitles.better_weaponry.item.weapon.dash": "Игрок делает рывок",
-  "subtitles.better_weaponry.item.weapon.parry": "Оружие парирует"
+  "subtitles.better_weaponry.item.weapon.parry": "Оружие парирует",
+  "subtitles.better_weaponry.item.weapon.perfect_parry": "Идеальное парирование"
 }

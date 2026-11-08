@@ -308,6 +308,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "%s has its own combos, reach, dual wield and two-handed systems. The switches and the combat settings here are saved but have no effect. Weapons and enchantments still work.",
     "attribute.betterweaponry.dual_wielded": "Dual Wielded",
     "better_weaponry.field.weapon.dual_wielded": "Dual wielded",
-    "better_weaponry.field.weapon.dual_wielded.help": "true: this weapon can be used with another dual-wielded weapon in the other hand (hits alternate between the hands, and attacks are faster). Both weapons need this option. Ignored if the weapon is two-handed."
+    "better_weaponry.field.weapon.dual_wielded.help": "true: this weapon can be used with another dual-wielded weapon in the other hand (hits alternate between the hands, and attacks are faster). Both weapons need this option. Ignored if the weapon is two-handed.",
+    "better_weaponry.tooltip.ability.parry.perfect": "Perfect parry: blocks everything for the first %s s",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "Perfect parry",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "Perfect parry window",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "At the very start of a parry, how long a hit is blocked entirely, without wearing the weapon, in seconds. 0: never.",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Delay between perfect parries",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "After the window, how long before raising the guard can open a new one, in seconds. Prevents spamming the right click.",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "Guard break duration",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "How long this weapon cannot parry after being hit by an axe or a weapon that disables shields, in seconds. A perfect parry is never broken. 0: this weapon's guard never breaks."
   }
 }

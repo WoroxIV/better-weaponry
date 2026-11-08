@@ -381,6 +381,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "%s heeft eigen combo's, bereik, dual wield en tweehandige wapens. De schakelaars en gevechtsinstellingen hier worden opgeslagen maar hebben geen effect. Wapens en betoveringen blijven werken.",
     "attribute.betterweaponry.dual_wielded": "dual wield",
     "better_weaponry.field.weapon.dual_wielded": "Dual wield",
-    "better_weaponry.field.weapon.dual_wielded.help": "true: dit wapen kan worden gebruikt met een ander dual-wield-wapen in de andere hand (de klappen wisselen tussen de handen en de aanvallen zijn sneller). Beide wapens hebben deze optie nodig. Genegeerd als het wapen tweehandig is."
+    "better_weaponry.field.weapon.dual_wielded.help": "true: dit wapen kan worden gebruikt met een ander dual-wield-wapen in de andere hand (de klappen wisselen tussen de handen en de aanvallen zijn sneller). Beide wapens hebben deze optie nodig. Genegeerd als het wapen tweehandig is.",
+    "better_weaponry.tooltip.ability.parry.perfect": "Perfecte parering: blokkeert alles in de eerste %s s",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "Perfecte parering",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "Venster perfecte parering",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "Hoe lang een klap aan het begin van een parering volledig wordt geblokkeerd, zonder het wapen te slijten, in seconden. 0: nooit.",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Tijd tussen perfecte pareringen",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Hoe lang het na het venster duurt voordat een nieuwe dekking er weer een kan openen, in seconden. Voorkomt spammen met de rechtermuisklik.",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "Duur gebroken dekking",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Hoe lang dit wapen niet kan pareren na een klap van een bijl of een wapen dat schilden uitschakelt, in seconden. Een perfecte parering wordt nooit gebroken. 0: de dekking van dit wapen breekt nooit."
   }
 }

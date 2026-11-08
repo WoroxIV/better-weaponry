@@ -209,6 +209,7 @@ public final class CombatGameTests {
             defender.setHealth(TEST_HEALTH);
             helper.assertTrue(stack.use(helper.getLevel(), defender, InteractionHand.MAIN_HAND).getResult().consumesAction()
                     && ParrySystem.isParrying(defender), type.id() + ": a right click should start the parry");
+            PlayerCombatState.of(defender).perfectParryUntil = 0L;  // fenêtre de parade parfaite passée
 
             defender.hurt(defender.damageSources().playerAttack(mockPlayerAt(helper, position.add(0.0D, 0.0D, 2.0D))), RAW_DAMAGE);
             double blocked = RAW_DAMAGE * parry.damageReduction() / 100.0D;
@@ -506,6 +507,122 @@ public final class CombatGameTests {
         }
         helper.assertTrue(JsonTree.sameValue(document.json(WeaponData.current()), original), "the original values should be back");
         helper.succeed();
+    }
+
+    /**
+     * Parade parfaite : au début de la garde, un coup est bloqué en entier sans user l'arme ; après la fenêtre, il est
+     * seulement réduit ; relever la garde tout de suite ne redonne pas de fenêtre ; les interrupteurs la coupent.
+     */
+    @GameTest(template = ARENA)
+    public static void perfectParryWindow(GameTestHelper helper) {
+        ItemStack stack = weapon(WeaponType.BROADSWORD);
+        ParryDefinition parry = ParrySystem.parryOf(stack).orElseThrow();
+        helper.assertTrue(parry.perfectWindowSeconds() > 0.0D, "the broadsword should have a perfect parry window");
+        Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+        Player defender = parrier(helper, stack, position);
+        Player attacker = mockPlayerAt(helper, position.add(0.0D, 0.0D, 2.0D));
+        PlayerCombatState state = PlayerCombatState.of(defender);
+
+        startParry(helper, defender, stack);
+        helper.assertTrue(ParrySystem.isInPerfectWindow(defender), "the window should open with the parry");
+        defender.hurt(defender.damageSources().playerAttack(attacker), RAW_DAMAGE);
+        helper.assertTrue(defender.getHealth() == TEST_HEALTH, "a perfect parry should block everything, took " + (TEST_HEALTH - defender.getHealth()));
+        helper.assertTrue(stack.getDamageValue() == 0, "a perfect parry should not wear the weapon");
+
+        // Fenêtre écoulée : le coup est réduit normalement.
+        state.perfectParryUntil = 0L;
+        defender.invulnerableTime = 0;
+        defender.hurt(defender.damageSources().playerAttack(attacker), RAW_DAMAGE);
+        double expected = RAW_DAMAGE * (1.0D - parry.damageReduction() / 100.0D);
+        helper.assertTrue(Math.abs(TEST_HEALTH - defender.getHealth() - expected) < EPSILON, "after the window the hit should only be reduced");
+
+        // Anti-spam : relever la garde tout de suite ne redonne pas de fenêtre.
+        defender.stopUsingItem();
+        startParry(helper, defender, stack);
+        helper.assertFalse(ParrySystem.isInPerfectWindow(defender), "raising the guard again at once should not open a window");
+        defender.stopUsingItem();
+        state.perfectParryReadyAt = 0L;
+        startParry(helper, defender, stack);
+        helper.assertTrue(ParrySystem.isInPerfectWindow(defender), "the window should be available again after the cooldown");
+
+        // Interrupteur coupé : plus de fenêtre, la parade reste.
+        WeaponData.Snapshot original = WeaponData.current();
+        try {
+            WeaponData.install(new WeaponData.Snapshot(original.weapons(),
+                    new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, true, false, true, true, true)));
+            defender.stopUsingItem();
+            state.perfectParryReadyAt = 0L;
+            startParry(helper, defender, stack);
+            helper.assertFalse(ParrySystem.isInPerfectWindow(defender), "perfect_parry_enabled false: no window");
+        } finally {
+            WeaponData.install(original);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Garde brisée : un coup d'une arme qui désactive les boucliers (ou d'une hache) arrête la parade et met l'arme
+     * en recharge, mais reste réduit. Une parade parfaite n'est jamais brisée, ni une arme qui ne désactive rien.
+     */
+    @GameTest(template = ARENA)
+    public static void guardBreak(GameTestHelper helper) {
+        Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+        Vec3 front = position.add(0.0D, 0.0D, 2.0D);
+
+        for (ItemStack breaker : List.of(weapon(WeaponType.HAMMER), new ItemStack(Items.IRON_AXE))) {
+            ItemStack stack = weapon(WeaponType.KATANA);
+            ParryDefinition parry = ParrySystem.parryOf(stack).orElseThrow();
+            Player defender = parrier(helper, stack, position);
+            Player attacker = player(helper, breaker, ItemStack.EMPTY);
+            attacker.setPos(front);
+            startParry(helper, defender, stack);
+            PlayerCombatState.of(defender).perfectParryUntil = 0L;
+
+            defender.hurt(defender.damageSources().playerAttack(attacker), RAW_DAMAGE);
+            double expected = RAW_DAMAGE * (1.0D - parry.damageReduction() / 100.0D);
+            helper.assertTrue(Math.abs(TEST_HEALTH - defender.getHealth() - expected) < EPSILON, breaker + ": the hit that breaks the guard should stay reduced");
+            helper.assertFalse(ParrySystem.isParrying(defender), breaker + ": the parry should stop");
+            for (DeferredItem<WeaponItem> item : ModItems.allOfType(WeaponType.KATANA)) {
+                helper.assertTrue(defender.getCooldowns().isOnCooldown(item.get()), breaker + ": " + item.getId() + " should be on cooldown");
+            }
+            helper.assertFalse(stack.use(helper.getLevel(), defender, InteractionHand.MAIN_HAND).getResult().consumesAction(),
+                    breaker + ": no parry during the guard break");
+        }
+
+        // Parade parfaite : ni dégâts ni garde brisée, même contre un marteau.
+        ItemStack perfect = weapon(WeaponType.KATANA);
+        Player perfectDefender = parrier(helper, perfect, position);
+        Player hammerUser = player(helper, weapon(WeaponType.HAMMER), ItemStack.EMPTY);
+        hammerUser.setPos(front);
+        startParry(helper, perfectDefender, perfect);
+        perfectDefender.hurt(perfectDefender.damageSources().playerAttack(hammerUser), RAW_DAMAGE);
+        helper.assertTrue(ParrySystem.isParrying(perfectDefender) && perfectDefender.getHealth() == TEST_HEALTH, "a perfect parry is never broken");
+
+        // Une arme qui ne désactive pas les boucliers ne brise rien.
+        ItemStack calm = weapon(WeaponType.KATANA);
+        Player calmDefender = parrier(helper, calm, position);
+        Player katanaUser = player(helper, weapon(WeaponType.KATANA), ItemStack.EMPTY);
+        katanaUser.setPos(front);
+        startParry(helper, calmDefender, calm);
+        PlayerCombatState.of(calmDefender).perfectParryUntil = 0L;
+        calmDefender.hurt(calmDefender.damageSources().playerAttack(katanaUser), RAW_DAMAGE);
+        helper.assertTrue(ParrySystem.isParrying(calmDefender), "a katana should not break a guard");
+        helper.succeed();
+    }
+
+    /** Joueur factice à 100 PV, regardant vers le sud (+Z), qui tient cette arme. */
+    private static Player parrier(GameTestHelper helper, ItemStack stack, Vec3 position) {
+        Player defender = player(helper, stack, ItemStack.EMPTY);
+        defender.setPos(position);
+        defender.setYRot(0.0F);
+        defender.setYHeadRot(0.0F);
+        setBase(defender.getAttribute(Attributes.MAX_HEALTH), TEST_HEALTH);
+        defender.setHealth(TEST_HEALTH);
+        return defender;
+    }
+
+    private static void startParry(GameTestHelper helper, Player player, ItemStack stack) {
+        helper.assertTrue(stack.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult().consumesAction(), "the parry should start");
     }
 
     /**

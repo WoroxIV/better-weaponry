@@ -9,6 +9,71 @@
       }
     ]
   },
+  "item.weapon.perfect_parry.wood": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.perfect_parry",
+    "sounds": [
+      {
+        "name": "minecraft:block.wood.break",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 1.4
+      }
+    ]
+  },
+  "item.weapon.perfect_parry.stone": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.perfect_parry",
+    "sounds": [
+      {
+        "name": "minecraft:block.stone.break",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 1.3
+      }
+    ]
+  },
+  "item.weapon.perfect_parry.metal": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.perfect_parry",
+    "sounds": [
+      {
+        "name": "minecraft:random/anvil_land",
+        "volume": 0.5,
+        "pitch": 2.0
+      }
+    ]
+  },
+  "item.weapon.perfect_parry.gold": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.perfect_parry",
+    "sounds": [
+      {
+        "name": "minecraft:block.note_block.bell",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 1.6
+      }
+    ]
+  },
+  "item.weapon.perfect_parry.diamond": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.perfect_parry",
+    "sounds": [
+      {
+        "name": "minecraft:block.amethyst_cluster.break",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 1.3
+      }
+    ]
+  },
+  "item.weapon.perfect_parry.netherite": {
+    "subtitle": "subtitles.better_weaponry.item.weapon.perfect_parry",
+    "sounds": [
+      {
+        "name": "minecraft:block.netherite_block.break",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 0.8
+      }
+    ]
+  },
   "item.weapon.dash": {
     "subtitle": "subtitles.better_weaponry.item.weapon.dash",
     "sounds": [

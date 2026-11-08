@@ -6,8 +6,6 @@ import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
-import com.betterweaponry.item.WeaponType;
-import com.betterweaponry.registry.ModItems;
 import com.betterweaponry.registry.ModSounds;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -40,7 +38,6 @@ public final class DashAbility {
     private static final double VERTICAL_DRAG = 0.98D;
     /** Distance parcourue sur sol plat pour une vitesse de départ de 1 bloc par tick (calculée une fois). */
     private static final double DISTANCE_PER_SPEED = simulateDistance(1.0D);
-    private static final double TICKS_PER_SECOND = 20.0D;
     /** Comme le sprint : impossible à 3 pilons de faim ou moins (6 points). */
     private static final int MIN_FOOD_LEVEL = 6;
     /** Unité vanilla : 4 d'épuisement = 1 point de nourriture. */
@@ -82,7 +79,7 @@ public final class DashAbility {
 
     /** Lance le dash (appelé des deux côtés par {@link WeaponItem#use}, après {@link #canDash}). */
     public static void dash(Level level, Player player, ItemStack stack, DashDefinition dash) {
-        startCooldown(player, ((WeaponItem) stack.getItem()).getType(), dash);
+        AbilityCooldowns.start(player, stack, dash.cooldownSeconds());
         if (level.isClientSide) {
             launch(player, dash);
             return;
@@ -126,17 +123,6 @@ public final class DashAbility {
     /** Vitesse de départ (blocs par tick) pour parcourir à peu près {@code distance} blocs sur sol plat. */
     public static double initialSpeed(double distance) {
         return distance / DISTANCE_PER_SPEED;
-    }
-
-    /** Recharge en ticks (au moins 1). */
-    public static int cooldownTicks(DashDefinition dash) {
-        return Math.max(1, (int) Math.round(dash.cooldownSeconds() * TICKS_PER_SECOND));
-    }
-
-    /** La recharge touche tous les matériaux du type : changer de dague ne permet pas de refaire un dash. */
-    private static void startCooldown(Player player, WeaponType type, DashDefinition dash) {
-        int ticks = cooldownTicks(dash);
-        ModItems.allOfType(type).forEach(item -> player.getCooldowns().addCooldown(item.get(), ticks));
     }
 
     private static boolean hasEnoughFood(Player player) {

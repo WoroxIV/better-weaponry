@@ -205,7 +205,13 @@
   "better_weaponry.field.weapon.parry.damage_reduction.help": "Parte do dano bloqueada, em % (100 = nenhum dano). Golpes pelas costas, quedas, fogo, veneno e outros danos que um escudo não bloqueia não são reduzidos.",
   "better_weaponry.field.weapon.parry.durability_per_damage": "Desgaste",
   "better_weaponry.field.weapon.parry.durability_per_damage.help": "Durabilidade perdida por ponto de dano bloqueado, arredondada, no mínimo 1 por golpe aparado (0 = aparar nunca desgasta a arma).",
+  "better_weaponry.field.weapon.parry.guard_break_seconds": "Duração da guarda quebrada",
+  "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Durante quanto tempo esta arma não pode aparar depois de um golpe de machado ou de uma arma que desativa escudos, em segundos. Um aparo perfeito nunca é quebrado. 0: a guarda desta arma nunca quebra.",
   "better_weaponry.field.weapon.parry.help": "Definições do aparo, usadas quando ability é \"parry\". Enquanto o clique direito estiver premido, anda-se devagar e os golpes recebidos de frente são reduzidos. Só funciona com a mão secundária vazia, com uma arma de duas mãos, ou com uma arma na mão secundária se while_dual_wielding for true. Um escudo na mão secundária é levantado em vez disso.",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Intervalo entre aparos perfeitos",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Depois da janela, tempo até que levantar a guarda possa abrir outra, em segundos. Evita spam do clique direito.",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds": "Janela de aparo perfeito",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "Mesmo no início do aparo, durante quanto tempo um golpe é bloqueado por inteiro, sem desgastar a arma, em segundos. 0: nunca.",
   "better_weaponry.field.weapon.parry.while_dual_wielding": "Aparar com duas armas",
   "better_weaponry.field.weapon.parry.while_dual_wielding.help": "true: o aparo também funciona com uma arma na mão secundária (pensado para as sais). false: a mão secundária tem de estar vazia.",
   "better_weaponry.field.weapon.sweep": "Ataque em área",
@@ -223,6 +229,7 @@
   "better_weaponry.tooltip.ability.dash.input": "Segue a direção do movimento",
   "better_weaponry.tooltip.ability.parry": "%1$s: Aparar (-%2$s%% de dano frontal)",
   "better_weaponry.tooltip.ability.parry.dual_wield": "Também apara com uma arma em cada mão",
+  "better_weaponry.tooltip.ability.parry.perfect": "Aparo perfeito: bloqueia tudo nos primeiros %s s",
   "better_weaponry.tooltip.combo.area": "área de %1$s°, %2$s blocos",
   "better_weaponry.tooltip.combo.both_hands": "as duas armas",
   "better_weaponry.tooltip.combo.cooldown": "recarga ×%s",
@@ -885,5 +892,6 @@
   "item.better_weaponry.zanite_spear": "Lança de Zanite",
   "subtitles.better_weaponry.combo.ready": "Combo pronto",
   "subtitles.better_weaponry.item.weapon.dash": "Jogador avança",
-  "subtitles.better_weaponry.item.weapon.parry": "Arma apara"
+  "subtitles.better_weaponry.item.weapon.parry": "Arma apara",
+  "subtitles.better_weaponry.item.weapon.perfect_parry": "Aparo perfeito"
 }

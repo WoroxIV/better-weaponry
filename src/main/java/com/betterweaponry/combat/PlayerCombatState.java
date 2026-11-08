@@ -52,6 +52,13 @@ public final class PlayerCombatState {
     /** Le coup de bras en cours anime les deux bras. */
     public boolean dualSwingActive;
 
+    // --- Parade ---
+
+    /** Tant que le temps du monde (en ticks) est inférieur à cette valeur, la parade en cours est parfaite. */
+    public long perfectParryUntil;
+    /** Avant ce moment, relever la garde ne redonne pas de fenêtre de parade parfaite (anti-spam). */
+    public long perfectParryReadyAt;
+
     /** Remet le combo au début (arme changée, combo désactivé...). */
     public void resetCombo() {
         comboStep = 0;

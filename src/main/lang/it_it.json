@@ -309,6 +309,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "%s ha le sue combo, portata, dual wield e armi a due mani. Gli interruttori e le impostazioni di combattimento qui vengono salvati ma non hanno effetto. Armi e incantesimi funzionano comunque.",
     "attribute.betterweaponry.dual_wielded": "Ambidestra",
     "better_weaponry.field.weapon.dual_wielded": "Ambidestra",
-    "better_weaponry.field.weapon.dual_wielded.help": "true: quest'arma può essere usata con un'altra arma ambidestra nell'altra mano (i colpi si alternano tra le mani e gli attacchi sono più rapidi). Entrambe le armi devono avere questa opzione. Ignorato se l'arma è a due mani."
+    "better_weaponry.field.weapon.dual_wielded.help": "true: quest'arma può essere usata con un'altra arma ambidestra nell'altra mano (i colpi si alternano tra le mani e gli attacchi sono più rapidi). Entrambe le armi devono avere questa opzione. Ignorato se l'arma è a due mani.",
+    "better_weaponry.tooltip.ability.parry.perfect": "Parata perfetta: blocca tutto nei primi %s s",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "Parata perfetta",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "Finestra di parata perfetta",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "All'inizio della parata, per quanto un colpo viene bloccato del tutto, senza usurare l'arma, in secondi. 0: mai.",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Attesa tra parate perfette",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Dopo la finestra, tempo prima che una nuova guardia possa aprirne un'altra, in secondi. Evita lo spam del clic destro.",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "Durata della guardia spezzata",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Per quanto quest'arma non può parare dopo un colpo d'ascia o di un'arma che disattiva gli scudi, in secondi. Una parata perfetta non viene mai spezzata. 0: la guardia di quest'arma non si spezza mai."
   }
 }

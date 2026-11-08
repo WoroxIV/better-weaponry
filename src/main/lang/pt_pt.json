@@ -351,6 +351,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "%s tem os seus próprios combos, alcance, empunhadura dupla e armas de duas mãos. Os interruptores e definições de combate aqui são guardados, mas não têm efeito. As armas e os encantamentos continuam a funcionar.",
     "attribute.betterweaponry.dual_wielded": "Empunhadura dupla",
     "better_weaponry.field.weapon.dual_wielded": "Empunhadura dupla",
-    "better_weaponry.field.weapon.dual_wielded.help": "true: esta arma pode ser usada com outra arma de empunhadura dupla na outra mão (os golpes alternam entre as mãos e os ataques são mais rápidos). As duas armas precisam desta opção. Ignorado se a arma for de duas mãos."
+    "better_weaponry.field.weapon.dual_wielded.help": "true: esta arma pode ser usada com outra arma de empunhadura dupla na outra mão (os golpes alternam entre as mãos e os ataques são mais rápidos). As duas armas precisam desta opção. Ignorado se a arma for de duas mãos.",
+    "better_weaponry.tooltip.ability.parry.perfect": "Aparo perfeito: bloqueia tudo nos primeiros %s s",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "Aparo perfeito",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "Janela de aparo perfeito",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "Mesmo no início do aparo, durante quanto tempo um golpe é bloqueado por inteiro, sem desgastar a arma, em segundos. 0: nunca.",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Intervalo entre aparos perfeitos",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Depois da janela, tempo até que levantar a guarda possa abrir outra, em segundos. Evita spam do clique direito.",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "Duração da guarda quebrada",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Durante quanto tempo esta arma não pode aparar depois de um golpe de machado ou de uma arma que desativa escudos, em segundos. Um aparo perfeito nunca é quebrado. 0: a guarda desta arma nunca quebra."
   }
 }

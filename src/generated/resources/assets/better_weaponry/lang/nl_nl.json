@@ -205,7 +205,13 @@
   "better_weaponry.field.weapon.parry.damage_reduction.help": "Deel van de schade dat wordt geblokkeerd, in % (100 = geen schade). Klappen van achteren, vallen, vuur, gif en andere schade die een schild niet kan blokkeren worden niet verminderd.",
   "better_weaponry.field.weapon.parry.durability_per_damage": "Slijtage",
   "better_weaponry.field.weapon.parry.durability_per_damage.help": "Verloren levensduur per geblokkeerd schadepunt, afgerond, minstens 1 per gepareerde klap (0 = pareren slijt het wapen nooit).",
+  "better_weaponry.field.weapon.parry.guard_break_seconds": "Duur gebroken dekking",
+  "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Hoe lang dit wapen niet kan pareren na een klap van een bijl of een wapen dat schilden uitschakelt, in seconden. Een perfecte parering wordt nooit gebroken. 0: de dekking van dit wapen breekt nooit.",
   "better_weaponry.field.weapon.parry.help": "Instellingen van het pareren, gebruikt als ability \"parry\" is. Zolang rechtsklik ingedrukt is, beweeg je langzaam en worden klappen van voren verminderd. Werkt alleen met een lege secundaire hand, met een tweehandig wapen, of met een wapen in de secundaire hand als while_dual_wielding true is. Een schild in de secundaire hand wordt in plaats daarvan geheven.",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Tijd tussen perfecte pareringen",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Hoe lang het na het venster duurt voordat een nieuwe dekking er weer een kan openen, in seconden. Voorkomt spammen met de rechtermuisklik.",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds": "Venster perfecte parering",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "Hoe lang een klap aan het begin van een parering volledig wordt geblokkeerd, zonder het wapen te slijten, in seconden. 0: nooit.",
   "better_weaponry.field.weapon.parry.while_dual_wielding": "Pareren met twee wapens",
   "better_weaponry.field.weapon.parry.while_dual_wielding.help": "true: pareren werkt ook met een wapen in de secundaire hand (bedoeld voor de sai's). false: de secundaire hand moet leeg zijn.",
   "better_weaponry.field.weapon.sweep": "Verscherpte aanval",
@@ -223,6 +229,7 @@
   "better_weaponry.tooltip.ability.dash.input": "Gaat in de richting waarin je beweegt",
   "better_weaponry.tooltip.ability.parry": "%1$s: pareren (-%2$s%% schade van voren)",
   "better_weaponry.tooltip.ability.parry.dual_wield": "Pareert ook met een wapen in elke hand",
+  "better_weaponry.tooltip.ability.parry.perfect": "Perfecte parering: blokkeert alles in de eerste %s s",
   "better_weaponry.tooltip.combo.area": "gebied van %1$s°, %2$s blokken",
   "better_weaponry.tooltip.combo.both_hands": "beide wapens",
   "better_weaponry.tooltip.combo.cooldown": "herstel ×%s",
@@ -885,5 +892,6 @@
   "item.better_weaponry.zanite_spear": "Zaniet speer",
   "subtitles.better_weaponry.combo.ready": "Combo klaar",
   "subtitles.better_weaponry.item.weapon.dash": "Speler schiet vooruit",
-  "subtitles.better_weaponry.item.weapon.parry": "Wapen pareert"
+  "subtitles.better_weaponry.item.weapon.parry": "Wapen pareert",
+  "subtitles.better_weaponry.item.weapon.perfect_parry": "Perfecte parering"
 }

@@ -191,6 +191,7 @@ public class WeaponItem extends SwordItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (ParrySystem.canParry(player, hand, stack)) {
+            ParrySystem.beginParry(player, stack);
             player.startUsingItem(hand);
             return InteractionResultHolder.consume(stack);
         }

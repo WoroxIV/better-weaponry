@@ -163,6 +163,10 @@ public final class TooltipEventHandler {
         Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
         String percent = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(parry.damageReduction());
         insertAfterStats(tooltip, abilityLine(Component.translatable(PARRY_KEY, useKey, percent)));
+        if (WeaponData.rules().perfectParryActive() && parry.perfectWindowSeconds() > 0.0D) {
+            String window = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(parry.perfectWindowSeconds());
+            insertAfterStats(tooltip, abilityLine(Component.translatable(PARRY_KEY + ".perfect", window)));
+        }
         if (parry.whileDualWielding()) {
             insertAfterStats(tooltip, abilityLine(Component.translatable(PARRY_DUAL_WIELD_KEY)));
         }

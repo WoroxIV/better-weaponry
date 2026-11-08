@@ -205,7 +205,13 @@
   "better_weaponry.field.weapon.parry.damage_reduction.help": "Anteil des geblockten Schadens in % (100 = kein Schaden). Treffer von hinten, Stürze, Feuer, Gift und anderer Schaden, den ein Schild nicht blocken kann, werden nicht verringert.",
   "better_weaponry.field.weapon.parry.durability_per_damage": "Abnutzung",
   "better_weaponry.field.weapon.parry.durability_per_damage.help": "Verlorene Haltbarkeit pro geblocktem Schadenspunkt, gerundet, mindestens 1 pro pariertem Treffer (0 = Parieren nutzt die Waffe nie ab).",
+  "better_weaponry.field.weapon.parry.guard_break_seconds": "Dauer des Deckungsbruchs",
+  "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Wie lange diese Waffe nach einem Treffer einer Axt oder einer schilddeaktivierenden Waffe nicht parieren kann, in Sekunden. Eine perfekte Parade wird nie gebrochen. 0: Die Deckung dieser Waffe bricht nie.",
   "better_weaponry.field.weapon.parry.help": "Einstellungen des Parierens, verwendet wenn ability \"parry\" ist. Solange der Rechtsklick gehalten wird, bewegst du dich langsam und Treffer von vorn werden verringert. Funktioniert nur mit leerer Zweithand, mit einer Zweihandwaffe oder mit einer Waffe in der Zweithand, wenn while_dual_wielding true ist. Ein Schild in der Zweithand wird stattdessen gehoben.",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Pause zwischen perfekten Paraden",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Wie lange es nach dem Fenster dauert, bis eine neue Deckung wieder eines öffnen kann, in Sekunden. Verhindert Rechtsklick-Spam.",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds": "Fenster der perfekten Parade",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "Wie lange ein Treffer ganz am Anfang einer Parade vollständig geblockt wird, ohne die Waffe abzunutzen, in Sekunden. 0: nie.",
   "better_weaponry.field.weapon.parry.while_dual_wielding": "Parieren mit zwei Waffen",
   "better_weaponry.field.weapon.parry.while_dual_wielding.help": "true: Parieren funktioniert auch mit einer Waffe in der Zweithand (für die Sais gedacht). false: Die Zweithand muss leer sein.",
   "better_weaponry.field.weapon.sweep": "Schwungangriff",
@@ -223,6 +229,7 @@
   "better_weaponry.tooltip.ability.dash.input": "Geht in deine Bewegungsrichtung",
   "better_weaponry.tooltip.ability.parry": "%1$s: Parieren (-%2$s %% Schaden von vorn)",
   "better_weaponry.tooltip.ability.parry.dual_wield": "Pariert auch mit einer Waffe in jeder Hand",
+  "better_weaponry.tooltip.ability.parry.perfect": "Perfekte Parade: blockt in den ersten %s s alles",
   "better_weaponry.tooltip.combo.area": "Bereich %1$s°, %2$s Blöcke",
   "better_weaponry.tooltip.combo.both_hands": "beide Waffen",
   "better_weaponry.tooltip.combo.cooldown": "Erholung ×%s",
@@ -885,5 +892,6 @@
   "item.better_weaponry.zanite_spear": "Zanitspeer",
   "subtitles.better_weaponry.combo.ready": "Kombo bereit",
   "subtitles.better_weaponry.item.weapon.dash": "Spieler prescht vor",
-  "subtitles.better_weaponry.item.weapon.parry": "Waffe pariert"
+  "subtitles.better_weaponry.item.weapon.parry": "Waffe pariert",
+  "subtitles.better_weaponry.item.weapon.perfect_parry": "Perfekte Parade"
 }

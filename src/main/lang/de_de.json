@@ -369,6 +369,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "%s hat eigene Kombos, Reichweite, Beidhändigkeit und Zweihandwaffen. Die Schalter und Kampfeinstellungen hier werden gespeichert, haben aber keine Wirkung. Waffen und Verzauberungen funktionieren weiterhin.",
     "attribute.betterweaponry.dual_wielded": "Beidhändig",
     "better_weaponry.field.weapon.dual_wielded": "Beidhändig",
-    "better_weaponry.field.weapon.dual_wielded.help": "true: Diese Waffe kann mit einer anderen beidhändigen Waffe in der anderen Hand benutzt werden (die Treffer wechseln zwischen den Händen, und die Angriffe sind schneller). Beide Waffen brauchen diese Option. Wird bei Zweihandwaffen ignoriert."
+    "better_weaponry.field.weapon.dual_wielded.help": "true: Diese Waffe kann mit einer anderen beidhändigen Waffe in der anderen Hand benutzt werden (die Treffer wechseln zwischen den Händen, und die Angriffe sind schneller). Beide Waffen brauchen diese Option. Wird bei Zweihandwaffen ignoriert.",
+    "better_weaponry.tooltip.ability.parry.perfect": "Perfekte Parade: blockt in den ersten %s s alles",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "Perfekte Parade",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "Fenster der perfekten Parade",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "Wie lange ein Treffer ganz am Anfang einer Parade vollständig geblockt wird, ohne die Waffe abzunutzen, in Sekunden. 0: nie.",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Pause zwischen perfekten Paraden",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Wie lange es nach dem Fenster dauert, bis eine neue Deckung wieder eines öffnen kann, in Sekunden. Verhindert Rechtsklick-Spam.",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "Dauer des Deckungsbruchs",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Wie lange diese Waffe nach einem Treffer einer Axt oder einer schilddeaktivierenden Waffe nicht parieren kann, in Sekunden. Eine perfekte Parade wird nie gebrochen. 0: Die Deckung dieser Waffe bricht nie."
   }
 }

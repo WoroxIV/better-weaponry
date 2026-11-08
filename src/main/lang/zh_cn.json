@@ -308,6 +308,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "%s 有自己的连招、攻击距离、双持和双手武器系统。此处的开关和战斗设置会被保存，但不会生效。武器和附魔仍然可用。",
     "attribute.betterweaponry.dual_wielded": "双持武器",
     "better_weaponry.field.weapon.dual_wielded": "双持武器",
-    "better_weaponry.field.weapon.dual_wielded.help": "true：此武器可与另一只手中的另一把双持武器一起使用（攻击在双手之间交替，且速度更快）。两把武器都需要此选项。双手武器会忽略此项。"
+    "better_weaponry.field.weapon.dual_wielded.help": "true：此武器可与另一只手中的另一把双持武器一起使用（攻击在双手之间交替，且速度更快）。两把武器都需要此选项。双手武器会忽略此项。",
+    "better_weaponry.tooltip.ability.parry.perfect": "完美招架：前 %s 秒格挡全部伤害",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "完美招架",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "完美招架窗口",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "招架刚开始时，完全格挡攻击且不消耗武器耐久的时长（秒）。0：从不。",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "完美招架间隔",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "窗口结束后，再次举起防御才能开启新窗口所需的时间（秒）。防止连点右键。",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "破防持续时间",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "被斧头或可禁用盾牌的武器击中后，此武器无法招架的时长（秒）。完美招架不会被破防。0：此武器永不被破防。"
   }
 }

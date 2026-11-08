@@ -427,6 +427,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "У %s свои комбо, дальность, бой двумя оружиями и двуручное оружие. Переключатели и настройки боя здесь сохраняются, но не действуют. Оружие и зачарования продолжают работать.",
     "attribute.betterweaponry.dual_wielded": "Парное оружие",
     "better_weaponry.field.weapon.dual_wielded": "Парное оружие",
-    "better_weaponry.field.weapon.dual_wielded.help": "true: это оружие можно использовать с другим парным оружием во второй руке (удары чередуются между руками, атаки быстрее). Опция нужна обоим оружиям. Не учитывается, если оружие двуручное."
+    "better_weaponry.field.weapon.dual_wielded.help": "true: это оружие можно использовать с другим парным оружием во второй руке (удары чередуются между руками, атаки быстрее). Опция нужна обоим оружиям. Не учитывается, если оружие двуручное.",
+    "better_weaponry.tooltip.ability.parry.perfect": "Идеальное парирование: блокирует всё в первые %s с",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "Идеальное парирование",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "Окно идеального парирования",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "В самом начале парирования: сколько секунд удар блокируется полностью, не изнашивая оружие. 0: никогда.",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Пауза между идеальными парированиями",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Сколько секунд после окна должно пройти, прежде чем новая защита сможет открыть следующее. Не даёт спамить правым кликом.",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "Длительность пробития защиты",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Сколько секунд это оружие не может парировать после удара топором или оружием, отключающим щиты. Идеальное парирование не пробивается. 0: защита этого оружия никогда не пробивается."
   }
 }

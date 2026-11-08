@@ -205,7 +205,13 @@
   "better_weaponry.field.weapon.parry.damage_reduction.help": "Part of the damage blocked, in % (100 = no damage). Hits from behind, falls, fire, poison and other damage that a shield cannot block are not reduced.",
   "better_weaponry.field.weapon.parry.durability_per_damage": "Durability cost",
   "better_weaponry.field.weapon.parry.durability_per_damage.help": "Durability lost per point of damage blocked, rounded, at least 1 per parried hit (0 = parrying never wears the weapon out).",
+  "better_weaponry.field.weapon.parry.guard_break_seconds": "Guard break duration",
+  "better_weaponry.field.weapon.parry.guard_break_seconds.help": "How long this weapon cannot parry after being hit by an axe or a weapon that disables shields, in seconds. A perfect parry is never broken. 0: this weapon's guard never breaks.",
   "better_weaponry.field.weapon.parry.help": "Settings of the parry, used when ability is \"parry\". While right click is held, you move slowly and the hits you take from the front are reduced. Only works with the off hand empty, with a two-handed weapon, or with a weapon in the off hand if while_dual_wielding is true. A shield in the off hand is raised instead.",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Delay between perfect parries",
+  "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "After the window, how long before raising the guard can open a new one, in seconds. Prevents spamming the right click.",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds": "Perfect parry window",
+  "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "At the very start of a parry, how long a hit is blocked entirely, without wearing the weapon, in seconds. 0: never.",
   "better_weaponry.field.weapon.parry.while_dual_wielding": "Parry with two weapons",
   "better_weaponry.field.weapon.parry.while_dual_wielding.help": "true: the parry also works with a weapon in the off hand (made for the sais). false: the off hand must be empty.",
   "better_weaponry.field.weapon.sweep": "Sweep attack",
@@ -223,6 +229,7 @@
   "better_weaponry.tooltip.ability.dash.input": "Goes in the direction you are moving",
   "better_weaponry.tooltip.ability.parry": "%1$s: Parry (-%2$s%% damage from the front)",
   "better_weaponry.tooltip.ability.parry.dual_wield": "Also parries with a weapon in each hand",
+  "better_weaponry.tooltip.ability.parry.perfect": "Perfect parry: blocks everything for the first %s s",
   "better_weaponry.tooltip.combo.area": "%1$s° area, %2$s blocks",
   "better_weaponry.tooltip.combo.both_hands": "both weapons",
   "better_weaponry.tooltip.combo.cooldown": "recovery ×%s",
@@ -885,5 +892,6 @@
   "item.better_weaponry.zanite_spear": "Zanite Spear",
   "subtitles.better_weaponry.combo.ready": "Combo ready",
   "subtitles.better_weaponry.item.weapon.dash": "Player dashes",
-  "subtitles.better_weaponry.item.weapon.parry": "Weapon parries"
+  "subtitles.better_weaponry.item.weapon.parry": "Weapon parries",
+  "subtitles.better_weaponry.item.weapon.perfect_parry": "Perfect parry"
 }

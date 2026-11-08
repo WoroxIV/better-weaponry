@@ -308,6 +308,14 @@
     "better_weaponry.editor.external_combat_mod.tooltip": "%s a ses propres combos, sa portée, son dual wield et ses armes à deux mains. Les interrupteurs et réglages de combat d'ici sont enregistrés mais sans effet. Les armes et les enchantements fonctionnent toujours.",
     "attribute.betterweaponry.dual_wielded": "Arme ambidextre",
     "better_weaponry.field.weapon.dual_wielded": "Arme ambidextre",
-    "better_weaponry.field.weapon.dual_wielded.help": "true : cette arme peut s'utiliser avec une autre arme ambidextre dans l'autre main (les coups alternent entre les mains et les attaques sont plus rapides). Les deux armes doivent avoir cette option. Ignoré si l'arme est à deux mains."
+    "better_weaponry.field.weapon.dual_wielded.help": "true : cette arme peut s'utiliser avec une autre arme ambidextre dans l'autre main (les coups alternent entre les mains et les attaques sont plus rapides). Les deux armes doivent avoir cette option. Ignoré si l'arme est à deux mains.",
+    "better_weaponry.tooltip.ability.parry.perfect": "Parade parfaite : bloque tout pendant les %s premières s",
+    "subtitles.better_weaponry.item.weapon.perfect_parry": "Parade parfaite",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds": "Fenêtre de parade parfaite",
+    "better_weaponry.field.weapon.parry.perfect_window_seconds.help": "Au tout début de la parade, durée pendant laquelle un coup est entièrement bloqué, sans user l'arme, en secondes. 0 : jamais.",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Délai entre parades parfaites",
+    "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Après la fenêtre, délai avant qu'une nouvelle garde puisse en ouvrir une autre, en secondes. Évite de spammer le clic droit.",
+    "better_weaponry.field.weapon.parry.guard_break_seconds": "Durée de garde brisée",
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Durée pendant laquelle cette arme ne peut plus parer après un coup de hache ou d'une arme qui désactive les boucliers, en secondes. Une parade parfaite n'est jamais brisée. 0 : la garde de cette arme ne se brise jamais."
   }
 }

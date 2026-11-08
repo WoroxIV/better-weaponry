@@ -7,6 +7,10 @@ import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModSounds;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
@@ -28,7 +32,9 @@ import java.util.Optional;
  * <ul>
  *   <li>le joueur avance lentement (ralentissement vanilla d'un objet en cours d'utilisation) ;</li>
  *   <li>les coups reçus de face sont réduits, selon les mêmes règles qu'un bouclier ;</li>
- *   <li>chaque coup paré use l'arme et fait un bruit métallique.</li>
+ *   <li>chaque coup paré use l'arme et fait un bruit métallique ;</li>
+ *   <li>au tout début de la parade, un coup est bloqué en entier (parade parfaite) ;</li>
+ *   <li>une arme qui désactive les boucliers brise la garde : parade impossible pendant un moment.</li>
  * </ul>
  * Le démarrage est dans {@link WeaponItem#use}, la pose de l'arme dans {@code client.WeaponClientExtensions}.
  */
@@ -39,6 +45,7 @@ public final class ParrySystem {
     private static final double PERCENT = 100.0D;
     /** En vanilla, une cible ignore les coups tant que son compteur d'invulnérabilité dépasse 10 ticks. */
     private static final int VANILLA_INVULNERABILITY_THRESHOLD = 10;
+    private static final int PERFECT_PARTICLES = 10;
 
     private ParrySystem() {
     }
@@ -62,7 +69,8 @@ public final class ParrySystem {
     public static boolean canParry(Player player, InteractionHand hand, ItemStack stack) {
         if (hand != InteractionHand.MAIN_HAND) return false;
         Optional<ParryDefinition> parry = parryOf(stack);
-        if (parry.isEmpty()) return false;
+        // La recharge vient d'une garde brisée.
+        if (parry.isEmpty() || player.getCooldowns().isOnCooldown(stack.getItem())) return false;
         if (WeaponItem.isTwoHanded(stack)) return true;
 
         return player.getOffhandItem().isEmpty() || (parry.get().whileDualWielding() && DualWieldSystem.isDualWielding(player));
@@ -106,26 +114,96 @@ public final class ParrySystem {
         return Math.max(1, Math.round((float) (blockedDamage * parry.durabilityPerDamage())));
     }
 
+    /**
+     * Début d'une parade : ouvre la fenêtre de parade parfaite, sauf si la précédente est trop récente
+     * (relever la garde en boucle ne donne pas une parade parfaite permanente).
+     */
+    public static void beginParry(Player player, ItemStack stack) {
+        ParryDefinition parry = parryOf(stack).orElseThrow();
+        PlayerCombatState state = PlayerCombatState.of(player);
+        long now = player.level().getGameTime();
+        boolean available = WeaponData.rules().perfectParryActive() && parry.perfectWindowSeconds() > 0.0D && now >= state.perfectParryReadyAt;
+        if (!available) {
+            state.perfectParryUntil = 0L;
+            return;
+        }
+        state.perfectParryUntil = now + AbilityCooldowns.ticks(parry.perfectWindowSeconds());
+        state.perfectParryReadyAt = state.perfectParryUntil + AbilityCooldowns.ticks(parry.perfectCooldownSeconds());
+    }
+
+    /** La parade en cours vient de commencer : un coup reçu maintenant est bloqué en entier. */
+    public static boolean isInPerfectWindow(Player player) {
+        return player.level().getGameTime() < PlayerCombatState.of(player).perfectParryUntil;
+    }
+
     /** Coup reçu (côté serveur) : réduit avant l'armure, comme la parade 1.8. */
     @SubscribeEvent
     public static void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player) || !isParrying(player)) return;
         float damage = event.getAmount();
-        if (damage <= 0.0F || !comesFromFront(player, event.getSource())) return;
+        DamageSource source = event.getSource();
+        if (damage <= 0.0F || !comesFromFront(player, source)) return;
 
         ItemStack weapon = player.getMainHandItem();
         ParryDefinition parry = parryOf(weapon).orElseThrow();
+        // Juste après un coup, le jeu ignore presque tout nouveau coup : pas d'usure ni de son pour un coup ignoré.
+        boolean ignoredAnyway = player.invulnerableTime > VANILLA_INVULNERABILITY_THRESHOLD && !source.is(DamageTypeTags.BYPASSES_COOLDOWN);
+
+        if (isInPerfectWindow(player)) {
+            // Rien ne passe : ni dégâts, ni recul, ni usure. La garde ne peut pas être brisée.
+            event.setCanceled(true);
+            if (!ignoredAnyway) playPerfectParry(player, weapon);
+            return;
+        }
+
         float blocked = (float) (damage * parry.damageReduction() / PERCENT);
         event.setAmount(damage - blocked);
-
-        // Juste après un coup, le jeu ignore presque tout nouveau coup : pas d'usure ni de son pour un coup ignoré.
-        if (player.invulnerableTime > VANILLA_INVULNERABILITY_THRESHOLD
-                && !event.getSource().is(DamageTypeTags.BYPASSES_COOLDOWN)) return;
+        if (ignoredAnyway) return;
 
         int cost = durabilityCost(blocked, parry);
         if (cost > 0) weapon.hurtAndBreak(cost, player, EquipmentSlot.MAINHAND);
         float pitch = 0.9F + player.getRandom().nextFloat() * 0.2F;
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 ModSounds.PARRY.get(), SoundSource.PLAYERS, 1.0F, pitch);
+
+        if (breaksGuard(source, parry)) breakGuard(player, weapon, parry);
+    }
+
+    /** Coup direct d'une arme qui désactive les boucliers (hache vanilla, ou option disables_shield). */
+    public static boolean breaksGuard(DamageSource source, ParryDefinition parry) {
+        return WeaponData.rules().guardBreakActive() && parry.guardBreakSeconds() > 0.0D
+                && source.getEntity() instanceof LivingEntity attacker && source.getDirectEntity() == attacker
+                && attacker.canDisableShield();
+    }
+
+    /** La parade s'arrête et l'arme ne peut plus parer pendant guard_break_seconds (icône de recharge vanilla). */
+    private static void breakGuard(Player player, ItemStack weapon, ParryDefinition parry) {
+        AbilityCooldowns.start(player, weapon, parry.guardBreakSeconds());
+        player.stopUsingItem();
+        float pitch = 0.8F + player.getRandom().nextFloat() * 0.4F;
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SHIELD_BREAK, SoundSource.PLAYERS, 1.0F, pitch);
+        if (player.level() instanceof ServerLevel level) {
+            Vec3 point = pointInFront(player);
+            level.sendParticles(ParticleTypes.CRIT, point.x, point.y, point.z, 16, 0.3D, 0.3D, 0.3D, 0.2D);
+        }
+    }
+
+    /** Son et particules de la parade parfaite, selon le matériau de l'arme. */
+    private static void playPerfectParry(Player player, ItemStack weapon) {
+        ParryMaterial material = ParryMaterial.of(weapon);
+        float pitch = 0.95F + player.getRandom().nextFloat() * 0.1F;
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                ModSounds.perfectParry(material), SoundSource.PLAYERS, 1.0F, pitch);
+        if (player.level() instanceof ServerLevel level) {
+            Vec3 point = pointInFront(player);
+            for (ParticleOptions particle : material.particles()) {
+                level.sendParticles(particle, point.x, point.y, point.z, PERFECT_PARTICLES, 0.25D, 0.25D, 0.25D, 0.1D);
+            }
+        }
+    }
+
+    /** Devant le torse du joueur, là où l'arme bloque le coup. */
+    private static Vec3 pointInFront(Player player) {
+        return player.getEyePosition().add(player.getLookAngle().scale(0.8D)).add(0.0D, -0.3D, 0.0D);
     }
 }
