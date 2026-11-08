@@ -603,6 +603,25 @@
     "better_weaponry.editor.preset.pvp_1_8": "PvP 1.8",
     "better_weaponry.editor.preset.pvp_1_8.tooltip": "Только простое парирование из 1.8: без идеального парирования, пробития защиты, дальности оружия, размаха и других систем. Перезарядка атаки остаётся как в текущем Minecraft. Настройки мобов возвращаются к стандартным.",
     "better_weaponry.editor.preset.hard": "Сложно",
-    "better_weaponry.editor.preset.hard.tooltip": "Все системы включены, два оружия медленнее и обычная защита после удара. Мобы лучше экипированы, чаще носят оружие мода, защищаются вдвое чаще, и ниндзя больше."
+    "better_weaponry.editor.preset.hard.tooltip": "Все системы включены, два оружия медленнее и обычная защита после удара. Мобы лучше экипированы, чаще носят оружие мода, защищаются вдвое чаще, и ниндзя больше.",
+    "better_weaponry.info.two_handed": "Двуручное: вторая рука должна быть пустой, чтобы использовать это оружие.",
+    "better_weaponry.info.dual_wielded": "Два оружия: держите такое оружие в каждой руке. Удары чередуются и наносятся быстрее.",
+    "better_weaponry.info.parry": "Парирование: удерживайте правую кнопку, чтобы уменьшить удары спереди. Удар в самом начале блокируется полностью. Топоры пробивают защиту.",
+    "better_weaponry.info.dash": "Рывок: правая кнопка для рывка вперёд. Все материалы этого оружия делят перезарядку.",
+    "better_weaponry.info.combo": "Комбо: последовательные удары идут особой серией атак, показанной на экране.",
+    "better_weaponry.info.shield": "Поднимите его прямо перед ударом для идеального парирования: стрелы летят обратно, а атакующие в ближнем бою отбрасываются.",
+    "better_weaponry.info.shield.simple": "Блокирует удары спереди, как обычный щит. Прочность зависит от материала.",
+    "better_weaponry.info.ranged": "От материала зависит только скорость снаряда, а за ней и урон стрелы. Золото заряжается вдвое быстрее, но стреляет слабее.",
+    "better_weaponry.info.shuriken": "Правая кнопка для броска. Каждый бросок стоит 1 прочности; подбор сюрикена возвращает её. Последний бросок уничтожает предмет, а подбор этого сюрикена восстанавливает его.",
+    "tag.item.better_weaponry.bows": "Луки",
+    "tag.item.better_weaponry.crossbows": "Арбалеты",
+    "tag.item.better_weaponry.shields": "Щиты",
+    "tag.item.better_weaponry.shurikens": "Сюрикены",
+    "tag.item.better_weaponry.melee_weapons": "Оружие ближнего боя",
+    "tag.item.better_weaponry.enchantable.bleeding": "Зачаровываемые Кровотечением",
+    "tag.item.better_weaponry.enchantable.dashing": "Оружие с рывком",
+    "tag.item.better_weaponry.enchantable.parry_weapons": "Парирующее оружие",
+    "tag.item.better_weaponry.enchantable.parrying": "Парирующие предметы",
+    "tag.item.better_weaponry.weapon_materials.netherite_template": "Шаблоны незеритового улучшения"
   }
 }

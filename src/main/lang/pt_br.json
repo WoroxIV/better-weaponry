@@ -527,6 +527,25 @@
     "better_weaponry.editor.preset.pvp_1_8": "PvP 1.8",
     "better_weaponry.editor.preset.pvp_1_8.tooltip": "Só a defesa simples da 1.8: sem defesa perfeita, quebra de guarda, alcance das armas, varredura ou outros sistemas. O tempo de recarga dos ataques continua o do Minecraft atual. Os mobs voltam aos ajustes padrão.",
     "better_weaponry.editor.preset.hard": "Difícil",
-    "better_weaponry.editor.preset.hard.tooltip": "Todos os sistemas ativos, duas armas mais lentas e proteção vanilla após um golpe. Os mobs são mais bem equipados, usam mais armas do mod, defendem duas vezes mais e há mais ninjas."
+    "better_weaponry.editor.preset.hard.tooltip": "Todos os sistemas ativos, duas armas mais lentas e proteção vanilla após um golpe. Os mobs são mais bem equipados, usam mais armas do mod, defendem duas vezes mais e há mais ninjas.",
+    "better_weaponry.info.two_handed": "Duas mãos: a mão secundária deve ficar vazia para usar esta arma.",
+    "better_weaponry.info.dual_wielded": "Duas armas: segure uma dessas armas em cada mão. Os golpes alternam entre as mãos e ficam mais rápidos.",
+    "better_weaponry.info.parry": "Defesa: segure o botão direito para reduzir golpes de frente. Um golpe bem no início da defesa é bloqueado por completo. Machados quebram a guarda.",
+    "better_weaponry.info.dash": "Dash: botão direito para avançar. Todos os materiais desta arma compartilham a recarga.",
+    "better_weaponry.info.combo": "Combo: golpes consecutivos seguem uma sequência de ataques especiais, mostrada na tela.",
+    "better_weaponry.info.shield": "Levante-o logo antes de um golpe para uma defesa perfeita: flechas voltam ao atirador e atacantes corpo a corpo são empurrados.",
+    "better_weaponry.info.shield.simple": "Bloqueia golpes de frente, como o escudo vanilla. A durabilidade depende do material.",
+    "better_weaponry.info.ranged": "Só a velocidade do projétil depende do material, e o dano da flecha a acompanha. O ouro carrega duas vezes mais rápido, mas atira mais devagar.",
+    "better_weaponry.info.shuriken": "Botão direito para arremessar. Cada arremesso custa 1 de durabilidade; recolher o shuriken a devolve. O último arremesso destrói o item, e recolher esse shuriken o recria.",
+    "tag.item.better_weaponry.bows": "Arcos",
+    "tag.item.better_weaponry.crossbows": "Bestas",
+    "tag.item.better_weaponry.shields": "Escudos",
+    "tag.item.better_weaponry.shurikens": "Shurikens",
+    "tag.item.better_weaponry.melee_weapons": "Armas corpo a corpo",
+    "tag.item.better_weaponry.enchantable.bleeding": "Encantáveis com Sangramento",
+    "tag.item.better_weaponry.enchantable.dashing": "Armas com dash",
+    "tag.item.better_weaponry.enchantable.parry_weapons": "Armas de defesa",
+    "tag.item.better_weaponry.enchantable.parrying": "Itens de defesa",
+    "tag.item.better_weaponry.weapon_materials.netherite_template": "Moldes de melhoria de netherita"
   }
 }

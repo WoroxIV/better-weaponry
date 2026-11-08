@@ -9,8 +9,6 @@ import dev.emi.emi.api.recipe.EmiInfoRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -24,8 +22,7 @@ public final class BetterWeaponryEmiPlugin implements EmiPlugin {
         if (Minecraft.getInstance().level == null) return;
         for (RecipeViewerInfo.Entry entry : RecipeViewerInfo.entries(Minecraft.getInstance().level.registryAccess())) {
             List<EmiIngredient> stacks = entry.stacks().stream().<EmiIngredient>map(EmiStack::of).toList();
-            List<FormattedText> lines = entry.lines().stream().<FormattedText>map(Component::copy).toList();
-            registry.addRecipe(new EmiInfoRecipe(stacks, lines, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "/info/" + entry.id())));
+            registry.addRecipe(new EmiInfoRecipe(stacks, entry.lines(), ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "/info/" + entry.id())));
         }
     }
 }

@@ -520,7 +520,7 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
     }
 
     /** Largeurs des colonnes du tableau comparatif : l'icône et le nom prennent ce que les autres laissent. */
-    private static final int TABLE_VALUE_WIDTH = 38;
+    private static final int TABLE_VALUE_WIDTH = 32;
     private static final int TABLE_ICON_SPACE = 20;
 
     private static int tableNameWidth(int width, int valueColumns) {
@@ -552,13 +552,15 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
     /** Ligne du tableau comparatif : icône, nom et valeurs alignées à droite. Survoler l'icône ou le nom montre le tooltip de l'arme. */
     final class TableRow extends Row {
         private final ItemStack stack;
+        private final Component name;
         private final List<String> values;
         private final int highlighted;
 
         /** @param highlighted indice de la valeur de la colonne triée, ou -1 */
-        TableRow(ItemStack stack, List<String> values, int highlighted) {
+        TableRow(ItemStack stack, Component name, List<String> values, int highlighted) {
             super(0);
             this.stack = stack;
+            this.name = name;
             this.values = values;
             this.highlighted = highlighted;
         }
@@ -568,7 +570,7 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
                            boolean hovering, float partialTick) {
             int nameWidth = tableNameWidth(width, values.size());
             graphics.renderItem(stack, left + 1, top + 1);
-            drawLabel(graphics, stack.getHoverName().getString(), left + TABLE_ICON_SPACE, top, nameWidth - TABLE_ICON_SPACE - 2, LABEL_COLOR);
+            drawLabel(graphics, name.getString(), left + TABLE_ICON_SPACE, top, nameWidth - TABLE_ICON_SPACE - 2, LABEL_COLOR);
             for (int i = 0; i < values.size(); i++) {
                 int right = left + nameWidth + (i + 1) * TABLE_VALUE_WIDTH - 4;
                 String value = values.get(i);

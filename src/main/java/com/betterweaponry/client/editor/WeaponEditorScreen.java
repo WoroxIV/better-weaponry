@@ -416,6 +416,7 @@ public final class WeaponEditorScreen extends Screen {
         int highlighted = comparisonColumn.ordinal() - 1;
         for (WeaponComparison.Row row : WeaponComparison.rows(weapons, comparisonMaterial, comparisonColumn, comparisonDescending)) {
             fieldList.add(fieldList.new TableRow(new ItemStack(ModItems.get(row.type(), comparisonMaterial).get()),
+                    Component.translatable(BetterWeaponry.MODID + ".configuration." + row.type().id()),
                     List.of(Docs.number(row.damage()), Docs.number(row.speed()), Docs.number(row.dps()), Docs.number(row.reach()), Docs.number(row.penetration())), highlighted));
         }
     }

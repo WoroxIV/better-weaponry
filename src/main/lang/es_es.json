@@ -472,6 +472,25 @@
     "better_weaponry.editor.preset.pvp_1_8": "PvP 1.8",
     "better_weaponry.editor.preset.pvp_1_8.tooltip": "Solo la parada simple de la 1.8: sin parada perfecta, ruptura de guardia, alcance de armas, barrido ni otros sistemas. El tiempo de recarga de los ataques sigue siendo el del Minecraft actual. Las criaturas vuelven a sus ajustes por defecto.",
     "better_weaponry.editor.preset.hard": "Difícil",
-    "better_weaponry.editor.preset.hard.tooltip": "Todos los sistemas activos, doble arma más lenta y protección vanilla tras un golpe. Las criaturas van mejor equipadas, usan más armas del mod, paran el doble y hay más ninjas."
+    "better_weaponry.editor.preset.hard.tooltip": "Todos los sistemas activos, doble arma más lenta y protección vanilla tras un golpe. Las criaturas van mejor equipadas, usan más armas del mod, paran el doble y hay más ninjas.",
+    "better_weaponry.info.two_handed": "A dos manos: la mano secundaria debe estar vacía para usar esta arma.",
+    "better_weaponry.info.dual_wielded": "Doble arma: lleva una de estas armas en cada mano. Los golpes se alternan entre las manos y son más rápidos.",
+    "better_weaponry.info.parry": "Parada: mantén el clic derecho para reducir los golpes frontales. Un golpe justo al inicio de la parada se bloquea por completo. Las hachas rompen la guardia.",
+    "better_weaponry.info.dash": "Impulso: clic derecho para lanzarte hacia delante. Todos los materiales de esta arma comparten la recarga.",
+    "better_weaponry.info.combo": "Combo: los golpes consecutivos siguen una secuencia de ataques especiales, mostrada en pantalla.",
+    "better_weaponry.info.shield": "Levántalo justo antes de un golpe para una parada perfecta: las flechas vuelven al tirador y los atacantes cuerpo a cuerpo son empujados.",
+    "better_weaponry.info.shield.simple": "Bloquea los golpes frontales, como el escudo vanilla. Su durabilidad depende del material.",
+    "better_weaponry.info.ranged": "Solo la velocidad del proyectil depende del material, y el daño de la flecha la sigue. El oro carga el doble de rápido pero dispara más lento.",
+    "better_weaponry.info.shuriken": "Clic derecho para lanzar. Cada lanzamiento cuesta 1 de durabilidad; recoger el shuriken la devuelve. El último lanzamiento destruye el objeto, y recoger ese shuriken lo recrea.",
+    "tag.item.better_weaponry.bows": "Arcos",
+    "tag.item.better_weaponry.crossbows": "Ballestas",
+    "tag.item.better_weaponry.shields": "Escudos",
+    "tag.item.better_weaponry.shurikens": "Shuriken",
+    "tag.item.better_weaponry.melee_weapons": "Armas cuerpo a cuerpo",
+    "tag.item.better_weaponry.enchantable.bleeding": "Encantables con Sangrado",
+    "tag.item.better_weaponry.enchantable.dashing": "Armas con impulso",
+    "tag.item.better_weaponry.enchantable.parry_weapons": "Armas de parada",
+    "tag.item.better_weaponry.enchantable.parrying": "Objetos de parada",
+    "tag.item.better_weaponry.weapon_materials.netherite_template": "Plantillas de mejora de netherita"
   }
 }

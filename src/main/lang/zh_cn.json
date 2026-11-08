@@ -472,6 +472,25 @@
     "better_weaponry.editor.preset.pvp_1_8": "PvP 1.8",
     "better_weaponry.editor.preset.pvp_1_8.tooltip": "仅保留 1.8 的简单格挡：无完美格挡、破防、武器距离、横扫或其他系统。攻击冷却仍为当前版本的机制。生物恢复默认设置。",
     "better_weaponry.editor.preset.hard": "困难",
-    "better_weaponry.editor.preset.hard.tooltip": "启用全部系统，双持更慢，并恢复原版受击保护。生物装备更好，使用更多模组武器，格挡频率翻倍，忍者也更多。"
+    "better_weaponry.editor.preset.hard.tooltip": "启用全部系统，双持更慢，并恢复原版受击保护。生物装备更好，使用更多模组武器，格挡频率翻倍，忍者也更多。",
+    "better_weaponry.info.two_handed": "双手武器：使用时副手必须为空。",
+    "better_weaponry.info.dual_wielded": "双持：双手各持一把此武器。攻击在双手间交替且更快。",
+    "better_weaponry.info.parry": "格挡：按住右键可减少来自正面的伤害。格挡刚开始时受到的攻击会被完全挡下。斧头可破防。",
+    "better_weaponry.info.dash": "冲刺：右键向前冲刺。此武器的所有材质共享冷却。",
+    "better_weaponry.info.combo": "连击：连续攻击会按特殊攻击序列进行，并显示在屏幕上。",
+    "better_weaponry.info.shield": "在受击前一刻举起可完美格挡：箭矢会飞回射手，近战攻击者会被击退。",
+    "better_weaponry.info.shield.simple": "像原版盾牌一样格挡来自正面的攻击。耐久取决于材质。",
+    "better_weaponry.info.ranged": "只有弹射物速度取决于材质，箭矢伤害随之变化。金质装填快一倍，但射速更慢。",
+    "better_weaponry.info.shuriken": "右键投掷。每次投掷消耗 1 点耐久，捡回可恢复。投掷最后一点耐久会摧毁物品，捡回这枚手里剑可将其恢复。",
+    "tag.item.better_weaponry.bows": "弓",
+    "tag.item.better_weaponry.crossbows": "弩",
+    "tag.item.better_weaponry.shields": "盾牌",
+    "tag.item.better_weaponry.shurikens": "手里剑",
+    "tag.item.better_weaponry.melee_weapons": "近战武器",
+    "tag.item.better_weaponry.enchantable.bleeding": "可附魔流血",
+    "tag.item.better_weaponry.enchantable.dashing": "冲刺武器",
+    "tag.item.better_weaponry.enchantable.parry_weapons": "格挡武器",
+    "tag.item.better_weaponry.enchantable.parrying": "可格挡物品",
+    "tag.item.better_weaponry.weapon_materials.netherite_template": "下界合金升级模板"
   }
 }

@@ -472,6 +472,25 @@
     "better_weaponry.editor.preset.pvp_1_8": "PvP 1.8",
     "better_weaponry.editor.preset.pvp_1_8.tooltip": "Seulement la parade simple de la 1.8 : pas de parade parfaite, de garde brisée, de portée propre aux armes, de balayage ni d'autre système. Le temps de recharge des attaques reste celui du Minecraft actuel. Les mobs reprennent leurs réglages par défaut.",
     "better_weaponry.editor.preset.hard": "Difficile",
-    "better_weaponry.editor.preset.hard.tooltip": "Tous les systèmes actifs, dual wield moins rapide et protection vanilla après un coup. Les mobs sont mieux équipés, portent plus d'armes du mod, parent deux fois plus souvent et comptent plus de ninjas."
+    "better_weaponry.editor.preset.hard.tooltip": "Tous les systèmes actifs, dual wield moins rapide et protection vanilla après un coup. Les mobs sont mieux équipés, portent plus d'armes du mod, parent deux fois plus souvent et comptent plus de ninjas.",
+    "better_weaponry.info.two_handed": "Deux mains : la main secondaire doit rester vide pour utiliser cette arme.",
+    "better_weaponry.info.dual_wielded": "Dual wield : tenez une de ces armes dans chaque main. Les coups alternent entre les mains et s'enchaînent plus vite.",
+    "better_weaponry.info.parry": "Parade : maintenez le clic droit pour réduire les coups de face. Un coup au tout début de la parade est bloqué entièrement. Les haches brisent la garde.",
+    "better_weaponry.info.dash": "Dash : clic droit pour vous élancer. Tous les matériaux de cette arme partagent la recharge.",
+    "better_weaponry.info.combo": "Combo : les coups consécutifs suivent une séquence d'attaques spéciales, affichée à l'écran.",
+    "better_weaponry.info.shield": "Levez-le juste avant un coup pour une parade parfaite : les flèches repartent vers le tireur et les attaquants au corps à corps sont repoussés.",
+    "better_weaponry.info.shield.simple": "Bloque les coups de face, comme le bouclier vanilla. Sa durabilité dépend de son matériau.",
+    "better_weaponry.info.ranged": "Seule la vitesse du projectile dépend du matériau, et les dégâts de la flèche en découlent. L'or charge deux fois plus vite mais tire moins fort.",
+    "better_weaponry.info.shuriken": "Clic droit pour lancer. Chaque lancer coûte 1 point de durabilité ; ramasser le shuriken le rend. Lancer le dernier point détruit l'objet, et ramasser ce shuriken le recrée.",
+    "tag.item.better_weaponry.bows": "Arcs",
+    "tag.item.better_weaponry.crossbows": "Arbalètes",
+    "tag.item.better_weaponry.shields": "Boucliers",
+    "tag.item.better_weaponry.shurikens": "Shurikens",
+    "tag.item.better_weaponry.melee_weapons": "Armes de mêlée",
+    "tag.item.better_weaponry.enchantable.bleeding": "Enchantables avec Saignement",
+    "tag.item.better_weaponry.enchantable.dashing": "Armes à dash",
+    "tag.item.better_weaponry.enchantable.parry_weapons": "Armes de parade",
+    "tag.item.better_weaponry.enchantable.parrying": "Objets qui parent",
+    "tag.item.better_weaponry.weapon_materials.netherite_template": "Modèles d'amélioration en netherite"
   }
 }

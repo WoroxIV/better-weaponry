@@ -15,6 +15,7 @@ import com.betterweaponry.combat.ShieldSystem;
 import com.betterweaponry.combat.TwoHandedSystem;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.compat.CombatCompat;
+import com.betterweaponry.compat.RecipeViewerInfo;
 import com.betterweaponry.config.TooltipCategory;
 import com.betterweaponry.config.TooltipPlacement;
 import com.betterweaponry.data.ComboDefinition;
@@ -63,6 +64,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -75,6 +77,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.InteractionHand;
 import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.stats.Stats;
@@ -1124,6 +1127,16 @@ public final class CombatGameTests {
     @GameTest(template = ARENA)
     public static void playerStatistics(GameTestHelper helper) {
         ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        try {
+            checkStatistics(helper, player);
+        } finally {
+            // Ce faux joueur n'accepte pas les paquets du mod : il ne doit pas rester connecté pour les autres tests.
+            helper.getLevel().getServer().getPlayerList().remove(player);
+        }
+        helper.succeed();
+    }
+
+    private static void checkStatistics(GameTestHelper helper, ServerPlayer player) {
         ItemStack katana = new ItemStack(ModItems.get(WeaponType.KATANA, WeaponMaterials.IRON).get());
         Pig pig = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
         int parriesBefore = statValue(player, ModStats.PERFECT_PARRIES.get());
@@ -1150,9 +1163,6 @@ public final class CombatGameTests {
         double regained = player.getHealth() - 4.0F;
         helper.assertTrue(regained > 0.0D, "Vampirism should have healed the player");
         helper.assertTrue(statValue(player, ModStats.HEALTH_STOLEN.get()) - stolenBefore == Math.round(regained * 10.0D), "the health stolen should be counted in tenths");
-        // Ce faux joueur n'accepte pas les paquets du mod : il ne doit pas rester connecté pour les autres tests.
-        helper.getLevel().getServer().getPlayerList().remove(player);
-        helper.succeed();
     }
 
     private static int statValue(ServerPlayer player, ResourceLocation stat) {
@@ -1192,6 +1202,32 @@ public final class CombatGameTests {
         JsonObject rules = EditorDocument.rules().defaults();
         preset.applyToRules(rules);
         return RulesDefinition.CODEC.parse(JsonOps.INSTANCE, rules).getOrThrow();
+    }
+
+    /** JEI et EMI : une page par enchantement, livres de chaque niveau, et seulement les capacités actives. */
+    @GameTest(template = ARENA)
+    public static void recipeViewerInfo(GameTestHelper helper) {
+        RegistryAccess registries = helper.getLevel().registryAccess();
+        List<RecipeViewerInfo.Entry> entries = RecipeViewerInfo.entries(registries);
+        for (ResourceKey<Enchantment> key : ModEnchantments.ALL) {
+            String path = key.location().getPath();
+            RecipeViewerInfo.Entry page = entries.stream().filter(entry -> entry.id().equals(path)).findFirst().orElseThrow();
+            helper.assertTrue(page.stacks().size() == enchantment(helper, key).value().getMaxLevel(), path + " should list one book per level");
+            helper.assertTrue(page.stacks().stream().allMatch(book -> book.is(Items.ENCHANTED_BOOK)), path + " should list books");
+        }
+        RecipeViewerInfo.Entry katana = entries.stream().filter(entry -> entry.id().equals(WeaponType.KATANA.id())).findFirst().orElseThrow();
+        helper.assertTrue(katana.stacks().size() == ModItems.allOfType(WeaponType.KATANA).size(), "every material of the weapon should get the page");
+        helper.assertTrue(katana.lines().stream().anyMatch(line -> line.getContents() instanceof TranslatableContents text && text.getKey().equals(BetterWeaponry.MODID + ".info.parry")), "the katana page should describe its parry");
+        for (String gear : List.of("shield", "bow", "crossbow", "shuriken")) {
+            helper.assertTrue(entries.stream().anyMatch(entry -> entry.id().equals(gear) && !entry.stacks().isEmpty()), gear + " should have a page");
+        }
+        CombatCompat.simulateForTests(true);
+        try {
+            helper.assertTrue(RecipeViewerInfo.entries(registries).stream().noneMatch(entry -> entry.id().equals(WeaponType.KATANA.id())), "a weapon whose abilities are all off has no page");
+        } finally {
+            CombatCompat.simulateForTests(false);
+        }
+        helper.succeed();
     }
 
     /** Shuriken : −1 au lancer, +1 au ramassage, le dernier point recrée l'objet, un objet rangé ailleurs ne se copie pas. */

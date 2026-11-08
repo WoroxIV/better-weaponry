@@ -472,6 +472,25 @@
     "better_weaponry.editor.preset.pvp_1_8": "PvP 1.8",
     "better_weaponry.editor.preset.pvp_1_8.tooltip": "Only the simple 1.8 parry: no perfect parry, guard break, weapon reach, sweep or other system. The attack cooldown itself stays that of current Minecraft. Mobs go back to their default settings.",
     "better_weaponry.editor.preset.hard": "Hard",
-    "better_weaponry.editor.preset.hard.tooltip": "Every system on, slower dual wield and vanilla hit protection. Mobs are better armed, wield more mod weapons, guard twice as often and include more ninjas."
+    "better_weaponry.editor.preset.hard.tooltip": "Every system on, slower dual wield and vanilla hit protection. Mobs are better armed, wield more mod weapons, guard twice as often and include more ninjas.",
+    "better_weaponry.info.two_handed": "Two-handed: your off hand must stay empty to use this weapon.",
+    "better_weaponry.info.dual_wielded": "Dual wield: hold one of these weapons in each hand. Hits alternate between hands and come faster.",
+    "better_weaponry.info.parry": "Parry: hold right click to reduce hits from the front. A hit at the very start of the parry is blocked entirely. Axes break your guard.",
+    "better_weaponry.info.dash": "Dash: right click to dash forward. All materials of this weapon share the cooldown.",
+    "better_weaponry.info.combo": "Combo: consecutive hits follow a sequence of special attacks, shown on screen.",
+    "better_weaponry.info.shield": "Raise it just before a hit for a perfect parry: arrows go back to the shooter and melee attackers are pushed away.",
+    "better_weaponry.info.shield.simple": "Blocks hits from the front, like the vanilla shield. Its durability depends on its material.",
+    "better_weaponry.info.ranged": "Only the projectile speed depends on the material: arrow damage follows it. Gold loads twice as fast but shoots slower.",
+    "better_weaponry.info.shuriken": "Right click to throw. Each throw costs 1 durability; picking the shuriken back up returns it. Throwing the last point destroys the item, and picking that shuriken up brings it back.",
+    "tag.item.better_weaponry.bows": "Bows",
+    "tag.item.better_weaponry.crossbows": "Crossbows",
+    "tag.item.better_weaponry.shields": "Shields",
+    "tag.item.better_weaponry.shurikens": "Shurikens",
+    "tag.item.better_weaponry.melee_weapons": "Melee Weapons",
+    "tag.item.better_weaponry.enchantable.bleeding": "Bleeding Enchantable",
+    "tag.item.better_weaponry.enchantable.dashing": "Dash Weapons",
+    "tag.item.better_weaponry.enchantable.parry_weapons": "Parrying Weapons",
+    "tag.item.better_weaponry.enchantable.parrying": "Parrying Items",
+    "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherite Upgrade Templates"
   }
 }

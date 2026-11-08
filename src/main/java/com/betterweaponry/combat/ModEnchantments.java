@@ -33,6 +33,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -47,6 +48,8 @@ public final class ModEnchantments {
     public static final ResourceKey<Enchantment> EXECUTION = key("execution");
     public static final ResourceKey<Enchantment> BLEEDING = key("bleeding");
     public static final ResourceKey<Enchantment> RETURNING = key("returning");
+
+    public static final List<ResourceKey<Enchantment>> ALL = List.of(REFLECTIVE, VAMPIRISM, RIPOSTE, MOMENTUM, EXECUTION, BLEEDING, RETURNING);
 
     private static final double REFLECT_PER_LEVEL = 0.1D;
     private static final double VAMPIRISM_PER_LEVEL = 0.1D;

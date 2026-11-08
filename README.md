@@ -173,6 +173,7 @@ Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, 
 - **Comparison page**: compares damage, speed, DPS, reach and armor penetration for the material of your choice. Click a column to sort. It is also available in the Codex.
 - **Presets**, on the Rules page: "Close to vanilla", "PvP 1.8" and "Hard". Each one sets every switch of `rules.json` and the mobs of `gear.json`. Nothing is applied until you save.
 - **Statistics**, in the vanilla screen: perfect parries, shurikens thrown, health stolen.
+- **JEI and EMI** (optional): info pages for every enchantment and for the abilities of each item. To try them in a dev client: `gradlew runClient -Pbw_compat=jei` or `-Pbw_compat=emi`.
 
 ### Enchantments
 

@@ -557,6 +557,25 @@
     "better_weaponry.editor.preset.pvp_1_8": "PvP 1.8",
     "better_weaponry.editor.preset.pvp_1_8.tooltip": "Alleen de simpele 1.8-parade: geen perfecte parade, dekkingsbreuk, wapenbereik, zwaai of ander systeem. De aanvalscooldown blijft die van het huidige Minecraft. Mobs krijgen hun standaardinstellingen terug.",
     "better_weaponry.editor.preset.hard": "Moeilijk",
-    "better_weaponry.editor.preset.hard.tooltip": "Alle systemen aan, tragere dual wield en vanilla trefferbescherming. Mobs zijn beter uitgerust, dragen meer mod-wapens, pareren twee keer zo vaak en er zijn meer ninja's."
+    "better_weaponry.editor.preset.hard.tooltip": "Alle systemen aan, tragere dual wield en vanilla trefferbescherming. Mobs zijn beter uitgerust, dragen meer mod-wapens, pareren twee keer zo vaak en er zijn meer ninja's.",
+    "better_weaponry.info.two_handed": "Tweehandig: je andere hand moet leeg blijven om dit wapen te gebruiken.",
+    "better_weaponry.info.dual_wielded": "Dual wield: houd in elke hand zo'n wapen. Slagen wisselen tussen de handen en volgen sneller.",
+    "better_weaponry.info.parry": "Pareren: houd rechtsklik ingedrukt om treffers van voren te verminderen. Een treffer aan het begin wordt volledig geblokkeerd. Bijlen breken je dekking.",
+    "better_weaponry.info.dash": "Dash: rechtsklik om vooruit te schieten. Alle materialen van dit wapen delen de cooldown.",
+    "better_weaponry.info.combo": "Combo: opeenvolgende slagen volgen een reeks speciale aanvallen, die op het scherm wordt getoond.",
+    "better_weaponry.info.shield": "Hef het vlak voor een treffer op voor een perfecte parade: pijlen gaan terug naar de schutter en aanvallers worden weggeduwd.",
+    "better_weaponry.info.shield.simple": "Blokkeert treffers van voren, zoals het vanilla schild. De duurzaamheid hangt af van het materiaal.",
+    "better_weaponry.info.ranged": "Alleen de projectielsnelheid hangt af van het materiaal, en de pijlschade volgt die. Goud laadt twee keer zo snel maar schiet trager.",
+    "better_weaponry.info.shuriken": "Rechtsklik om te werpen. Elke worp kost 1 duurzaamheid; oprapen geeft die terug. De laatste worp vernietigt het voorwerp, die shuriken oprapen brengt het terug.",
+    "tag.item.better_weaponry.bows": "Bogen",
+    "tag.item.better_weaponry.crossbows": "Kruisbogen",
+    "tag.item.better_weaponry.shields": "Schilden",
+    "tag.item.better_weaponry.shurikens": "Shuriken",
+    "tag.item.better_weaponry.melee_weapons": "Slagwapens",
+    "tag.item.better_weaponry.enchantable.bleeding": "Betoverbaar met Bloeding",
+    "tag.item.better_weaponry.enchantable.dashing": "Dash-wapens",
+    "tag.item.better_weaponry.enchantable.parry_weapons": "Pareerwapens",
+    "tag.item.better_weaponry.enchantable.parrying": "Pareervoorwerpen",
+    "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherietverbeteringssjablonen"
   }
 }
