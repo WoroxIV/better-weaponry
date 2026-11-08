@@ -16,7 +16,7 @@ import java.util.List;
  * <h2>Ajouter un matériau d'un autre mod</h2>
  * <ol>
  *   <li>Le déclarer ci-dessous avec {@code stats}, {@code craftedFrom} et {@code requiresAnyMod}.</li>
- *   <li>Ajouter les 13 textures {@code textures/item/<matériau>_<type>.png}.</li>
+ *   <li>Ajouter sa palette {@code textures/palettes/<matériau>.png} (mêmes dimensions que {@code key.png}).</li>
  *   <li>Ajouter le nom du matériau dans chaque source de traduction {@code src/main/lang/<langue>.json}
  *       ({@code names.materials}) : les 13 noms d'armes sont construits automatiquement.</li>
  *   <li>Lancer {@code gradlew runData} : modèles, traductions, tags et recettes sont générés automatiquement.</li>

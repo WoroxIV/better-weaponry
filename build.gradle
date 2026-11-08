@@ -162,6 +162,11 @@ tasks.withType(ProcessResources).configureEach {
     filesMatching(['META-INF/neoforge.mods.toml']) {
         expand replaceProperties
     }
+
+    // Un modèle écrit à la main dans src/main/resources gagne sur l'ancien fichier généré, en attendant que runData le supprime.
+    filesMatching(['assets/better_weaponry/models/item/**']) {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
 }
 
 // Example configuration to allow publishing using the maven-publish plugin

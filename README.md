@@ -134,7 +134,7 @@ Shields exist in every material (`wooden_shield`, `iron_shield`, `netherite_shie
 
 - Durability: that of the material's tools, except wood (118) and gold (64).
 - Recipe: the vanilla shape, with the material instead of planks and the iron ingot in the middle. Netherite and other upgrade materials use the smithing table.
-- Texture: `textures/entity/shield/<material>_shield.png` (64×64, like the vanilla one). Without that file, the shield looks like the vanilla one.
+- Texture: `textures/entity/shield/<material>_shield.png` (64×64, like the vanilla one), or one template `textures/templates/entity/shield/shield.png` for every material (see [Weapon textures](#weapon-textures)). Without either, the shield looks like the vanilla one.
 - **Perfect parry**: a hit taken just after the shield is up does not wear it and cannot disable it. It pushes melee attackers back and sends arrows back to their shooter, and your next hit deals 20% more damage. See `gear.json`.
 
 The vanilla shield is replaced everywhere it can be: its recipe is off, it is gone from the creative tab, loot and villagers give the mod's shields (better materials are rarer), armorers sell better ones as they level up, and vanilla shields in a player's inventory or ender chest become wooden shields at login. Turn off `replace_vanilla_gear` in `gear.json` for loot, trades and the login conversion.
@@ -147,7 +147,7 @@ Bows and crossbows exist in every material (`iron_bow`, `iron_crossbow`...), wit
 - **Gold** is the exception: it draws or loads twice as fast, enchants very well, but shoots at ×0.45 (3 damage) and breaks quickly.
 - Durability: bow 384, crossbow 465 for wood, stone and iron; gold 49 / 60; diamond 2398 / 2903; netherite 3120 / 3778; modded materials follow the ratio of their tools to iron tools.
 - Recipes: the vanilla shapes with the material instead of sticks (the wooden versions keep the sticks), netherite at the smithing table.
-- Textures: `textures/item/<material>_bow.png`, `_bow_pulling_0` to `2`, `<material>_crossbow.png`, `_crossbow_pulling_0` to `2`, `_crossbow_arrow`, `_crossbow_firework`, then run `./gradlew runData`. Without those files, they look like the vanilla ones.
+- Textures: templates `textures/templates/item/bow.png`, `bow_pulling_0` to `2`, `crossbow.png`, `crossbow_pulling_0` to `2`, `crossbow_arrow`, `crossbow_firework` (see [Weapon textures](#weapon-textures)), or the same names prefixed by `<material>_` in `textures/item/`. Run `./gradlew runData` after adding the first file of a state. Without those files, they look like the vanilla ones.
 
 The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, strays, bogged, illusioners, pillagers and piglins get the mod's versions when they spawn (stone by default, which shoots like the vanilla weapon, with a 9.5% chance per step to move up a material, more on Hard). Their aim adapts to the speed of the arrow. Fletchers and armorers sell better materials as they level up, up to diamond: villagers never sell netherite. The dispenser recipe accepts any bow, and the Ol' Betsy advancement accepts any crossbow.
 
@@ -159,7 +159,7 @@ The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, st
 - Throwing the last point destroys the item; picking up that shuriken recreates it with 1 durability and its enchantments.
 - A shuriken can only be picked up by its thrower, and only if the item still exists or was destroyed by a throw. A free throw (Unbreaking) gives nothing back.
 - Enchantments: Power, Punch, Flame, Piercing or Multishot, Unbreaking, Mending, and **Returning** (flies back like a Loyalty trident, incompatible with Mending). Infinity and Quick Charge are refused.
-- Textures: `textures/item/<material>_shuriken.png`; `textures/item/shuriken.png` is used for any material without its own file. The ones provided are placeholders.
+- Textures: generated from `textures/templates/item/shuriken.png` (see [Weapon textures](#weapon-textures)); `textures/item/<material>_shuriken.png` takes priority. The ones provided are placeholders.
 
 ### Mobs
 
@@ -562,7 +562,8 @@ src/main/java/com/betterweaponry/
 src/main/lang/                   # Translation sources, one per language (not packaged, read by runData)
 
 src/main/resources/
-├── assets/better_weaponry/      # Textures, hand-written models, sounds.json
+├── assets/better_weaponry/      # Textures, palettes and templates, hand-written models, sounds.json
+├── assets/minecraft/atlases/    # Adds the weapon palette source to the vanilla atlases
 ├── data/better_weaponry/        # Default weapon stats and rules (better_weaponry/), empty GameTest structure
 ├── META-INF/neoforge.mods.toml  # Mod metadata (filled in from gradle.properties)
 └── betterweaponry.mixins.json   # Mixin config
@@ -572,11 +573,35 @@ src/generated/resources/         # Output of runData (do not edit by hand)
 
 ### Adding a new weapon type
 
-1. Add one line to `item/WeaponType.java`, for example `CUTLASS("cutlass", "cutlass_base", null)`. Pass `null` as the base model to use vanilla `item/handheld`. The third argument is the crafting pattern (`null` = no recipe). The items, models, tags and recipes all come from this enum. Then add its stats file `data/better_weaponry/better_weaponry/weapons/cutlass.json` (copy an existing one).
-2. If you gave it a base model, add `assets/better_weaponry/models/item/<base>.json`.
-3. Add one texture per material under `assets/better_weaponry/textures/item/`. In each translation source `src/main/lang/<language>.json`, add the weapon's name in `names.types` (with its grammatical gender for German, Dutch, Portuguese and Russian) and its plural in `strings` (`better_weaponry.configuration.<type>`). The 50 item names per language are built automatically (see [Translations](#translations)).
+1. Add one line to `item/WeaponType.java`, for example `CUTLASS("cutlass", null)`. The second argument is the crafting pattern (`null` = no recipe). The items, models, tags and recipes all come from this enum. Then add its stats file `data/better_weaponry/better_weaponry/weapons/cutlass.json` (copy an existing one).
+2. Optional, to set its size and how it is held: add `assets/better_weaponry/models/item/cutlass_base.json`. Without it, the weapon uses vanilla `item/handheld`.
+3. Add its template `assets/better_weaponry/textures/templates/item/cutlass.png` (see [Weapon textures](#weapon-textures)). In each translation source `src/main/lang/<language>.json`, add the weapon's name in `names.types` (with its grammatical gender for German, Dutch, Portuguese and Russian) and its plural in `strings` (`better_weaponry.configuration.<type>`). The 50 item names per language are built automatically (see [Translations](#translations)).
 4. Run `./gradlew runData` to generate the models, translations, tags and recipes.
 5. Add the weapon's Better Combat preset in `datagen/BetterCombatAttributesProvider.java` (`runData` fails without one).
+
+### Weapon textures
+
+Weapon textures are built when resources load, from one **template** per weapon and one **palette** per material. All paths are under `assets/better_weaponry/textures/`.
+
+| File | Role |
+| --- | --- |
+| `palettes/key.png` | The reference colors, one per pixel (7×1, dark to light). |
+| `palettes/<material>.png` | The material's colors, in the same order and at the same size as `key.png`. |
+| `templates/item/<name>.png` | A weapon painted with the `key.png` colors. Generates `item/<material>_<name>`. |
+| `templates/entity/shield/shield.png` | Optional shield template (64×64). |
+| `item/<material>_<name>.png` | A hand-drawn texture for this exact weapon. **It always wins over the generated one.** |
+
+- Colors that are not in `key.png` stay as painted, which is how handles keep their color on every material.
+- Palettes and templates are read when resources reload: press F3+T in game to see a change, no `runData` needed. A resource pack can replace any of these files.
+- A missing or wrongly sized palette does not stop the game. The log lists the materials concerned and their weapons appear in purple and black.
+
+Models follow the same priority, from strongest to weakest:
+
+1. `models/item/<material>_<name>.json`, written by hand for this exact weapon. `runData` stops generating that file.
+2. `models/item/<name>_base.json`, shared by every material of the weapon (size, position in hand).
+3. Vanilla `item/handheld`.
+
+A base model can be 3D (Blockbench) and still follow the palettes: name its texture variable `layer0` (Blockbench calls it `0` by default) and add `"particle": "#layer0"`.
 
 ### Translations
 
@@ -662,7 +687,7 @@ public static final WeaponMaterial STEEL = register(WeaponMaterial.builder("stee
 - `craftedFrom` with several entries generates a tag `better_weaponry:weapon_materials/<id>` whose entries are all **optional**. Put the common `c:` tag first and the mod's exact item as a fallback. A wrong or missing ID breaks nothing.
 - Generated recipes only load if one of the mods is installed **and** the ingredient tag is not empty, so you never get load errors or uncraftable recipes.
 - For upgrade-style materials, use `.smithingUpgrade(baseMaterial, "template", "addition")` instead of `.craftedFrom(...)`.
-- Add the material's name to `names.materials` in each translation source `src/main/lang/<language>.json` (one entry per language, not 13 item names; see [Translations](#translations)), and the 13 textures `<material>_<type>.png`. A missing texture does not stop `runData`: the model is still generated and the console lists the missing textures.
+- Add the material's name to `names.materials` in each translation source `src/main/lang/<language>.json` (one entry per language, not 13 item names; see [Translations](#translations)), and its palette `textures/palettes/<material>.png` (see [Weapon textures](#weapon-textures)). A texture that is neither drawn nor generated does not stop `runData`: the model is still generated and the console lists the missing textures.
 - Modded weapons are added to `minecraft:swords` as optional entries, so the tag keeps working when the mod is absent.
 
 ---

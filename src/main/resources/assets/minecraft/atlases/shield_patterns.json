@@ -1,0 +1,8 @@
+{
+  "sources": [
+    {
+      "type": "better_weaponry:weapon_palettes",
+      "directory": "entity/shield"
+    }
+  ]
+}

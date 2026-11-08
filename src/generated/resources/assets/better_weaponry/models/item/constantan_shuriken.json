@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "better_weaponry:item/shuriken"
+    "layer0": "better_weaponry:item/constantan_shuriken"
   }
 }
