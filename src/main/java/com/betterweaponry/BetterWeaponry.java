@@ -18,6 +18,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
@@ -29,6 +30,7 @@ import net.neoforged.neoforge.data.loading.DatagenModLoader;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -75,8 +77,10 @@ public final class BetterWeaponry {
     private void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() != CreativeModeTabs.COMBAT) return;
 
-        // Le bouclier vanilla est remplacé par ceux du mod.
-        event.remove(new ItemStack(Items.SHIELD), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        // Le bouclier, l'arc et l'arbalète vanilla sont remplacés par ceux du mod.
+        for (Item replaced : List.of(Items.SHIELD, Items.BOW, Items.CROSSBOW)) {
+            event.remove(new ItemStack(replaced), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
 
         ItemStack trident = new ItemStack(Items.TRIDENT);
         for (var item : ModItems.ITEMS.getEntries()) {

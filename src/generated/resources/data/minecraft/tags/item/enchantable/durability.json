@@ -1,5 +1,7 @@
 {
   "values": [
-    "#better_weaponry:shields"
+    "#better_weaponry:shields",
+    "#better_weaponry:bows",
+    "#better_weaponry:crossbows"
   ]
 }

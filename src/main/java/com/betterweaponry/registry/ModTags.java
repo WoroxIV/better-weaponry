@@ -23,6 +23,11 @@ public final class ModTags {
     /** Tous les boucliers du mod. */
     public static final TagKey<Item> SHIELDS = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "shields"));
 
+    /** Arcs du mod et arc vanilla (recette du distributeur). */
+    public static final TagKey<Item> BOWS = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "bows"));
+    /** Arbalètes du mod et arbalète vanilla (succès Ol' Betsy). */
+    public static final TagKey<Item> CROSSBOWS = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "crossbows"));
+
     /** Armes qui parent : elles peuvent recevoir Riposte. */
     public static final TagKey<Item> ENCHANTABLE_PARRY_WEAPONS = ItemTags.create(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/parry_weapons"));
     /** Tout ce qui peut parer ou bloquer (armes qui parent et boucliers) : peut recevoir Reflective. */

@@ -6,6 +6,7 @@ import net.minecraft.world.item.Item;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Motif de craft d'un type d'arme, décliné automatiquement pour chaque matériau.
@@ -26,6 +27,7 @@ public final class WeaponRecipe {
 
     private final List<String> pattern;
     private final Map<Character, TagKey<Item>> extraIngredients = new LinkedHashMap<>();
+    private final Map<Character, Supplier<Item>> extraItems = new LinkedHashMap<>();
 
     private WeaponRecipe(List<String> pattern) {
         if (pattern.isEmpty() || pattern.size() > 3) {
@@ -51,6 +53,16 @@ public final class WeaponRecipe {
         }
         extraIngredients.put(symbol, ingredient);
         return this;
+    }
+
+    /** Comme {@link #with}, pour un objet précis qui n'a pas de tag (ex : le crochet). */
+    public WeaponRecipe withItem(char symbol, Supplier<Item> item) {
+        extraItems.put(symbol, item);
+        return this;
+    }
+
+    public Map<Character, Supplier<Item>> extraItems() {
+        return extraItems;
     }
 
     public List<String> pattern() {

@@ -5,7 +5,9 @@ package com.betterweaponry.item;
  * Leurs noms suivent le même système de traduction : une entrée dans {@code names.types} de chaque langue.
  */
 public enum GearType {
-    SHIELD("shield");
+    SHIELD("shield"),
+    BOW("bow"),
+    CROSSBOW("crossbow");
 
     private final String id;
 

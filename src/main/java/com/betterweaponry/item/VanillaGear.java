@@ -4,7 +4,11 @@ import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -17,6 +21,7 @@ import java.util.List;
  */
 public final class VanillaGear {
     private static final double PERCENT = 100.0D;
+    private static final double HARD_DIFFICULTY_BONUS = 1.5D;
     /** Du moins bon au meilleur : chaque marche est tirée au sort dans le butin. */
     private static final List<WeaponMaterial> UPGRADE_LADDER = List.of(WeaponMaterials.WOODEN, WeaponMaterials.GOLDEN,
             WeaponMaterials.STONE, WeaponMaterials.IRON, WeaponMaterials.DIAMOND, WeaponMaterials.NETHERITE);
@@ -26,17 +31,23 @@ public final class VanillaGear {
 
     /** Cet objet vanilla a une version du mod. */
     public static boolean isReplaced(ItemStack stack) {
-        return stack.is(Items.SHIELD);
+        return stack.is(Items.SHIELD) || stack.is(Items.BOW) || stack.is(Items.CROSSBOW);
     }
 
     /** Version du mod dans ce matériau : enchantements et bannière conservés, usure proportionnelle à la durabilité. */
     public static ItemStack convert(ItemStack stack, WeaponMaterial material) {
-        ItemStack result = stack.transmuteCopy(ModItems.shield(material).get(), stack.getCount());
+        ItemStack result = stack.transmuteCopy(replacement(stack, material), stack.getCount());
         if (stack.isDamaged()) {
             double worn = (double) stack.getDamageValue() / stack.getMaxDamage();
             result.setDamageValue(Math.min(result.getMaxDamage() - 1, (int) Math.round(worn * result.getMaxDamage())));
         }
         return result;
+    }
+
+    private static Item replacement(ItemStack stack, WeaponMaterial material) {
+        if (stack.is(Items.BOW)) return ModItems.bow(material).get();
+        if (stack.is(Items.CROSSBOW)) return ModItems.crossbow(material).get();
+        return ModItems.shield(material).get();
     }
 
     /** Matériau tiré au sort : on part du bois, et chaque marche a {@code upgradeChance} % de chance de monter. */
@@ -56,6 +67,16 @@ public final class VanillaGear {
     public static void convertInventory(Player player) {
         convertContainer(player.getInventory());
         convertContainer(player.getEnderChestInventory());
+    }
+
+    /** L'arme vanilla d'un mob devient une arme du mod : un peu plus souvent d'un meilleur matériau en difficulté Difficile. */
+    public static void convertMobHands(Mob mob, GearDefinition gear) {
+        if (!gear.replaceVanillaGear()) return;
+        double chance = gear.mobUpgradeChance() * (mob.level().getDifficulty() == Difficulty.HARD ? HARD_DIFFICULTY_BONUS : 1.0D);
+        for (EquipmentSlot slot : List.of(EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND)) {
+            ItemStack stack = mob.getItemBySlot(slot);
+            if (isReplaced(stack)) mob.setItemSlot(slot, convert(stack, rollMaterial(mob.getRandom(), chance)));
+        }
     }
 
     private static void convertContainer(Container container) {

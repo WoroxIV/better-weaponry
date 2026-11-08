@@ -2,6 +2,7 @@ package com.betterweaponry;
 
 import com.betterweaponry.client.CombatHud;
 import com.betterweaponry.client.ModKeyMappings;
+import com.betterweaponry.client.RangedWeaponClient;
 import com.betterweaponry.client.ShieldClientExtensions;
 import com.betterweaponry.client.WeaponClientExtensions;
 import com.betterweaponry.client.editor.ClientEditorHooks;
@@ -63,9 +64,12 @@ public final class BetterWeaponryClient {
 
     /** La pose "bouclier levé" est un modèle différent, choisi par cette propriété (comme pour le bouclier vanilla). */
     private static void clientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ModItems.allShields().forEach(shield -> ItemProperties.register(shield.get(),
-                ResourceLocation.withDefaultNamespace("blocking"),
-                (stack, level, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F)));
+        event.enqueueWork(() -> {
+            ModItems.allShields().forEach(shield -> ItemProperties.register(shield.get(),
+                    ResourceLocation.withDefaultNamespace("blocking"),
+                    (stack, level, entity, seed) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F));
+            RangedWeaponClient.registerItemProperties();
+        });
     }
 
     private static void registerKeyMappings(RegisterKeyMappingsEvent event) {

@@ -1,0 +1,49 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:or",
+      "values": [
+        {
+          "type": "neoforge:mod_loaded",
+          "modid": "immersiveengineering"
+        },
+        {
+          "type": "neoforge:mod_loaded",
+          "modid": "thermal"
+        }
+      ]
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "c:ingots/constantan"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "M": {
+      "tag": "c:ingots/constantan"
+    },
+    "X": {
+      "tag": "c:strings"
+    }
+  },
+  "pattern": [
+    "MIM",
+    "XHX",
+    " M "
+  ],
+  "result": {
+    "count": 1,
+    "id": "better_weaponry:constantan_crossbow"
+  }
+}

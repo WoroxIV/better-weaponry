@@ -1,0 +1,40 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "iceandfire"
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "better_weaponry:weapon_materials/dragonbone"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "M": {
+      "tag": "better_weaponry:weapon_materials/dragonbone"
+    },
+    "X": {
+      "tag": "c:strings"
+    }
+  },
+  "pattern": [
+    "MIM",
+    "XHX",
+    " M "
+  ],
+  "result": {
+    "count": 1,
+    "id": "better_weaponry:dragonbone_crossbow"
+  }
+}

@@ -34,7 +34,10 @@ import com.betterweaponry.editor.EditorService;
 import com.betterweaponry.editor.EditorTarget;
 import com.betterweaponry.event.VanillaGearEvents;
 import com.betterweaponry.item.ModShieldDecorationRecipe;
+import com.betterweaponry.item.RangedWeapon;
 import com.betterweaponry.item.VanillaGear;
+import com.betterweaponry.item.WeaponBowItem;
+import com.betterweaponry.item.WeaponCrossbowItem;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
@@ -64,19 +67,28 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
+import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -902,15 +914,22 @@ public final class CombatGameTests {
         GearDefinition gear = original.gear();
         WeaponData.install(new WeaponData.Snapshot(original.weapons(), original.rules(), new GearDefinition(1, gear.shieldPerfectWindow(), gear.shieldPerfectCooldown(),
                 gear.shieldPerfectDamageBonus(), gear.shieldPerfectBonusSeconds(), gear.shieldPerfectKnockback(), gear.reflectArrows(), gear.replaceVanillaGear(),
-                gear.lootUpgradeChance(), 100.0D, gear.reflectiveCooldownSeconds())));
+                gear.lootUpgradeChance(), 100.0D, gear.reflectiveCooldownSeconds(), gear.projectileSpeedMultipliers(), gear.projectileSpeedCap(),
+                gear.goldenDrawTime(), gear.mobUpgradeChance())));
         try {
             LootParams params = new LootParams.Builder(helper.getLevel()).withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO)).create(LootContextParamSets.CHEST);
             var tables = helper.getLevel().getServer().reloadableRegistries();
             helper.assertTrue(tables.getLootTable(BuiltInLootTables.NETHER_BRIDGE).getRandomItems(params).stream().anyMatch(item -> item.is(Items.ENCHANTED_BOOK)),
                     "a nether fortress chest should hold a book");
-            helper.assertFalse(tables.getLootTable(BuiltInLootTables.SIMPLE_DUNGEON).getRandomItems(params).stream().anyMatch(item ->
-                    EnchantmentHelper.getEnchantmentsForCrafting(item).keySet().stream().anyMatch(holder -> holder.getRegisteredName().startsWith(BetterWeaponry.MODID))),
-                    "an overworld dungeon should not hold the mod's dedicated books");
+            // Le tirage normal du jeu peut donner un de nos livres dans un donjon. Mais à 100 %, l'ajout dédié en mettrait un dans chaque coffre.
+            int chests = 30;
+            int chestsWithModBook = 0;
+            for (int i = 0; i < chests; i++) {
+                boolean modBook = tables.getLootTable(BuiltInLootTables.SIMPLE_DUNGEON).getRandomItems(params).stream().anyMatch(item ->
+                        EnchantmentHelper.getEnchantmentsForCrafting(item).keySet().stream().anyMatch(holder -> holder.getRegisteredName().startsWith(BetterWeaponry.MODID)));
+                if (modBook) chestsWithModBook++;
+            }
+            helper.assertTrue(chestsWithModBook < chests, "the mod's dedicated books should not be added to overworld dungeons");
         } finally {
             WeaponData.install(original);
         }
@@ -1054,6 +1073,138 @@ public final class CombatGameTests {
 
     private static Holder<Enchantment> enchantment(GameTestHelper helper, ResourceKey<Enchantment> key) {
         return helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key);
+    }
+
+    /** Arcs et arbalètes : durabilité, tags, recettes (bâtons pour le bois, matériau sinon), distributeur, chargement de l'or. */
+    @GameTest(template = ARENA)
+    public static void rangedWeaponsSetup(GameTestHelper helper) {
+        int[][] expected = {{384, 465}, {384, 465}, {384, 465}, {49, 60}, {2398, 2903}, {3120, 3778}};
+        WeaponMaterial[] materials = {WeaponMaterials.WOODEN, WeaponMaterials.STONE, WeaponMaterials.IRON, WeaponMaterials.GOLDEN, WeaponMaterials.DIAMOND, WeaponMaterials.NETHERITE};
+        for (int i = 0; i < materials.length; i++) {
+            helper.assertTrue(new ItemStack(ModItems.bow(materials[i]).get()).getMaxDamage() == expected[i][0], materials[i] + " bow durability");
+            helper.assertTrue(new ItemStack(ModItems.crossbow(materials[i]).get()).getMaxDamage() == expected[i][1], materials[i] + " crossbow durability");
+        }
+        ItemStack iron = new ItemStack(ModItems.bow(WeaponMaterials.IRON).get());
+        helper.assertTrue(iron.is(Tags.Items.TOOLS_BOW) && iron.is(ItemTags.BOW_ENCHANTABLE) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "bow tags should be loaded");
+        helper.assertTrue(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.IRON_INGOT)), "an iron bow is repaired with iron");
+
+        RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
+        for (String vanilla : List.of("bow", "crossbow")) {
+            helper.assertTrue(recipes.byKey(ResourceLocation.withDefaultNamespace(vanilla)).isEmpty(), "the vanilla recipe should be off: " + vanilla);
+        }
+        helper.assertTrue(recipes.byKey(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "netherite_bow_smithing")).isPresent(), "netherite bows use the smithing table");
+        expectCrafted(helper, Items.STICK, ModItems.bow(WeaponMaterials.WOODEN).get());
+        expectCrafted(helper, Items.IRON_INGOT, ModItems.bow(WeaponMaterials.IRON).get());
+        ItemStack cobble = new ItemStack(Items.COBBLESTONE);
+        CraftingInput dispenser = CraftingInput.of(3, 3, List.of(cobble, cobble, cobble, cobble, new ItemStack(ModItems.bow(WeaponMaterials.IRON).get()), cobble, cobble, new ItemStack(Items.REDSTONE), cobble));
+        helper.assertTrue(recipes.getRecipeFor(RecipeType.CRAFTING, dispenser, helper.getLevel()).isPresent(), "a dispenser should accept a bow of the mod");
+
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        int wooden = CrossbowItem.getChargeDuration(new ItemStack(ModItems.crossbow(WeaponMaterials.WOODEN).get()), player);
+        int golden = CrossbowItem.getChargeDuration(new ItemStack(ModItems.crossbow(WeaponMaterials.GOLDEN).get()), player);
+        helper.assertTrue(wooden == 25 && golden == 13, "charge time: wooden " + wooden + ", golden " + golden);
+        helper.succeed();
+    }
+
+    private static void expectCrafted(GameTestHelper helper, Item side, Item result) {
+        ItemStack s = new ItemStack(side);
+        ItemStack string = new ItemStack(Items.STRING);
+        CraftingInput grid = CraftingInput.of(3, 3, List.of(ItemStack.EMPTY, s, string, s, ItemStack.EMPTY, string, ItemStack.EMPTY, s, string));
+        var recipe = helper.getLevel().getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, grid, helper.getLevel());
+        helper.assertTrue(recipe.isPresent() && recipe.get().value().getResultItem(helper.getLevel().registryAccess()).is(result), "the bow recipe should give " + result);
+    }
+
+    private static double averageMobShot(GameTestHelper helper, Skeleton skeleton, LivingEntity target) {
+        int shots = 20;
+        double total = 0.0D;
+        for (int i = 0; i < shots; i++) {
+            skeleton.performRangedAttack(target, 1.0F);
+            List<AbstractArrow> arrows = helper.getLevel().getEntitiesOfClass(AbstractArrow.class, skeleton.getBoundingBox().inflate(3.0D), arrow -> arrow.getOwner() == skeleton);
+            helper.assertTrue(arrows.size() == 1, "one mob arrow expected, found " + arrows.size());
+            total += arrows.getFirst().getDeltaMovement().length();
+            arrows.getFirst().discard();
+        }
+        return total / shots;
+    }
+
+    /** Seule la vitesse de la flèche dépend du matériau, en tirant vraiment ; l'or atteint la pleine puissance deux fois plus vite. */
+    @GameTest(template = ARENA)
+    public static void rangedProjectileSpeed(GameTestHelper helper) {
+        GearDefinition gear = WeaponData.gear();
+        helper.assertTrue(Math.abs(firedSpeed(helper, WeaponMaterials.WOODEN, 25) - 3.0D) < 0.3D, "a wooden bow shoots like the vanilla bow");
+        double iron = gear.projectileSpeedMultiplier(WeaponMaterials.IRON);
+        helper.assertTrue(iron == 1.5D && Math.abs(firedSpeed(helper, WeaponMaterials.IRON, 25) - 3.0D * iron) < 0.45D, "an iron bow shoots 1.5x faster");
+        helper.assertTrue(gear.projectileSpeedMultiplier(WeaponMaterials.NETHERITE) == 2.0D, "netherite is x2");
+        helper.assertTrue(gear.projectileSpeedMultiplier(WeaponMaterials.GOLDEN) == 0.8D, "gold is slower");
+        helper.assertTrue(firedSpeed(helper, WeaponMaterials.GOLDEN, 10) > 2.0D, "a golden bow should reach full power in half the time");
+        helper.assertTrue(firedSpeed(helper, WeaponMaterials.WOODEN, 10) < 1.6D, "a wooden bow drawn for 10 ticks is weak");
+        helper.succeed();
+    }
+
+    private static double firedSpeed(GameTestHelper helper, WeaponMaterial material, int ticksDrawn) {
+        ItemStack bow = new ItemStack(ModItems.bow(material).get());
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bow);
+        player.getInventory().add(new ItemStack(Items.ARROW, 8));
+        bow.releaseUsing(helper.getLevel(), player, bow.getUseDuration(player) - ticksDrawn);
+        AABB around = player.getBoundingBox().inflate(4.0D);
+        List<AbstractArrow> arrows = helper.getLevel().getEntitiesOfClass(AbstractArrow.class, around, arrow -> arrow.getOwner() == player);
+        helper.assertTrue(arrows.size() == 1, "one arrow should be shot, found " + arrows.size());
+        double speed = arrows.getFirst().getDeltaMovement().length();
+        arrows.getFirst().discard();
+        return speed;
+    }
+
+    /** Mobs : l'arme vanilla devient celle du mod à l'apparition, et ils savent s'en servir ; leur tir plus rapide reste bien visé. */
+    @GameTest(template = ARENA)
+    public static void rangedMobs(GameTestHelper helper) {
+        Skeleton skeleton = EntityType.SKELETON.create(helper.getLevel());
+        skeleton.setPos(helper.absoluteVec(new Vec3(1.5D, 1.0D, 1.5D)));
+        skeleton.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
+        helper.getLevel().addFreshEntity(skeleton);
+        helper.assertTrue(skeleton.getMainHandItem().getItem() instanceof WeaponBowItem, "a skeleton should get a bow of the mod");
+        helper.assertTrue(skeleton.canFireProjectileWeapon((ProjectileWeaponItem) skeleton.getMainHandItem().getItem()), "a skeleton should be able to fire it");
+        helper.assertTrue(skeleton.goalSelector.getAvailableGoals().stream().anyMatch(goal -> goal.getGoal() instanceof RangedBowAttackGoal), "a skeleton should shoot, not fight in melee");
+
+        // Tir réel : la flèche d'un squelette est accélérée par le matériau de son arc (moyenne, car les tirs des mobs sont imprécis).
+        Pig shooterTarget = helper.spawn(EntityType.PIG, new BlockPos(1, 1, 3));
+        skeleton.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.bow(WeaponMaterials.WOODEN).get()));
+        double woodenShots = averageMobShot(helper, skeleton, shooterTarget);
+        skeleton.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.bow(WeaponMaterials.NETHERITE).get()));
+        double netheriteShots = averageMobShot(helper, skeleton, shooterTarget);
+        helper.assertTrue(woodenShots < 2.5D && netheriteShots > 2.5D, "mob arrows: wooden " + woodenShots + ", netherite " + netheriteShots);
+
+        Pillager pillager = EntityType.PILLAGER.create(helper.getLevel());
+        pillager.setPos(helper.absoluteVec(new Vec3(3.5D, 1.0D, 3.5D)));
+        pillager.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.CROSSBOW));
+        helper.getLevel().addFreshEntity(pillager);
+        helper.assertTrue(pillager.getMainHandItem().getItem() instanceof WeaponCrossbowItem, "a pillager should get a crossbow of the mod");
+        helper.assertTrue(pillager.canFireProjectileWeapon((ProjectileWeaponItem) pillager.getMainHandItem().getItem()), "a pillager should be able to fire it");
+
+        Piglin piglin = EntityType.PIGLIN.create(helper.getLevel());
+        helper.assertTrue(piglin.canFireProjectileWeapon(ModItems.crossbow(WeaponMaterials.IRON).get()), "a piglin should be able to fire it");
+        helper.assertFalse(skeleton.canFireProjectileWeapon(ModItems.crossbow(WeaponMaterials.IRON).get()), "a skeleton does not use crossbows");
+
+        // Tir d'un mob : deux fois plus rapide, et la marge en hauteur de 20 % devient 5 %.
+        Vec3 aimed = new Vec3(0.0D, 0.2D, 1.0D).normalize().scale(1.6D);
+        Vec3 faster = RangedWeapon.mobShotVelocity(aimed, 2.0D);
+        helper.assertTrue(Math.abs(faster.length() - 3.2D) < EPSILON, "the arrow should be twice as fast");
+        helper.assertTrue(Math.abs(faster.y / faster.horizontalDistance() - 0.05D) < EPSILON, "the aim should be lowered, slope " + faster.y / faster.horizontalDistance());
+
+        // Une flèche tirée à l'arbalète du mod compte comme tirée à l'arbalète.
+        Arrow bolt = new Arrow(helper.getLevel(), skeleton, new ItemStack(Items.ARROW), new ItemStack(ModItems.crossbow(WeaponMaterials.IRON).get()));
+        helper.assertTrue(bolt.shotFromCrossbow(), "an arrow fired by a crossbow of the mod should count as fired by a crossbow");
+
+        // Conversion et prix : un meilleur matériau coûte plus cher.
+        ItemStack vanillaBow = new ItemStack(Items.BOW);
+        vanillaBow.setDamageValue(192);
+        ItemStack converted = VanillaGear.convert(vanillaBow, WeaponMaterials.DIAMOND);
+        helper.assertTrue(converted.is(ModItems.bow(WeaponMaterials.DIAMOND).get()) && Math.abs((double) converted.getDamageValue() / converted.getMaxDamage() - 0.5D) < 0.01D, "a converted bow keeps its wear");
+        MerchantOffer offer = new MerchantOffer(new ItemCost(Items.EMERALD, 3), new ItemStack(Items.CROSSBOW), 12, 10, 0.05F);
+        MerchantOffer netherite = VanillaGearEvents.convertOffer(offer, WeaponMaterials.NETHERITE);
+        helper.assertTrue(netherite.getResult().is(ModItems.crossbow(WeaponMaterials.NETHERITE).get()) && netherite.getItemCostA().count() == 12, "a netherite crossbow should cost 4 times more");
+        helper.succeed();
     }
 
     /**

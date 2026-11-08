@@ -9,5 +9,11 @@
   "replace_vanilla_gear": true,
   "loot_upgrade_chance": 20,
   "enchanted_book_chance": 20,
-  "reflective_cooldown_seconds": 5.0
+  "reflective_cooldown_seconds": 5.0,
+  "projectile_speed_multipliers": {
+    "golden": 0.8
+  },
+  "projectile_speed_cap": 2.0,
+  "golden_draw_time": 0.5,
+  "mob_upgrade_chance": 9.5
 }

@@ -59,6 +59,14 @@
       "shield": {
         "name": "Schild",
         "gender": "n"
+      },
+      "bow": {
+        "name": "Bogen",
+        "gender": "m"
+      },
+      "crossbow": {
+        "name": "Armbrust",
+        "gender": "f"
       }
     },
     "materials": {
@@ -437,7 +445,7 @@
     "better_weaponry.doc.schema.gear": "Better Weaponry: Ausrüstungseinstellungen",
     "better_weaponry.doc.readme.gear_fields": "Felder von gear.json (Schilde, Beute):",
     "better_weaponry.editor.gear": "Ausrüstung",
-    "better_weaponry.editor.info.gear": "Einstellungen für Schilde und Beute.",
+    "better_weaponry.editor.info.gear": "Einstellungen für Schilde, Bögen, Armbrüste und Beute.",
     "better_weaponry.field.gear.format_version": "Formatversion",
     "better_weaponry.field.gear.format_version.help": "Version des Dateiformats. Bei 1 belassen.",
     "better_weaponry.field.gear.shield_perfect_window_seconds": "Fenster der perfekten Schildparade",
@@ -474,6 +482,15 @@
     "death.attack.better_weaponry.bleeding": "%1$s ist verblutet",
     "death.attack.better_weaponry.bleeding.player": "%1$s ist im Kampf gegen %2$s verblutet",
     "better_weaponry.field.gear.reflective_cooldown_seconds": "Abklingzeit von Reflexion",
-    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Wie lange Waffe oder Schild nach einer Rückwerfung durch Reflexion aufladen, in Sekunden. 0: keine."
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Wie lange Waffe oder Schild nach einer Rückwerfung durch Reflexion aufladen, in Sekunden. 0: keine.",
+    "better_weaponry.tooltip.projectile_speed": "Projektilgeschwindigkeit: ×%s",
+    "better_weaponry.field.gear.projectile_speed_multipliers": "Projektilgeschwindigkeit je Material",
+    "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplikator der Projektilgeschwindigkeit von Bögen und Armbrüsten, je Material-ID, z. B. {\"iron\": 1.6}. Nicht aufgeführte Materialien nutzen ihren Schadensmultiplikator (Stein 1,25, Eisen 1,5, Diamant 1,75, Netherit 2).",
+    "better_weaponry.field.gear.projectile_speed_cap": "Maximale Projektilgeschwindigkeit",
+    "better_weaponry.field.gear.projectile_speed_cap.help": "Höchster Geschwindigkeitsmultiplikator, unabhängig vom Material. Der Pfeilschaden hängt von der Geschwindigkeit ab: So bleiben sehr starke Mod-Materialien im Rahmen.",
+    "better_weaponry.field.gear.golden_draw_time": "Spannzeit von Gold",
+    "better_weaponry.field.gear.golden_draw_time.help": "Spann- oder Ladezeit goldener Bögen und Armbrüste im Vergleich zu Vanilla. 0,5: doppelt so schnell.",
+    "better_weaponry.field.gear.mob_upgrade_chance": "Chance auf besseres Material bei Mobs",
+    "better_weaponry.field.gear.mob_upgrade_chance.help": "Bei Mobs, ausgehend von Holz: Chance in % auf das nächste Material. Bei jedem Schritt neu gewürfelt, auf Schwer 1,5-mal höher."
   }
 }

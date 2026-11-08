@@ -17,6 +17,7 @@ import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.ICondition;
@@ -49,6 +50,12 @@ public class ModRecipeProvider extends RecipeProvider {
     /** Forme du bouclier vanilla : les planches sont remplacées par le matériau, le lingot de fer central reste. */
     private static final WeaponRecipe SHIELD_RECIPE = WeaponRecipe.of("MoM", "MMM", " M ").with('o', Tags.Items.INGOTS_IRON);
 
+    /** Forme de l'arc vanilla : les bâtons sont remplacés par le matériau (l'arc en bois garde les bâtons). */
+    private static final WeaponRecipe BOW_RECIPE = WeaponRecipe.of(" MX", "M X", " MX").with('X', Tags.Items.STRINGS);
+    /** Forme de l'arbalète vanilla, sur le même principe. */
+    private static final WeaponRecipe CROSSBOW_RECIPE = WeaponRecipe.of("MIM", "XHX", " M ")
+            .with('I', Tags.Items.INGOTS_IRON).with('X', Tags.Items.STRINGS).withItem('H', () -> Items.TRIPWIRE_HOOK);
+
     @Override
     protected void buildRecipes(RecipeOutput output) {
         for (WeaponType type : WeaponType.values()) {
@@ -63,6 +70,10 @@ public class ModRecipeProvider extends RecipeProvider {
         for (WeaponMaterial material : WeaponMaterials.all()) {
             addRecipes(output, material, SHIELD_RECIPE, ModItems.shield(material).get(), material.itemName(GearType.SHIELD),
                     base -> ModItems.shield(base).get());
+            addRecipes(output, material, BOW_RECIPE, ModItems.bow(material).get(), material.itemName(GearType.BOW),
+                    base -> ModItems.bow(base).get());
+            addRecipes(output, material, CROSSBOW_RECIPE, ModItems.crossbow(material).get(), material.itemName(GearType.CROSSBOW),
+                    base -> ModItems.crossbow(base).get());
         }
     }
 
@@ -71,7 +82,8 @@ public class ModRecipeProvider extends RecipeProvider {
                             Function<WeaponMaterial, Item> itemOfMaterial) {
         RecipeOutput conditionalOutput = withLoadConditions(output, material);
         if (material.craftingIngredient() != null) {
-            shaped(conditionalOutput, result, name, recipe, material.craftingIngredient().tag());
+            boolean sticks = material == WeaponMaterials.WOODEN && (recipe == BOW_RECIPE || recipe == CROSSBOW_RECIPE);
+            shaped(conditionalOutput, result, name, recipe, sticks ? Tags.Items.RODS_WOODEN : material.craftingIngredient().tag());
         } else if (material.smithingUpgrade() != null) {
             smithing(conditionalOutput, result, name, itemOfMaterial.apply(material.smithingUpgrade().base()), material.smithingUpgrade());
         }
@@ -87,6 +99,7 @@ public class ModRecipeProvider extends RecipeProvider {
         for (Map.Entry<Character, TagKey<Item>> extra : recipe.extraIngredients().entrySet()) {
             if (recipe.uses(extra.getKey())) builder.define(extra.getKey(), extra.getValue());
         }
+        recipe.extraItems().forEach((symbol, item) -> builder.define(symbol, item.get()));
 
         builder.unlockedBy("has_material", has(materialTag))
                 .save(output, recipeId(name));

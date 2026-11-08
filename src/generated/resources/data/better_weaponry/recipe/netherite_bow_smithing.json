@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:ingots/netherite"
+  },
+  "base": {
+    "item": "better_weaponry:diamond_bow"
+  },
+  "result": {
+    "count": 1,
+    "id": "better_weaponry:netherite_bow"
+  },
+  "template": {
+    "tag": "better_weaponry:weapon_materials/netherite_template"
+  }
+}

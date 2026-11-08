@@ -17,7 +17,9 @@
       "claymore": "Claymore",
       "chakram": "Chakram",
       "sai": "Sai",
-      "shield": "Scudo"
+      "shield": "Scudo",
+      "bow": "Arco",
+      "crossbow": "Balestra"
     },
     "materials": {
       "wooden": "di legno",
@@ -374,7 +376,7 @@
     "better_weaponry.doc.schema.gear": "Impostazioni dell'equipaggiamento di Better Weaponry",
     "better_weaponry.doc.readme.gear_fields": "Campi di gear.json (scudi, bottino):",
     "better_weaponry.editor.gear": "Equipaggiamento",
-    "better_weaponry.editor.info.gear": "Impostazioni di scudi e bottino.",
+    "better_weaponry.editor.info.gear": "Impostazioni di scudi, archi, balestre e bottino.",
     "better_weaponry.field.gear.format_version": "Versione del formato",
     "better_weaponry.field.gear.format_version.help": "Versione del formato del file. Lasciala a 1.",
     "better_weaponry.field.gear.shield_perfect_window_seconds": "Finestra di parata perfetta con scudo",
@@ -411,6 +413,15 @@
     "death.attack.better_weaponry.bleeding": "%1$s è morto dissanguato",
     "death.attack.better_weaponry.bleeding.player": "%1$s è morto dissanguato combattendo contro %2$s",
     "better_weaponry.field.gear.reflective_cooldown_seconds": "Ricarica di Riflessione",
-    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Dopo che Riflessione rimanda i danni, durata della ricarica di arma o scudo, in secondi. 0: nessuna."
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Dopo che Riflessione rimanda i danni, durata della ricarica di arma o scudo, in secondi. 0: nessuna.",
+    "better_weaponry.tooltip.projectile_speed": "Velocità dei proiettili: ×%s",
+    "better_weaponry.field.gear.projectile_speed_multipliers": "Velocità dei proiettili per materiale",
+    "better_weaponry.field.gear.projectile_speed_multipliers.help": "Moltiplicatore della velocità dei proiettili di archi e balestre, per ID materiale, es.: {\"iron\": 1.6}. I materiali non elencati usano il loro moltiplicatore di danni (pietra 1,25, ferro 1,5, diamante 1,75, netherite 2).",
+    "better_weaponry.field.gear.projectile_speed_cap": "Velocità massima dei proiettili",
+    "better_weaponry.field.gear.projectile_speed_cap.help": "Moltiplicatore massimo di velocità, qualunque sia il materiale. I danni di una freccia dipendono dalla velocità: così i materiali molto potenti delle mod restano sotto controllo.",
+    "better_weaponry.field.gear.golden_draw_time": "Tempo di tensione dell'oro",
+    "better_weaponry.field.gear.golden_draw_time.help": "Tempo di tensione o caricamento di archi e balestre d'oro rispetto al vanilla. 0,5: due volte più rapido.",
+    "better_weaponry.field.gear.mob_upgrade_chance": "Probabilità di materiale migliore sui mob",
+    "better_weaponry.field.gear.mob_upgrade_chance.help": "Sui mob, partendo dal legno, probabilità in % di passare al materiale successivo. Ritirata a ogni passaggio, e 1,5 volte più alta a Difficile."
   }
 }

@@ -8,13 +8,19 @@
     "PlayerRendererMixin",
     "ItemInHandRendererMixin",
     "DualSwingFirstPersonMixin",
-    "DualSwingModelMixin"
+    "DualSwingModelMixin",
+    "RangedHandRenderMixin",
+    "SkeletonModelMixin"
   ],
   "mixins": [
     "PlayerCombatMixin",
     "ItemStackMixin",
     "AxeItemMixin",
     "ItemCooldownsMixin",
+    "CrossbowItemMixin",
+    "MobRangedWeaponMixin",
+    "PiglinMixin",
+    "AbstractArrowMixin",
     "LivingEntityMixin",
     "LivingEntityAccessor",
     "SweepParticleMixin"

@@ -1,0 +1,10 @@
+{
+  "values": {
+    "better_weaponry:wooden_bow": {
+      "burn_time": 300
+    },
+    "better_weaponry:wooden_crossbow": {
+      "burn_time": 300
+    }
+  }
+}

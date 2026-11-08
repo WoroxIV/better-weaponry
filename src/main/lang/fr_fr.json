@@ -16,7 +16,9 @@
       "claymore": "Claymore",
       "chakram": "Chakram",
       "sai": "Saï",
-      "shield": "Bouclier"
+      "shield": "Bouclier",
+      "bow": "Arc",
+      "crossbow": "Arbalète"
     },
     "materials": {
       "wooden": "en bois",
@@ -373,7 +375,7 @@
     "better_weaponry.doc.schema.gear": "Réglages de l'équipement de Better Weaponry",
     "better_weaponry.doc.readme.gear_fields": "Champs de gear.json (boucliers, butin) :",
     "better_weaponry.editor.gear": "Équipement",
-    "better_weaponry.editor.info.gear": "Réglages des boucliers et du butin.",
+    "better_weaponry.editor.info.gear": "Réglages des boucliers, arcs, arbalètes et du butin.",
     "better_weaponry.field.gear.format_version": "Version du format",
     "better_weaponry.field.gear.format_version.help": "Version du format du fichier. Laisse-la à 1.",
     "better_weaponry.field.gear.shield_perfect_window_seconds": "Fenêtre de parade parfaite au bouclier",
@@ -410,6 +412,15 @@
     "death.attack.better_weaponry.bleeding": "%1$s s'est vidé de son sang",
     "death.attack.better_weaponry.bleeding.player": "%1$s s'est vidé de son sang en combattant %2$s",
     "better_weaponry.field.gear.reflective_cooldown_seconds": "Recharge de Réflexion",
-    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Après un renvoi de Réflexion, durée de recharge de l'arme ou du bouclier, en secondes. 0 : aucune."
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Après un renvoi de Réflexion, durée de recharge de l'arme ou du bouclier, en secondes. 0 : aucune.",
+    "better_weaponry.tooltip.projectile_speed": "Vitesse des projectiles : ×%s",
+    "better_weaponry.field.gear.projectile_speed_multipliers": "Vitesse des projectiles par matériau",
+    "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplicateur de la vitesse des projectiles des arcs et arbalètes, par identifiant de matériau, ex : {\"iron\": 1.6}. Les matériaux non listés utilisent leur multiplicateur de dégâts (pierre 1,25, fer 1,5, diamant 1,75, netherite 2).",
+    "better_weaponry.field.gear.projectile_speed_cap": "Vitesse maximale des projectiles",
+    "better_weaponry.field.gear.projectile_speed_cap.help": "Multiplicateur de vitesse maximal, quel que soit le matériau. Les dégâts d'une flèche dépendent de sa vitesse : cela limite les matériaux moddés très puissants.",
+    "better_weaponry.field.gear.golden_draw_time": "Temps de bandage de l'or",
+    "better_weaponry.field.gear.golden_draw_time.help": "Temps de bandage ou de chargement des arcs et arbalètes en or, par rapport au vanilla. 0,5 : deux fois plus rapide.",
+    "better_weaponry.field.gear.mob_upgrade_chance": "Chance de meilleur matériau chez les mobs",
+    "better_weaponry.field.gear.mob_upgrade_chance.help": "Chez les mobs, en partant du bois, chance en % de passer au matériau suivant. Tirée à nouveau à chaque étape, et 1,5 fois plus élevée en difficulté Difficile."
   }
 }

@@ -2,6 +2,8 @@ package com.betterweaponry.registry;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.item.GearType;
+import com.betterweaponry.item.WeaponBowItem;
+import com.betterweaponry.item.WeaponCrossbowItem;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
@@ -17,6 +19,7 @@ import java.util.EnumMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Enregistre une arme pour chaque combinaison type × matériau actif (ex : "netherite_katana").
@@ -27,6 +30,8 @@ public final class ModItems {
 
     private static final Map<WeaponType, Map<WeaponMaterial, DeferredItem<WeaponItem>>> WEAPONS = new EnumMap<>(WeaponType.class);
     private static final Map<WeaponMaterial, DeferredItem<WeaponShieldItem>> SHIELDS = new LinkedHashMap<>();
+    private static final Map<WeaponMaterial, DeferredItem<WeaponBowItem>> BOWS = new LinkedHashMap<>();
+    private static final Map<WeaponMaterial, DeferredItem<WeaponCrossbowItem>> CROSSBOWS = new LinkedHashMap<>();
 
     static {
         for (WeaponType type : WeaponType.values()) {
@@ -40,6 +45,8 @@ public final class ModItems {
         }
         for (WeaponMaterial material : WeaponMaterials.active()) {
             SHIELDS.put(material, ITEMS.registerItem(material.itemName(GearType.SHIELD), properties -> new WeaponShieldItem(material, properties)));
+            BOWS.put(material, ITEMS.registerItem(material.itemName(GearType.BOW), properties -> new WeaponBowItem(material, properties)));
+            CROSSBOWS.put(material, ITEMS.registerItem(material.itemName(GearType.CROSSBOW), properties -> new WeaponCrossbowItem(material, properties)));
         }
     }
 
@@ -70,6 +77,22 @@ public final class ModItems {
         DeferredItem<WeaponShieldItem> item = SHIELDS.get(material);
         if (item == null) throw new IllegalStateException("Aucun bouclier " + material.itemName(GearType.SHIELD) + " : matériau inactif");
         return item;
+    }
+
+    public static DeferredItem<WeaponBowItem> bow(WeaponMaterial material) {
+        return Objects.requireNonNull(BOWS.get(material), () -> "Aucun arc " + material + " : matériau inactif");
+    }
+
+    public static DeferredItem<WeaponCrossbowItem> crossbow(WeaponMaterial material) {
+        return Objects.requireNonNull(CROSSBOWS.get(material), () -> "Aucune arbalète " + material + " : matériau inactif");
+    }
+
+    public static Collection<DeferredItem<WeaponBowItem>> allBows() {
+        return Collections.unmodifiableCollection(BOWS.values());
+    }
+
+    public static Collection<DeferredItem<WeaponCrossbowItem>> allCrossbows() {
+        return Collections.unmodifiableCollection(CROSSBOWS.values());
     }
 
     /** Un bouclier par matériau actif. */

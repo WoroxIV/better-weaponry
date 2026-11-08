@@ -46,6 +46,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         addSwords();
         addWeaponTags();
         addShields();
+        addRangedWeapons();
         addEnchantable();
         for (WeaponMaterial material : WeaponMaterials.all()) {
             addIngredientTag(material.craftingIngredient());
@@ -97,6 +98,26 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         }
         tag(Tags.Items.TOOLS_SHIELD).addTag(ModTags.SHIELDS);
         tag(ItemTags.DURABILITY_ENCHANTABLE).addTag(ModTags.SHIELDS);
+    }
+
+    /** Arcs et arbalètes : tags communs, et enchantements des versions vanilla. */
+    private void addRangedWeapons() {
+        var bows = tag(ModTags.BOWS).add(Items.BOW);
+        var crossbows = tag(ModTags.CROSSBOWS).add(Items.CROSSBOW);
+        for (WeaponMaterial material : WeaponMaterials.all()) {
+            if (material.isModded()) {
+                bows.addOptional(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, material.itemName(GearType.BOW)));
+                crossbows.addOptional(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, material.itemName(GearType.CROSSBOW)));
+            } else {
+                bows.add(ModItems.bow(material).get());
+                crossbows.add(ModItems.crossbow(material).get());
+            }
+        }
+        tag(Tags.Items.TOOLS_BOW).addTag(ModTags.BOWS);
+        tag(Tags.Items.TOOLS_CROSSBOW).addTag(ModTags.CROSSBOWS);
+        tag(ItemTags.BOW_ENCHANTABLE).addTag(ModTags.BOWS);
+        tag(ItemTags.CROSSBOW_ENCHANTABLE).addTag(ModTags.CROSSBOWS);
+        tag(ItemTags.DURABILITY_ENCHANTABLE).addTag(ModTags.BOWS).addTag(ModTags.CROSSBOWS);
     }
 
     /** Objets qui acceptent les enchantements du mod, d'après les armes par défaut. Un datapack peut en ajouter. */
