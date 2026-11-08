@@ -12,6 +12,7 @@ import com.betterweaponry.data.DashDefinition;
 import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.ParryDefinition;
+import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import net.minecraft.ChatFormatting;
@@ -44,6 +45,7 @@ public final class TooltipEventHandler {
 
     private static final String REACH_KEY = "attribute.betterweaponry.attack_reach";
     private static final String TWO_HANDED_KEY = "attribute.betterweaponry.two_handed";
+    private static final String DUAL_WIELDED_KEY = "attribute.betterweaponry.dual_wielded";
     private static final String DISABLES_SHIELD_KEY = "attribute.betterweaponry.disables_shield";
     private static final String ON_HIT_KEY = BetterWeaponry.MODID + ".tooltip.on_hit_effect";
     private static final String ON_HIT_CHANCE_KEY = ON_HIT_KEY + ".chance";
@@ -67,7 +69,7 @@ public final class TooltipEventHandler {
 
     /** Clés qui marquent une ligne de stat : les lignes ajoutées se placent après la dernière d'entre elles. */
     private static final List<String> STAT_LINE_MARKERS = List.of("attack_damage", "attack_speed", "armor_penetration",
-            REACH_KEY, VANILLA_SWEEP_KEY_PART, TWO_HANDED_KEY, DISABLES_SHIELD_KEY, ON_HIT_KEY, ABILITY_KEY, COMBO_KEY);
+            REACH_KEY, VANILLA_SWEEP_KEY_PART, TWO_HANDED_KEY, DUAL_WIELDED_KEY, DISABLES_SHIELD_KEY, ON_HIT_KEY, ABILITY_KEY, COMBO_KEY);
 
     private TooltipEventHandler() {
     }
@@ -84,8 +86,12 @@ public final class TooltipEventHandler {
 
         WeaponDefinition definition = weapon.definition();
         addSweepLine(definition, tooltip);
-        if (ClientConfig.get(ClientConfig.SHOW_TWO_HANDED_TOOLTIP) && definition.twoHanded()) {
-            insertAfterStats(tooltip, statLine(Component.translatable(TWO_HANDED_KEY)));
+        if (ClientConfig.get(ClientConfig.SHOW_TWO_HANDED_TOOLTIP)) {
+            if (WeaponItem.isTwoHanded(stack)) {
+                insertAfterStats(tooltip, statLine(Component.translatable(TWO_HANDED_KEY)));
+            } else if (WeaponData.rules().dualWieldActive() && DualWieldSystem.canDualWield(stack)) {
+                insertAfterStats(tooltip, statLine(Component.translatable(DUAL_WIELDED_KEY)));
+            }
         }
         if (definition.disablesShield()) {
             insertAfterStats(tooltip, statLine(Component.translatable(DISABLES_SHIELD_KEY)));
@@ -181,7 +187,7 @@ public final class TooltipEventHandler {
         }
 
         // Toutes les armes affichent leur portée (3 par défaut), les autres objets seulement s'ils la modifient.
-        if (!DualWieldSystem.isWeapon(stack) && !hasReachModifier) return;
+        if (!DualWieldSystem.isMeleeWeapon(stack) && !hasReachModifier) return;
 
         tooltip.removeIf(line -> containsTranslationKey(line, VANILLA_REACH_KEY_PART));
 

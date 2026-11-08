@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Règles du dual wield : une arme dans chaque main, aucune des deux à deux mains.
+ * Règles du dual wield : une arme ambidextre dans chaque main (option "dual_wielded" de chaque arme).
  * <ul>
  *   <li>les coups alternent entre les deux mains (LivingEntityMixin) ;</li>
  *   <li>un coup de la main secondaire utilise réellement l'arme secondaire ({@link HandSwap}) ;</li>
@@ -22,22 +22,28 @@ public final class DualWieldSystem {
     }
 
     /**
-     * Ce que le mod considère comme une arme : le tag {@code better_weaponry:dual_wieldable}
+     * Ce que le mod considère comme une arme de mêlée : le tag {@code better_weaponry:melee_weapons}
      * (épées, haches, trident et armes de mêlée des autres mods), modifiable par datapack.
      */
-    public static boolean isWeapon(ItemStack stack) {
+    public static boolean isMeleeWeapon(ItemStack stack) {
+        return stack.is(ModTags.MELEE_WEAPONS);
+    }
+
+    /**
+     * Cet objet peut être manié avec une autre arme dans l'autre main : option "dual_wielded" de l'arme,
+     * ou tag {@code better_weaponry:dual_wieldable} pour un objet d'un autre mod.
+     */
+    public static boolean canDualWield(ItemStack stack) {
+        if (WeaponItem.isTwoHanded(stack)) return false;
+        if (stack.getItem() instanceof WeaponItem weapon) return weapon.definition().dualWielded();
         return stack.is(ModTags.DUAL_WIELDABLE);
     }
 
-    /** Toujours faux si le dual wield est coupé (rules.json, Better Combat, Epic Fight). */
+    /** Une arme ambidextre dans chaque main. Toujours faux si le dual wield est coupé (rules.json, Better Combat, Epic Fight). */
     public static boolean isDualWielding(Player player) {
-        if (!WeaponData.rules().dualWieldActive()) return false;
-
-        ItemStack main = player.getMainHandItem();
-        ItemStack off = player.getOffhandItem();
-        return isWeapon(main) && isWeapon(off)
-                && !WeaponItem.isTwoHanded(main)
-                && !WeaponItem.isTwoHanded(off);
+        return WeaponData.rules().dualWieldActive()
+                && canDualWield(player.getMainHandItem())
+                && canDualWield(player.getOffhandItem());
     }
 
     /**

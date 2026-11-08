@@ -1,6 +1,7 @@
 {
   "attribute.betterweaponry.attack_reach": "Дальность атаки",
   "attribute.betterweaponry.disables_shield": "Отключает щиты",
+  "attribute.betterweaponry.dual_wielded": "Парное оружие",
   "attribute.betterweaponry.two_handed": "Двуручное оружие",
   "attribute.name.better_weaponry.armor_penetration": "Пробитие брони",
   "better_weaponry.command.dps.header": "DPS при полном заряде (железный меч: %s):",
@@ -183,6 +184,8 @@
   "better_weaponry.field.weapon.dash.hunger_cost.help": "Еда, расходуемая на каждый рывок, в единицах сытости (1 = половина окорочка; прыжок с бегом тратит около 0.05). Если больше 0, рывок невозможен, когда шкала голода на 3 окорочках или меньше, как и бег.",
   "better_weaponry.field.weapon.disables_shield": "Отключает щиты",
   "better_weaponry.field.weapon.disables_shield.help": "true: как топор, удар по поднятому щиту отключает его на 5 секунд.",
+  "better_weaponry.field.weapon.dual_wielded": "Парное оружие",
+  "better_weaponry.field.weapon.dual_wielded.help": "true: это оружие можно использовать с другим парным оружием во второй руке (удары чередуются между руками, атаки быстрее). Опция нужна обоим оружиям. Не учитывается, если оружие двуручное.",
   "better_weaponry.field.weapon.format_version": "Версия формата",
   "better_weaponry.field.weapon.format_version.help": "Версия формата файла. Оставьте 1.",
   "better_weaponry.field.weapon.material_damage": "Урон по материалам",

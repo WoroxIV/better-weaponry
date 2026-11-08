@@ -305,6 +305,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Garde brisée",
     "better_weaponry.field.rules.guard_break_enabled.help": "false : les haches et les armes qui désactivent les boucliers n'interrompent plus la parade.",
     "better_weaponry.editor.external_combat_mod": "%s détecté : systèmes de combat coupés (survol)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s a ses propres combos, sa portée, son dual wield et ses armes à deux mains. Les interrupteurs et réglages de combat d'ici sont enregistrés mais sans effet. Les armes et les enchantements fonctionnent toujours."
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s a ses propres combos, sa portée, son dual wield et ses armes à deux mains. Les interrupteurs et réglages de combat d'ici sont enregistrés mais sans effet. Les armes et les enchantements fonctionnent toujours.",
+    "attribute.betterweaponry.dual_wielded": "Arme ambidextre",
+    "better_weaponry.field.weapon.dual_wielded": "Arme ambidextre",
+    "better_weaponry.field.weapon.dual_wielded.help": "true : cette arme peut s'utiliser avec une autre arme ambidextre dans l'autre main (les coups alternent entre les mains et les attaques sont plus rapides). Les deux armes doivent avoir cette option. Ignoré si l'arme est à deux mains."
   }
 }

@@ -1,6 +1,7 @@
 {
   "format_version": 1,
   "two_handed": true,
+  "dual_wielded": false,
   "attack_speed": 0.8,
   "attack_reach": 5.0,
   "base_damage": 9.0,

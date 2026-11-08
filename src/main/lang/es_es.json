@@ -305,6 +305,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Guardia rota",
     "better_weaponry.field.rules.guard_break_enabled.help": "false: las hachas y las armas que desactivan escudos ya no interrumpen la parada.",
     "better_weaponry.editor.external_combat_mod": "%s detectado: sistemas de combate apagados (pasa el ratón)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s tiene sus propios combos, alcance, doble empuñadura y armas a dos manos. Los interruptores y ajustes de combate de aquí se guardan pero no tienen efecto. Las armas y los encantamientos siguen funcionando."
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s tiene sus propios combos, alcance, doble empuñadura y armas a dos manos. Los interruptores y ajustes de combate de aquí se guardan pero no tienen efecto. Las armas y los encantamientos siguen funcionando.",
+    "attribute.betterweaponry.dual_wielded": "Doble empuñadura",
+    "better_weaponry.field.weapon.dual_wielded": "Doble empuñadura",
+    "better_weaponry.field.weapon.dual_wielded.help": "true: esta arma puede usarse con otra arma de doble empuñadura en la otra mano (los golpes se alternan entre las manos y los ataques son más rápidos). Las dos armas necesitan esta opción. Se ignora si el arma es a dos manos."
   }
 }

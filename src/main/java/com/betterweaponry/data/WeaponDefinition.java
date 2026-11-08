@@ -17,6 +17,7 @@ import java.util.Map;
  *
  * @param formatVersion    version du format de fichier (1)
  * @param twoHanded        arme à deux mains : main secondaire bloquée et cachée
+ * @param dualWielded      peut être maniée avec une autre arme ambidextre dans l'autre main (ignoré si à deux mains)
  * @param attackSpeed      attaques par seconde à pleine puissance (épée vanilla : 1.6)
  * @param attackReach      portée d'attaque en blocs (joueur vanilla : 3)
  * @param baseDamage       dégâts de la version en bois ; chaque matériau les multiplie par son facteur
@@ -32,6 +33,7 @@ import java.util.Map;
  */
 public record WeaponDefinition(int formatVersion,
                                boolean twoHanded,
+                               boolean dualWielded,
                                double attackSpeed,
                                double attackReach,
                                double baseDamage,
@@ -52,6 +54,7 @@ public record WeaponDefinition(int formatVersion,
 
     public static final DataField<Integer> FORMAT = DataField.integer("format_version", 1, FORMAT_VERSION, FORMAT_VERSION);
     public static final DataField<Boolean> TWO_HANDED = DataField.bool("two_handed", false);
+    public static final DataField<Boolean> DUAL_WIELDED = DataField.bool("dual_wielded", false);
     // Au-delà de 20 attaques/s, la recharge passerait sous un tick ; sous 0.1, une attaque prendrait plus de 10 s.
     public static final DataField<Double> ATTACK_SPEED = DataField.number("attack_speed", 0.1D, 20.0D, 1.6D);
     public static final DataField<Double> ATTACK_REACH = DataField.number("attack_reach", 0.5D, 64.0D, 3.0D);
@@ -72,7 +75,7 @@ public record WeaponDefinition(int formatVersion,
             DataField.object("combo", ComboDefinition.FIELDS, ComboDefinition.CODEC, ComboDefinition.NONE);
 
     public static final FieldSet FIELDS = new FieldSet("weapon",
-            List.of(FORMAT, TWO_HANDED, ATTACK_SPEED, ATTACK_REACH, BASE_DAMAGE, MATERIAL_DAMAGE,
+            List.of(FORMAT, TWO_HANDED, DUAL_WIELDED, ATTACK_SPEED, ATTACK_REACH, BASE_DAMAGE, MATERIAL_DAMAGE,
                     ARMOR_PENETRATION, DISABLES_SHIELD, ON_HIT_EFFECTS, SWEEP, ABILITY, PARRY, DASH, COMBO),
             // Noms de l'ancienne config TOML et variantes courantes
             Map.ofEntries(
@@ -81,6 +84,9 @@ public record WeaponDefinition(int formatVersion,
                     Map.entry("speed", "attack_speed"),
                     Map.entry("reach", "attack_reach"),
                     Map.entry("two_hand", "two_handed"),
+                    Map.entry("dual_wield", "dual_wielded"),
+                    Map.entry("dual_wieldable", "dual_wielded"),
+                    Map.entry("dual_handed", "dual_wielded"),
                     Map.entry("penetration", "armor_penetration"),
                     Map.entry("armor_pen", "armor_penetration"),
                     Map.entry("effects", "on_hit_effects"),
@@ -98,6 +104,7 @@ public record WeaponDefinition(int formatVersion,
     public static final Codec<WeaponDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             FORMAT.forGetter(WeaponDefinition::formatVersion),
             TWO_HANDED.forGetter(WeaponDefinition::twoHanded),
+            DUAL_WIELDED.forGetter(WeaponDefinition::dualWielded),
             ATTACK_SPEED.forGetter(WeaponDefinition::attackSpeed),
             ATTACK_REACH.forGetter(WeaponDefinition::attackReach),
             BASE_DAMAGE.forGetter(WeaponDefinition::baseDamage),
@@ -114,7 +121,7 @@ public record WeaponDefinition(int formatVersion,
 
     /** Utilisé si une arme n'a aucune donnée (fichier du mod introuvable) : une épée vanilla en bois. */
     public static final WeaponDefinition FALLBACK = new WeaponDefinition(FORMAT_VERSION,
-            false, ATTACK_SPEED.defaultValue(), ATTACK_REACH.defaultValue(), BASE_DAMAGE.defaultValue(), Map.of(),
+            false, false, ATTACK_SPEED.defaultValue(), ATTACK_REACH.defaultValue(), BASE_DAMAGE.defaultValue(), Map.of(),
             0.0D, false, List.of(), SweepDefinition.VANILLA, WeaponAbility.NONE, ParryDefinition.DEFAULT, DashDefinition.DEFAULT,
             ComboDefinition.NONE);
 

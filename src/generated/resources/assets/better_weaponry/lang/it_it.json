@@ -1,6 +1,7 @@
 {
   "attribute.betterweaponry.attack_reach": "Portata d'attacco",
   "attribute.betterweaponry.disables_shield": "Disattiva gli scudi",
+  "attribute.betterweaponry.dual_wielded": "Ambidestra",
   "attribute.betterweaponry.two_handed": "A due mani",
   "attribute.name.better_weaponry.armor_penetration": "Penetrazione dell'armatura",
   "better_weaponry.command.dps.header": "DPS con carica completa (spada di ferro vanilla: %s):",
@@ -183,6 +184,8 @@
   "better_weaponry.field.weapon.dash.hunger_cost.help": "Cibo consumato da ogni scatto, in punti cibo (1 = mezza coscia; un salto in corsa ne consuma circa 0.05). Sopra 0, lo scatto è impossibile quando la barra della fame è a 3 cosce o meno, come la corsa.",
   "better_weaponry.field.weapon.disables_shield": "Disattiva gli scudi",
   "better_weaponry.field.weapon.disables_shield.help": "true: come un'ascia, un colpo su uno scudo alzato lo disattiva per 5 secondi.",
+  "better_weaponry.field.weapon.dual_wielded": "Ambidestra",
+  "better_weaponry.field.weapon.dual_wielded.help": "true: quest'arma può essere usata con un'altra arma ambidestra nell'altra mano (i colpi si alternano tra le mani e gli attacchi sono più rapidi). Entrambe le armi devono avere questa opzione. Ignorato se l'arma è a due mani.",
   "better_weaponry.field.weapon.format_version": "Versione del formato",
   "better_weaponry.field.weapon.format_version.help": "Versione del formato del file. Lascia 1.",
   "better_weaponry.field.weapon.material_damage": "Danni per materiale",

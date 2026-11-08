@@ -378,6 +378,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Gebroken dekking",
     "better_weaponry.field.rules.guard_break_enabled.help": "false: bijlen en wapens die schilden uitschakelen, onderbreken een parering niet meer.",
     "better_weaponry.editor.external_combat_mod": "%s gevonden: gevechtssystemen uit (zweven)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s heeft eigen combo's, bereik, dual wield en tweehandige wapens. De schakelaars en gevechtsinstellingen hier worden opgeslagen maar hebben geen effect. Wapens en betoveringen blijven werken."
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s heeft eigen combo's, bereik, dual wield en tweehandige wapens. De schakelaars en gevechtsinstellingen hier worden opgeslagen maar hebben geen effect. Wapens en betoveringen blijven werken.",
+    "attribute.betterweaponry.dual_wielded": "dual wield",
+    "better_weaponry.field.weapon.dual_wielded": "Dual wield",
+    "better_weaponry.field.weapon.dual_wielded.help": "true: dit wapen kan worden gebruikt met een ander dual-wield-wapen in de andere hand (de klappen wisselen tussen de handen en de aanvallen zijn sneller). Beide wapens hebben deze optie nodig. Genegeerd als het wapen tweehandig is."
   }
 }

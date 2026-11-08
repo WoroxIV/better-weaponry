@@ -348,6 +348,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Guarda quebrada",
     "better_weaponry.field.rules.guard_break_enabled.help": "false: machados e armas que desativam escudos deixam de interromper o aparo.",
     "better_weaponry.editor.external_combat_mod": "%s detetado: sistemas de combate desligados (passa o rato)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s tem os seus próprios combos, alcance, empunhadura dupla e armas de duas mãos. Os interruptores e definições de combate aqui são guardados, mas não têm efeito. As armas e os encantamentos continuam a funcionar."
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s tem os seus próprios combos, alcance, empunhadura dupla e armas de duas mãos. Os interruptores e definições de combate aqui são guardados, mas não têm efeito. As armas e os encantamentos continuam a funcionar.",
+    "attribute.betterweaponry.dual_wielded": "Empunhadura dupla",
+    "better_weaponry.field.weapon.dual_wielded": "Empunhadura dupla",
+    "better_weaponry.field.weapon.dual_wielded.help": "true: esta arma pode ser usada com outra arma de empunhadura dupla na outra mão (os golpes alternam entre as mãos e os ataques são mais rápidos). As duas armas precisam desta opção. Ignorado se a arma for de duas mãos."
   }
 }

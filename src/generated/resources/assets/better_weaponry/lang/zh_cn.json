@@ -1,6 +1,7 @@
 {
   "attribute.betterweaponry.attack_reach": "攻击距离",
   "attribute.betterweaponry.disables_shield": "可使盾牌失效",
+  "attribute.betterweaponry.dual_wielded": "双持武器",
   "attribute.betterweaponry.two_handed": "双手武器",
   "attribute.name.better_weaponry.armor_penetration": "护甲穿透",
   "better_weaponry.command.dps.header": "满蓄力DPS（原版铁剑：%s）：",
@@ -183,6 +184,8 @@
   "better_weaponry.field.weapon.dash.hunger_cost.help": "每次冲刺消耗的饥饿值（1 = 半个鸡腿；疾跑跳跃约消耗0.05）。大于0时，饥饿值不超过3个鸡腿时无法冲刺，与疾跑相同。",
   "better_weaponry.field.weapon.disables_shield": "可使盾牌失效",
   "better_weaponry.field.weapon.disables_shield.help": "true：与斧一样，击中举起的盾牌会使其失效 5 秒。",
+  "better_weaponry.field.weapon.dual_wielded": "双持武器",
+  "better_weaponry.field.weapon.dual_wielded.help": "true：此武器可与另一只手中的另一把双持武器一起使用（攻击在双手之间交替，且速度更快）。两把武器都需要此选项。双手武器会忽略此项。",
   "better_weaponry.field.weapon.format_version": "格式版本",
   "better_weaponry.field.weapon.format_version.help": "文件格式的版本。保持为 1 即可。",
   "better_weaponry.field.weapon.material_damage": "各材料伤害",

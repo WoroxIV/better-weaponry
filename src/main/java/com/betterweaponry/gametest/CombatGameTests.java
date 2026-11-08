@@ -509,6 +509,34 @@ public final class CombatGameTests {
     }
 
     /**
+     * Dual wield réservé aux armes qui ont l'option : les deux mains doivent l'avoir, une arme à deux mains ne l'a
+     * jamais, et une épée vanilla ne se manie plus par paire.
+     */
+    @GameTest(template = ARENA)
+    public static void dualWieldOption(GameTestHelper helper) {
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            boolean expected = definition.dualWielded() && !definition.twoHanded();
+            helper.assertTrue(DualWieldSystem.isDualWielding(player(helper, weapon(type), weapon(type))) == expected,
+                    type.id() + ": a pair should " + (expected ? "" : "not ") + "dual wield");
+        }
+        helper.assertTrue(DualWieldSystem.isDualWielding(player(helper, weapon(WeaponType.DAGGER), weapon(WeaponType.RAPIER))),
+                "two different dual-wielded weapons should work");
+        helper.assertFalse(DualWieldSystem.isDualWielding(player(helper, weapon(WeaponType.DAGGER), weapon(WeaponType.BROADSWORD))),
+                "a dagger and a broadsword should not dual wield");
+        helper.assertFalse(DualWieldSystem.isDualWielding(player(helper, new ItemStack(Items.IRON_SWORD), new ItemStack(Items.IRON_SWORD))),
+                "two vanilla swords should not dual wield");
+        helper.assertTrue(DualWieldSystem.isMeleeWeapon(new ItemStack(Items.IRON_SWORD)), "a vanilla sword stays a melee weapon");
+
+        // Le saï pare avec un saï dans l'autre main, pas avec une arme qui n'est pas ambidextre.
+        ItemStack sai = weapon(WeaponType.SAI);
+        Player withBroadsword = player(helper, sai, weapon(WeaponType.BROADSWORD));
+        helper.assertFalse(sai.use(helper.getLevel(), withBroadsword, InteractionHand.MAIN_HAND).getResult().consumesAction(),
+                "a sai should not parry with a broadsword in the other hand");
+        helper.succeed();
+    }
+
+    /**
      * Interrupteurs : chaque système se coupe seul, l'interrupteur général et un mod de combat les coupent tous,
      * les bonus d'une arme déjà en main suivent le changement, et le combat redevient vanilla.
      */

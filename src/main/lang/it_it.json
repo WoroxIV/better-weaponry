@@ -306,6 +306,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Guardia spezzata",
     "better_weaponry.field.rules.guard_break_enabled.help": "false: le asce e le armi che disattivano gli scudi non interrompono più la parata.",
     "better_weaponry.editor.external_combat_mod": "%s rilevato: sistemi di combattimento spenti (passa sopra)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s ha le sue combo, portata, dual wield e armi a due mani. Gli interruttori e le impostazioni di combattimento qui vengono salvati ma non hanno effetto. Armi e incantesimi funzionano comunque."
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s ha le sue combo, portata, dual wield e armi a due mani. Gli interruttori e le impostazioni di combattimento qui vengono salvati ma non hanno effetto. Armi e incantesimi funzionano comunque.",
+    "attribute.betterweaponry.dual_wielded": "Ambidestra",
+    "better_weaponry.field.weapon.dual_wielded": "Ambidestra",
+    "better_weaponry.field.weapon.dual_wielded.help": "true: quest'arma può essere usata con un'altra arma ambidestra nell'altra mano (i colpi si alternano tra le mani e gli attacchi sono più rapidi). Entrambe le armi devono avere questa opzione. Ignorato se l'arma è a due mani."
   }
 }

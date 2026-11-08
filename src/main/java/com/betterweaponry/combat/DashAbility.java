@@ -73,7 +73,7 @@ public final class DashAbility {
         DashDefinition dash = settings.get();
 
         ItemStack offhand = player.getOffhandItem();
-        boolean offhandFree = WeaponItem.isTwoHanded(stack) || offhand.isEmpty() || DualWieldSystem.isWeapon(offhand);
+        boolean offhandFree = WeaponItem.isTwoHanded(stack) || offhand.isEmpty() || DualWieldSystem.isMeleeWeapon(offhand);
         if (!offhandFree) return false;
         if (player.isPassenger() || player.isFallFlying() || player.isInWater() || player.isInLava()) return false;
         if (!player.onGround() && !dash.allowAirborne()) return false;

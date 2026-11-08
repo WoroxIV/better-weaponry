@@ -1,6 +1,7 @@
 {
   "attribute.betterweaponry.attack_reach": "Alcance de ataque",
   "attribute.betterweaponry.disables_shield": "Desativa escudos",
+  "attribute.betterweaponry.dual_wielded": "Empunhadura dupla",
   "attribute.betterweaponry.two_handed": "Duas mãos",
   "attribute.name.better_weaponry.armor_penetration": "Penetração da armadura",
   "better_weaponry.command.dps.header": "DPS com carga total (espada de ferro vanilla: %s):",
@@ -183,6 +184,8 @@
   "better_weaponry.field.weapon.dash.hunger_cost.help": "Comida gasta por investida, em pontos de comida (1 = meio ícone da barra de fome; um salto a correr gasta cerca de 0.05). Acima de 0, a investida é impossível quando a barra de fome está em 3 ícones ou menos, como a corrida.",
   "better_weaponry.field.weapon.disables_shield": "Desativa escudos",
   "better_weaponry.field.weapon.disables_shield.help": "true: tal como um machado, um golpe num escudo levantado desativa-o durante 5 segundos.",
+  "better_weaponry.field.weapon.dual_wielded": "Empunhadura dupla",
+  "better_weaponry.field.weapon.dual_wielded.help": "true: esta arma pode ser usada com outra arma de empunhadura dupla na outra mão (os golpes alternam entre as mãos e os ataques são mais rápidos). As duas armas precisam desta opção. Ignorado se a arma for de duas mãos.",
   "better_weaponry.field.weapon.format_version": "Versão do formato",
   "better_weaponry.field.weapon.format_version.help": "Versão do formato do ficheiro. Deixa em 1.",
   "better_weaponry.field.weapon.material_damage": "Dano por material",

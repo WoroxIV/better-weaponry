@@ -305,6 +305,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "破防",
     "better_weaponry.field.rules.guard_break_enabled.help": "false：斧头和可禁用盾牌的武器不再打断招架。",
     "better_weaponry.editor.external_combat_mod": "检测到 %s：战斗系统已关闭（悬停查看）",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s 有自己的连招、攻击距离、双持和双手武器系统。此处的开关和战斗设置会被保存，但不会生效。武器和附魔仍然可用。"
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s 有自己的连招、攻击距离、双持和双手武器系统。此处的开关和战斗设置会被保存，但不会生效。武器和附魔仍然可用。",
+    "attribute.betterweaponry.dual_wielded": "双持武器",
+    "better_weaponry.field.weapon.dual_wielded": "双持武器",
+    "better_weaponry.field.weapon.dual_wielded.help": "true：此武器可与另一只手中的另一把双持武器一起使用（攻击在双手之间交替，且速度更快）。两把武器都需要此选项。双手武器会忽略此项。"
   }
 }

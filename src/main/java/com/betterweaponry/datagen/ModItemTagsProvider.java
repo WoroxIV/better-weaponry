@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * <ul>
  *   <li>Ajoute toutes les armes au tag minecraft:swords (enchantements d'épée : Tranchant, Butin, Affilage...).</li>
- *   <li>Génère le tag {@code better_weaponry:dual_wieldable} (armes utilisables en dual wield).</li>
+ *   <li>Génère les tags {@code better_weaponry:melee_weapons} et {@code better_weaponry:dual_wieldable}.</li>
  *   <li>Génère les tags d'ingrédients des matériaux ({@code better_weaponry:weapon_materials/...}).</li>
  * </ul>
  * Tout ce qui vient d'un autre mod est ajouté en "optionnel" : si le mod est absent, l'entrée est ignorée
@@ -38,7 +38,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         addSwords();
-        addDualWieldable();
+        addWeaponTags();
         for (WeaponMaterial material : WeaponMaterials.all()) {
             addIngredientTag(material.craftingIngredient());
             if (material.smithingUpgrade() != null) {
@@ -64,11 +64,13 @@ public class ModItemTagsProvider extends ItemTagsProvider {
     }
 
     /**
-     * Armes utilisables en dual wield. Même comportement qu'avant (épées, haches, trident), plus le tag commun
-     * des armes de mêlée, que beaucoup de mods remplissent. Un datapack peut ajouter ou retirer des objets.
+     * Armes de mêlée (épées, haches, trident), plus le tag commun que beaucoup de mods remplissent.
+     * Le dual wield est réservé aux armes qui ont l'option "dual_wielded" : son tag reste vide par défaut,
+     * et un datapack peut y ajouter des armes d'autres mods.
      */
-    private void addDualWieldable() {
-        tag(ModTags.DUAL_WIELDABLE)
+    private void addWeaponTags() {
+        tag(ModTags.DUAL_WIELDABLE);
+        tag(ModTags.MELEE_WEAPONS)
                 .addTag(ItemTags.SWORDS)
                 .addTag(ItemTags.AXES)
                 .add(Items.TRIDENT)

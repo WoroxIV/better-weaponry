@@ -305,6 +305,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Guard break",
     "better_weaponry.field.rules.guard_break_enabled.help": "false: axes and weapons that disable shields no longer interrupt a parry.",
     "better_weaponry.editor.external_combat_mod": "%s detected: combat systems are off (hover)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s has its own combos, reach, dual wield and two-handed systems. The switches and the combat settings here are saved but have no effect. Weapons and enchantments still work."
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s has its own combos, reach, dual wield and two-handed systems. The switches and the combat settings here are saved but have no effect. Weapons and enchantments still work.",
+    "attribute.betterweaponry.dual_wielded": "Dual Wielded",
+    "better_weaponry.field.weapon.dual_wielded": "Dual wielded",
+    "better_weaponry.field.weapon.dual_wielded.help": "true: this weapon can be used with another dual-wielded weapon in the other hand (hits alternate between the hands, and attacks are faster). Both weapons need this option. Ignored if the weapon is two-handed."
   }
 }

@@ -65,8 +65,7 @@ public final class ParrySystem {
         if (parry.isEmpty()) return false;
         if (WeaponItem.isTwoHanded(stack)) return true;
 
-        ItemStack offhand = player.getOffhandItem();
-        return offhand.isEmpty() || (parry.get().whileDualWielding() && DualWieldSystem.isWeapon(offhand));
+        return player.getOffhandItem().isEmpty() || (parry.get().whileDualWielding() && DualWieldSystem.isDualWielding(player));
     }
 
     /** Vrai si le joueur pare en ce moment. Les conditions sont revérifiées (main secondaire changée entre-temps...). */
@@ -81,11 +80,7 @@ public final class ParrySystem {
      * les deux armes prennent alors la pose de parade (première et troisième personne).
      */
     public static boolean isParryingWithBothHands(Player player) {
-        ItemStack offhand = player.getOffhandItem();
-        return isParrying(player)
-                && !offhand.isEmpty()
-                && DualWieldSystem.isWeapon(offhand)
-                && !WeaponItem.isTwoHanded(player.getMainHandItem());
+        return isParrying(player) && DualWieldSystem.isDualWielding(player);
     }
 
     /**

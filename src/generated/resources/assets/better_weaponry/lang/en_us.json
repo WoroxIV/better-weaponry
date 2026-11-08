@@ -1,6 +1,7 @@
 {
   "attribute.betterweaponry.attack_reach": "Attack Reach",
   "attribute.betterweaponry.disables_shield": "Disables Shields",
+  "attribute.betterweaponry.dual_wielded": "Dual Wielded",
   "attribute.betterweaponry.two_handed": "Two Handed",
   "attribute.name.better_weaponry.armor_penetration": "Armor Penetration",
   "better_weaponry.command.dps.header": "DPS at full charge (vanilla iron sword: %s):",
@@ -183,6 +184,8 @@
   "better_weaponry.field.weapon.dash.hunger_cost.help": "Food used by each dash, in food points (1 = half a drumstick; a sprint jump uses about 0.05). Above 0, the dash is impossible when the hunger bar is at 3 drumsticks or less, like sprinting.",
   "better_weaponry.field.weapon.disables_shield": "Disables shields",
   "better_weaponry.field.weapon.disables_shield.help": "true: like an axe, a hit on a raised shield disables it for 5 seconds.",
+  "better_weaponry.field.weapon.dual_wielded": "Dual wielded",
+  "better_weaponry.field.weapon.dual_wielded.help": "true: this weapon can be used with another dual-wielded weapon in the other hand (hits alternate between the hands, and attacks are faster). Both weapons need this option. Ignored if the weapon is two-handed.",
   "better_weaponry.field.weapon.format_version": "Format version",
   "better_weaponry.field.weapon.format_version.help": "Version of the file format. Leave it at 1.",
   "better_weaponry.field.weapon.material_damage": "Damage per material",

@@ -1,6 +1,7 @@
 {
   "attribute.betterweaponry.attack_reach": "aanvalsbereik",
   "attribute.betterweaponry.disables_shield": "schakelt schilden uit",
+  "attribute.betterweaponry.dual_wielded": "dual wield",
   "attribute.betterweaponry.two_handed": "tweehandig",
   "attribute.name.better_weaponry.armor_penetration": "harnasdoordringing",
   "better_weaponry.command.dps.header": "DPS bij volledige lading (vanilla ijzeren zwaard: %s):",
@@ -183,6 +184,8 @@
   "better_weaponry.field.weapon.dash.hunger_cost.help": "Voedsel dat elke dash verbruikt, in voedselpunten (1 = een halve drumstick; een sprintsprong verbruikt ongeveer 0.05). Boven 0 is de dash onmogelijk als de hongerbalk op 3 drumsticks of minder staat, net als sprinten.",
   "better_weaponry.field.weapon.disables_shield": "Schakelt schilden uit",
   "better_weaponry.field.weapon.disables_shield.help": "true: net als een bijl schakelt een slag op een opgeheven schild dat schild 5 seconden uit.",
+  "better_weaponry.field.weapon.dual_wielded": "Dual wield",
+  "better_weaponry.field.weapon.dual_wielded.help": "true: dit wapen kan worden gebruikt met een ander dual-wield-wapen in de andere hand (de klappen wisselen tussen de handen en de aanvallen zijn sneller). Beide wapens hebben deze optie nodig. Genegeerd als het wapen tweehandig is.",
   "better_weaponry.field.weapon.format_version": "Formaatversie",
   "better_weaponry.field.weapon.format_version.help": "Versie van het bestandsformaat. Laat dit op 1.",
   "better_weaponry.field.weapon.material_damage": "Schade per materiaal",

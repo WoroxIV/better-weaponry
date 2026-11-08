@@ -424,6 +424,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Пробитие защиты",
     "better_weaponry.field.rules.guard_break_enabled.help": "false: топоры и оружие, отключающее щиты, больше не прерывают парирование.",
     "better_weaponry.editor.external_combat_mod": "Обнаружен %s: системы боя отключены (наведите)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "У %s свои комбо, дальность, бой двумя оружиями и двуручное оружие. Переключатели и настройки боя здесь сохраняются, но не действуют. Оружие и зачарования продолжают работать."
+    "better_weaponry.editor.external_combat_mod.tooltip": "У %s свои комбо, дальность, бой двумя оружиями и двуручное оружие. Переключатели и настройки боя здесь сохраняются, но не действуют. Оружие и зачарования продолжают работать.",
+    "attribute.betterweaponry.dual_wielded": "Парное оружие",
+    "better_weaponry.field.weapon.dual_wielded": "Парное оружие",
+    "better_weaponry.field.weapon.dual_wielded.help": "true: это оружие можно использовать с другим парным оружием во второй руке (удары чередуются между руками, атаки быстрее). Опция нужна обоим оружиям. Не учитывается, если оружие двуручное."
   }
 }

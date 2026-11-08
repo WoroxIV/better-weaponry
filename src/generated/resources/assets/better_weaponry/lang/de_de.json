@@ -1,6 +1,7 @@
 {
   "attribute.betterweaponry.attack_reach": "Angriffsreichweite",
   "attribute.betterweaponry.disables_shield": "Deaktiviert Schilde",
+  "attribute.betterweaponry.dual_wielded": "Beidhändig",
   "attribute.betterweaponry.two_handed": "Zweihändig",
   "attribute.name.better_weaponry.armor_penetration": "Rüstungsdurchdringung",
   "better_weaponry.command.dps.header": "DPS bei voller Aufladung (Vanilla-Eisenschwert: %s):",
@@ -183,6 +184,8 @@
   "better_weaponry.field.weapon.dash.hunger_cost.help": "Verbrauchte Nahrung pro Dash, in Nahrungspunkten (1 = eine halbe Keule; ein Sprung beim Sprinten verbraucht etwa 0.05). Über 0 ist der Dash unmöglich, wenn die Hungerleiste bei 3 Keulen oder weniger ist, wie beim Sprinten.",
   "better_weaponry.field.weapon.disables_shield": "Deaktiviert Schilde",
   "better_weaponry.field.weapon.disables_shield.help": "true: Wie bei einer Axt deaktiviert ein Treffer auf einen erhobenen Schild diesen für 5 Sekunden.",
+  "better_weaponry.field.weapon.dual_wielded": "Beidhändig",
+  "better_weaponry.field.weapon.dual_wielded.help": "true: Diese Waffe kann mit einer anderen beidhändigen Waffe in der anderen Hand benutzt werden (die Treffer wechseln zwischen den Händen, und die Angriffe sind schneller). Beide Waffen brauchen diese Option. Wird bei Zweihandwaffen ignoriert.",
   "better_weaponry.field.weapon.format_version": "Formatversion",
   "better_weaponry.field.weapon.format_version.help": "Version des Dateiformats. Auf 1 lassen.",
   "better_weaponry.field.weapon.material_damage": "Schaden pro Material",

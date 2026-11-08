@@ -366,6 +366,9 @@
     "better_weaponry.field.rules.guard_break_enabled": "Deckungsbruch",
     "better_weaponry.field.rules.guard_break_enabled.help": "false: Äxte und Waffen, die Schilde deaktivieren, unterbrechen eine Parade nicht mehr.",
     "better_weaponry.editor.external_combat_mod": "%s erkannt: Kampfsysteme aus (überfahren)",
-    "better_weaponry.editor.external_combat_mod.tooltip": "%s hat eigene Kombos, Reichweite, Beidhändigkeit und Zweihandwaffen. Die Schalter und Kampfeinstellungen hier werden gespeichert, haben aber keine Wirkung. Waffen und Verzauberungen funktionieren weiterhin."
+    "better_weaponry.editor.external_combat_mod.tooltip": "%s hat eigene Kombos, Reichweite, Beidhändigkeit und Zweihandwaffen. Die Schalter und Kampfeinstellungen hier werden gespeichert, haben aber keine Wirkung. Waffen und Verzauberungen funktionieren weiterhin.",
+    "attribute.betterweaponry.dual_wielded": "Beidhändig",
+    "better_weaponry.field.weapon.dual_wielded": "Beidhändig",
+    "better_weaponry.field.weapon.dual_wielded.help": "true: Diese Waffe kann mit einer anderen beidhändigen Waffe in der anderen Hand benutzt werden (die Treffer wechseln zwischen den Händen, und die Angriffe sind schneller). Beide Waffen brauchen diese Option. Wird bei Zweihandwaffen ignoriert."
   }
 }
