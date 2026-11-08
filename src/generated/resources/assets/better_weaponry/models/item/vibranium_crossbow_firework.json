@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/crossbow",
   "textures": {
-    "layer0": "minecraft:item/crossbow_firework"
+    "layer0": "better_weaponry:item/vibranium_crossbow_firework"
   }
 }

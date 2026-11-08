@@ -36,6 +36,6 @@
     }
   ],
   "textures": {
-    "layer0": "minecraft:item/crossbow_standby"
+    "layer0": "better_weaponry:item/steel_crossbow"
   }
 }

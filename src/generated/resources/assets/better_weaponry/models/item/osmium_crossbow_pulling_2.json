@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/crossbow",
   "textures": {
-    "layer0": "minecraft:item/crossbow_pulling_2"
+    "layer0": "better_weaponry:item/osmium_crossbow_pulling_2"
   }
 }

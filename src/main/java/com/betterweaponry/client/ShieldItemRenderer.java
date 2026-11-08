@@ -26,9 +26,9 @@ import java.util.Objects;
 
 /**
  * Dessine les boucliers du mod comme le jeu dessine le sien (modèle 3D, bannière).
- * La texture est {@code textures/entity/shield/<matériau>_shield.png} (64×64, comme celle du vanilla) : le dossier
- * {@code entity/shield} fait déjà partie de l'atlas des boucliers, il suffit d'y déposer le fichier. Sans ce fichier,
- * le bouclier a l'apparence du vanilla.
+ * La texture {@code entity/shield/<matériau>_shield} est fabriquée à partir de {@code textures/templates/entity/shield/shield.png}
+ * et de la palette du matériau. Un fichier {@code textures/entity/shield/<matériau>_shield.png} (64×64) la remplace.
+ * Si le matériau n'a ni l'un ni l'autre, le bouclier a l'apparence du vanilla.
  */
 public final class ShieldItemRenderer extends BlockEntityWithoutLevelRenderer {
     private ShieldModel model;

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/bow",
   "textures": {
-    "layer0": "minecraft:item/bow_pulling_0"
+    "layer0": "better_weaponry:item/unobtainium_bow_pulling_0"
   }
 }
