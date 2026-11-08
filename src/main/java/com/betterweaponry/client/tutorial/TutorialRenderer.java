@@ -73,6 +73,14 @@ final class TutorialRenderer {
     final List<ScreenLabel> labels = new ArrayList<>();
     final List<ScreenSpark> sparks = new ArrayList<>();
 
+    TutorialRenderer() {
+        // Un modèle neuf est dessiné en bébé (grosse tête, petit corps) : en jeu, c'est le rendu de l'entité qui règle ça.
+        playerModel.young = false;
+        zombieModel.young = false;
+        armorOuter.young = false;
+        armorInner.young = false;
+    }
+
     /**
      * @param centerX centre de la scène à l'écran
      * @param scale   pixels par bloc
