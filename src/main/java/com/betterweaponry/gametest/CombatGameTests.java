@@ -1119,6 +1119,12 @@ public final class CombatGameTests {
             }
         }
         helper.assertTrue(rank == 4, "the tab should end with the shurikens");
+        List<WeaponMaterial> vanillaOrder = List.of(WeaponMaterials.WOODEN, WeaponMaterials.STONE, WeaponMaterials.IRON, WeaponMaterials.GOLDEN, WeaponMaterials.DIAMOND, WeaponMaterials.NETHERITE);
+        for (WeaponType type : WeaponType.values()) {
+            List<WeaponMaterial> materials = order.stream().filter(stack -> stack.getItem() instanceof WeaponItem weapon && weapon.getType() == type)
+                    .map(stack -> ((WeaponItem) stack.getItem()).getMaterial()).toList();
+            helper.assertTrue(materials.subList(0, vanillaOrder.size()).equals(vanillaOrder), type + " materials should follow the vanilla order, found " + materials);
+        }
         helper.assertTrue(order.size() == ModItems.ITEMS.getEntries().size(), "every item of the mod should be in the tab: " + order.size() + " of " + ModItems.ITEMS.getEntries().size());
         helper.succeed();
     }

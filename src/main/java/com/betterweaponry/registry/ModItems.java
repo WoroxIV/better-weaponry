@@ -17,7 +17,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +36,8 @@ public final class ModItems {
 
     static {
         for (WeaponType type : WeaponType.values()) {
-            Map<WeaponMaterial, DeferredItem<WeaponItem>> byMaterial = new IdentityHashMap<>();
+            // Garde l'ordre de déclaration des matériaux : c'est celui de l'onglet créatif.
+            Map<WeaponMaterial, DeferredItem<WeaponItem>> byMaterial = new LinkedHashMap<>();
             for (WeaponMaterial material : WeaponMaterials.active()) {
                 byMaterial.put(material, ITEMS.registerItem(
                         material.itemName(type),
