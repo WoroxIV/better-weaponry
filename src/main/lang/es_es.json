@@ -18,7 +18,8 @@
       "sai": "Sai",
       "shield": "Escudo",
       "bow": "Arco",
-      "crossbow": "Ballesta"
+      "crossbow": "Ballesta",
+      "shuriken": "Shuriken"
     },
     "materials": {
       "wooden": "de madera",
@@ -420,7 +421,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Multiplicador máximo de velocidad, sea cual sea el material. El daño de una flecha depende de su velocidad: así se limitan los materiales de mods muy potentes.",
     "better_weaponry.field.gear.golden_draw_time": "Tiempo de tensado del oro",
     "better_weaponry.field.gear.golden_draw_time.help": "Tiempo de tensado o carga de arcos y ballestas de oro respecto al vanilla. 0,5: el doble de rápido.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Probabilidad de mejor material en criaturas",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "En criaturas, empezando por la madera, probabilidad en % de pasar al siguiente material. Se tira de nuevo en cada paso, y es 1,5 veces mayor en Difícil."
+    "entity.better_weaponry.shuriken": "Shuriken",
+    "enchantment.better_weaponry.returning": "Retorno",
+    "enchantment.better_weaponry.returning.desc": "Los shuriken clavados vuelven a ti como un tridente con Lealtad y devuelven su durabilidad. Incompatible con Reparación.",
+    "better_weaponry.field.gear.shurikens": "Shuriken",
+    "better_weaponry.field.gear.shurikens.help": "Ajustes de los shuriken. Cada lanzamiento gasta 1 de durabilidad, recogerlo la devuelve. El material cambia la velocidad, como en los arcos.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Velocidad de lanzamiento",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Velocidad de un shuriken de piedra. Una flecha totalmente tensada vuela a 3. El daño depende de la velocidad.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Daño base",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Se multiplica por la velocidad al impactar y se redondea hacia arriba. Una flecha tiene 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Intervalo entre lanzamientos",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Tiempo hasta poder lanzar este shuriken de nuevo, en segundos.",
+    "better_weaponry.field.gear.mobs": "Criaturas",
+    "better_weaponry.field.gear.mobs.help": "Armas y comportamiento de las criaturas. No hay más criaturas armadas que en vanilla: solo una criatura que recibiría un arma o herramienta vanilla puede recibir un arma del mod en su lugar.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Probabilidad de mejor material",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Probabilidad en % de pasar al siguiente material, se tira en cada paso y es 1,5 veces mayor en Difícil. Limitado a hierro en el Overworld, diamante en el Nether y el End, un nivel más en Difícil (no en el End).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Probabilidad de arma del mod",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Probabilidad en % de que un arma o herramienta vanilla de una criatura hostil se convierta en un arma del mod. 0: las criaturas conservan sus armas vanilla.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Probabilidad de doble arma",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Entre las criaturas con arma del mod, probabilidad en % de tener una en cada mano. El arma de la mano secundaria nunca se suelta.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Probabilidad de esqueleto ninja",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Probabilidad en % de que un esqueleto lance shuriken en lugar de disparar con arco.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Escudos de capitanes",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: los capitanes de patrullas e invasiones llevan un escudo del mod en la mano secundaria. Nunca se suelta.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Probabilidad de guardia",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "Cada segundo cerca de su objetivo, probabilidad en % de que una criatura con escudo o arma de parada levante la guardia. Un hacha la rompe."
   }
 }

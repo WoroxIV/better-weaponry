@@ -2,6 +2,9 @@ package com.betterweaponry.event;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.combat.MobCombat;
+import com.betterweaponry.entity.ShurikenEntity;
+import com.betterweaponry.item.MobEquipment;
 import com.betterweaponry.item.RangedWeapon;
 import com.betterweaponry.item.VanillaGear;
 import com.betterweaponry.item.WeaponMaterial;
@@ -72,8 +75,10 @@ public final class VanillaGearEvents {
     public static void onEntityJoin(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide()) return;
         if (event.getEntity() instanceof Mob mob) {
+            if (!event.loadedFromDisk()) MobEquipment.onFreshSpawn(mob, WeaponData.gear());
             VanillaGear.convertMobHands(mob, WeaponData.gear());
-        } else if (!event.loadedFromDisk() && event.getEntity() instanceof AbstractArrow arrow && arrow.getOwner() instanceof Mob
+            MobCombat.addGoals(mob);
+        } else if (!event.loadedFromDisk() && event.getEntity() instanceof AbstractArrow arrow && !(arrow instanceof ShurikenEntity) && arrow.getOwner() instanceof Mob
                 && arrow.getWeaponItem() != null && arrow.getWeaponItem().getItem() instanceof RangedWeapon weapon) {
             arrow.setDeltaMovement(RangedWeapon.mobShotVelocity(arrow.getDeltaMovement(), weapon.speedMultiplier()));
         }

@@ -2,6 +2,7 @@ package com.betterweaponry.item;
 
 import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.registry.ModItems;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.Difficulty;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -57,8 +59,14 @@ public final class VanillaGear {
 
     /** Même tirage, en partant de {@code lowest}. */
     public static WeaponMaterial rollMaterial(RandomSource random, double upgradeChance, WeaponMaterial lowest) {
+        return rollMaterial(random, upgradeChance, lowest, WeaponMaterials.NETHERITE);
+    }
+
+    /** Même tirage, sans jamais dépasser {@code highest}. */
+    public static WeaponMaterial rollMaterial(RandomSource random, double upgradeChance, WeaponMaterial lowest, WeaponMaterial highest) {
         int step = UPGRADE_LADDER.indexOf(lowest);
-        while (step < UPGRADE_LADDER.size() - 1 && random.nextDouble() * PERCENT < upgradeChance) step++;
+        int top = Math.max(step, UPGRADE_LADDER.indexOf(highest));
+        while (step < top && random.nextDouble() * PERCENT < upgradeChance) step++;
         return UPGRADE_LADDER.get(step);
     }
 
@@ -80,11 +88,24 @@ public final class VanillaGear {
      */
     public static void convertMobHands(Mob mob, GearDefinition gear) {
         if (!gear.replaceVanillaGear()) return;
-        double chance = gear.mobUpgradeChance() * (mob.level().getDifficulty() == Difficulty.HARD ? HARD_DIFFICULTY_BONUS : 1.0D);
         for (EquipmentSlot slot : List.of(EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND)) {
             ItemStack stack = mob.getItemBySlot(slot);
-            if (isReplaced(stack)) mob.setItemSlot(slot, convert(stack, rollMaterial(mob.getRandom(), chance, WeaponMaterials.STONE)));
+            if (isReplaced(stack)) mob.setItemSlot(slot, convert(stack, rollMobMaterial(mob, gear, WeaponMaterials.STONE)));
         }
+    }
+
+    /** Matériau de l'équipement d'un mob : un peu plus souvent meilleur en Difficile, plafonné selon la dimension et la difficulté. */
+    public static WeaponMaterial rollMobMaterial(Mob mob, GearDefinition gear, WeaponMaterial lowest) {
+        boolean hard = mob.level().getDifficulty() == Difficulty.HARD;
+        double chance = gear.mobs().upgradeChance() * (hard ? HARD_DIFFICULTY_BONUS : 1.0D);
+        return rollMaterial(mob.getRandom(), chance, lowest, materialCap(mob.level().dimension(), hard));
+    }
+
+    /** Meilleur matériau possible sur un mob : le fer dans l'Overworld, le diamant dans l'End et le Nether, un cran de plus en Difficile. */
+    public static WeaponMaterial materialCap(ResourceKey<Level> dimension, boolean hard) {
+        if (dimension == Level.NETHER) return hard ? WeaponMaterials.NETHERITE : WeaponMaterials.DIAMOND;
+        if (dimension == Level.END) return WeaponMaterials.DIAMOND;
+        return hard ? WeaponMaterials.DIAMOND : WeaponMaterials.IRON;
     }
 
     private static void convertContainer(Container container) {

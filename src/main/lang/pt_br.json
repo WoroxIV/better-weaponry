@@ -67,6 +67,10 @@
       "crossbow": {
         "name": "Besta",
         "gender": "f"
+      },
+      "shuriken": {
+        "name": "Shuriken",
+        "gender": "m"
       }
     },
     "materials": {
@@ -472,7 +476,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Multiplicador máximo de velocidade, seja qual for o material. O dano da flecha depende da velocidade: isso mantém materiais de mods muito fortes sob controle.",
     "better_weaponry.field.gear.golden_draw_time": "Tempo de puxada do ouro",
     "better_weaponry.field.gear.golden_draw_time.help": "Tempo de puxada ou carga de arcos e bestas de ouro em relação ao vanilla. 0,5: duas vezes mais rápido.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Chance de material melhor em mobs",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "Em mobs, a partir da madeira, chance em % de passar ao próximo material. Sorteada de novo a cada etapa, e 1,5 vez maior no Difícil."
+    "entity.better_weaponry.shuriken": "Shuriken",
+    "enchantment.better_weaponry.returning": "Retorno",
+    "enchantment.better_weaponry.returning.desc": "Shurikens cravados voltam para você como um tridente com Lealdade e devolvem sua durabilidade. Incompatível com Remendo.",
+    "better_weaponry.field.gear.shurikens": "Shurikens",
+    "better_weaponry.field.gear.shurikens.help": "Ajustes dos shurikens. Cada arremesso gasta 1 de durabilidade, recolhê-lo a devolve. O material muda a velocidade, como nos arcos.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Velocidade de arremesso",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Velocidade de um shuriken de pedra. Uma flecha totalmente puxada voa a 3. O dano depende da velocidade.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Dano base",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Multiplicado pela velocidade no impacto e arredondado para cima. Uma flecha tem 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Intervalo entre arremessos",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Tempo até poder arremessar este shuriken de novo, em segundos.",
+    "better_weaponry.field.gear.mobs": "Mobs",
+    "better_weaponry.field.gear.mobs.help": "Armas e comportamento dos mobs. Não há mais mobs armados que no vanilla: só um mob que receberia uma arma ou ferramenta vanilla pode receber uma arma do mod no lugar.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Chance de material melhor",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Chance em % de passar ao próximo material, sorteada a cada etapa e 1,5 vez maior no Difícil. Limitado a ferro no Overworld, diamante no Nether e no End, um nível a mais no Difícil (não no End).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Chance de arma do mod",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Chance em % de uma arma ou ferramenta vanilla de um mob hostil virar uma arma do mod. 0: os mobs mantêm as armas vanilla.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Chance de duas armas",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Entre os mobs com arma do mod, chance em % de ter uma em cada mão. A arma da mão secundária nunca é largada.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Chance de esqueleto ninja",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Chance em % de um esqueleto arremessar shurikens em vez de atirar com arco.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Escudos dos capitães",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: capitães de patrulhas e invasões carregam um escudo do mod na mão secundária. Nunca é largado.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Chance de guarda",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "A cada segundo perto do alvo, chance em % de um mob com escudo ou arma de aparar levantar a guarda. Um machado a quebra."
   }
 }

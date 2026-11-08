@@ -67,6 +67,10 @@
       "crossbow": {
         "name": "Armbrust",
         "gender": "f"
+      },
+      "shuriken": {
+        "name": "Shuriken",
+        "gender": "m"
       }
     },
     "materials": {
@@ -490,7 +494,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Höchster Geschwindigkeitsmultiplikator, unabhängig vom Material. Der Pfeilschaden hängt von der Geschwindigkeit ab: So bleiben sehr starke Mod-Materialien im Rahmen.",
     "better_weaponry.field.gear.golden_draw_time": "Spannzeit von Gold",
     "better_weaponry.field.gear.golden_draw_time.help": "Spann- oder Ladezeit goldener Bögen und Armbrüste im Vergleich zu Vanilla. 0,5: doppelt so schnell.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Chance auf besseres Material bei Mobs",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "Bei Mobs, ausgehend von Holz: Chance in % auf das nächste Material. Bei jedem Schritt neu gewürfelt, auf Schwer 1,5-mal höher."
+    "entity.better_weaponry.shuriken": "Shuriken",
+    "enchantment.better_weaponry.returning": "Rückkehr",
+    "enchantment.better_weaponry.returning.desc": "Gelandete Shuriken fliegen wie ein Dreizack mit Treue zu dir zurück und geben ihre Haltbarkeit zurück. Nicht mit Reparatur kombinierbar.",
+    "better_weaponry.field.gear.shurikens": "Shuriken",
+    "better_weaponry.field.gear.shurikens.help": "Einstellungen der Shuriken. Jeder Wurf kostet 1 Haltbarkeit, Aufheben gibt sie zurück. Das Material ändert die Geschwindigkeit, wie bei Bögen.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Wurfgeschwindigkeit",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Geschwindigkeit eines Stein-Shuriken. Ein voll gespannter Pfeil fliegt mit 3. Der Schaden hängt von der Geschwindigkeit ab.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Grundschaden",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Wird beim Aufprall mit der Geschwindigkeit multipliziert und aufgerundet. Ein Pfeil hat 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Zeit zwischen Würfen",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Zeit, bis dieser Shuriken wieder geworfen werden kann, in Sekunden.",
+    "better_weaponry.field.gear.mobs": "Mobs",
+    "better_weaponry.field.gear.mobs.help": "Waffen und Verhalten von Mobs. Es gibt nicht mehr bewaffnete Mobs als in Vanilla: Nur ein Mob, der eine Vanilla-Waffe oder ein Werkzeug bekäme, kann stattdessen eine Waffe der Mod erhalten.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Chance auf besseres Material",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Chance in % auf das nächste Material, bei jedem Schritt neu gewürfelt und auf Schwer 1,5-mal höher. Begrenzt auf Eisen in der Oberwelt, Diamant im Nether und End, auf Schwer eine Stufe mehr (nicht im End).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Chance auf Mod-Waffe",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Chance in %, dass eine Vanilla-Waffe oder ein Werkzeug eines feindlichen Mobs zur Waffe der Mod wird. 0: Mobs behalten ihre Vanilla-Waffen.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Chance auf Beidhändigkeit",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Unter Mobs mit einer Waffe der Mod: Chance in %, in jeder Hand eine zu haben. Die Waffe der Nebenhand wird nie fallen gelassen.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Chance auf Ninja-Skelett",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Chance in %, dass ein Skelett Shuriken wirft statt mit dem Bogen zu schießen.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Schilde der Hauptmänner",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: Hauptmänner von Patrouillen und Überfällen tragen einen Schild der Mod in der Nebenhand. Er wird nie fallen gelassen.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Chance auf Deckung",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "Pro Sekunde in Zielnähe: Chance in %, dass ein Mob mit Schild oder Parierwaffe die Deckung hebt. Eine Axt durchbricht sie."
   }
 }

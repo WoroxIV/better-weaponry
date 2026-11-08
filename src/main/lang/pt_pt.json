@@ -67,6 +67,10 @@
       "crossbow": {
         "name": "Besta",
         "gender": "f"
+      },
+      "shuriken": {
+        "name": "Shuriken",
+        "gender": "m"
       }
     },
     "materials": {
@@ -472,7 +476,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Multiplicador máximo de velocidade, seja qual for o material. O dano da flecha depende da velocidade: isto mantém materiais de mods muito fortes sob controlo.",
     "better_weaponry.field.gear.golden_draw_time": "Tempo de puxada do ouro",
     "better_weaponry.field.gear.golden_draw_time.help": "Tempo de puxada ou carga de arcos e bestas de ouro em relação ao vanilla. 0,5: duas vezes mais rápido.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Probabilidade de material melhor em mobs",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "Em mobs, a partir da madeira, probabilidade em % de passar ao material seguinte. Sorteada de novo a cada etapa, e 1,5 vezes maior em Difícil."
+    "entity.better_weaponry.shuriken": "Shuriken",
+    "enchantment.better_weaponry.returning": "Retorno",
+    "enchantment.better_weaponry.returning.desc": "Os shurikens cravados voltam para si como um tridente com Lealdade e devolvem a sua durabilidade. Incompatível com Remendo.",
+    "better_weaponry.field.gear.shurikens": "Shurikens",
+    "better_weaponry.field.gear.shurikens.help": "Definições dos shurikens. Cada lançamento gasta 1 de durabilidade, apanhá-lo devolve-a. O material muda a velocidade, como nos arcos.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Velocidade de lançamento",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Velocidade de um shuriken de pedra. Uma flecha totalmente puxada voa a 3. O dano depende da velocidade.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Dano base",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Multiplicado pela velocidade no impacto e arredondado para cima. Uma flecha tem 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Intervalo entre lançamentos",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Tempo até poder lançar este shuriken de novo, em segundos.",
+    "better_weaponry.field.gear.mobs": "Mobs",
+    "better_weaponry.field.gear.mobs.help": "Armas e comportamento dos mobs. Não há mais mobs armados que no vanilla: só um mob que receberia uma arma ou ferramenta vanilla pode receber uma arma do mod em vez disso.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Probabilidade de material melhor",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Probabilidade em % de passar ao material seguinte, sorteada a cada etapa e 1,5 vezes maior em Difícil. Limitado a ferro no Overworld, diamante no Nether e no End, um nível a mais em Difícil (não no End).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Probabilidade de arma do mod",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Probabilidade em % de uma arma ou ferramenta vanilla de um mob hostil se tornar uma arma do mod. 0: os mobs mantêm as armas vanilla.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Probabilidade de duas armas",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Entre os mobs com arma do mod, probabilidade em % de ter uma em cada mão. A arma da mão secundária nunca é largada.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Probabilidade de esqueleto ninja",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Probabilidade em % de um esqueleto lançar shurikens em vez de disparar com o arco.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Escudos dos capitães",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: capitães de patrulhas e invasões transportam um escudo do mod na mão secundária. Nunca é largado.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Probabilidade de guarda",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "A cada segundo perto do alvo, probabilidade em % de um mob com escudo ou arma de aparar levantar a guarda. Um machado quebra-a."
   }
 }

@@ -67,6 +67,10 @@
       "crossbow": {
         "name": "Kruisboog",
         "gender": "de"
+      },
+      "shuriken": {
+        "name": "Shuriken",
+        "gender": "de"
       }
     },
     "materials": {
@@ -502,7 +506,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Hoogste snelheidsvermenigvuldiger, ongeacht het materiaal. De schade van een pijl hangt af van de snelheid: zo blijven zeer sterke mod-materialen binnen de perken.",
     "better_weaponry.field.gear.golden_draw_time": "Spantijd van goud",
     "better_weaponry.field.gear.golden_draw_time.help": "Span- of laadtijd van gouden bogen en kruisbogen vergeleken met vanilla. 0,5: twee keer zo snel.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Kans op beter materiaal bij mobs",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "Bij mobs, beginnend bij hout: kans in % op het volgende materiaal. Bij elke stap opnieuw bepaald, en 1,5 keer hoger op Moeilijk."
+    "entity.better_weaponry.shuriken": "Shuriken",
+    "enchantment.better_weaponry.returning": "Terugkeer",
+    "enchantment.better_weaponry.returning.desc": "Gelande shuriken vliegen als een drietand met Trouw naar je terug en geven hun duurzaamheid terug. Niet combineerbaar met Herstel.",
+    "better_weaponry.field.gear.shurikens": "Shuriken",
+    "better_weaponry.field.gear.shurikens.help": "Instellingen van de shuriken. Elke worp kost 1 duurzaamheid, oprapen geeft die terug. Het materiaal verandert de snelheid, net als bij bogen.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Werpsnelheid",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Snelheid van een stenen shuriken. Een volledig gespannen pijl vliegt met 3. De schade hangt af van de snelheid.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Basisschade",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Wordt bij inslag vermenigvuldigd met de snelheid en naar boven afgerond. Een pijl heeft 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Tijd tussen worpen",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Tijd voordat je deze shuriken opnieuw kunt werpen, in seconden.",
+    "better_weaponry.field.gear.mobs": "Mobs",
+    "better_weaponry.field.gear.mobs.help": "Wapens en gedrag van mobs. Er zijn niet meer bewapende mobs dan in vanilla: alleen een mob die een vanilla wapen of gereedschap zou krijgen, kan in plaats daarvan een wapen van de mod krijgen.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Kans op beter materiaal",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Kans in % op het volgende materiaal, bij elke stap opnieuw bepaald en 1,5 keer hoger op Moeilijk. Beperkt tot ijzer in de Bovenwereld, diamant in de Nether en het End, één stap meer op Moeilijk (niet in het End).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Kans op mod-wapen",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Kans in % dat een vanilla wapen of gereedschap van een vijandige mob een wapen van de mod wordt. 0: mobs houden hun vanilla wapens.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Kans op dual wield",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Onder mobs met een wapen van de mod: kans in % op een wapen in elke hand. Het wapen in de andere hand valt nooit.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Kans op ninjaskelet",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Kans in % dat een skelet shuriken werpt in plaats van met een boog te schieten.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Schilden voor kapiteins",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: kapiteins van patrouilles en overvallen dragen een schild van de mod in de andere hand. Het valt nooit.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Kans op dekking",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "Elke seconde bij zijn doelwit: kans in % dat een mob met schild of pareerwapen zijn dekking opheft. Een bijl breekt die."
   }
 }

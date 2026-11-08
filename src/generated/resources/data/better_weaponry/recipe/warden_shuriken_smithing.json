@@ -1,0 +1,36 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "deeperdarker"
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "better_weaponry:weapon_materials/warden_template"
+      }
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "better_weaponry:weapon_materials/warden_addition"
+      }
+    }
+  ],
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "better_weaponry:weapon_materials/warden_addition"
+  },
+  "base": {
+    "item": "better_weaponry:netherite_shuriken"
+  },
+  "result": {
+    "count": 1,
+    "id": "better_weaponry:warden_shuriken"
+  },
+  "template": {
+    "tag": "better_weaponry:weapon_materials/warden_template"
+  }
+}

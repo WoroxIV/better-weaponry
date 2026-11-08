@@ -7,7 +7,8 @@ package com.betterweaponry.item;
 public enum GearType {
     SHIELD("shield"),
     BOW("bow"),
-    CROSSBOW("crossbow");
+    CROSSBOW("crossbow"),
+    SHURIKEN("shuriken");
 
     private final String id;
 

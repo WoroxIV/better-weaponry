@@ -61,6 +61,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         for (WeaponMaterial material : WeaponMaterials.all()) {
             addBowModels(material.itemName(GearType.BOW));
             addCrossbowModels(material.itemName(GearType.CROSSBOW));
+            addShurikenModel(material.itemName(GearType.SHURIKEN));
         }
 
         if (!missingTextures.isEmpty()) {
@@ -77,6 +78,12 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     private ModelFile.UncheckedModelFile model(String name) {
         return new ModelFile.UncheckedModelFile(modLoc("item/" + name));
+    }
+
+    /** Pas d'équivalent vanilla : un matériau sans texture propre prend la texture générique. */
+    private void addShurikenModel(String name) {
+        ResourceLocation own = modLoc("item/" + name);
+        withExistingParent(name, mcLoc("item/handheld")).texture("layer0", existingFileHelper.exists(own, ModelProvider.TEXTURE) ? own : modLoc("item/shuriken"));
     }
 
     /** Mêmes états que l'arc vanilla : repos, puis trois étapes de bandage. */

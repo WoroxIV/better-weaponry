@@ -18,7 +18,8 @@
       "sai": "三叉刺",
       "shield": "盾牌",
       "bow": "弓",
-      "crossbow": "弩"
+      "crossbow": "弩",
+      "shuriken": "手里剑"
     },
     "materials": {
       "wooden": "木",
@@ -420,7 +421,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "无论材质如何的最大速度倍率。箭矢伤害取决于速度：这可以限制非常强的模组材质。",
     "better_weaponry.field.gear.golden_draw_time": "金质拉弓时间",
     "better_weaponry.field.gear.golden_draw_time.help": "金质弓和弩的拉弓或装填时间相对原版的比例。0.5：快一倍。",
-    "better_weaponry.field.gear.mob_upgrade_chance": "生物材质升级几率",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "生物身上从木质开始，升级到下一材质的几率（%）。每一步重新判定，困难难度下为 1.5 倍。"
+    "entity.better_weaponry.shuriken": "手里剑",
+    "enchantment.better_weaponry.returning": "回归",
+    "enchantment.better_weaponry.returning.desc": "插在地上的手里剑会像忠诚三叉戟一样飞回并恢复耐久。与经验修补冲突。",
+    "better_weaponry.field.gear.shurikens": "手里剑",
+    "better_weaponry.field.gear.shurikens.help": "手里剑设置。每次投掷消耗 1 点耐久，捡回可恢复。材质改变速度，与弓相同。",
+    "better_weaponry.field.gear.shurikens.throw_speed": "投掷速度",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "石质手里剑的速度。满蓄力箭矢为 3。伤害取决于速度。",
+    "better_weaponry.field.gear.shurikens.base_damage": "基础伤害",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "命中时乘以速度并向上取整。箭矢为 2。",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "投掷间隔",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "再次投掷此手里剑前的等待时间（秒）。",
+    "better_weaponry.field.gear.mobs": "生物",
+    "better_weaponry.field.gear.mobs.help": "生物的武器和行为。持械生物不会比原版更多：只有本应获得原版武器或工具的生物才可能改为获得本模组武器。",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "更好材质的几率",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "升级到下一材质的几率（%），每一步重新判定，困难难度下为 1.5 倍。主世界最高为铁，下界和末地最高为钻石，困难难度下再高一级（末地除外）。",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "模组武器几率",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "敌对生物持有的原版武器或工具变为本模组武器的几率（%）。0：生物保留原版武器。",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "双持几率",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "在获得模组武器的生物中，双手各持一把的几率（%）。副手武器永不掉落。",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "忍者骷髅几率",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "骷髅投掷手里剑而不是用弓射击的几率（%）。",
+    "better_weaponry.field.gear.mobs.captain_shield": "队长持盾",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true：巡逻队和袭击队长在副手持本模组盾牌，且永不掉落。",
+    "better_weaponry.field.gear.mobs.guard_chance": "格挡几率",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "靠近目标时每秒，持盾或可格挡武器的生物举起防御的几率（%）。斧头可破防。"
   }
 }

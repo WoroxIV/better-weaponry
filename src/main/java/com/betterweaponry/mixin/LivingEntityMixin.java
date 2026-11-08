@@ -1,12 +1,14 @@
 package com.betterweaponry.mixin;
 
 import com.betterweaponry.combat.DualWieldSystem;
+import com.betterweaponry.combat.MobCombat;
 import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.data.WeaponData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,6 +32,14 @@ public abstract class LivingEntityMixin {
      */
     @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"), cancellable = true)
     private void betterweaponry$alternateSwing(InteractionHand hand, boolean updateSelf, CallbackInfo ci) {
+        if ((Object) this instanceof Mob mob) {
+            // Côté serveur seulement : le client reçoit déjà la bonne main.
+            if (hand == InteractionHand.MAIN_HAND && !mob.level().isClientSide && MobCombat.isOffhandTurn(mob) && DualWieldSystem.isDualWielding(mob)) {
+                ci.cancel();
+                mob.swing(InteractionHand.OFF_HAND, updateSelf);
+            }
+            return;
+        }
         if (!((Object) this instanceof Player player)) return;
         PlayerCombatState state = PlayerCombatState.of(player);
         // Pendant notre propre appel redirigé, on laisse le jeu faire.

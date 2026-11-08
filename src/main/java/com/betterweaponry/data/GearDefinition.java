@@ -25,13 +25,14 @@ import java.util.Map;
  * @param projectileSpeedMultipliers vitesse des projectiles imposée par matériau (sinon voir {@link #projectileSpeedMultiplier})
  * @param projectileSpeedCap       multiplicateur de vitesse maximal, quel que soit le matériau
  * @param goldenDrawTime           temps de bandage ou de chargement de l'or, par rapport au vanilla (0.5 = deux fois plus court)
- * @param mobUpgradeChance         chez les mobs, chance en % de passer au matériau suivant (répétée à chaque matériau)
+ * @param shurikens                réglages des shurikens
+ * @param mobs                     armes et comportements des mobs
  */
 public record GearDefinition(int formatVersion, double shieldPerfectWindow, double shieldPerfectCooldown,
                              double shieldPerfectDamageBonus, double shieldPerfectBonusSeconds, double shieldPerfectKnockback,
                              boolean reflectArrows, boolean replaceVanillaGear, double lootUpgradeChance, double enchantedBookChance,
                              double reflectiveCooldownSeconds, Map<String, Double> projectileSpeedMultipliers, double projectileSpeedCap,
-                             double goldenDrawTime, double mobUpgradeChance) {
+                             double goldenDrawTime, ShurikenDefinition shurikens, MobGearDefinition mobs) {
 
     public static final int FORMAT_VERSION = 1;
     private static final double DERIVED_SPEED_PENALTY = 0.34D;
@@ -52,13 +53,13 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
     // Au-delà, la Puissance V rendrait les flèches excessives.
     public static final DataField<Double> PROJECTILE_SPEED_CAP = DataField.number("projectile_speed_cap", 0.1D, 5.0D, 2.0D);
     public static final DataField<Double> GOLDEN_DRAW_TIME = DataField.number("golden_draw_time", 0.1D, 1.0D, 0.5D);
-    // 9.5 % : la chance vanilla d'un mob d'avoir une armure d'un cran supérieur.
-    public static final DataField<Double> MOB_UPGRADE_CHANCE = DataField.number("mob_upgrade_chance", 0.0D, 100.0D, 9.5D);
+    public static final DataField<ShurikenDefinition> SHURIKENS = DataField.object("shurikens", ShurikenDefinition.FIELDS, ShurikenDefinition.CODEC, ShurikenDefinition.DEFAULT);
+    public static final DataField<MobGearDefinition> MOBS = DataField.object("mobs", MobGearDefinition.FIELDS, MobGearDefinition.CODEC, MobGearDefinition.DEFAULT);
 
     public static final FieldSet FIELDS = new FieldSet("gear",
             List.of(FORMAT, SHIELD_PERFECT_WINDOW, SHIELD_PERFECT_COOLDOWN, SHIELD_PERFECT_DAMAGE_BONUS, SHIELD_PERFECT_BONUS_SECONDS,
                     SHIELD_PERFECT_KNOCKBACK, REFLECT_ARROWS, REPLACE_VANILLA_GEAR, LOOT_UPGRADE_CHANCE, ENCHANTED_BOOK_CHANCE,
-                    REFLECTIVE_COOLDOWN, PROJECTILE_SPEED_MULTIPLIERS, PROJECTILE_SPEED_CAP, GOLDEN_DRAW_TIME, MOB_UPGRADE_CHANCE),
+                    REFLECTIVE_COOLDOWN, PROJECTILE_SPEED_MULTIPLIERS, PROJECTILE_SPEED_CAP, GOLDEN_DRAW_TIME, SHURIKENS, MOBS),
             Map.of("perfect_window", "shield_perfect_window_seconds",
                     "perfect_cooldown", "shield_perfect_cooldown_seconds",
                     "knockback", "shield_perfect_knockback",
@@ -85,7 +86,8 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
             PROJECTILE_SPEED_MULTIPLIERS.forGetter(GearDefinition::projectileSpeedMultipliers),
             PROJECTILE_SPEED_CAP.forGetter(GearDefinition::projectileSpeedCap),
             GOLDEN_DRAW_TIME.forGetter(GearDefinition::goldenDrawTime),
-            MOB_UPGRADE_CHANCE.forGetter(GearDefinition::mobUpgradeChance)
+            SHURIKENS.forGetter(GearDefinition::shurikens),
+            MOBS.forGetter(GearDefinition::mobs)
     ).apply(instance, GearDefinition::new));
 
     public static final GearDefinition FALLBACK = new GearDefinition(FORMAT_VERSION,
@@ -93,7 +95,7 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
             SHIELD_PERFECT_BONUS_SECONDS.defaultValue(), SHIELD_PERFECT_KNOCKBACK.defaultValue(), REFLECT_ARROWS.defaultValue(),
             REPLACE_VANILLA_GEAR.defaultValue(), LOOT_UPGRADE_CHANCE.defaultValue(), ENCHANTED_BOOK_CHANCE.defaultValue(),
             REFLECTIVE_COOLDOWN.defaultValue(), Map.of(), PROJECTILE_SPEED_CAP.defaultValue(), GOLDEN_DRAW_TIME.defaultValue(),
-            MOB_UPGRADE_CHANCE.defaultValue());
+            SHURIKENS.defaultValue(), MOBS.defaultValue());
 
     public GearDefinition {
         projectileSpeedMultipliers = Map.copyOf(projectileSpeedMultipliers);

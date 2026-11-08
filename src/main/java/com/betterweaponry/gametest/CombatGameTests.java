@@ -7,6 +7,9 @@ import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.combat.ModEnchantments;
+import com.betterweaponry.combat.MobCombat;
+import com.betterweaponry.combat.MobGuardGoal;
+import com.betterweaponry.combat.MobThrowShurikenGoal;
 import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.combat.ShieldSystem;
 import com.betterweaponry.combat.TwoHandedSystem;
@@ -22,6 +25,7 @@ import com.betterweaponry.data.DataProblem;
 import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.data.JsonUtil;
+import com.betterweaponry.data.MobGearDefinition;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.RulesDefinition;
@@ -30,11 +34,13 @@ import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.data.JsonTree;
 import com.betterweaponry.editor.EditorDocument;
+import com.betterweaponry.entity.ShurikenEntity;
 import com.betterweaponry.editor.EditorService;
 import com.betterweaponry.editor.EditorTarget;
 import com.betterweaponry.event.VanillaGearEvents;
 import com.betterweaponry.item.ModShieldDecorationRecipe;
 import com.betterweaponry.item.RangedWeapon;
+import com.betterweaponry.item.ShurikenItem;
 import com.betterweaponry.item.VanillaGear;
 import com.betterweaponry.item.WeaponBowItem;
 import com.betterweaponry.item.WeaponCrossbowItem;
@@ -43,6 +49,7 @@ import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponShieldItem;
 import com.betterweaponry.mixin.LivingEntityAccessor;
+import com.betterweaponry.mixin.MobAccessor;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModAttributes;
 import com.betterweaponry.registry.ModEffects;
@@ -65,15 +72,18 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
 import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
@@ -99,6 +109,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -919,7 +930,7 @@ public final class CombatGameTests {
         WeaponData.install(new WeaponData.Snapshot(original.weapons(), original.rules(), new GearDefinition(1, gear.shieldPerfectWindow(), gear.shieldPerfectCooldown(),
                 gear.shieldPerfectDamageBonus(), gear.shieldPerfectBonusSeconds(), gear.shieldPerfectKnockback(), gear.reflectArrows(), gear.replaceVanillaGear(),
                 gear.lootUpgradeChance(), 100.0D, gear.reflectiveCooldownSeconds(), gear.projectileSpeedMultipliers(), gear.projectileSpeedCap(),
-                gear.goldenDrawTime(), gear.mobUpgradeChance())));
+                gear.goldenDrawTime(), gear.shurikens(), gear.mobs())));
         try {
             LootParams params = new LootParams.Builder(helper.getLevel()).withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO)).create(LootContextParamSets.CHEST);
             var tables = helper.getLevel().getServer().reloadableRegistries();
@@ -1079,6 +1090,345 @@ public final class CombatGameTests {
         return helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key);
     }
 
+    /** Shuriken : −1 au lancer, +1 au ramassage, le dernier point recrée l'objet, un objet rangé ailleurs ne se copie pas. */
+    @GameTest(template = ARENA)
+    public static void shurikenDurability(GameTestHelper helper) {
+        int[] expected = {19, 43, 83, 10, 520, 677};
+        WeaponMaterial[] materials = {WeaponMaterials.WOODEN, WeaponMaterials.STONE, WeaponMaterials.IRON, WeaponMaterials.GOLDEN, WeaponMaterials.DIAMOND, WeaponMaterials.NETHERITE};
+        for (int i = 0; i < materials.length; i++) {
+            helper.assertTrue(new ItemStack(ModItems.shuriken(materials[i]).get()).getMaxDamage() == expected[i], materials[i] + " shuriken durability");
+        }
+
+        ShurikenItem iron = ModItems.shuriken(WeaponMaterials.IRON).get();
+        ItemStack stack = new ItemStack(iron);
+        Player player = thrower(helper, stack, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), player, InteractionHand.MAIN_HAND, stack);
+        helper.assertTrue(stack.getDamageValue() == 1, "a throw should cost 1 durability");
+        ShurikenEntity shot = thrownBy(helper, player).getFirst();
+        helper.assertTrue(shot.pickup == AbstractArrow.Pickup.ALLOWED, "a paid throw can be picked up");
+        helper.assertFalse(shot.tryRecover(thrower(helper, ItemStack.EMPTY, GameType.SURVIVAL)), "only the thrower can pick it up");
+        helper.assertTrue(shot.tryRecover(player) && stack.getDamageValue() == 0, "picking it up should give the point back");
+        shot.discard();
+
+        // Le dernier point : l'objet disparaît, le ramassage le recrée avec ses enchantements.
+        ItemStack last = new ItemStack(iron);
+        last.setDamageValue(last.getMaxDamage() - 1);
+        last.enchant(enchantment(helper, Enchantments.POWER), 3);
+        Player lastPlayer = thrower(helper, last, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), lastPlayer, InteractionHand.MAIN_HAND, last);
+        helper.assertTrue(lastPlayer.getMainHandItem().isEmpty(), "the last point should break the item");
+        ShurikenEntity lastShot = thrownBy(helper, lastPlayer).getFirst();
+        helper.assertTrue(lastShot.tryRecover(lastPlayer), "the last shuriken should be recoverable");
+        ItemStack recreated = lastPlayer.getInventory().getItem(firstShuriken(lastPlayer));
+        helper.assertTrue(recreated.getItem() == iron && recreated.getDamageValue() == recreated.getMaxDamage() - 1
+                && EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.POWER), recreated) == 3, "the item should come back with 1 durability and its enchantments");
+        lastShot.discard();
+
+        // Objet rangé ailleurs : ramasser ne le copie pas.
+        ItemStack stored = new ItemStack(iron);
+        Player storing = thrower(helper, stored, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), storing, InteractionHand.MAIN_HAND, stored);
+        storing.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        ShurikenEntity storedShot = thrownBy(helper, storing).getFirst();
+        helper.assertFalse(storedShot.tryRecover(storing), "a shuriken whose item was stored elsewhere must not duplicate it");
+        helper.assertTrue(firstShuriken(storing) < 0, "nothing should have been created");
+        storedShot.discard();
+
+        // Solidité : un lancer gratuit ne se récupère pas, chaque point payé si.
+        ItemStack sturdy = new ItemStack(iron);
+        sturdy.enchant(enchantment(helper, Enchantments.UNBREAKING), 3);
+        Player sturdyPlayer = thrower(helper, sturdy, GameType.SURVIVAL);
+        int recoverable = 0;
+        int throwsDone = 40;
+        for (int i = 0; i < throwsDone; i++) {
+            iron.throwFrom(helper.getLevel(), sturdyPlayer, InteractionHand.MAIN_HAND, sturdy);
+            for (ShurikenEntity entity : thrownBy(helper, sturdyPlayer)) {
+                if (entity.pickup == AbstractArrow.Pickup.ALLOWED) recoverable++;
+                entity.discard();
+            }
+        }
+        helper.assertTrue(recoverable == sturdy.getDamageValue() && recoverable < throwsDone, "only paid throws are recoverable: " + recoverable + " for " + sturdy.getDamageValue() + " durability");
+
+        // Mode créatif : ne s'use pas.
+        ItemStack creative = new ItemStack(iron);
+        Player creativePlayer = thrower(helper, creative, GameType.CREATIVE);
+        creativePlayer.getAbilities().instabuild = true;
+        iron.throwFrom(helper.getLevel(), creativePlayer, InteractionHand.MAIN_HAND, creative);
+        ShurikenEntity creativeShot = thrownBy(helper, creativePlayer).getFirst();
+        helper.assertTrue(creative.getDamageValue() == 0 && creativeShot.pickup == AbstractArrow.Pickup.CREATIVE_ONLY, "creative throws cost nothing");
+        creativeShot.discard();
+        helper.succeed();
+    }
+
+    /** Enchantements : ceux des arcs et arbalètes marchent (type flèche), Infinité et Charge rapide refusés, Retour incompatible avec Raccommodage. */
+    @GameTest(template = ARENA)
+    public static void shurikenEnchantments(GameTestHelper helper) {
+        ShurikenItem iron = ModItems.shuriken(WeaponMaterials.IRON).get();
+        ItemStack probe = new ItemStack(iron);
+        for (ResourceKey<Enchantment> accepted : List.of(Enchantments.POWER, Enchantments.PUNCH, Enchantments.FLAME, Enchantments.PIERCING, Enchantments.MULTISHOT,
+                Enchantments.UNBREAKING, Enchantments.MENDING, ModEnchantments.RETURNING)) {
+            helper.assertTrue(probe.supportsEnchantment(enchantment(helper, accepted)), "a shuriken should accept " + accepted.location());
+        }
+        for (ResourceKey<Enchantment> refused : List.of(Enchantments.INFINITY, Enchantments.QUICK_CHARGE)) {
+            helper.assertFalse(probe.supportsEnchantment(enchantment(helper, refused)), "a shuriken should refuse " + refused.location());
+        }
+        helper.assertFalse(Enchantment.areCompatible(enchantment(helper, ModEnchantments.RETURNING), enchantment(helper, Enchantments.MENDING)), "Returning and Mending are incompatible");
+        helper.assertFalse(Enchantment.areCompatible(enchantment(helper, Enchantments.PIERCING), enchantment(helper, Enchantments.MULTISHOT)), "Piercing or Multishot, not both");
+
+        ItemStack powered = new ItemStack(iron);
+        powered.enchant(enchantment(helper, Enchantments.POWER), 5);
+        Player player = thrower(helper, powered, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), player, InteractionHand.MAIN_HAND, powered);
+        ShurikenEntity shot = thrownBy(helper, player).getFirst();
+        helper.assertTrue(shot.getType().is(EntityTypeTags.ARROWS), "a shuriken should count as an arrow for enchantments");
+        Pig pig = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
+        float boosted = EnchantmentHelper.modifyDamage(helper.getLevel(), shot.getWeaponItem(), pig, helper.getLevel().damageSources().arrow(shot, player), (float) shot.getBaseDamage());
+        helper.assertTrue(boosted > shot.getBaseDamage() + 1.0F, "Power should raise the damage, got " + boosted);
+        shot.discard();
+
+        ItemStack piercing = new ItemStack(iron);
+        piercing.enchant(enchantment(helper, Enchantments.PIERCING), 3);
+        Player piercer = thrower(helper, piercing, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), piercer, InteractionHand.MAIN_HAND, piercing);
+        ShurikenEntity piercingShot = thrownBy(helper, piercer).getFirst();
+        helper.assertTrue(piercingShot.getPierceLevel() == 3, "Piercing should apply");
+        piercingShot.discard();
+
+        ItemStack flaming = new ItemStack(iron);
+        flaming.enchant(enchantment(helper, Enchantments.FLAME), 1);
+        Player igniter = thrower(helper, flaming, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), igniter, InteractionHand.MAIN_HAND, flaming);
+        ShurikenEntity flamingShot = thrownBy(helper, igniter).getFirst();
+        helper.assertTrue(flamingShot.isOnFire(), "Flame should ignite the shuriken");
+        flamingShot.discard();
+
+        // Tir multiple : trois projectiles, un seul point payé, un seul récupérable.
+        ItemStack multi = new ItemStack(iron);
+        multi.enchant(enchantment(helper, Enchantments.MULTISHOT), 1);
+        Player multiPlayer = thrower(helper, multi, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), multiPlayer, InteractionHand.MAIN_HAND, multi);
+        List<ShurikenEntity> volley = thrownBy(helper, multiPlayer);
+        helper.assertTrue(volley.size() == 3 && multi.getDamageValue() == 1, "Multishot throws 3 for 1 durability, found " + volley.size());
+        helper.assertTrue(volley.stream().filter(entity -> entity.pickup == AbstractArrow.Pickup.ALLOWED).count() == 1, "only one of the volley can be picked up");
+        volley.forEach(ShurikenEntity::discard);
+        helper.succeed();
+    }
+
+    /** Un shuriken qui touche une cible reste en jeu et tombe au sol, au lieu de disparaître comme une flèche. */
+    @GameTest(template = ARENA, timeoutTicks = 100)
+    public static void shurikenFallsAfterHit(GameTestHelper helper) {
+        ItemStack stack = new ItemStack(ModItems.shuriken(WeaponMaterials.IRON).get());
+        Player player = thrower(helper, stack, GameType.SURVIVAL);
+        Pig pig = pigAt(helper, new Vec3(2.5D, 1.2D, 4.5D));
+        ShurikenEntity shot = new ShurikenEntity(helper.getLevel(), player, stack, true);
+        Vec3 start = helper.absoluteVec(new Vec3(2.5D, 1.5D, 1.5D));
+        shot.setPos(start.x, start.y, start.z);
+        shot.shoot(0.0D, 0.0D, 1.0D, 1.5F, 0.0F);
+        helper.getLevel().addFreshEntity(shot);
+        helper.succeedWhen(() -> {
+            helper.assertTrue(pig.getHealth() < TEST_HEALTH, "the shuriken should hurt the pig");
+            helper.assertFalse(shot.isRemoved(), "the shuriken should stay in the world after a hit");
+            helper.assertTrue(shot.isStuck(), "the shuriken should land");
+            pig.discard();
+            shot.discard();
+        });
+    }
+
+    /** Retour : planté, il repart vers son lanceur. */
+    @GameTest(template = ARENA, timeoutTicks = 100)
+    public static void shurikenReturns(GameTestHelper helper) {
+        ItemStack stack = new ItemStack(ModItems.shuriken(WeaponMaterials.IRON).get());
+        stack.enchant(enchantment(helper, ModEnchantments.RETURNING), 1);
+        Player player = thrower(helper, stack, GameType.SURVIVAL);
+        ShurikenEntity shot = new ShurikenEntity(helper.getLevel(), player, stack, true);
+        helper.assertTrue(shot.isReturning(), "Returning should be read from the item");
+        Vec3 start = helper.absoluteVec(new Vec3(2.5D, 1.5D, 3.5D));
+        shot.setPos(start.x, start.y, start.z);
+        shot.shoot(0.0D, -1.0D, 0.0D, 0.5F, 0.0F);
+        helper.getLevel().addFreshEntity(shot);
+        Player stranger = thrower(helper, ItemStack.EMPTY, GameType.SURVIVAL);
+        helper.succeedWhen(() -> {
+            helper.assertTrue(shot.isNoPhysics(), "a landed Returning shuriken should fly back");
+            helper.assertFalse(shot.tryRecover(stranger), "another player must not catch it");
+            shot.discard();
+        });
+    }
+
+    /** Armes des mobs : seules les armes vanilla sont remplacées, enchantements gardés, main secondaire jamais lâchée, matériau plafonné. */
+    @GameTest(template = ARENA)
+    public static void mobEquipment(GameTestHelper helper) {
+        MobGearDefinition none = new MobGearDefinition(0.0D, 0.0D, 0.0D, 0.0D, false, 0.0D);
+        withMobGear(new MobGearDefinition(0.0D, 100.0D, 0.0D, 0.0D, false, 0.0D), () -> {
+            ItemStack sword = new ItemStack(Items.IRON_SWORD);
+            sword.enchant(enchantment(helper, Enchantments.SHARPNESS), 2);
+            Zombie armed = spawnWith(helper, EntityType.ZOMBIE, sword);
+            helper.assertTrue(armed.getMainHandItem().getItem() instanceof WeaponItem weapon && weapon.getMaterial() == WeaponMaterials.IRON, "the iron sword should become an iron weapon of the mod");
+            helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.SHARPNESS), armed.getMainHandItem()) == 2, "enchantments should be kept");
+            Zombie bare = spawnWith(helper, EntityType.ZOMBIE, ItemStack.EMPTY);
+            helper.assertTrue(bare.getMainHandItem().isEmpty(), "a mob without a weapon stays without one");
+            helper.assertTrue(spawnWith(helper, EntityType.PIG, new ItemStack(Items.IRON_SWORD)).getMainHandItem().is(Items.IRON_SWORD), "only hostile mobs are concerned");
+            Zombie trident = spawnWith(helper, EntityType.ZOMBIE, new ItemStack(Items.TRIDENT));
+            helper.assertTrue(trident.getMainHandItem().is(Items.TRIDENT), "a trident is not replaced");
+        });
+        withMobGear(none, () -> helper.assertTrue(spawnWith(helper, EntityType.ZOMBIE, new ItemStack(Items.IRON_SWORD)).getMainHandItem().is(Items.IRON_SWORD), "at 0% the vanilla weapon stays"));
+
+        withMobGear(new MobGearDefinition(0.0D, 100.0D, 100.0D, 0.0D, false, 0.0D), () -> {
+            Zombie dual = spawnWith(helper, EntityType.ZOMBIE, new ItemStack(Items.IRON_SWORD));
+            helper.assertTrue(DualWieldSystem.isDualWielding(dual), "the mob should hold two dual-wieldable weapons");
+            helper.assertTrue(((MobAccessor) dual).betterweaponry$getHandDropChances()[EquipmentSlot.OFFHAND.getIndex()] == 0.0F, "the off-hand weapon should never drop");
+            CombatCompat.simulateForTests(true);
+            try {
+                Zombie single = spawnWith(helper, EntityType.ZOMBIE, new ItemStack(Items.IRON_SWORD));
+                helper.assertTrue(single.getMainHandItem().getItem() instanceof WeaponItem && single.getOffhandItem().isEmpty(), "with another combat mod, the weapons stay but dual wield does not");
+            } finally {
+                CombatCompat.simulateForTests(false);
+            }
+        });
+
+        withMobGear(new MobGearDefinition(0.0D, 0.0D, 0.0D, 100.0D, true, 0.0D), () -> {
+            Skeleton ninja = spawnWith(helper, EntityType.SKELETON, new ItemStack(Items.BOW));
+            helper.assertTrue(ninja.getMainHandItem().getItem() instanceof ShurikenItem, "a skeleton should become a ninja");
+            helper.assertTrue(ninja.goalSelector.getAvailableGoals().stream().anyMatch(goal -> goal.getGoal() instanceof MobThrowShurikenGoal), "a ninja should know how to throw");
+
+            Pillager captain = EntityType.PILLAGER.create(helper.getLevel());
+            captain.setPos(helper.absoluteVec(new Vec3(3.5D, 1.0D, 3.5D)));
+            captain.setPatrolLeader(true);
+            captain.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.CROSSBOW));
+            helper.getLevel().addFreshEntity(captain);
+            helper.assertTrue(captain.getOffhandItem().getItem() instanceof WeaponShieldItem, "a captain should carry a shield of the mod");
+            helper.assertTrue(captain.goalSelector.getAvailableGoals().stream().anyMatch(goal -> goal.getGoal() instanceof MobGuardGoal), "a captain should be able to raise it");
+
+            CombatCompat.simulateForTests(true);
+            try {
+                helper.assertTrue(spawnWith(helper, EntityType.SKELETON, new ItemStack(Items.BOW)).getMainHandItem().getItem() instanceof WeaponBowItem, "no ninjas with another combat mod");
+            } finally {
+                CombatCompat.simulateForTests(false);
+            }
+        });
+
+        helper.assertTrue(VanillaGear.materialCap(Level.OVERWORLD, false) == WeaponMaterials.IRON && VanillaGear.materialCap(Level.OVERWORLD, true) == WeaponMaterials.DIAMOND, "overworld cap");
+        helper.assertTrue(VanillaGear.materialCap(Level.NETHER, false) == WeaponMaterials.DIAMOND && VanillaGear.materialCap(Level.NETHER, true) == WeaponMaterials.NETHERITE, "nether cap");
+        helper.assertTrue(VanillaGear.materialCap(Level.END, true) == WeaponMaterials.DIAMOND, "end cap");
+        helper.assertTrue(VanillaGear.rollMaterial(helper.getLevel().getRandom(), 100.0D, WeaponMaterials.STONE, WeaponMaterials.IRON) == WeaponMaterials.IRON, "the cap should stop the upgrades");
+        helper.succeed();
+    }
+
+    /** Portée de l'arme, coups alternés et garde des mobs. */
+    @GameTest(template = ARENA)
+    public static void mobCombat(GameTestHelper helper) {
+        // Portée : le cochon est hors d'atteinte à mains nues, à portée d'une lance.
+        double extra = WeaponData.weapon(WeaponType.SPEAR).attackReach() - 3.0D;
+        helper.assertTrue(extra > 0.0D, "the spear should reach further than a sword");
+        Zombie reacher = spawnWith(helper, EntityType.ZOMBIE, ItemStack.EMPTY);
+        Pig farPig = pigAt(helper, new Vec3(2.5D, 1.0D, 2.5D + 1.578D + extra * 0.6D));
+        helper.assertFalse(reacher.isWithinMeleeAttackRange(farPig), "bare hands should not reach");
+        reacher.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.get(WeaponType.SPEAR, WeaponMaterials.IRON).get()));
+        helper.assertTrue(reacher.isWithinMeleeAttackRange(farPig), "the spear should reach");
+        CombatCompat.simulateForTests(true);
+        try {
+            helper.assertFalse(reacher.isWithinMeleeAttackRange(farPig), "with another combat mod, the reach is vanilla");
+        } finally {
+            CombatCompat.simulateForTests(false);
+        }
+
+        // Garde à l'arme : réduit les coups de face, une hache la brise, pas un cochon.
+        ItemStack katana = new ItemStack(ModItems.get(WeaponType.KATANA, WeaponMaterials.IRON).get());
+        Zombie guarding = spawnWith(helper, EntityType.ZOMBIE, katana);
+        Zombie open = spawnWith(helper, EntityType.ZOMBIE, ItemStack.EMPTY);
+        guarding.setYHeadRot(0.0F);
+        open.setYHeadRot(0.0F);
+        for (Zombie zombie : List.of(guarding, open)) {
+            setBase(zombie.getAttribute(Attributes.MAX_HEALTH), TEST_HEALTH);
+            zombie.setHealth(TEST_HEALTH);
+        }
+        Pig attacker = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
+        guarding.startUsingItem(InteractionHand.MAIN_HAND);
+        helper.assertTrue(guarding.isUsingItem(), "the mob should raise its guard");
+        guarding.hurt(guarding.damageSources().mobAttack(attacker), RAW_DAMAGE);
+        open.hurt(open.damageSources().mobAttack(attacker), RAW_DAMAGE);
+        double guardedLoss = TEST_HEALTH - guarding.getHealth();
+        double openLoss = TEST_HEALTH - open.getHealth();
+        helper.assertTrue(guardedLoss < openLoss * 0.7D && guardedLoss > 0.0D, "a guard should reduce the hit: " + guardedLoss + " against " + openLoss);
+        helper.assertFalse(MobCombat.isGuardBroken(guarding), "a pig does not break a guard");
+        Player axeman = mockPlayerAt(helper, helper.absoluteVec(new Vec3(2.5D, 1.0D, 4.5D)));
+        axeman.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.DIAMOND_AXE));
+        guarding.invulnerableTime = 0;
+        guarding.hurt(guarding.damageSources().playerAttack(axeman), RAW_DAMAGE);
+        helper.assertTrue(MobCombat.isGuardBroken(guarding), "an axe should break the guard");
+
+        // Le but de garde lève le bouclier quand la cible est proche, et respecte l'interrupteur.
+        Zombie shieldBearer = spawnWith(helper, EntityType.ZOMBIE, ItemStack.EMPTY);
+        shieldBearer.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(ModItems.shield(WeaponMaterials.IRON).get()));
+        shieldBearer.setTarget(attacker);
+        MobGuardGoal goal = new MobGuardGoal(shieldBearer);
+        withMobGear(new MobGearDefinition(0.0D, 0.0D, 0.0D, 0.0D, false, 100.0D), () -> {
+            helper.assertTrue(goal.canUse(), "at 100% the mob should guard");
+            goal.start();
+            helper.assertTrue(shieldBearer.isUsingItem() && shieldBearer.getUsedItemHand() == InteractionHand.OFF_HAND, "the shield should be raised");
+            goal.stop();
+        });
+
+        // Dual wield : les bonus d'arme ne sont appliqués qu'au tick suivant.
+        Zombie dual = spawnWith(helper, EntityType.ZOMBIE, new ItemStack(ModItems.get(WeaponType.DAGGER, WeaponMaterials.WOODEN).get()));
+        dual.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(ModItems.get(WeaponType.DAGGER, WeaponMaterials.NETHERITE).get()));
+        helper.runAfterDelay(2, () -> {
+            Pig pig = pigAt(helper, new Vec3(1.5D, 1.0D, 1.5D));
+            dual.doHurtTarget(pig);
+            double mainHit = TEST_HEALTH - pig.getHealth();
+            pig.setHealth(TEST_HEALTH);
+            pig.invulnerableTime = 0;
+            helper.assertTrue(MobCombat.isOffhandTurn(dual), "the next hit is the off hand's");
+            dual.swing(InteractionHand.MAIN_HAND);
+            helper.assertTrue(dual.swingingArm == InteractionHand.OFF_HAND, "the off arm should swing");
+            dual.doHurtTarget(pig);
+            double offHit = TEST_HEALTH - pig.getHealth();
+            helper.assertTrue(offHit > mainHit, "the netherite dagger should hit harder: " + offHit + " against " + mainHit);
+            helper.assertTrue(dual.getMainHandItem().getItem() instanceof WeaponItem weapon && weapon.getMaterial() == WeaponMaterials.WOODEN, "the hands should be put back");
+            helper.succeed();
+        });
+    }
+
+    private static <T extends Mob> T spawnWith(GameTestHelper helper, EntityType<T> type, ItemStack mainHand) {
+        T mob = type.create(helper.getLevel());
+        mob.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
+        mob.setNoAi(true);
+        mob.setPersistenceRequired();
+        mob.setItemSlot(EquipmentSlot.MAINHAND, mainHand);
+        helper.getLevel().addFreshEntity(mob);
+        return mob;
+    }
+
+    private static void withMobGear(MobGearDefinition mobs, Runnable body) {
+        WeaponData.Snapshot original = WeaponData.current();
+        GearDefinition g = original.gear();
+        WeaponData.install(new WeaponData.Snapshot(original.weapons(), original.rules(), new GearDefinition(1, g.shieldPerfectWindow(), g.shieldPerfectCooldown(),
+                g.shieldPerfectDamageBonus(), g.shieldPerfectBonusSeconds(), g.shieldPerfectKnockback(), g.reflectArrows(), g.replaceVanillaGear(), g.lootUpgradeChance(),
+                g.enchantedBookChance(), g.reflectiveCooldownSeconds(), g.projectileSpeedMultipliers(), g.projectileSpeedCap(), g.goldenDrawTime(), g.shurikens(), mobs)));
+        try {
+            body.run();
+        } finally {
+            WeaponData.install(original);
+        }
+    }
+
+    private static Player thrower(GameTestHelper helper, ItemStack stack, GameType mode) {
+        Player player = helper.makeMockPlayer(mode);
+        player.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        return player;
+    }
+
+    private static List<ShurikenEntity> thrownBy(GameTestHelper helper, Player player) {
+        return helper.getLevel().getEntitiesOfClass(ShurikenEntity.class, player.getBoundingBox().inflate(6.0D), entity -> entity.getOwner() == player);
+    }
+
+    private static int firstShuriken(Player player) {
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            if (player.getInventory().getItem(slot).getItem() instanceof ShurikenItem) return slot;
+        }
+        return -1;
+    }
+
     /** Arcs et arbalètes : durabilité, tags, recettes (bâtons pour le bois, matériau sinon), distributeur, chargement de l'or. */
     @GameTest(template = ARENA)
     public static void rangedWeaponsSetup(GameTestHelper helper) {
@@ -1168,7 +1518,8 @@ public final class CombatGameTests {
         Skeleton skeleton = EntityType.SKELETON.create(helper.getLevel());
         skeleton.setPos(helper.absoluteVec(new Vec3(1.5D, 1.0D, 1.5D)));
         skeleton.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
-        helper.getLevel().addFreshEntity(skeleton);
+        // Le 5 % de squelettes ninjas ferait échouer ce test au hasard.
+        withMobGear(new MobGearDefinition(9.5D, 0.0D, 0.0D, 0.0D, false, 0.0D), () -> helper.getLevel().addFreshEntity(skeleton));
         helper.assertTrue(skeleton.getMainHandItem().getItem() instanceof WeaponBowItem bow && bow.getMaterial() != WeaponMaterials.WOODEN && bow.getMaterial() != WeaponMaterials.GOLDEN,
                 "a skeleton should get a bow of the mod, at least in stone");
         helper.assertTrue(skeleton.canFireProjectileWeapon((ProjectileWeaponItem) skeleton.getMainHandItem().getItem()), "a skeleton should be able to fire it");

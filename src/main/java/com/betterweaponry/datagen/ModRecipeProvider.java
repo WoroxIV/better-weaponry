@@ -56,6 +56,8 @@ public class ModRecipeProvider extends RecipeProvider {
     private static final WeaponRecipe CROSSBOW_RECIPE = WeaponRecipe.of("MIM", "XHX", " M ")
             .with('I', Tags.Items.INGOTS_IRON).with('X', Tags.Items.STRINGS).withItem('H', () -> Items.TRIPWIRE_HOOK);
 
+    private static final WeaponRecipe SHURIKEN_RECIPE = WeaponRecipe.of("M M", " S ", "M M");
+
     @Override
     protected void buildRecipes(RecipeOutput output) {
         for (WeaponType type : WeaponType.values()) {
@@ -74,6 +76,8 @@ public class ModRecipeProvider extends RecipeProvider {
                     base -> ModItems.bow(base).get());
             addRecipes(output, material, CROSSBOW_RECIPE, ModItems.crossbow(material).get(), material.itemName(GearType.CROSSBOW),
                     base -> ModItems.crossbow(base).get());
+            addRecipes(output, material, SHURIKEN_RECIPE, ModItems.shuriken(material).get(), material.itemName(GearType.SHURIKEN),
+                    base -> ModItems.shuriken(base).get());
         }
     }
 

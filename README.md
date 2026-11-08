@@ -151,6 +151,22 @@ Bows and crossbows exist in every material (`iron_bow`, `iron_crossbow`...), wit
 
 The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, strays, bogged, illusioners, pillagers and piglins get the mod's versions when they spawn (stone by default, which shoots like the vanilla weapon, with a 9.5% chance per step to move up a material, more on Hard). Their aim adapts to the speed of the arrow. Fletchers and armorers sell better materials as they level up, up to diamond: villagers never sell netherite. The dispenser recipe accepts any bow, and the Ol' Betsy advancement accepts any crossbow.
 
+### Shurikens
+
+`<material>_shuriken`: thrown with right click, one every 0.6 seconds. Durability is that of the material's tools divided by 3 (wood 19, stone 43, iron 83, gold 10, diamond 520, netherite 677).
+
+- Each throw costs 1 durability, picking the shuriken up gives it back. After a hit, it falls to the ground so you can get it back.
+- Throwing the last point destroys the item; picking up that shuriken recreates it with 1 durability and its enchantments.
+- A shuriken can only be picked up by its thrower, and only if the item still exists or was destroyed by a throw. A free throw (Unbreaking) gives nothing back.
+- Enchantments: Power, Punch, Flame, Piercing or Multishot, Unbreaking, Mending, and **Returning** (flies back like a Loyalty trident, incompatible with Mending). Infinity and Quick Charge are refused.
+- Textures: `textures/item/<material>_shuriken.png`; `textures/item/shuriken.png` is used for any material without its own file. The ones provided are placeholders.
+
+### Mobs
+
+The number of armed mobs does not change. A hostile mob that gets a vanilla weapon or tool at spawn has a 50% chance to get a random weapon of the mod instead, in the same material or better, and 5% of those hold one weapon in each hand. The off-hand weapon is never dropped. The best material is iron in the Overworld, diamond in the Nether and the End, and one step more on Hard (not in the End).
+
+Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, alternate hands when dual wielding, and can raise a guard with a shield or a parrying weapon; a guard reduces hits like a player's parry and an axe breaks it. 5% of skeletons throw shurikens, and patrol and raid captains carry a shield. All of this is off with `combat_changes_enabled: false`, Better Combat or Epic Fight, except for the weapons themselves.
+
 ### Enchantments
 
 | Enchantment | Effect | Goes on | How to get it |
@@ -366,7 +382,8 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 | `projectile_speed_multipliers` | 0.1 – 5 each | see above | Projectile speed by material id; other materials use their damage multiplier minus 0.34 |
 | `projectile_speed_cap` | 0.1 – 5 | 2 | Highest projectile speed multiplier, whatever the material |
 | `golden_draw_time` | 0.1 – 1 | 0.5 | Draw or load time of gold compared to vanilla |
-| `mob_upgrade_chance` | 0 – 100 | 9.5 | On mobs, chance to move up one material, rolled at each step |
+| `shurikens` | object | see the editor | `throw_speed`, `base_damage`, `cooldown_seconds` |
+| `mobs` | object | see the editor | `upgrade_chance`, `modded_weapon_chance`, `dual_wield_chance`, `ninja_skeleton_chance`, `captain_shield`, `guard_chance` |
 
 ### Upgrading from 1.x
 

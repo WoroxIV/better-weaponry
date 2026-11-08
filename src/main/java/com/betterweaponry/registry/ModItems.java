@@ -2,6 +2,7 @@ package com.betterweaponry.registry;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.item.GearType;
+import com.betterweaponry.item.ShurikenItem;
 import com.betterweaponry.item.WeaponBowItem;
 import com.betterweaponry.item.WeaponCrossbowItem;
 import com.betterweaponry.item.WeaponItem;
@@ -32,6 +33,7 @@ public final class ModItems {
     private static final Map<WeaponMaterial, DeferredItem<WeaponShieldItem>> SHIELDS = new LinkedHashMap<>();
     private static final Map<WeaponMaterial, DeferredItem<WeaponBowItem>> BOWS = new LinkedHashMap<>();
     private static final Map<WeaponMaterial, DeferredItem<WeaponCrossbowItem>> CROSSBOWS = new LinkedHashMap<>();
+    private static final Map<WeaponMaterial, DeferredItem<ShurikenItem>> SHURIKENS = new LinkedHashMap<>();
 
     static {
         for (WeaponType type : WeaponType.values()) {
@@ -47,6 +49,7 @@ public final class ModItems {
             SHIELDS.put(material, ITEMS.registerItem(material.itemName(GearType.SHIELD), properties -> new WeaponShieldItem(material, properties)));
             BOWS.put(material, ITEMS.registerItem(material.itemName(GearType.BOW), properties -> new WeaponBowItem(material, properties)));
             CROSSBOWS.put(material, ITEMS.registerItem(material.itemName(GearType.CROSSBOW), properties -> new WeaponCrossbowItem(material, properties)));
+            SHURIKENS.put(material, ITEMS.registerItem(material.itemName(GearType.SHURIKEN), properties -> new ShurikenItem(material, properties)));
         }
     }
 
@@ -85,6 +88,14 @@ public final class ModItems {
 
     public static DeferredItem<WeaponCrossbowItem> crossbow(WeaponMaterial material) {
         return Objects.requireNonNull(CROSSBOWS.get(material), () -> "Aucune arbalète " + material + " : matériau inactif");
+    }
+
+    public static DeferredItem<ShurikenItem> shuriken(WeaponMaterial material) {
+        return Objects.requireNonNull(SHURIKENS.get(material), () -> "Aucun shuriken " + material + " : matériau inactif");
+    }
+
+    public static Collection<DeferredItem<ShurikenItem>> allShurikens() {
+        return Collections.unmodifiableCollection(SHURIKENS.values());
     }
 
     public static Collection<DeferredItem<WeaponBowItem>> allBows() {

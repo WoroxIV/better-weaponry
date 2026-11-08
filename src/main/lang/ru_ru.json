@@ -66,6 +66,10 @@
       "crossbow": {
         "name": "Арбалет",
         "gender": "m"
+      },
+      "shuriken": {
+        "name": "Сюрикен",
+        "gender": "m"
       }
     },
     "materials": {
@@ -548,7 +552,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Наибольший множитель скорости для любого материала. Урон стрелы зависит от скорости: это сдерживает очень сильные материалы из модов.",
     "better_weaponry.field.gear.golden_draw_time": "Время натяжения золота",
     "better_weaponry.field.gear.golden_draw_time.help": "Время натяжения или зарядки золотых луков и арбалетов относительно обычных. 0,5: вдвое быстрее.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Шанс лучшего материала у мобов",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "У мобов, начиная с дерева: шанс в % перейти к следующему материалу. Бросается заново на каждом шаге, на высокой сложности в 1,5 раза выше."
+    "entity.better_weaponry.shuriken": "Сюрикен",
+    "enchantment.better_weaponry.returning": "Возвращение",
+    "enchantment.better_weaponry.returning.desc": "Воткнувшиеся сюрикены возвращаются к вам, как трезубец с Верностью, и восстанавливают прочность. Несовместимо с Починкой.",
+    "better_weaponry.field.gear.shurikens": "Сюрикены",
+    "better_weaponry.field.gear.shurikens.help": "Настройки сюрикенов. Каждый бросок тратит 1 прочности, подбор возвращает её. Материал меняет скорость, как у луков.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Скорость броска",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Скорость каменного сюрикена. Полностью натянутая стрела летит со скоростью 3. Урон зависит от скорости.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Базовый урон",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Умножается на скорость при попадании и округляется вверх. У стрелы 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Задержка между бросками",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Время до следующего броска этого сюрикена, в секундах.",
+    "better_weaponry.field.gear.mobs": "Мобы",
+    "better_weaponry.field.gear.mobs.help": "Оружие и поведение мобов. Вооружённых мобов не больше, чем в обычной игре: только моб, который получил бы обычное оружие или инструмент, может получить вместо него оружие мода.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Шанс лучшего материала",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Шанс в % перейти к следующему материалу, бросается на каждом шаге, на высокой сложности в 1,5 раза выше. Предел: железо в Верхнем мире, алмаз в Незере и Энде, на высокой сложности на шаг больше (кроме Энда).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Шанс оружия мода",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Шанс в %, что обычное оружие или инструмент враждебного моба станет оружием мода. 0: мобы сохраняют обычное оружие.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Шанс двух оружий",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Среди мобов с оружием мода: шанс в % иметь оружие в каждой руке. Оружие из второй руки никогда не выпадает.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Шанс скелета-ниндзя",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Шанс в %, что скелет метает сюрикены вместо стрельбы из лука.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Щиты капитанов",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: капитаны патрулей и рейдов носят щит мода во второй руке. Он никогда не выпадает.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Шанс защиты",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "Каждую секунду рядом с целью: шанс в %, что моб со щитом или парирующим оружием поднимет защиту. Топор её пробивает."
   }
 }

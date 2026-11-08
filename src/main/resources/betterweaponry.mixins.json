@@ -10,7 +10,9 @@
     "DualSwingFirstPersonMixin",
     "DualSwingModelMixin",
     "RangedHandRenderMixin",
-    "SkeletonModelMixin"
+    "SkeletonModelMixin",
+    "MobGuardModelMixin",
+    "ZombieArmsMixin"
   ],
   "mixins": [
     "PlayerCombatMixin",
@@ -21,6 +23,8 @@
     "MobRangedWeaponMixin",
     "PiglinMixin",
     "AbstractArrowMixin",
+    "MobAccessor",
+    "MobMixin",
     "LivingEntityMixin",
     "LivingEntityAccessor",
     "SweepParticleMixin"

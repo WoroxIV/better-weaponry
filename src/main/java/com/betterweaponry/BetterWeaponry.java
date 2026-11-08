@@ -6,8 +6,10 @@ import com.betterweaponry.datagen.ModItemModelProvider;
 import com.betterweaponry.datagen.ModItemTagsProvider;
 import com.betterweaponry.datagen.ModRecipeProvider;
 import com.betterweaponry.datagen.lang.ModLanguageProvider;
+import com.betterweaponry.registry.ModAttachments;
 import com.betterweaponry.registry.ModAttributes;
 import com.betterweaponry.registry.ModEffects;
+import com.betterweaponry.registry.ModEntities;
 import com.betterweaponry.registry.ModItems;
 import com.betterweaponry.registry.ModLootModifiers;
 import com.betterweaponry.registry.ModRecipes;
@@ -51,6 +53,8 @@ public final class BetterWeaponry {
 
     public BetterWeaponry(IEventBus modEventBus, ModContainer modContainer) {
         ModItems.ITEMS.register(modEventBus);
+        ModEntities.ENTITY_TYPES.register(modEventBus);
+        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModAttributes.ATTRIBUTES.register(modEventBus);
         ModSounds.SOUNDS.register(modEventBus);
         ModRecipes.SERIALIZERS.register(modEventBus);

@@ -1,7 +1,11 @@
 package com.betterweaponry.combat;
 
+import com.betterweaponry.mixin.MobAccessor;
 import net.minecraft.core.Holder;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -16,7 +20,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Échange temporairement les deux mains d'un joueur, objets ET bonus d'attributs.
+ * Échange temporairement les deux mains d'un joueur ou d'un mob, objets ET bonus d'attributs.
  * <p>
  * Pendant une attaque de la main secondaire, Minecraft croit alors que l'arme secondaire
  * est en main principale : dégâts, vitesse, enchantements, durabilité, recul, coup balayé...
@@ -26,26 +30,41 @@ import java.util.function.Function;
  * et doit toujours être annulé avec {@link #restore()} avant la fin du tick.
  */
 public final class HandSwap {
-    private final Player player;
+    private final NonNullList<ItemStack> mainSlots;
+    private final int mainIndex;
+    private final NonNullList<ItemStack> offSlots;
+    private final int offIndex;
     /** Bonus retirés (à remettre) et ajoutés (à retirer) pendant l'échange. */
     private final List<AppliedModifier> removed = new ArrayList<>();
     private final List<AppliedModifier> added = new ArrayList<>();
 
-    private HandSwap(Player player) {
-        this.player = player;
+    private HandSwap(NonNullList<ItemStack> mainSlots, int mainIndex, NonNullList<ItemStack> offSlots, int offIndex) {
+        this.mainSlots = mainSlots;
+        this.mainIndex = mainIndex;
+        this.offSlots = offSlots;
+        this.offIndex = offIndex;
     }
 
     /** Échange les mains et renvoie l'objet qui permet de tout remettre en place. */
     public static HandSwap begin(Player player) {
-        HandSwap swap = new HandSwap(player);
         Inventory inventory = player.getInventory();
-        ItemStack main = inventory.getSelected();
-        ItemStack off = inventory.offhand.get(0);
+        return begin(player, new HandSwap(inventory.items, inventory.selected, inventory.offhand, 0));
+    }
 
-        swapModifiers(main, off, player::getAttribute, swap);
+    /** Même échange pour un mob, dont les mains sont une simple liste de deux objets. */
+    public static HandSwap begin(Mob mob) {
+        NonNullList<ItemStack> hands = ((MobAccessor) mob).betterweaponry$getHandItems();
+        return begin(mob, new HandSwap(hands, 0, hands, 1));
+    }
 
-        inventory.items.set(inventory.selected, off);
-        inventory.offhand.set(0, main);
+    private static HandSwap begin(LivingEntity entity, HandSwap swap) {
+        ItemStack main = swap.mainSlots.get(swap.mainIndex);
+        ItemStack off = swap.offSlots.get(swap.offIndex);
+
+        swapModifiers(main, off, entity::getAttribute, swap);
+
+        swap.mainSlots.set(swap.mainIndex, off);
+        swap.offSlots.set(swap.offIndex, main);
         return swap;
     }
 
@@ -64,10 +83,9 @@ public final class HandSwap {
             }
         }
 
-        Inventory inventory = player.getInventory();
-        ItemStack nowInMain = inventory.getSelected();
-        inventory.items.set(inventory.selected, inventory.offhand.get(0));
-        inventory.offhand.set(0, nowInMain);
+        ItemStack nowInMain = this.mainSlots.get(this.mainIndex);
+        this.mainSlots.set(this.mainIndex, this.offSlots.get(this.offIndex));
+        this.offSlots.set(this.offIndex, nowInMain);
     }
 
     /**

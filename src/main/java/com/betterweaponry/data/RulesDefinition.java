@@ -119,6 +119,11 @@ public record RulesDefinition(int formatVersion, boolean combatChangesEnabled,
         return combatChangesEnabled && toggle && !CombatCompat.externalCombatMod();
     }
 
+    /** Comportements propres aux mobs (ninjas, capitaines) : coupés avec l'interrupteur général ou un autre mod de combat. */
+    public boolean mobBehaviorsActive() {
+        return active(true);
+    }
+
     public boolean reachActive() {
         return active(reachEnabled);
     }

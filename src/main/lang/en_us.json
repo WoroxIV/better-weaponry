@@ -18,7 +18,8 @@
       "sai": "Sai",
       "shield": "Shield",
       "bow": "Bow",
-      "crossbow": "Crossbow"
+      "crossbow": "Crossbow",
+      "shuriken": "Shuriken"
     },
     "materials": {
       "wooden": "Wooden",
@@ -420,7 +421,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Highest speed multiplier, whatever the material. Arrow damage depends on speed: this keeps very strong modded materials under control.",
     "better_weaponry.field.gear.golden_draw_time": "Gold draw time",
     "better_weaponry.field.gear.golden_draw_time.help": "Draw or load time of golden bows and crossbows compared to vanilla. 0.5: twice as fast.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Mob material upgrade chance",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "On mobs, starting from wood, chance in % of moving up to the next material. Rolled again at each step, and 1.5 times higher on Hard."
+    "entity.better_weaponry.shuriken": "Shuriken",
+    "enchantment.better_weaponry.returning": "Returning",
+    "enchantment.better_weaponry.returning.desc": "Shurikens that land fly back to you like a Loyalty trident and give their durability back. Incompatible with Mending.",
+    "better_weaponry.field.gear.shurikens": "Shurikens",
+    "better_weaponry.field.gear.shurikens.help": "Settings of the shurikens. Each throw uses 1 durability, picking the shuriken up gives it back. The material changes the speed, like for bows.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Throw speed",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Speed of a stone shuriken. A fully drawn arrow flies at 3. Damage depends on speed.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Base damage",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Multiplied by the speed on impact, then rounded up. An arrow has 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Delay between throws",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Time before you can throw this shuriken again, in seconds.",
+    "better_weaponry.field.gear.mobs": "Mobs",
+    "better_weaponry.field.gear.mobs.help": "Weapons and behavior of mobs. No more mobs are armed than in vanilla: only a mob that would get a vanilla weapon or tool can get a weapon of the mod instead.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Better material chance",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Chance in % of moving up to the next material, rolled again at each step and 1.5 times higher on Hard. Limited to iron in the Overworld, diamond in the Nether and the End, one step more on Hard (not in the End).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Mod weapon chance",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Chance in % that a vanilla weapon or tool held by a hostile mob becomes a weapon of the mod. 0: mobs keep their vanilla weapons.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Dual wield chance",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Among mobs that get a weapon of the mod, chance in % of having one in each hand. The off-hand weapon is never dropped.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Ninja skeleton chance",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Chance in % that a skeleton throws shurikens instead of shooting a bow.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Shields on captains",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: patrol and raid captains carry a shield of the mod in their off hand. It is never dropped.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Guard chance",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "Each second near its target, chance in % that a mob with a shield or a parrying weapon raises its guard. An axe breaks it."
   }
 }

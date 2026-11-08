@@ -19,7 +19,8 @@
       "sai": "Sai",
       "shield": "Scudo",
       "bow": "Arco",
-      "crossbow": "Balestra"
+      "crossbow": "Balestra",
+      "shuriken": "Shuriken"
     },
     "materials": {
       "wooden": "di legno",
@@ -421,7 +422,30 @@
     "better_weaponry.field.gear.projectile_speed_cap.help": "Moltiplicatore massimo di velocità, qualunque sia il materiale. I danni di una freccia dipendono dalla velocità: così i materiali molto potenti delle mod restano sotto controllo.",
     "better_weaponry.field.gear.golden_draw_time": "Tempo di tensione dell'oro",
     "better_weaponry.field.gear.golden_draw_time.help": "Tempo di tensione o caricamento di archi e balestre d'oro rispetto al vanilla. 0,5: due volte più rapido.",
-    "better_weaponry.field.gear.mob_upgrade_chance": "Probabilità di materiale migliore sui mob",
-    "better_weaponry.field.gear.mob_upgrade_chance.help": "Sui mob, partendo dal legno, probabilità in % di passare al materiale successivo. Ritirata a ogni passaggio, e 1,5 volte più alta a Difficile."
+    "entity.better_weaponry.shuriken": "Shuriken",
+    "enchantment.better_weaponry.returning": "Ritorno",
+    "enchantment.better_weaponry.returning.desc": "Gli shuriken conficcati tornano da te come un tridente con Lealtà e restituiscono la loro durabilità. Incompatibile con Riparazione.",
+    "better_weaponry.field.gear.shurikens": "Shuriken",
+    "better_weaponry.field.gear.shurikens.help": "Impostazioni degli shuriken. Ogni lancio consuma 1 durabilità, raccoglierlo la restituisce. Il materiale cambia la velocità, come per gli archi.",
+    "better_weaponry.field.gear.shurikens.throw_speed": "Velocità di lancio",
+    "better_weaponry.field.gear.shurikens.throw_speed.help": "Velocità di uno shuriken di pietra. Una freccia a piena tensione vola a 3. I danni dipendono dalla velocità.",
+    "better_weaponry.field.gear.shurikens.base_damage": "Danni base",
+    "better_weaponry.field.gear.shurikens.base_damage.help": "Moltiplicati per la velocità all'impatto, poi arrotondati per eccesso. Una freccia ne ha 2.",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds": "Intervallo tra i lanci",
+    "better_weaponry.field.gear.shurikens.cooldown_seconds.help": "Tempo prima di poter lanciare di nuovo questo shuriken, in secondi.",
+    "better_weaponry.field.gear.mobs": "Mob",
+    "better_weaponry.field.gear.mobs.help": "Armi e comportamento dei mob. Non ci sono più mob armati che nel vanilla: solo un mob che riceverebbe un'arma o uno strumento vanilla può ricevere invece un'arma della mod.",
+    "better_weaponry.field.gear.mobs.upgrade_chance": "Probabilità di materiale migliore",
+    "better_weaponry.field.gear.mobs.upgrade_chance.help": "Probabilità in % di passare al materiale successivo, ritirata a ogni passaggio e 1,5 volte più alta a Difficile. Limitato al ferro nell'Overworld, al diamante nel Nether e nell'End, un livello in più a Difficile (non nell'End).",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance": "Probabilità di arma della mod",
+    "better_weaponry.field.gear.mobs.modded_weapon_chance.help": "Probabilità in % che un'arma o uno strumento vanilla di un mob ostile diventi un'arma della mod. 0: i mob tengono le armi vanilla.",
+    "better_weaponry.field.gear.mobs.dual_wield_chance": "Probabilità di doppia arma",
+    "better_weaponry.field.gear.mobs.dual_wield_chance.help": "Tra i mob con un'arma della mod, probabilità in % di averne una per mano. L'arma della mano secondaria non cade mai.",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance": "Probabilità di scheletro ninja",
+    "better_weaponry.field.gear.mobs.ninja_skeleton_chance.help": "Probabilità in % che uno scheletro lanci shuriken invece di tirare con l'arco.",
+    "better_weaponry.field.gear.mobs.captain_shield": "Scudi dei capitani",
+    "better_weaponry.field.gear.mobs.captain_shield.help": "true: i capitani di pattuglie e incursioni portano uno scudo della mod nella mano secondaria. Non cade mai.",
+    "better_weaponry.field.gear.mobs.guard_chance": "Probabilità di parata",
+    "better_weaponry.field.gear.mobs.guard_chance.help": "Ogni secondo vicino al bersaglio, probabilità in % che un mob con scudo o arma da parata alzi la guardia. Un'ascia la spezza."
   }
 }

@@ -1,0 +1,34 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "aether"
+    },
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "better_weaponry:weapon_materials/gravitite"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "better_weaponry:weapon_materials/gravitite"
+    },
+    "S": {
+      "tag": "c:rods/wooden"
+    }
+  },
+  "pattern": [
+    "M M",
+    " S ",
+    "M M"
+  ],
+  "result": {
+    "count": 1,
+    "id": "better_weaponry:gravitite_shuriken"
+  }
+}

@@ -4,6 +4,7 @@ import com.betterweaponry.client.CombatHud;
 import com.betterweaponry.client.ModKeyMappings;
 import com.betterweaponry.client.RangedWeaponClient;
 import com.betterweaponry.client.ShieldClientExtensions;
+import com.betterweaponry.client.ShurikenRenderer;
 import com.betterweaponry.client.WeaponClientExtensions;
 import com.betterweaponry.client.editor.ClientEditorHooks;
 import com.betterweaponry.client.editor.WeaponEditorScreen;
@@ -11,6 +12,7 @@ import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.editor.EditorHooks;
 import com.betterweaponry.item.WeaponItem;
+import com.betterweaponry.registry.ModEntities;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -23,6 +25,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -48,9 +51,14 @@ public final class BetterWeaponryClient {
 
         modEventBus.addListener(BetterWeaponryClient::registerClientExtensions);
         modEventBus.addListener(BetterWeaponryClient::registerGuiLayers);
+        modEventBus.addListener(BetterWeaponryClient::registerRenderers);
         modEventBus.addListener(BetterWeaponryClient::registerKeyMappings);
         modEventBus.addListener(BetterWeaponryClient::clientSetup);
         NeoForge.EVENT_BUS.addListener(BetterWeaponryClient::onLoggingOut);
+    }
+
+    private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModEntities.SHURIKEN.get(), ShurikenRenderer::new);
     }
 
     /** Rendu spécial des armes en main (pose de parade en première personne). */

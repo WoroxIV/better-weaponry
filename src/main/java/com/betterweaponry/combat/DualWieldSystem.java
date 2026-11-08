@@ -4,6 +4,7 @@ import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModTags;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +41,7 @@ public final class DualWieldSystem {
     }
 
     /** Une arme ambidextre dans chaque main. Toujours faux si le dual wield est coupé (rules.json, Better Combat, Epic Fight). */
-    public static boolean isDualWielding(Player player) {
+    public static boolean isDualWielding(LivingEntity player) {
         return WeaponData.rules().dualWieldActive()
                 && canDualWield(player.getMainHandItem())
                 && canDualWield(player.getOffhandItem());

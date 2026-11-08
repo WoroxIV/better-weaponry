@@ -46,6 +46,7 @@ public final class ModEnchantments {
     public static final ResourceKey<Enchantment> MOMENTUM = key("momentum");
     public static final ResourceKey<Enchantment> EXECUTION = key("execution");
     public static final ResourceKey<Enchantment> BLEEDING = key("bleeding");
+    public static final ResourceKey<Enchantment> RETURNING = key("returning");
 
     private static final double REFLECT_PER_LEVEL = 0.1D;
     private static final double VAMPIRISM_PER_LEVEL = 0.1D;
