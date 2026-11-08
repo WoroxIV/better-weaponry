@@ -1,5 +1,6 @@
 package com.betterweaponry.mixin;
 
+import com.betterweaponry.data.WeaponData;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.particles.ParticleOptions;
@@ -32,6 +33,7 @@ public abstract class SweepParticleMixin {
                                                   double dirX, double dirY, double dirZ, double speed,
                                                   Operation<Integer> original) {
         Player player = (Player) (Object) this;
+        if (!WeaponData.rules().sweepActive()) return original.call(level, particle, x, y, z, count, dirX, dirY, dirZ, speed);
         // dirX / dirZ : direction du regard à l'horizontale (vecteur unitaire), déjà calculée par le jeu
         double distance = player.entityInteractionRange() / VANILLA_REACH;
         return original.call(level, particle,

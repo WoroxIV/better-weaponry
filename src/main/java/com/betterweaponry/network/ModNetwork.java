@@ -10,7 +10,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 @EventBusSubscriber(modid = BetterWeaponry.MODID)
 public final class ModNetwork {
     /** À augmenter quand le format d'un paquet change : un client et un serveur différents refuseront de se connecter. */
-    private static final String PROTOCOL_VERSION = "3";
+    private static final String PROTOCOL_VERSION = "4";
 
     private ModNetwork() {
     }

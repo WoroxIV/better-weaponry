@@ -1,8 +1,18 @@
 {
   "format_version": 1,
+  "combat_changes_enabled": true,
   "dual_wield_speed_multiplier": 1.5,
   "dual_wield_invulnerability_seconds": 0.25,
+  "reach_enabled": true,
+  "sweep_enabled": true,
+  "armor_penetration_enabled": true,
+  "on_hit_effects_enabled": true,
+  "shield_disabling_enabled": true,
+  "two_handed_enabled": true,
+  "dual_wield_enabled": true,
   "parry_enabled": true,
+  "perfect_parry_enabled": true,
+  "guard_break_enabled": true,
   "dash_enabled": true,
   "combos_enabled": true
 }

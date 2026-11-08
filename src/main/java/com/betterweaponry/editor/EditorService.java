@@ -9,6 +9,7 @@ import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDataEvents;
 import com.betterweaponry.data.WeaponDataLoader;
+import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.network.EditorResultPayload;
 import com.betterweaponry.network.WeaponDataSyncPayload;
 import com.google.gson.JsonElement;
@@ -125,6 +126,7 @@ public final class EditorService {
         WeaponDataSyncPayload payload = new WeaponDataSyncPayload(WeaponData.current());
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             PacketDistributor.sendToPlayer(player, payload);
+            WeaponItem.refreshEquippedModifiers(player);
             if (WeaponDataEvents.canSeeProblems(player)) WeaponDataEvents.sendProblems(player, result.problems());
         }
         return result;

@@ -1,6 +1,7 @@
 package com.betterweaponry.client.editor;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.config.Docs;
@@ -240,6 +241,9 @@ public final class WeaponEditorScreen extends Screen {
         if (selected.equals(CLIENT_PAGE)) {
             addClientRows();
         } else {
+            CombatCompat.externalCombatModName().ifPresent(name -> fieldList.add(fieldList.new NoteRow(
+                    Component.translatable(KEY + "external_combat_mod", name),
+                    Component.translatable(KEY + "external_combat_mod.tooltip", name), WARNING_COLOR, 0)));
             EditorDocument document = model.document(selected);
             String sectionTitle = document.type() == null ? KEY + "section.rules" : KEY + "section.stats";
             addSection("", Component.translatable(sectionTitle), null, 0);

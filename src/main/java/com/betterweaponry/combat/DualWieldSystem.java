@@ -1,6 +1,5 @@
 package com.betterweaponry.combat;
 
-import com.betterweaponry.compat.BetterCombatCompat;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModTags;
@@ -30,9 +29,9 @@ public final class DualWieldSystem {
         return stack.is(ModTags.DUAL_WIELDABLE);
     }
 
-    /** Toujours faux si Better Combat est installé : il a son propre système de dual wield. */
+    /** Toujours faux si le dual wield est coupé (rules.json, Better Combat, Epic Fight). */
     public static boolean isDualWielding(Player player) {
-        if (BetterCombatCompat.isLoaded()) return false;
+        if (!WeaponData.rules().dualWieldActive()) return false;
 
         ItemStack main = player.getMainHandItem();
         ItemStack off = player.getOffhandItem();

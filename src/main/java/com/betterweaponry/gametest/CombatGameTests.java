@@ -6,6 +6,7 @@ import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.combat.PlayerCombatState;
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.DashDefinition;
@@ -15,6 +16,7 @@ import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.ParryDefinition;
+import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
@@ -56,6 +58,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Tests automatiques du combat, lancés par {@code gradlew runGameTestServer} (ou {@code /test runall} en jeu, en dev).
@@ -503,6 +506,65 @@ public final class CombatGameTests {
         }
         helper.assertTrue(JsonTree.sameValue(document.json(WeaponData.current()), original), "the original values should be back");
         helper.succeed();
+    }
+
+    /**
+     * Interrupteurs : chaque système se coupe seul, l'interrupteur général et un mod de combat les coupent tous,
+     * les bonus d'une arme déjà en main suivent le changement, et le combat redevient vanilla.
+     */
+    @GameTest(template = ARENA)
+    public static void combatSwitches(GameTestHelper helper) {
+        RulesDefinition all = RulesDefinition.FALLBACK;
+        helper.assertTrue(all.reachActive() && all.sweepActive() && all.armorPenetrationActive() && all.onHitEffectsActive()
+                && all.shieldDisablingActive() && all.twoHandedActive() && all.dualWieldActive() && all.parryActive()
+                && all.perfectParryActive() && all.guardBreakActive() && all.dashActive() && all.combosActive(), "everything is active by default");
+
+        Predicate<RulesDefinition> anythingActive = rules -> rules.reachActive() || rules.sweepActive() || rules.armorPenetrationActive()
+                || rules.onHitEffectsActive() || rules.shieldDisablingActive() || rules.twoHandedActive() || rules.dualWieldActive()
+                || rules.parryActive() || rules.perfectParryActive() || rules.guardBreakActive() || rules.dashActive() || rules.combosActive();
+        helper.assertFalse(anythingActive.test(rules(false, true)), "the main switch should turn everything off");
+        try {
+            CombatCompat.simulateForTests(true);
+            helper.assertFalse(anythingActive.test(all), "a combat mod should turn everything off");
+        } finally {
+            CombatCompat.simulateForTests(false);
+        }
+        RulesDefinition noParry = new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, false, true, true, true, true);
+        helper.assertFalse(noParry.perfectParryActive() || noParry.guardBreakActive(), "no perfect parry nor guard break without the parry");
+        helper.assertTrue(noParry.dashActive(), "turning the parry off should not touch the dash");
+
+        WeaponData.Snapshot original = WeaponData.current();
+        ItemStack katana = weapon(WeaponType.KATANA);
+        ItemStack sai = weapon(WeaponType.SAI);
+        Player twoHands = player(helper, katana, ItemStack.EMPTY);
+        Player dual = player(helper, weapon(WeaponType.DAGGER), weapon(WeaponType.DAGGER));
+        Pig target = armoredPig(helper, new BlockPos(2, 1, 2));
+        double reachBefore = twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE);
+        helper.assertTrue(reachBefore == WeaponData.weapon(WeaponType.KATANA).attackReach(), "the katana's reach should apply at first");
+        try {
+            WeaponData.install(new WeaponData.Snapshot(original.weapons(), rules(false, true)));
+            WeaponItem.refreshEquippedModifiers(twoHands);
+            helper.assertTrue(twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE) == 3.0D,
+                    "main switch off: the held weapon should fall back to the vanilla reach");
+            helper.assertFalse(DualWieldSystem.isDualWielding(dual), "main switch off: no dual wield");
+            helper.assertFalse(WeaponItem.isTwoHanded(katana), "main switch off: no two-handed weapon");
+            helper.assertTrue(ParrySystem.parryOf(sai).isEmpty(), "main switch off: no parry");
+            helper.assertTrue(ComboSystem.activeCombo(twoHands).isEmpty(), "main switch off: no combo");
+            ItemStack hammer = weapon(WeaponType.HAMMER);
+            helper.assertFalse(hammer.getItem().canDisableShield(hammer, new ItemStack(Items.SHIELD), target, twoHands), "main switch off: shields stay up");
+            AABB zone = hammer.getSweepHitBox(twoHands, target);
+            helper.assertTrue(Math.abs(zone.getXsize() - (target.getBoundingBox().getXsize() + 2.0D)) < EPSILON, "main switch off: vanilla sweep zone");
+        } finally {
+            WeaponData.install(original);
+            WeaponItem.refreshEquippedModifiers(twoHands);
+        }
+        helper.assertTrue(twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE) == reachBefore, "the reach should be back");
+        helper.succeed();
+    }
+
+    /** Règles par défaut, en changeant l'interrupteur général et celui de la parade. */
+    private static RulesDefinition rules(boolean main, boolean parry) {
+        return new RulesDefinition(1, main, 1.5D, 0.25D, true, true, true, true, true, true, true, parry, true, true, true, true);
     }
 
     private static void expectDash(GameTestHelper helper, WeaponType type, ItemStack offhand, boolean onGround, boolean expected,

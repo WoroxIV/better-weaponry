@@ -49,9 +49,9 @@ public final class DashAbility {
     private DashAbility() {
     }
 
-    /** Réglages de dash de cet objet, s'il s'agit d'une arme qui fait un dash et que le dash est activé dans rules.json. */
+    /** Réglages de dash de cet objet, s'il s'agit d'une arme qui fait un dash et que le dash est actif (rules.json, autres mods). */
     public static Optional<DashDefinition> dashOf(ItemStack stack) {
-        if (!(stack.getItem() instanceof WeaponItem weapon) || !WeaponData.rules().dashEnabled()) return Optional.empty();
+        if (!(stack.getItem() instanceof WeaponItem weapon) || !WeaponData.rules().dashActive()) return Optional.empty();
         WeaponDefinition definition = weapon.definition();
         return definition.ability() == WeaponAbility.DASH ? Optional.of(definition.dash()) : Optional.empty();
     }

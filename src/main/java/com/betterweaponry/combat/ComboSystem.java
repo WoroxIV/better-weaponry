@@ -1,7 +1,6 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.compat.BetterCombatCompat;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.WeaponData;
@@ -90,9 +89,9 @@ public final class ComboSystem {
 
     // --- Quel combo ---
 
-    /** Combo de cet objet s'il est activé (fichier de l'arme et rules.json). Désactivé avec Better Combat, qui a les siens. */
+    /** Combo de cet objet s'il est activé (fichier de l'arme et rules.json). Coupé avec Better Combat et Epic Fight, qui ont les leurs. */
     public static Optional<ComboDefinition> comboOf(ItemStack stack) {
-        if (BetterCombatCompat.isLoaded() || !WeaponData.rules().combosEnabled()) return Optional.empty();
+        if (!WeaponData.rules().combosActive()) return Optional.empty();
         if (!(stack.getItem() instanceof WeaponItem weapon)) return Optional.empty();
         ComboDefinition combo = weapon.definition().combo();
         return combo.enabled() && !combo.steps().isEmpty() ? Optional.of(combo) : Optional.empty();

@@ -48,7 +48,7 @@ public final class CombatEvents {
      * Pendant un coup de la main secondaire, l'attribut est déjà celui de l'arme secondaire ({@link HandSwap}).
      */
     private static void applyArmorPenetration(LivingIncomingDamageEvent event, LivingEntity attacker) {
-        if (event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) return;
+        if (!WeaponData.rules().armorPenetrationActive() || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) return;
         AttributeInstance attribute = attacker.getAttribute(ModAttributes.ARMOR_PENETRATION);
         double penetration = attribute == null ? 0.0D : attribute.getValue();
         if (penetration <= 0.0D) return;
@@ -64,7 +64,8 @@ public final class CombatEvents {
     @SubscribeEvent
     public static void onSweepAttack(SweepAttackEvent event) {
         Player player = event.getEntity();
-        boolean noSweep = player.getMainHandItem().getItem() instanceof WeaponItem weapon && !weapon.definition().sweep().enabled();
+        boolean noSweep = WeaponData.rules().sweepActive()
+                && player.getMainHandItem().getItem() instanceof WeaponItem weapon && !weapon.definition().sweep().enabled();
         if (noSweep || ComboSystem.isAreaAttackInProgress(player)) {
             event.setSweeping(false);
         }

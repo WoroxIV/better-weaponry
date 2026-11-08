@@ -43,9 +43,9 @@ public final class ParrySystem {
     private ParrySystem() {
     }
 
-    /** Réglages de parade de cet objet, s'il s'agit d'une arme qui pare et que la parade est activée dans rules.json. */
+    /** Réglages de parade de cet objet, s'il s'agit d'une arme qui pare et que la parade est active (rules.json, autres mods). */
     public static Optional<ParryDefinition> parryOf(ItemStack stack) {
-        if (!(stack.getItem() instanceof WeaponItem weapon) || !WeaponData.rules().parryEnabled()) return Optional.empty();
+        if (!(stack.getItem() instanceof WeaponItem weapon) || !WeaponData.rules().parryActive()) return Optional.empty();
         WeaponDefinition definition = weapon.definition();
         return definition.ability() == WeaponAbility.PARRY ? Optional.of(definition.parry()) : Optional.empty();
     }

@@ -2,6 +2,7 @@ package com.betterweaponry.data;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.config.LegacyConfigMigration;
+import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.network.WeaponDataSyncPayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -45,6 +46,7 @@ public final class WeaponDataEvents {
         event.getRelevantPlayers().forEach(player -> {
             if (afterReload) {
                 PacketDistributor.sendToPlayer(player, new WeaponDataSyncPayload(WeaponData.current()));
+                WeaponItem.refreshEquippedModifiers(player);
             }
             if (canSeeProblems(player)) {
                 sendProblems(player, WeaponDataLoader.lastProblems());

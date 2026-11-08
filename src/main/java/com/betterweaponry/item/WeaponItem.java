@@ -4,16 +4,20 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.data.OnHitEffect;
-import com.betterweaponry.data.WeaponAbility;
+import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.registry.ModAttributes;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -68,9 +72,33 @@ public class WeaponItem extends SwordItem {
         return WeaponData.weapon(type);
     }
 
-    /** Vrai si l'objet est une arme du mod configurée comme arme à deux mains. */
+    /** Vrai si l'objet est une arme du mod configurée comme arme à deux mains, et que cette règle est active. */
     public static boolean isTwoHanded(ItemStack stack) {
-        return stack.getItem() instanceof WeaponItem weapon && weapon.definition().twoHanded();
+        return WeaponData.rules().twoHandedActive() && stack.getItem() instanceof WeaponItem weapon && weapon.definition().twoHanded();
+    }
+
+    /**
+     * Le jeu n'applique les bonus d'une arme qu'au moment où on la prend en main : après un changement de réglages,
+     * on remplace ceux de l'arme déjà tenue. Certains bonus peuvent avoir disparu (ex : portée coupée dans rules.json),
+     * d'où le retrait par identifiant avant d'ajouter les nouveaux.
+     */
+    public static void refreshEquippedModifiers(LivingEntity entity) {
+        ItemStack stack = entity.getMainHandItem();
+        if (!(stack.getItem() instanceof WeaponItem weapon)) return;
+        removeModifier(entity, Attributes.ENTITY_INTERACTION_RANGE, weapon.reachModifierId);
+        removeModifier(entity, ModAttributes.ARMOR_PENETRATION, ModAttributes.BASE_ARMOR_PENETRATION_ID);
+        removeModifier(entity, Attributes.SWEEPING_DAMAGE_RATIO, BASE_SWEEPING_RATIO_ID);
+        stack.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+            AttributeInstance instance = entity.getAttribute(attribute);
+            if (instance == null) return;
+            instance.removeModifier(modifier.id());
+            instance.addTransientModifier(modifier);
+        });
+    }
+
+    private static void removeModifier(LivingEntity entity, Holder<Attribute> attribute, ResourceLocation id) {
+        AttributeInstance instance = entity.getAttribute(attribute);
+        if (instance != null) instance.removeModifier(id);
     }
 
     // --- Stats ---
@@ -82,27 +110,29 @@ public class WeaponItem extends SwordItem {
         WeaponData.Versioned data = WeaponData.versioned();
         CachedModifiers current = cache;
         if (current == null || current.generation() != data.generation()) {
-            current = new CachedModifiers(data.generation(), buildModifiers(data.snapshot().weapon(type)));
+            current = new CachedModifiers(data.generation(), buildModifiers(data.snapshot().weapon(type), data.snapshot().rules()));
             cache = current;
         }
         return current.modifiers();
     }
 
     // Les données stockent les valeurs finales affichées au joueur, on retire donc ses valeurs de base.
-    private ItemAttributeModifiers buildModifiers(WeaponDefinition definition) {
+    private ItemAttributeModifiers buildModifiers(WeaponDefinition definition, RulesDefinition rules) {
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder()
                 .add(Attributes.ATTACK_DAMAGE, addValue(BASE_ATTACK_DAMAGE_ID, definition.damageFor(material) - PLAYER_BASE_DAMAGE),
                         EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ATTACK_SPEED, addValue(BASE_ATTACK_SPEED_ID, definition.attackSpeed() - PLAYER_BASE_SPEED),
-                        EquipmentSlotGroup.MAINHAND)
-                .add(Attributes.ENTITY_INTERACTION_RANGE, addValue(reachModifierId, definition.attackReach() - PLAYER_BASE_REACH),
                         EquipmentSlotGroup.MAINHAND);
+        if (rules.reachActive()) {
+            builder.add(Attributes.ENTITY_INTERACTION_RANGE, addValue(reachModifierId, definition.attackReach() - PLAYER_BASE_REACH),
+                    EquipmentSlotGroup.MAINHAND);
+        }
         // Absents à 0 : la ligne du tooltip n'apparaît que si la stat sert à quelque chose.
-        if (definition.armorPenetration() > 0.0D) {
+        if (rules.armorPenetrationActive() && definition.armorPenetration() > 0.0D) {
             builder.add(ModAttributes.ARMOR_PENETRATION,
                     addValue(ModAttributes.BASE_ARMOR_PENETRATION_ID, definition.armorPenetration() / PERCENT), EquipmentSlotGroup.MAINHAND);
         }
-        if (definition.sweep().enabled() && definition.sweep().damageRatio() > 0.0D) {
+        if (rules.sweepActive() && definition.sweep().enabled() && definition.sweep().damageRatio() > 0.0D) {
             builder.add(Attributes.SWEEPING_DAMAGE_RATIO,
                     addValue(BASE_SWEEPING_RATIO_ID, definition.sweep().damageRatio() / PERCENT), EquipmentSlotGroup.MAINHAND);
         }
@@ -128,7 +158,7 @@ public class WeaponItem extends SwordItem {
 
     /** Donne à la cible les effets à l'impact de cette arme (côté serveur), chacun selon sa chance. */
     public void applyOnHitEffects(LivingEntity target, LivingEntity attacker) {
-        if (attacker.level().isClientSide) return;
+        if (attacker.level().isClientSide || !WeaponData.rules().onHitEffectsActive()) return;
         for (OnHitEffect effect : definition().onHitEffects()) {
             if (attacker.getRandom().nextDouble() * PERCENT < effect.chance()) {
                 effect.createInstance().ifPresent(instance -> target.addEffect(instance, attacker));
@@ -139,6 +169,7 @@ public class WeaponItem extends SwordItem {
     /** Zone touchée par le coup balayé autour de la cible (vanilla : 1 bloc). La portée d'attaque la limite aussi. */
     @Override
     public AABB getSweepHitBox(ItemStack stack, Player player, Entity target) {
+        if (!WeaponData.rules().sweepActive()) return super.getSweepHitBox(stack, player, target);
         double radius = definition().sweep().radius();
         return target.getBoundingBox().inflate(radius, SWEEP_HEIGHT, radius);
     }
@@ -146,7 +177,7 @@ public class WeaponItem extends SwordItem {
     /** Comme une hache vanilla : un coup sur un bouclier levé le désactive. */
     @Override
     public boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
-        return definition().disablesShield();
+        return WeaponData.rules().shieldDisablingActive() && definition().disablesShield();
     }
 
     // --- Capacité du clic droit ---
@@ -174,12 +205,12 @@ public class WeaponItem extends SwordItem {
     /** Pose "bloquer" pendant la parade : bras levé en troisième personne, comme en 1.8. */
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return definition().ability() == WeaponAbility.PARRY ? UseAnim.BLOCK : super.getUseAnimation(stack);
+        return ParrySystem.parryOf(stack).isPresent() ? UseAnim.BLOCK : super.getUseAnimation(stack);
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return definition().ability() == WeaponAbility.PARRY ? ParrySystem.USE_DURATION : super.getUseDuration(stack, entity);
+        return ParrySystem.parryOf(stack).isPresent() ? ParrySystem.USE_DURATION : super.getUseDuration(stack, entity);
     }
 
     /**

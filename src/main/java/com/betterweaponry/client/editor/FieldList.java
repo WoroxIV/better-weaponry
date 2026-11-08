@@ -161,18 +161,27 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
     /** Texte d'information en gris. */
     final class NoteRow extends Row {
         private final Component text;
+        private final Component tooltip;
+        private final int color;
 
         NoteRow(Component text, int depth) {
+            this(text, text, NOTE_COLOR, depth);
+        }
+
+        /** Note avec une explication plus longue au survol. */
+        NoteRow(Component text, Component tooltip, int color, int depth) {
             super(depth);
             this.text = text;
+            this.tooltip = tooltip;
+            this.color = color;
         }
 
         @Override
         public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
                            boolean hovering, float partialTick) {
             int x = labelX(left);
-            drawLabel(graphics, text.getString(), x, top, width - (x - left), NOTE_COLOR);
-            tooltipIfHovered(mouseX, mouseY, x, top, width - (x - left), text);
+            drawLabel(graphics, text.getString(), x, top, width - (x - left), color);
+            tooltipIfHovered(mouseX, mouseY, x, top, width - (x - left), tooltip);
         }
     }
 
