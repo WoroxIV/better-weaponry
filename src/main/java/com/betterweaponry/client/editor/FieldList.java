@@ -99,6 +99,16 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
 
     // --- Lignes ---
 
+    /** Bouton « ? » qui ouvre le tutoriel d'une option, ou null si elle n'en a pas. */
+    @Nullable
+    private static Button helpButton(@Nullable Runnable openTutorial) {
+        if (openTutorial == null) return null;
+        return Button.builder(Component.literal("?"), pressed -> openTutorial.run())
+                .size(SMALL_BUTTON, WIDGET_HEIGHT)
+                .tooltip(Tooltip.create(Component.translatable(WeaponEditorScreen.KEY + "tutorial_button")))
+                .build();
+    }
+
     abstract class Row extends ContainerObjectSelectionList.Entry<Row> {
         protected final int depth;
         protected final List<AbstractWidget> widgets = new ArrayList<>();
@@ -139,9 +149,12 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
         private final Component title;
         @Nullable private final Component tooltip;
         private final boolean collapsed;
+        @Nullable private final Button helpButton;
 
-        SectionRow(String key, Component title, @Nullable Component tooltip, boolean collapsed, int depth) {
+        SectionRow(String key, Component title, @Nullable Component tooltip, boolean collapsed, int depth, @Nullable Runnable openTutorial) {
             super(depth);
+            this.helpButton = helpButton(openTutorial);
+            if (helpButton != null) widgets.add(helpButton);
             this.key = key;
             this.title = title;
             this.tooltip = tooltip;
@@ -153,12 +166,19 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
                            boolean hovering, float partialTick) {
             int x = labelX(left);
             String text = (collapsed ? "▶ " : "▼ ") + title.getString();
-            drawLabel(graphics, text, x, top, width - (x - left), SECTION_COLOR);
+            int available = width - (x - left);
+            if (helpButton != null) {
+                helpButton.setPosition(left + width - 2 - SMALL_BUTTON, top);
+                available -= SMALL_BUTTON + 4;
+                helpButton.render(graphics, mouseX, mouseY, partialTick);
+            }
+            drawLabel(graphics, text, x, top, available, SECTION_COLOR);
             tooltipIfHovered(mouseX, mouseY, x, top, font().width(text), tooltip);
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (helpButton != null && helpButton.mouseClicked(mouseX, mouseY, button)) return true;
             screen.toggleSection(key);
             return true;
         }
@@ -202,10 +222,13 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
         private final boolean editable;
         private final AbstractWidget editor;
         @Nullable private final Button resetButton;
+        @Nullable private final Button helpButton;
 
         ValueRow(EditorModel model, String documentId, FieldPath path, DataField<?> field, Component label, Component tooltip,
-                 boolean editable, int depth) {
+                 boolean editable, int depth, @Nullable Runnable openTutorial) {
             super(depth);
+            this.helpButton = helpButton(openTutorial);
+            if (helpButton != null) widgets.add(helpButton);
             this.model = model;
             this.documentId = documentId;
             this.path = path;
@@ -355,9 +378,14 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
             }
             editor.setPosition(right - editor.getWidth(), top);
             editor.active = editable;
+            int controlsLeft = editor.getX();
+            if (helpButton != null) {
+                controlsLeft -= SMALL_BUTTON + 2;
+                helpButton.setPosition(controlsLeft, top);
+            }
 
             int x = labelX(left);
-            int labelWidth = editor.getX() - x - 4;
+            int labelWidth = controlsLeft - x - 4;
             int color = model.isInvalid(documentId, path) ? INVALID_COLOR : differsFromDefault() ? CHANGED_COLOR : LABEL_COLOR;
             drawLabel(graphics, label.getString(), x, top, labelWidth, color);
             tooltipIfHovered(mouseX, mouseY, x, top, labelWidth, tooltip);

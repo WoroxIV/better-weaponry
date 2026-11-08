@@ -175,6 +175,10 @@ Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, 
 - **Statistics**, in the vanilla screen: perfect parries, shurikens thrown, health stolen.
 - **JEI and EMI** (optional): info pages for every enchantment and for the abilities of each item. To try them in a dev client: `gradlew runClient -Pbw_compat=jei` or `-Pbw_compat=emi`.
 
+### Tutorials
+
+The editor and the Codex have a **Tutorials** page, and a **?** button next to the related options. Each tutorial is a short animated scene with captions: two-handed weapons, dual wielding, parrying, perfect parry (with a timeline of the window), guard break, reach, attack area, armor penetration, dash and combos. Drag the mouse to turn the camera and scroll to zoom. The scenes use the current settings and also work from the main menu.
+
 ### Enchantments
 
 | Enchantment | Effect | Goes on | How to get it |

@@ -3,6 +3,7 @@ package com.betterweaponry.client.editor;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.client.CombatHud;
 import com.betterweaponry.client.ModKeyMappings;
+import com.betterweaponry.client.tutorial.TutorialScreen;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.config.ComboHudStyle;
@@ -31,6 +32,7 @@ import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.network.SaveDocumentPayload;
 import com.betterweaponry.registry.ModItems;
+import com.betterweaponry.tutorial.TutorialScenes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -74,6 +76,7 @@ public final class WeaponEditorScreen extends Screen {
     private static final String CLIENT_PAGE = "client";
     private static final String TOOLTIPS_PAGE = "tooltips";
     private static final String COMPARISON_PAGE = "comparison";
+    private static final String TUTORIALS_PAGE = "tutorials";
     private static final int PLACEMENT_BUTTON_WIDTH = 88;
     private static final int COLOR_BUTTON_WIDTH = 34;
     private static final int RESET_BUTTON_WIDTH = 20;
@@ -162,6 +165,7 @@ public final class WeaponEditorScreen extends Screen {
         documentList.add(EditorDocument.RULES_ID, Component.translatable(KEY + "rules"));
         documentList.add(EditorDocument.GEAR_ID, Component.translatable(KEY + "gear"));
         documentList.add(COMPARISON_PAGE, Component.translatable(KEY + "comparison"));
+        documentList.add(TUTORIALS_PAGE, Component.translatable(KEY + "tutorials"));
         for (EditorDocument document : model.documents()) {
             if (document.type() != null) {
                 documentList.add(document.id(), Component.translatable(BetterWeaponry.MODID + ".configuration." + document.id()));
@@ -273,6 +277,8 @@ public final class WeaponEditorScreen extends Screen {
             addTooltipRows();
         } else if (selected.equals(COMPARISON_PAGE)) {
             addComparisonRows();
+        } else if (selected.equals(TUTORIALS_PAGE)) {
+            addTutorialRows();
         } else {
             CombatCompat.externalCombatModName().ifPresent(name -> fieldList.add(fieldList.new NoteRow(
                     Component.translatable(KEY + "external_combat_mod", name),
@@ -351,12 +357,27 @@ public final class WeaponEditorScreen extends Screen {
     }
 
     private void addSection(String key, Component title, @Nullable Component tooltip, int depth) {
-        fieldList.add(fieldList.new SectionRow(key, title, tooltip, isCollapsed(key), depth));
+        fieldList.add(fieldList.new SectionRow(key, title, tooltip, isCollapsed(key), depth, tutorialAction(key)));
     }
 
     private void addValueRow(FieldSet set, DataField<?> field, FieldPath path, int depth) {
         fieldList.add(fieldList.new ValueRow(model, selected, path, field, Component.literal(docs.fieldName(set, field)),
-                tooltip(set, field), canEdit, depth));
+                tooltip(set, field), canEdit, depth, tutorialAction(path.key())));
+    }
+
+    /** Ouvre le tutoriel lié à cette option, ou null si elle n'en a pas. */
+    @Nullable
+    private Runnable tutorialAction(String fieldKey) {
+        String scene = TutorialScenes.sceneForField(fieldKey);
+        return scene == null ? null : () -> minecraft.setScreen(new TutorialScreen(this, scene));
+    }
+
+    /** Page Tutoriels : tous les tutoriels, aussi accessibles par les boutons « ? » à côté des options. */
+    private void addTutorialRows() {
+        for (String id : TutorialScenes.IDS) {
+            fieldList.add(fieldList.new ButtonsRow(TutorialScenes.title(id), null, List.of(Button.builder(Component.translatable(KEY + "tutorials.open"),
+                    pressed -> minecraft.setScreen(new TutorialScreen(this, id))).size(PREVIEW_BUTTON_WIDTH, BUTTON_HEIGHT).build())));
+        }
     }
 
     /** Aide d'un champ : description, puis plage et valeur par défaut. */
@@ -493,7 +514,7 @@ public final class WeaponEditorScreen extends Screen {
 
     /** Pages des préférences du joueur, qui ne correspondent à aucun fichier d'arme. */
     private static boolean isLocalPage(String id) {
-        return id.equals(CLIENT_PAGE) || id.equals(TOOLTIPS_PAGE) || id.equals(COMPARISON_PAGE);
+        return id.equals(CLIENT_PAGE) || id.equals(TOOLTIPS_PAGE) || id.equals(COMPARISON_PAGE) || id.equals(TUTORIALS_PAGE);
     }
 
     private void addToggle(Component label, Component tooltip, ModConfigSpec.BooleanValue value) {
@@ -505,7 +526,9 @@ public final class WeaponEditorScreen extends Screen {
         if (cachedVersion == model.version() && cachedFor.equals(selected)) return cachedInfo;
         cachedVersion = model.version();
         cachedFor = selected;
-        if (selected.equals(COMPARISON_PAGE)) {
+        if (selected.equals(TUTORIALS_PAGE)) {
+            cachedInfo = Component.translatable(KEY + "info.tutorials");
+        } else if (selected.equals(COMPARISON_PAGE)) {
             cachedInfo = Component.translatable(KEY + "info.comparison");
         } else if (isLocalPage(selected)) {
             cachedInfo = Component.translatable(KEY + "info.client");

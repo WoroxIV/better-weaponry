@@ -55,6 +55,8 @@ import com.betterweaponry.mixin.LivingEntityAccessor;
 import com.betterweaponry.mixin.MobAccessor;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModAttributes;
+import com.betterweaponry.tutorial.TutorialScene;
+import com.betterweaponry.tutorial.TutorialScenes;
 import com.betterweaponry.registry.ModCreativeTabs;
 import com.betterweaponry.registry.ModStats;
 import com.betterweaponry.registry.ModEffects;
@@ -79,6 +81,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.locale.Language;
 import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.stats.Stats;
 import net.minecraft.server.level.ServerPlayer;
@@ -137,6 +140,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -1233,6 +1237,90 @@ public final class CombatGameTests {
         } finally {
             CombatCompat.simulateForTests(false);
         }
+        helper.succeed();
+    }
+
+    /** Tutoriels : chaque scène est complète et cohérente, ses textes existent, et chaque tutoriel est relié à une option de l'éditeur. */
+    @GameTest(template = ARENA)
+    public static void tutorialScenesValid(GameTestHelper helper) {
+        Language language = Language.getInstance();
+        helper.assertTrue(Set.copyOf(TutorialScenes.IDS).size() == TutorialScenes.IDS.size() && TutorialScenes.IDS.size() == 10, "there should be 10 distinct tutorials");
+        for (String id : TutorialScenes.IDS) {
+            TutorialScene scene = TutorialScenes.create(id);
+            helper.assertTrue(language.has(BetterWeaponry.MODID + ".tutorial." + id + ".title"), id + " has no title");
+            helper.assertTrue(scene.steps().getFirst().start() == 0, id + " should start with a step");
+            int previous = -1;
+            for (TutorialScene.Step step : scene.steps()) {
+                helper.assertTrue(step.start() > previous && step.start() < scene.duration(), id + " has a misplaced step");
+                previous = step.start();
+                helper.assertTrue(step.caption().getContents() instanceof TranslatableContents text && language.has(text.getKey()), id + " has an untranslated caption");
+            }
+            for (TutorialScene.Zone zone : scene.zones()) helper.assertTrue(scene.actor(zone.actor()) != null && zone.to() <= scene.duration(), id + " zone");
+            for (TutorialScene.Label label : scene.labels()) {
+                helper.assertTrue(scene.actor(label.actor()) != null && label.to() <= scene.duration() + 30, id + " label");
+                helper.assertTrue(!(label.text().getContents() instanceof TranslatableContents text) || language.has(text.getKey()), id + " has an untranslated label");
+            }
+            for (TutorialScene.Spark spark : scene.sparks()) helper.assertTrue(scene.actor(spark.actor()) != null && spark.tick() < scene.duration(), id + " spark");
+            for (TutorialScene.Actor actor : scene.actors()) {
+                for (int tick = 0; tick <= scene.duration(); tick += 7) {
+                    TutorialScene.ActorPose pose = scene.pose(actor, tick);
+                    helper.assertTrue(Math.abs(pose.x()) <= 4.8D && Math.abs(pose.z()) <= 4.8D, id + ": " + actor.id() + " leaves the platform at tick " + tick);
+                }
+            }
+        }
+        for (Map.Entry<String, String> link : TutorialScenes.fieldLinks().entrySet()) {
+            helper.assertTrue(TutorialScenes.IDS.contains(link.getValue()), "unknown tutorial for " + link.getKey());
+        }
+        for (String id : TutorialScenes.IDS) {
+            helper.assertTrue(TutorialScenes.fieldLinks().containsValue(id), id + " should be linked to an option");
+        }
+        helper.assertTrue("dual_wield".equals(TutorialScenes.sceneForField("dual_wield_enabled")) && "dual_wield".equals(TutorialScenes.sceneForField("dual_wielded")), "both dual wield options should open the tutorial");
+        helper.assertTrue(TutorialScenes.sceneForField("format_version") == null, "an unrelated option has no tutorial");
+        helper.succeed();
+    }
+
+    /** Animation d'une scène, et fidélité aux vrais réglages. */
+    @GameTest(template = ARENA)
+    public static void tutorialAnimation(GameTestHelper helper) {
+        ItemStack sword = new ItemStack(Items.IRON_SWORD);
+        ItemStack axe = new ItemStack(Items.IRON_AXE);
+        TutorialScene scene = TutorialScene.builder("test")
+                .actor("a", TutorialScene.ActorKind.PLAYER, 0.0D, 0.0D, 0.0F, sword, ItemStack.EMPTY)
+                .actor("b", TutorialScene.ActorKind.ZOMBIE, 0.0D, 2.0D, 180.0F, ItemStack.EMPTY, ItemStack.EMPTY)
+                .step(0, Component.literal("one")).step(20, Component.literal("two")).duration(100)
+                .walk("a", 10, 20, 2.0D, 0.0D).swing("a", 30, TutorialScene.Hand.OFF).guard("a", 50, 60, TutorialScene.Hand.MAIN)
+                .hurt("b", 40, "a").turn("b", 70, 0.0F).equip("a", 80, false, axe).build();
+        TutorialScene.Actor a = scene.actor("a");
+        TutorialScene.Actor b = scene.actor("b");
+        helper.assertTrue(Math.abs(scene.pose(a, 15.0F).x() - 1.0D) < EPSILON && scene.pose(a, 15.0F).walkAmount() > 0.0F, "the actor should be halfway and walking");
+        helper.assertTrue(scene.pose(a, 25.0F).x() == 2.0D && scene.pose(a, 25.0F).walkAmount() == 0.0F, "the actor should have arrived");
+        helper.assertTrue(scene.pose(a, 34.0F).offSwing() > 0.0F && scene.pose(a, 34.0F).mainSwing() == 0.0F, "only the off hand swings");
+        helper.assertTrue(scene.pose(a, 30.0F + TutorialScene.SWING_TICKS).offSwing() == 0.0F, "the swing should end");
+        helper.assertTrue(scene.pose(a, 55.0F).guardMain() && !scene.pose(a, 60.0F).guardMain(), "the guard should last from 50 to 60");
+        helper.assertTrue(scene.pose(b, 40.0F).hurt() > 0.0F && scene.pose(b, 40.0F + TutorialScene.HURT_TICKS).hurt() == 0.0F, "the hurt flash should be brief");
+        helper.assertTrue(scene.pose(b, 45.0F).z() != 2.0D && scene.pose(b, 60.0F).z() == 2.0D, "the recoil should be temporary");
+        helper.assertTrue(scene.pose(b, 90.0F).yaw() == 0.0F, "the actor should have turned");
+        helper.assertTrue(scene.pose(a, 79.0F).mainHand() == sword && scene.pose(a, 80.0F).mainHand() == axe, "the item should change at its tick");
+        helper.assertTrue(scene.stepAt(19.0F) == 0 && scene.stepAt(20.0F) == 1, "the steps should follow the time");
+        helper.assertTrue(TutorialScene.fade(5.0F, 5, 30) == 0.0F && TutorialScene.fade(15.0F, 5, 30) == 1.0F && TutorialScene.fade(30.0F, 5, 30) == 0.0F, "the fade should go in and out");
+
+        // Fidélité aux réglages.
+        ParryDefinition parry = WeaponData.weapon(WeaponType.KATANA).parry();
+        int window = (int) Math.round(parry.perfectWindowSeconds() * 20.0D) * TutorialScenes.SLOW_MOTION;
+        List<TutorialScene.TimingBar> bars = TutorialScenes.create("perfect_parry").bars();
+        helper.assertTrue(bars.size() == 2 && bars.get(0).perfect() && !bars.get(1).perfect(), "the first try should be perfect and the second late");
+        helper.assertTrue(bars.get(0).windowEnd() - bars.get(0).guard() == window, "the window should follow the settings");
+        double spear = WeaponData.weapon(WeaponType.SPEAR).attackReach();
+        helper.assertTrue(TutorialScenes.create("reach").zones().stream().anyMatch(zone -> zone.radius() == spear), "the reach circle should follow the settings");
+
+        helper.assertTrue(Math.abs(TutorialScenes.damageThroughArmor(17.5D, 0.0D) - 13.125D) < EPSILON, "armor formula");
+        helper.assertTrue(Math.abs(TutorialScenes.damageThroughArmor(17.5D, 30.0D) - 14.4375D) < EPSILON, "armor penetration formula");
+        helper.assertTrue(Math.abs(TutorialScenes.damageThroughArmor(17.5D, 100.0D) - 17.5D) < EPSILON, "full penetration ignores the armor");
+        helper.assertTrue(TutorialScenes.inSector(0.0D, 2.0D, 3.0D, 90.0D) && !TutorialScenes.inSector(0.0D, -2.0D, 3.0D, 90.0D) && !TutorialScenes.inSector(0.0D, 4.0D, 3.0D, 90.0D)
+                && TutorialScenes.inSector(0.0D, -2.0D, 3.0D, 360.0D), "the sector test");
+        TutorialScene zone = TutorialScenes.create("attack_zone");
+        helper.assertTrue(zone.pose(zone.actor("far"), 220.0F).hurt() == 0.0F, "an enemy outside the area should not be hit");
+        helper.assertTrue(zone.pose(zone.actor("target"), 220.0F).hurt() > 0.0F, "the target should be hit");
         helper.succeed();
     }
 
