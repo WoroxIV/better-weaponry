@@ -160,7 +160,7 @@
   "better_weaponry.field.gear.projectile_speed_cap": "Vitesse maximale des projectiles",
   "better_weaponry.field.gear.projectile_speed_cap.help": "Multiplicateur de vitesse maximal, quel que soit le matériau. Les dégâts d'une flèche dépendent de sa vitesse : cela limite les matériaux moddés très puissants.",
   "better_weaponry.field.gear.projectile_speed_multipliers": "Vitesse des projectiles par matériau",
-  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplicateur de la vitesse des projectiles des arcs et arbalètes, par identifiant de matériau, ex : {\"iron\": 1.6}. Les matériaux non listés utilisent leur multiplicateur de dégâts (pierre 1,25, fer 1,5, diamant 1,75, netherite 2).",
+  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplicateur de la vitesse des projectiles des arcs et arbalètes, par identifiant de matériau, ex : {\"iron\": 1.2}. Les dégâts d'une flèche dépendent de cette vitesse : 1 correspond à l'arc vanilla, celui en pierre. Les matériaux non listés utilisent leur multiplicateur de dégâts moins 0,34.",
   "better_weaponry.field.gear.reflect_arrows": "Les parades parfaites renvoient les flèches",
   "better_weaponry.field.gear.reflect_arrows.help": "true : une flèche arrêtée par une parade parfaite au bouclier repart vers son tireur.",
   "better_weaponry.field.gear.reflective_cooldown_seconds": "Recharge de Réflexion",

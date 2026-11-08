@@ -160,7 +160,7 @@
   "better_weaponry.field.gear.projectile_speed_cap": "Максимальная скорость снарядов",
   "better_weaponry.field.gear.projectile_speed_cap.help": "Наибольший множитель скорости для любого материала. Урон стрелы зависит от скорости: это сдерживает очень сильные материалы из модов.",
   "better_weaponry.field.gear.projectile_speed_multipliers": "Скорость снарядов по материалу",
-  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Множитель скорости снарядов луков и арбалетов по ID материала, напр. {\"iron\": 1.6}. Остальные материалы используют свой множитель урона (камень 1,25, железо 1,5, алмаз 1,75, незерит 2).",
+  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Множитель скорости снарядов луков и арбалетов по ID материала, напр. {\"iron\": 1.2}. Урон стрелы зависит от этой скорости: 1 соответствует обычному луку, каменному. Остальные материалы используют свой множитель урона минус 0,34.",
   "better_weaponry.field.gear.reflect_arrows": "Идеальные блоки отражают стрелы",
   "better_weaponry.field.gear.reflect_arrows.help": "true: стрела, остановленная идеальным блоком щитом, летит обратно в стрелка.",
   "better_weaponry.field.gear.reflective_cooldown_seconds": "Перезарядка отражения",

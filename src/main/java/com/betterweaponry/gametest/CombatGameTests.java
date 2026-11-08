@@ -63,6 +63,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.EntityType;
@@ -76,6 +77,9 @@ import net.minecraft.world.entity.monster.Pillager;
 import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.CrossbowItem;
@@ -1131,13 +1135,15 @@ public final class CombatGameTests {
     @GameTest(template = ARENA)
     public static void rangedProjectileSpeed(GameTestHelper helper) {
         GearDefinition gear = WeaponData.gear();
-        helper.assertTrue(Math.abs(firedSpeed(helper, WeaponMaterials.WOODEN, 25) - 3.0D) < 0.3D, "a wooden bow shoots like the vanilla bow");
+        helper.assertTrue(Math.abs(firedSpeed(helper, WeaponMaterials.STONE, 25) - 3.0D) < 0.3D, "a stone bow shoots like the vanilla bow");
         double iron = gear.projectileSpeedMultiplier(WeaponMaterials.IRON);
-        helper.assertTrue(iron == 1.5D && Math.abs(firedSpeed(helper, WeaponMaterials.IRON, 25) - 3.0D * iron) < 0.45D, "an iron bow shoots 1.5x faster");
-        helper.assertTrue(gear.projectileSpeedMultiplier(WeaponMaterials.NETHERITE) == 2.0D, "netherite is x2");
-        helper.assertTrue(gear.projectileSpeedMultiplier(WeaponMaterials.GOLDEN) == 0.8D, "gold is slower");
-        helper.assertTrue(firedSpeed(helper, WeaponMaterials.GOLDEN, 10) > 2.0D, "a golden bow should reach full power in half the time");
-        helper.assertTrue(firedSpeed(helper, WeaponMaterials.WOODEN, 10) < 1.6D, "a wooden bow drawn for 10 ticks is weak");
+        helper.assertTrue(Math.abs(firedSpeed(helper, WeaponMaterials.IRON, 25) - 3.0D * iron) < 0.3D, "an iron bow should shoot faster than stone");
+        // Dégâts d'une flèche à pleine charge, sans critique : vitesse (3) × multiplicateur × dégâts de base (2), arrondi au-dessus.
+        Map<WeaponMaterial, Integer> fullDraw = Map.of(WeaponMaterials.WOODEN, 4, WeaponMaterials.GOLDEN, 3, WeaponMaterials.STONE, 6,
+                WeaponMaterials.IRON, 7, WeaponMaterials.DIAMOND, 9, WeaponMaterials.NETHERITE, 10);
+        fullDraw.forEach((material, damage) -> helper.assertTrue(Mth.ceil(3.0D * gear.projectileSpeedMultiplier(material) * 2.0D) == damage, material + " bow damage"));
+        helper.assertTrue(firedSpeed(helper, WeaponMaterials.GOLDEN, 10) > 1.1D, "a golden bow should reach full power in half the time");
+        helper.assertTrue(firedSpeed(helper, WeaponMaterials.STONE, 10) < 1.6D, "a stone bow drawn for 10 ticks is weak");
         helper.succeed();
     }
 
@@ -1163,7 +1169,8 @@ public final class CombatGameTests {
         skeleton.setPos(helper.absoluteVec(new Vec3(1.5D, 1.0D, 1.5D)));
         skeleton.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
         helper.getLevel().addFreshEntity(skeleton);
-        helper.assertTrue(skeleton.getMainHandItem().getItem() instanceof WeaponBowItem, "a skeleton should get a bow of the mod");
+        helper.assertTrue(skeleton.getMainHandItem().getItem() instanceof WeaponBowItem bow && bow.getMaterial() != WeaponMaterials.WOODEN && bow.getMaterial() != WeaponMaterials.GOLDEN,
+                "a skeleton should get a bow of the mod, at least in stone");
         helper.assertTrue(skeleton.canFireProjectileWeapon((ProjectileWeaponItem) skeleton.getMainHandItem().getItem()), "a skeleton should be able to fire it");
         helper.assertTrue(skeleton.goalSelector.getAvailableGoals().stream().anyMatch(goal -> goal.getGoal() instanceof RangedBowAttackGoal), "a skeleton should shoot, not fight in melee");
 
@@ -1173,7 +1180,7 @@ public final class CombatGameTests {
         double woodenShots = averageMobShot(helper, skeleton, shooterTarget);
         skeleton.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.bow(WeaponMaterials.NETHERITE).get()));
         double netheriteShots = averageMobShot(helper, skeleton, shooterTarget);
-        helper.assertTrue(woodenShots < 2.5D && netheriteShots > 2.5D, "mob arrows: wooden " + woodenShots + ", netherite " + netheriteShots);
+        helper.assertTrue(woodenShots < 1.9D && netheriteShots > 1.9D, "mob arrows: wooden " + woodenShots + ", netherite " + netheriteShots);
 
         Pillager pillager = EntityType.PILLAGER.create(helper.getLevel());
         pillager.setPos(helper.absoluteVec(new Vec3(3.5D, 1.0D, 3.5D)));
@@ -1202,8 +1209,25 @@ public final class CombatGameTests {
         ItemStack converted = VanillaGear.convert(vanillaBow, WeaponMaterials.DIAMOND);
         helper.assertTrue(converted.is(ModItems.bow(WeaponMaterials.DIAMOND).get()) && Math.abs((double) converted.getDamageValue() / converted.getMaxDamage() - 0.5D) < 0.01D, "a converted bow keeps its wear");
         MerchantOffer offer = new MerchantOffer(new ItemCost(Items.EMERALD, 3), new ItemStack(Items.CROSSBOW), 12, 10, 0.05F);
-        MerchantOffer netherite = VanillaGearEvents.convertOffer(offer, WeaponMaterials.NETHERITE);
-        helper.assertTrue(netherite.getResult().is(ModItems.crossbow(WeaponMaterials.NETHERITE).get()) && netherite.getItemCostA().count() == 12, "a netherite crossbow should cost 4 times more");
+        MerchantOffer diamond = VanillaGearEvents.convertOffer(offer, WeaponMaterials.DIAMOND);
+        helper.assertTrue(diamond.getResult().is(ModItems.crossbow(WeaponMaterials.DIAMOND).get()) && diamond.getItemCostA().count() == 9, "a diamond crossbow should cost 3 times more");
+
+        // Vrais échanges : l'armurier et le fléchier montent jusqu'au diamant, jamais à la netherite.
+        Villager villager = EntityType.VILLAGER.create(helper.getLevel());
+        boolean masterSellsDiamond = false;
+        for (VillagerProfession profession : List.of(VillagerProfession.ARMORER, VillagerProfession.FLETCHER)) {
+            for (var level : VillagerTrades.TRADES.get(profession).int2ObjectEntrySet()) {
+                for (VillagerTrades.ItemListing listing : level.getValue()) {
+                    MerchantOffer trade = listing.getOffer(villager, helper.getLevel().getRandom());
+                    if (trade == null) continue;
+                    ItemStack sold = trade.getResult();
+                    helper.assertFalse(sold.is(ModItems.shield(WeaponMaterials.NETHERITE).get()) || sold.is(ModItems.crossbow(WeaponMaterials.NETHERITE).get())
+                            || sold.is(ModItems.bow(WeaponMaterials.NETHERITE).get()), profession + " should not sell netherite");
+                    masterSellsDiamond |= level.getIntKey() == 5 && sold.is(ModItems.crossbow(WeaponMaterials.DIAMOND).get());
+                }
+            }
+        }
+        helper.assertTrue(masterSellsDiamond, "a master fletcher should sell a diamond crossbow");
         helper.succeed();
     }
 

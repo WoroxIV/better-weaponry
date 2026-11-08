@@ -143,13 +143,13 @@ The vanilla shield is replaced everywhere it can be: its recipe is off, it is go
 
 Bows and crossbows exist in every material (`iron_bow`, `iron_crossbow`...), with the vanilla animations, and they accept the vanilla enchantments.
 
-- The material only changes the **projectile speed**: arrow damage depends on speed, so a better material hits harder and flies straighter. Raw damage and rate of fire stay vanilla. Multipliers: wood 1, stone 1.25, iron 1.5, diamond 1.75, netherite 2 (see `gear.json`).
-- **Gold** is the exception: it draws or loads twice as fast, enchants very well, but shoots at ×0.8 and breaks quickly.
+- The material only changes the **projectile speed**: arrow damage depends on speed, so a better material hits harder and flies straighter. Raw damage and rate of fire stay vanilla. Multipliers: wood 0.62, stone 1 (the vanilla bow), iron 1.12, diamond 1.45, netherite 1.62 (see `gear.json`), which gives 4, 6, 7, 9 and 10 damage for a fully drawn bow.
+- **Gold** is the exception: it draws or loads twice as fast, enchants very well, but shoots at ×0.45 (3 damage) and breaks quickly.
 - Durability: bow 384, crossbow 465 for wood, stone and iron; gold 49 / 60; diamond 2398 / 2903; netherite 3120 / 3778; modded materials follow the ratio of their tools to iron tools.
 - Recipes: the vanilla shapes with the material instead of sticks (the wooden versions keep the sticks), netherite at the smithing table.
 - Textures: `textures/item/<material>_bow.png`, `_bow_pulling_0` to `2`, `<material>_crossbow.png`, `_crossbow_pulling_0` to `2`, `_crossbow_arrow`, `_crossbow_firework`, then run `./gradlew runData`. Without those files, they look like the vanilla ones.
 
-The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, strays, bogged, illusioners, pillagers and piglins get the mod's versions when they spawn (wood by default, with a 9.5% chance per step to move up a material, more on Hard). Their aim adapts to the speed of the arrow. Fletchers sell better materials as they level up. The dispenser recipe accepts any bow, and the Ol' Betsy advancement accepts any crossbow.
+The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, strays, bogged, illusioners, pillagers and piglins get the mod's versions when they spawn (stone by default, which shoots like the vanilla weapon, with a 9.5% chance per step to move up a material, more on Hard). Their aim adapts to the speed of the arrow. Fletchers and armorers sell better materials as they level up, up to diamond: villagers never sell netherite. The dispenser recipe accepts any bow, and the Ol' Betsy advancement accepts any crossbow.
 
 ### Enchantments
 
@@ -363,7 +363,7 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 | `loot_upgrade_chance` | 0 – 100 | 20 | In loot, chance to move up one material, rolled at each step (wood, gold, stone, iron, diamond, netherite) |
 | `enchanted_book_chance` | 0 – 100 | 20 | Chance for a Nether or End chest to hold a book with one of the mod's enchantments |
 | `reflective_cooldown_seconds` | 0 – 60 | 5 | Cooldown of the item after Reflective sends damage back (0 = none) |
-| `projectile_speed_multipliers` | 0.1 – 5 each | `{"golden": 0.8}` | Projectile speed by material id; other materials use their damage multiplier |
+| `projectile_speed_multipliers` | 0.1 – 5 each | see above | Projectile speed by material id; other materials use their damage multiplier minus 0.34 |
 | `projectile_speed_cap` | 0.1 – 5 | 2 | Highest projectile speed multiplier, whatever the material |
 | `golden_draw_time` | 0.1 – 1 | 0.5 | Draw or load time of gold compared to vanilla |
 | `mob_upgrade_chance` | 0 – 100 | 9.5 | On mobs, chance to move up one material, rolled at each step |

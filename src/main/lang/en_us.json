@@ -415,7 +415,7 @@
     "better_weaponry.field.gear.reflective_cooldown_seconds.help": "After Reflective sends damage back, how long the weapon or shield is on cooldown, in seconds. 0: none.",
     "better_weaponry.tooltip.projectile_speed": "Projectile speed: ×%s",
     "better_weaponry.field.gear.projectile_speed_multipliers": "Projectile speed by material",
-    "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplier of the projectile speed of bows and crossbows, by material id, e.g. {\"iron\": 1.6}. Materials not listed use their damage multiplier (stone 1.25, iron 1.5, diamond 1.75, netherite 2).",
+    "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplier of the projectile speed of bows and crossbows, by material id, e.g. {\"iron\": 1.2}. Arrow damage depends on this speed: 1 is the vanilla bow, the stone one. Materials not listed use their damage multiplier minus 0.34.",
     "better_weaponry.field.gear.projectile_speed_cap": "Maximum projectile speed",
     "better_weaponry.field.gear.projectile_speed_cap.help": "Highest speed multiplier, whatever the material. Arrow damage depends on speed: this keeps very strong modded materials under control.",
     "better_weaponry.field.gear.golden_draw_time": "Gold draw time",

@@ -22,7 +22,7 @@ import java.util.Map;
  * @param lootUpgradeChance        dans le butin, chance en % de passer au matériau suivant (répétée à chaque matériau)
  * @param enchantedBookChance      chance en % d'un livre d'enchantement du mod dans les coffres du Nether et de l'End
  * @param reflectiveCooldownSeconds recharge de l'objet après un renvoi de Réflexion (0 = aucune)
- * @param projectileSpeedMultipliers vitesse des projectiles imposée par matériau (sinon le multiplicateur de dégâts du matériau)
+ * @param projectileSpeedMultipliers vitesse des projectiles imposée par matériau (sinon voir {@link #projectileSpeedMultiplier})
  * @param projectileSpeedCap       multiplicateur de vitesse maximal, quel que soit le matériau
  * @param goldenDrawTime           temps de bandage ou de chargement de l'or, par rapport au vanilla (0.5 = deux fois plus court)
  * @param mobUpgradeChance         chez les mobs, chance en % de passer au matériau suivant (répétée à chaque matériau)
@@ -34,6 +34,8 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
                              double goldenDrawTime, double mobUpgradeChance) {
 
     public static final int FORMAT_VERSION = 1;
+    private static final double DERIVED_SPEED_PENALTY = 0.34D;
+    private static final double MIN_DERIVED_SPEED = 0.1D;
 
     public static final DataField<Integer> FORMAT = DataField.integer("format_version", 1, FORMAT_VERSION, FORMAT_VERSION);
     public static final DataField<Double> SHIELD_PERFECT_WINDOW = DataField.number("shield_perfect_window_seconds", 0.0D, 2.0D, 0.25D);
@@ -47,7 +49,7 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
     public static final DataField<Double> ENCHANTED_BOOK_CHANCE = DataField.number("enchanted_book_chance", 0.0D, 100.0D, 20.0D);
     public static final DataField<Double> REFLECTIVE_COOLDOWN = DataField.number("reflective_cooldown_seconds", 0.0D, 60.0D, 5.0D);
     public static final DataField<Map<String, Double>> PROJECTILE_SPEED_MULTIPLIERS = DataField.numberMap("projectile_speed_multipliers", 0.1D, 5.0D);
-    // ×2 = le netherite : au-delà, la Puissance V rendrait les flèches excessives.
+    // Au-delà, la Puissance V rendrait les flèches excessives.
     public static final DataField<Double> PROJECTILE_SPEED_CAP = DataField.number("projectile_speed_cap", 0.1D, 5.0D, 2.0D);
     public static final DataField<Double> GOLDEN_DRAW_TIME = DataField.number("golden_draw_time", 0.1D, 1.0D, 0.5D);
     // 9.5 % : la chance vanilla d'un mob d'avoir une armure d'un cran supérieur.
@@ -97,8 +99,12 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
         projectileSpeedMultipliers = Map.copyOf(projectileSpeedMultipliers);
     }
 
-    /** Vitesse des projectiles d'un arc ou d'une arbalète de ce matériau, par rapport au vanilla. */
+    /**
+     * Vitesse des projectiles d'un arc ou d'une arbalète de ce matériau, par rapport au vanilla. Sans valeur imposée, on
+     * retire 2 points de dégâts à pleine charge (0.34 de vitesse) à ce que donnerait le multiplicateur de dégâts du matériau.
+     */
     public double projectileSpeedMultiplier(WeaponMaterial material) {
-        return Math.min(projectileSpeedCap, projectileSpeedMultipliers.getOrDefault(material.id(), material.damageMultiplier()));
+        double derived = Math.max(MIN_DERIVED_SPEED, material.damageMultiplier() - DERIVED_SPEED_PENALTY);
+        return Math.min(projectileSpeedCap, projectileSpeedMultipliers.getOrDefault(material.id(), derived));
     }
 }

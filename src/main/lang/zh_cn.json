@@ -415,7 +415,7 @@
     "better_weaponry.field.gear.reflective_cooldown_seconds.help": "反射反弹伤害后，武器或盾牌的冷却时间（秒）。0：无。",
     "better_weaponry.tooltip.projectile_speed": "弹射物速度：×%s",
     "better_weaponry.field.gear.projectile_speed_multipliers": "各材质弹射物速度",
-    "better_weaponry.field.gear.projectile_speed_multipliers.help": "按材质 ID 设置弓和弩的弹射物速度倍率，例如 {\"iron\": 1.6}。未列出的材质使用其伤害倍率（石 1.25、铁 1.5、钻石 1.75、下界合金 2）。",
+    "better_weaponry.field.gear.projectile_speed_multipliers.help": "按材质 ID 设置弓和弩的弹射物速度倍率，例如 {\"iron\": 1.2}。箭矢伤害取决于此速度：1 相当于原版弓，即石弓。未列出的材质使用其伤害倍率减去 0.34。",
     "better_weaponry.field.gear.projectile_speed_cap": "弹射物最大速度",
     "better_weaponry.field.gear.projectile_speed_cap.help": "无论材质如何的最大速度倍率。箭矢伤害取决于速度：这可以限制非常强的模组材质。",
     "better_weaponry.field.gear.golden_draw_time": "金质拉弓时间",

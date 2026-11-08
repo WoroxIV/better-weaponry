@@ -52,7 +52,12 @@ public final class VanillaGear {
 
     /** Matériau tiré au sort : on part du bois, et chaque marche a {@code upgradeChance} % de chance de monter. */
     public static WeaponMaterial rollMaterial(RandomSource random, double upgradeChance) {
-        int step = 0;
+        return rollMaterial(random, upgradeChance, WeaponMaterials.WOODEN);
+    }
+
+    /** Même tirage, en partant de {@code lowest}. */
+    public static WeaponMaterial rollMaterial(RandomSource random, double upgradeChance, WeaponMaterial lowest) {
+        int step = UPGRADE_LADDER.indexOf(lowest);
         while (step < UPGRADE_LADDER.size() - 1 && random.nextDouble() * PERCENT < upgradeChance) step++;
         return UPGRADE_LADDER.get(step);
     }
@@ -69,13 +74,16 @@ public final class VanillaGear {
         convertContainer(player.getEnderChestInventory());
     }
 
-    /** L'arme vanilla d'un mob devient une arme du mod : un peu plus souvent d'un meilleur matériau en difficulté Difficile. */
+    /**
+     * L'arme vanilla d'un mob devient une arme du mod : un peu plus souvent d'un meilleur matériau en difficulté Difficile.
+     * On part de la pierre, qui tire comme le vanilla : un squelette ordinaire reste aussi dangereux qu'avant.
+     */
     public static void convertMobHands(Mob mob, GearDefinition gear) {
         if (!gear.replaceVanillaGear()) return;
         double chance = gear.mobUpgradeChance() * (mob.level().getDifficulty() == Difficulty.HARD ? HARD_DIFFICULTY_BONUS : 1.0D);
         for (EquipmentSlot slot : List.of(EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND)) {
             ItemStack stack = mob.getItemBySlot(slot);
-            if (isReplaced(stack)) mob.setItemSlot(slot, convert(stack, rollMaterial(mob.getRandom(), chance)));
+            if (isReplaced(stack)) mob.setItemSlot(slot, convert(stack, rollMaterial(mob.getRandom(), chance, WeaponMaterials.STONE)));
         }
     }
 

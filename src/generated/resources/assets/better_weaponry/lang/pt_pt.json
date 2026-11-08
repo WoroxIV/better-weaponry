@@ -160,7 +160,7 @@
   "better_weaponry.field.gear.projectile_speed_cap": "Velocidade máxima dos projéteis",
   "better_weaponry.field.gear.projectile_speed_cap.help": "Multiplicador máximo de velocidade, seja qual for o material. O dano da flecha depende da velocidade: isto mantém materiais de mods muito fortes sob controlo.",
   "better_weaponry.field.gear.projectile_speed_multipliers": "Velocidade dos projéteis por material",
-  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplicador da velocidade dos projéteis de arcos e bestas, por ID do material, ex.: {\"iron\": 1.6}. Materiais não listados usam o seu multiplicador de dano (pedra 1,25, ferro 1,5, diamante 1,75, netherite 2).",
+  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplicador da velocidade dos projéteis de arcos e bestas, por ID do material, ex.: {\"iron\": 1.2}. O dano da flecha depende desta velocidade: 1 é o arco vanilla, o de pedra. Materiais não listados usam o seu multiplicador de dano menos 0,34.",
   "better_weaponry.field.gear.reflect_arrows": "Aparos perfeitos refletem flechas",
   "better_weaponry.field.gear.reflect_arrows.help": "true: uma flecha parada por um aparo perfeito com escudo volta para quem a disparou.",
   "better_weaponry.field.gear.reflective_cooldown_seconds": "Recarga de Reflexão",

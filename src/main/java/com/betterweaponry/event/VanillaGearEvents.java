@@ -32,15 +32,15 @@ public final class VanillaGearEvents {
     private static final int SHIELD_XP = 10;
     private static final float SHIELD_PRICE_MULTIPLIER = 0.05F;
 
-    /** Matériau d'un bouclier vendu par un armurier de ce niveau (1 = novice, 5 = maître). */
+    /** Matériau vendu à ce niveau (1 = novice, 5 = maître). La netherite ne s'achète jamais. */
     private static final Map<Integer, WeaponMaterial> MATERIAL_BY_LEVEL = Map.of(1, WeaponMaterials.WOODEN, 2, WeaponMaterials.STONE,
-            3, WeaponMaterials.IRON, 4, WeaponMaterials.DIAMOND, 5, WeaponMaterials.NETHERITE);
+            3, WeaponMaterials.IRON, 4, WeaponMaterials.DIAMOND, 5, WeaponMaterials.DIAMOND);
     /** Le niveau 3 vend déjà un bouclier en vanilla : seul celui-là est remplacé, les autres sont ajoutés. */
-    private static final Map<Integer, Integer> EMERALDS_BY_NEW_LEVEL = Map.of(1, 3, 2, 5, 4, 14, 5, 28);
+    private static final Map<Integer, Integer> EMERALDS_BY_NEW_LEVEL = Map.of(1, 3, 2, 5, 4, 14);
 
     /** Plus le matériau vendu est bon, plus l'échange coûte cher. */
     private static final Map<WeaponMaterial, Integer> PRICE_MULTIPLIER_BY_MATERIAL = Map.of(WeaponMaterials.WOODEN, 1, WeaponMaterials.STONE, 1,
-            WeaponMaterials.IRON, 2, WeaponMaterials.DIAMOND, 3, WeaponMaterials.NETHERITE, 4);
+            WeaponMaterials.IRON, 2, WeaponMaterials.DIAMOND, 3);
     private static final int MAX_EMERALDS = 64;
 
     private VanillaGearEvents() {

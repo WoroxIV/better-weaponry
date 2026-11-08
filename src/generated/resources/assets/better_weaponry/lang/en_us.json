@@ -160,7 +160,7 @@
   "better_weaponry.field.gear.projectile_speed_cap": "Maximum projectile speed",
   "better_weaponry.field.gear.projectile_speed_cap.help": "Highest speed multiplier, whatever the material. Arrow damage depends on speed: this keeps very strong modded materials under control.",
   "better_weaponry.field.gear.projectile_speed_multipliers": "Projectile speed by material",
-  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplier of the projectile speed of bows and crossbows, by material id, e.g. {\"iron\": 1.6}. Materials not listed use their damage multiplier (stone 1.25, iron 1.5, diamond 1.75, netherite 2).",
+  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplier of the projectile speed of bows and crossbows, by material id, e.g. {\"iron\": 1.2}. Arrow damage depends on this speed: 1 is the vanilla bow, the stone one. Materials not listed use their damage multiplier minus 0.34.",
   "better_weaponry.field.gear.reflect_arrows": "Perfect parries reflect arrows",
   "better_weaponry.field.gear.reflect_arrows.help": "true: an arrow stopped by a perfect parry with a shield flies back to its shooter.",
   "better_weaponry.field.gear.reflective_cooldown_seconds": "Reflective cooldown",

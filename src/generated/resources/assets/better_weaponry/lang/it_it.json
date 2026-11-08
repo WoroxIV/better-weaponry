@@ -160,7 +160,7 @@
   "better_weaponry.field.gear.projectile_speed_cap": "Velocità massima dei proiettili",
   "better_weaponry.field.gear.projectile_speed_cap.help": "Moltiplicatore massimo di velocità, qualunque sia il materiale. I danni di una freccia dipendono dalla velocità: così i materiali molto potenti delle mod restano sotto controllo.",
   "better_weaponry.field.gear.projectile_speed_multipliers": "Velocità dei proiettili per materiale",
-  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Moltiplicatore della velocità dei proiettili di archi e balestre, per ID materiale, es.: {\"iron\": 1.6}. I materiali non elencati usano il loro moltiplicatore di danni (pietra 1,25, ferro 1,5, diamante 1,75, netherite 2).",
+  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Moltiplicatore della velocità dei proiettili di archi e balestre, per ID materiale, es.: {\"iron\": 1.2}. I danni di una freccia dipendono da questa velocità: 1 è l'arco vanilla, quello di pietra. I materiali non elencati usano il loro moltiplicatore di danni meno 0,34.",
   "better_weaponry.field.gear.reflect_arrows": "Le parate perfette respingono le frecce",
   "better_weaponry.field.gear.reflect_arrows.help": "true: una freccia fermata da una parata perfetta con scudo torna verso chi l'ha tirata.",
   "better_weaponry.field.gear.reflective_cooldown_seconds": "Ricarica di Riflessione",

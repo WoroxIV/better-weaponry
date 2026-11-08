@@ -160,7 +160,7 @@
   "better_weaponry.field.gear.projectile_speed_cap": "Maximale projectielsnelheid",
   "better_weaponry.field.gear.projectile_speed_cap.help": "Hoogste snelheidsvermenigvuldiger, ongeacht het materiaal. De schade van een pijl hangt af van de snelheid: zo blijven zeer sterke mod-materialen binnen de perken.",
   "better_weaponry.field.gear.projectile_speed_multipliers": "Projectielsnelheid per materiaal",
-  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Vermenigvuldiger van de projectielsnelheid van bogen en kruisbogen, per materiaal-ID, bijv. {\"iron\": 1.6}. Niet-vermelde materialen gebruiken hun schadevermenigvuldiger (steen 1,25, ijzer 1,5, diamant 1,75, netheriet 2).",
+  "better_weaponry.field.gear.projectile_speed_multipliers.help": "Vermenigvuldiger van de projectielsnelheid van bogen en kruisbogen, per materiaal-ID, bijv. {\"iron\": 1.2}. De schade van een pijl hangt af van deze snelheid: 1 is de vanilla boog, die van steen. Niet-vermelde materialen gebruiken hun schadevermenigvuldiger min 0,34.",
   "better_weaponry.field.gear.reflect_arrows": "Perfecte pareringen kaatsen pijlen terug",
   "better_weaponry.field.gear.reflect_arrows.help": "true: een pijl die door een perfecte schildparering wordt gestopt, vliegt terug naar de schutter.",
   "better_weaponry.field.gear.reflective_cooldown_seconds": "Herlaadtijd van Weerkaatsing",

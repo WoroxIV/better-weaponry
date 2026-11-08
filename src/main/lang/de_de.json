@@ -485,7 +485,7 @@
     "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Wie lange Waffe oder Schild nach einer Rückwerfung durch Reflexion aufladen, in Sekunden. 0: keine.",
     "better_weaponry.tooltip.projectile_speed": "Projektilgeschwindigkeit: ×%s",
     "better_weaponry.field.gear.projectile_speed_multipliers": "Projektilgeschwindigkeit je Material",
-    "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplikator der Projektilgeschwindigkeit von Bögen und Armbrüsten, je Material-ID, z. B. {\"iron\": 1.6}. Nicht aufgeführte Materialien nutzen ihren Schadensmultiplikator (Stein 1,25, Eisen 1,5, Diamant 1,75, Netherit 2).",
+    "better_weaponry.field.gear.projectile_speed_multipliers.help": "Multiplikator der Projektilgeschwindigkeit von Bögen und Armbrüsten, je Material-ID, z. B. {\"iron\": 1.2}. Der Pfeilschaden hängt von dieser Geschwindigkeit ab: 1 entspricht dem Vanilla-Bogen, dem aus Stein. Nicht aufgeführte Materialien nutzen ihren Schadensmultiplikator minus 0,34.",
     "better_weaponry.field.gear.projectile_speed_cap": "Maximale Projektilgeschwindigkeit",
     "better_weaponry.field.gear.projectile_speed_cap.help": "Höchster Geschwindigkeitsmultiplikator, unabhängig vom Material. Der Pfeilschaden hängt von der Geschwindigkeit ab: So bleiben sehr starke Mod-Materialien im Rahmen.",
     "better_weaponry.field.gear.golden_draw_time": "Spannzeit von Gold",

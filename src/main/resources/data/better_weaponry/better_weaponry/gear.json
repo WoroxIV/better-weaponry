@@ -11,7 +11,12 @@
   "enchanted_book_chance": 20,
   "reflective_cooldown_seconds": 5.0,
   "projectile_speed_multipliers": {
-    "golden": 0.8
+    "wooden": 0.62,
+    "golden": 0.45,
+    "stone": 1.0,
+    "iron": 1.12,
+    "diamond": 1.45,
+    "netherite": 1.62
   },
   "projectile_speed_cap": 2.0,
   "golden_draw_time": 0.5,
