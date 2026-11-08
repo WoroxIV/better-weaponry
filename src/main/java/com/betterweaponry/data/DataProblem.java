@@ -25,6 +25,8 @@ public record DataProblem(Kind kind, String source, @Nullable String field, @Nul
         UNKNOWN_FIELD,
         /** Matériau inconnu dans material_damage : il est ignoré. */
         UNKNOWN_MATERIAL,
+        /** Un objet de "items" est déjà pris par un autre fichier d'arme, qui garde la priorité. {@code field} = cet autre fichier. */
+        ITEM_CONFLICT,
         /** Le fichier n'a pas pu être lu. */
         IO
     }
@@ -41,6 +43,7 @@ public record DataProblem(Kind kind, String source, @Nullable String field, @Nul
                     ? Component.translatable(KEY_PREFIX + "unknown_field.suggestion", source, field, detail)
                     : Component.translatable(KEY_PREFIX + "unknown_field", source, field);
             case UNKNOWN_MATERIAL -> Component.translatable(KEY_PREFIX + "unknown_material", source, detail);
+            case ITEM_CONFLICT -> Component.translatable(KEY_PREFIX + "item_conflict", source, detail, field);
             case IO -> Component.translatable(KEY_PREFIX + "io", source, detail);
         };
         return message.copy().withStyle(ChatFormatting.YELLOW);
@@ -55,6 +58,7 @@ public record DataProblem(Kind kind, String source, @Nullable String field, @Nul
             case UNKNOWN_FIELD -> source + " > unknown field \"" + field + "\" (ignored)"
                     + (detail != null ? ". Did you mean \"" + detail + "\"?" : "");
             case UNKNOWN_MATERIAL -> source + " > material_damage: unknown material \"" + detail + "\" (ignored)";
+            case ITEM_CONFLICT -> source + " > items: \"" + detail + "\" is already used by " + field + " (ignored here)";
             case IO -> source + ": the file could not be read (" + detail + ")";
         };
     }

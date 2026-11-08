@@ -316,6 +316,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Delay between perfect parries",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "After the window, how long before raising the guard can open a new one, in seconds. Prevents spamming the right click.",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "Guard break duration",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "How long this weapon cannot parry after being hit by an axe or a weapon that disables shields, in seconds. A perfect parry is never broken. 0: this weapon's guard never breaks."
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "How long this weapon cannot parry after being hit by an axe or a weapon that disables shields, in seconds. A perfect parry is never broken. 0: this weapon's guard never breaks.",
+    "better_weaponry.field.weapon.items": "Also applies to",
+    "better_weaponry.field.weapon.items.help": "Other items that behave like this weapon, separated by commas: item ids, or tags starting with #. They get its parry or dash, combo, effects, sweep, armor penetration, two-handed and dual wield settings, but keep their own damage, speed and reach. The mod's own weapons are never changed.",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items: %2$s is already used by %3$s (ignored here)"
   }
 }

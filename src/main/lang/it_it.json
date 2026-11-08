@@ -317,6 +317,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Attesa tra parate perfette",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Dopo la finestra, tempo prima che una nuova guardia possa aprirne un'altra, in secondi. Evita lo spam del clic destro.",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "Durata della guardia spezzata",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Per quanto quest'arma non può parare dopo un colpo d'ascia o di un'arma che disattiva gli scudi, in secondi. Una parata perfetta non viene mai spezzata. 0: la guardia di quest'arma non si spezza mai."
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Per quanto quest'arma non può parare dopo un colpo d'ascia o di un'arma che disattiva gli scudi, in secondi. Una parata perfetta non viene mai spezzata. 0: la guardia di quest'arma non si spezza mai.",
+    "better_weaponry.field.weapon.items": "Si applica anche a",
+    "better_weaponry.field.weapon.items.help": "Altri oggetti che si comportano come quest'arma, separati da virgole: identificatori di oggetti o tag che iniziano con #. Ottengono parata o scatto, combo, effetti, colpo sferzante, penetrazione dell'armatura, impostazioni a due mani e dual wield, ma mantengono danni, velocità e portata propri. Le armi della mod non vengono mai modificate.",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items: %2$s è già usato da %3$s (ignorato qui)"
   }
 }

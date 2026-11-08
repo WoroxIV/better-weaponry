@@ -269,6 +269,13 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
                     }
                     case ID -> trimmed.isEmpty() ? Optional.empty() : Optional.of(new JsonPrimitive(trimmed));
                     case NUMBER_MAP -> Optional.of(JsonUtil.parseLenient(trimmed.isEmpty() ? "{}" : trimmed));
+                    case ITEM_LIST -> {
+                        JsonArray entries = new JsonArray();
+                        for (String entry : trimmed.split(",")) {
+                            if (!entry.isBlank()) entries.add(entry.trim());
+                        }
+                        yield Optional.of(entries);
+                    }
                     default -> Optional.empty();
                 };
             } catch (NumberFormatException | JsonParseException e) {
@@ -279,6 +286,11 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
         private String displayText() {
             JsonElement value = model.get(documentId, path);
             if (value == null) return "";
+            if (field.kind() == DataField.Kind.ITEM_LIST && value.isJsonArray()) {
+                List<String> entries = new ArrayList<>();
+                value.getAsJsonArray().forEach(entry -> entries.add(entry.getAsString()));
+                return String.join(", ", entries);
+            }
             if (value.isJsonPrimitive() && value.getAsJsonPrimitive().isNumber()) {
                 // "50" et "1.6" plutôt que "50.0", sans arrondir.
                 return new BigDecimal(value.getAsJsonPrimitive().getAsString()).stripTrailingZeros().toPlainString();

@@ -5,6 +5,7 @@ import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
+import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
@@ -31,6 +32,7 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Complète les stats vertes (dégâts, vitesse, pénétration d'armure) des armes :
@@ -82,9 +84,10 @@ public final class TooltipEventHandler {
         if (ClientConfig.get(ClientConfig.SHOW_ATTACK_REACH_TOOLTIP)) {
             addReachLine(stack, tooltip);
         }
-        if (!(stack.getItem() instanceof WeaponItem weapon)) return;
+        Optional<WeaponDefinition> profile = WeaponProfiles.definition(stack);
+        if (profile.isEmpty()) return;
 
-        WeaponDefinition definition = weapon.definition();
+        WeaponDefinition definition = profile.get();
         addSweepLine(definition, tooltip);
         if (ClientConfig.get(ClientConfig.SHOW_TWO_HANDED_TOOLTIP)) {
             if (WeaponItem.isTwoHanded(stack)) {

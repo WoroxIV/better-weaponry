@@ -359,6 +359,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Intervalo entre aparos perfeitos",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Depois da janela, tempo até que levantar a guarda possa abrir outra, em segundos. Evita spam do clique direito.",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "Duração da guarda quebrada",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Durante quanto tempo esta arma não pode aparar depois de um golpe de machado ou de uma arma que desativa escudos, em segundos. Um aparo perfeito nunca é quebrado. 0: a guarda desta arma nunca quebra."
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Durante quanto tempo esta arma não pode aparar depois de um golpe de machado ou de uma arma que desativa escudos, em segundos. Um aparo perfeito nunca é quebrado. 0: a guarda desta arma nunca quebra.",
+    "better_weaponry.field.weapon.items": "Também se aplica a",
+    "better_weaponry.field.weapon.items.help": "Outros itens que se comportam como esta arma, separados por vírgulas: IDs de itens ou tags a começar por #. Recebem o aparo ou avanço, combo, efeitos, ataque em área, penetração de armadura, definições de duas mãos e empunhadura dupla, mas mantêm o seu dano, velocidade e alcance. As armas do mod nunca são alteradas.",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items: %2$s já é usado por %3$s (ignorado aqui)"
   }
 }

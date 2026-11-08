@@ -316,6 +316,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Espera entre paradas perfectas",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Tras la ventana, tiempo hasta que una nueva guardia pueda abrir otra, en segundos. Evita abusar del clic derecho.",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "Duración de la guardia rota",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Cuánto tiempo no puede parar esta arma tras un golpe de hacha o de un arma que desactiva escudos, en segundos. Una parada perfecta nunca se rompe. 0: la guardia de esta arma nunca se rompe."
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Cuánto tiempo no puede parar esta arma tras un golpe de hacha o de un arma que desactiva escudos, en segundos. Una parada perfecta nunca se rompe. 0: la guardia de esta arma nunca se rompe.",
+    "better_weaponry.field.weapon.items": "También se aplica a",
+    "better_weaponry.field.weapon.items.help": "Otros objetos que se comportan como esta arma, separados por comas: identificadores de objetos o etiquetas que empiezan por #. Obtienen su parada o embestida, combo, efectos, barrido, penetración de armadura, ajustes a dos manos y doble empuñadura, pero conservan su daño, velocidad y alcance. Las armas del mod nunca se modifican.",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items: %2$s ya lo usa %3$s (ignorado aquí)"
   }
 }

@@ -85,6 +85,12 @@ final class SchemaWriter {
                 id.add("examples", examples);
                 yield id;
             }
+            case ITEM_LIST -> {
+                JsonObject list = typed("array");
+                list.addProperty("maxItems", (int) field.max());
+                list.add("items", typed("string"));
+                yield list;
+            }
             case OBJECT -> objectSchema(field.children(), docs);
             case OBJECT_LIST -> {
                 JsonObject list = typed("array");

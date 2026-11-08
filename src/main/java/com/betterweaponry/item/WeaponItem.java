@@ -3,6 +3,7 @@ package com.betterweaponry.item;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.ParrySystem;
+import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
@@ -27,6 +28,8 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+
+import java.util.List;
 
 /**
  * Item unique pour toutes les armes du mod.
@@ -72,9 +75,9 @@ public class WeaponItem extends SwordItem {
         return WeaponData.weapon(type);
     }
 
-    /** Vrai si l'objet est une arme du mod configurée comme arme à deux mains, et que cette règle est active. */
+    /** Vrai si l'objet a le profil d'une arme à deux mains, et que cette règle est active. */
     public static boolean isTwoHanded(ItemStack stack) {
-        return WeaponData.rules().twoHandedActive() && stack.getItem() instanceof WeaponItem weapon && weapon.definition().twoHanded();
+        return WeaponData.rules().twoHandedActive() && WeaponProfiles.definition(stack).map(WeaponDefinition::twoHanded).orElse(false);
     }
 
     /**
@@ -84,8 +87,8 @@ public class WeaponItem extends SwordItem {
      */
     public static void refreshEquippedModifiers(LivingEntity entity) {
         ItemStack stack = entity.getMainHandItem();
-        if (!(stack.getItem() instanceof WeaponItem weapon)) return;
-        removeModifier(entity, Attributes.ENTITY_INTERACTION_RANGE, weapon.reachModifierId);
+        if (WeaponProfiles.of(stack).isEmpty()) return;
+        if (stack.getItem() instanceof WeaponItem weapon) removeModifier(entity, Attributes.ENTITY_INTERACTION_RANGE, weapon.reachModifierId);
         removeModifier(entity, ModAttributes.ARMOR_PENETRATION, ModAttributes.BASE_ARMOR_PENETRATION_ID);
         removeModifier(entity, Attributes.SWEEPING_DAMAGE_RATIO, BASE_SWEEPING_RATIO_ID);
         stack.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
@@ -152,25 +155,29 @@ public class WeaponItem extends SwordItem {
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         boolean result = super.hurtEnemy(stack, target, attacker);
-        applyOnHitEffects(target, attacker);
+        applyOnHitEffects(stack, target, attacker);
         return result;
     }
 
-    /** Donne à la cible les effets à l'impact de cette arme (côté serveur), chacun selon sa chance. */
-    public void applyOnHitEffects(LivingEntity target, LivingEntity attacker) {
+    /** Donne à la cible les effets à l'impact de cet objet, s'il a un profil d'arme (côté serveur), chacun selon sa chance. */
+    public static void applyOnHitEffects(ItemStack weapon, LivingEntity target, LivingEntity attacker) {
         if (attacker.level().isClientSide || !WeaponData.rules().onHitEffectsActive()) return;
-        for (OnHitEffect effect : definition().onHitEffects()) {
+        for (OnHitEffect effect : WeaponProfiles.definition(weapon).map(WeaponDefinition::onHitEffects).orElse(List.of())) {
             if (attacker.getRandom().nextDouble() * PERCENT < effect.chance()) {
                 effect.createInstance().ifPresent(instance -> target.addEffect(instance, attacker));
             }
         }
     }
 
-    /** Zone touchée par le coup balayé autour de la cible (vanilla : 1 bloc). La portée d'attaque la limite aussi. */
     @Override
     public AABB getSweepHitBox(ItemStack stack, Player player, Entity target) {
         if (!WeaponData.rules().sweepActive()) return super.getSweepHitBox(stack, player, target);
-        double radius = definition().sweep().radius();
+        return sweepZone(definition(), target);
+    }
+
+    /** Zone touchée par le coup balayé autour de la cible (vanilla : 1 bloc). La portée d'attaque la limite aussi. */
+    public static AABB sweepZone(WeaponDefinition definition, Entity target) {
+        double radius = definition.sweep().radius();
         return target.getBoundingBox().inflate(radius, SWEEP_HEIGHT, radius);
     }
 

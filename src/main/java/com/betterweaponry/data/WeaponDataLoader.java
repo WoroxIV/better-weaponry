@@ -1,6 +1,7 @@
 package com.betterweaponry.data;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
@@ -87,6 +88,7 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
             List<FieldSet.Layer> layers = collectLayers(resourceManager, file, ConfigFolder.weaponFile(type), problems);
             weapons.put(type, decodeWeapon(type, layers, problems));
         }
+        WeaponProfiles.reportConflicts(weapons, problems);
         List<FieldSet.Layer> ruleLayers = collectLayers(resourceManager, RULES_FILE, ConfigFolder.rulesFile(), problems);
         RulesDefinition rules = decode(RulesDefinition.CODEC, RulesDefinition.FIELDS.merge(ruleLayers, problems),
                 RulesDefinition.FALLBACK, RULES_FILE, problems);

@@ -12,6 +12,7 @@
   ],
   "mixins": [
     "PlayerCombatMixin",
+    "ItemStackMixin",
     "LivingEntityMixin",
     "LivingEntityAccessor",
     "SweepParticleMixin"

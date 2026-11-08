@@ -4,6 +4,7 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.network.ComboSyncPayload;
@@ -92,9 +93,7 @@ public final class ComboSystem {
     /** Combo de cet objet s'il est activé (fichier de l'arme et rules.json). Coupé avec Better Combat et Epic Fight, qui ont les leurs. */
     public static Optional<ComboDefinition> comboOf(ItemStack stack) {
         if (!WeaponData.rules().combosActive()) return Optional.empty();
-        if (!(stack.getItem() instanceof WeaponItem weapon)) return Optional.empty();
-        ComboDefinition combo = weapon.definition().combo();
-        return combo.enabled() && !combo.steps().isEmpty() ? Optional.of(combo) : Optional.empty();
+        return WeaponProfiles.definition(stack).map(WeaponDefinition::combo).filter(combo -> combo.enabled() && !combo.steps().isEmpty());
     }
 
     /** Combo en vigueur pour ce joueur : celui de l'arme principale, si l'autre main tient la même arme quand il le faut. */
@@ -104,10 +103,8 @@ public final class ComboSystem {
 
     /** Le joueur tient le même type d'arme dans chaque main, en dual wield (pas d'arme à deux mains). */
     public static boolean holdsPair(Player player) {
-        return player.getMainHandItem().getItem() instanceof WeaponItem main
-                && player.getOffhandItem().getItem() instanceof WeaponItem off
-                && main.getType() == off.getType()
-                && DualWieldSystem.isDualWielding(player);
+        Optional<WeaponType> main = WeaponProfiles.type(player.getMainHandItem());
+        return main.isPresent() && main.equals(WeaponProfiles.type(player.getOffhandItem())) && DualWieldSystem.isDualWielding(player);
     }
 
     // --- Déroulement d'un coup (PlayerCombatMixin) ---
@@ -121,7 +118,7 @@ public final class ComboSystem {
             return Hit.none(strength);
         }
         ComboDefinition combo = active.get();
-        WeaponType type = ((WeaponItem) player.getMainHandItem().getItem()).getType();
+        WeaponType type = WeaponProfiles.type(player.getMainHandItem()).orElseThrow();
         if (state.comboType != type || player.level().getGameTime() > state.comboExpiresAt) state.comboStep = 0;
         state.comboType = type;
 
@@ -199,8 +196,7 @@ public final class ComboSystem {
     /** Recharge imposée par le dernier coup spécial, si le joueur tient toujours cette arme. */
     @Nullable
     public static Float attackDelayOverride(Player player, PlayerCombatState state) {
-        if (state.nextAttackDelay <= 0.0F) return null;
-        if (!(player.getMainHandItem().getItem() instanceof WeaponItem weapon) || weapon.getType() != state.comboType) return null;
+        if (state.nextAttackDelay <= 0.0F || WeaponProfiles.type(player.getMainHandItem()).orElse(null) != state.comboType) return null;
         return state.nextAttackDelay;
     }
 
@@ -221,7 +217,7 @@ public final class ComboSystem {
         PlayerCombatState state = PlayerCombatState.of(player);
         Optional<ComboDefinition> combo = activeCombo(player);
         if (combo.isEmpty() || state.comboStep <= 0 || player.level().getGameTime() > state.comboExpiresAt) return null;
-        if (!(player.getMainHandItem().getItem() instanceof WeaponItem weapon) || weapon.getType() != state.comboType) return null;
+        if (WeaponProfiles.type(player.getMainHandItem()).orElse(null) != state.comboType) return null;
         List<ComboStep> steps = combo.get().steps();
         int done = Math.floorMod(state.comboStep, steps.size());
         return new Progress(steps.size(), done, steps.get(done).isSpecial());
@@ -250,7 +246,7 @@ public final class ComboSystem {
             }
             if (victim.hurt(source, amount)) {
                 EnchantmentHelper.doPostAttackEffects(level, victim, source);
-                if (weapon.getItem() instanceof WeaponItem item) item.applyOnHitEffects(victim, player);
+                WeaponItem.applyOnHitEffects(weapon, victim, player);
                 if (hit.bothHands()) applyOffhandWeapon(level, player, victim, source);
             }
         }
@@ -307,7 +303,7 @@ public final class ComboSystem {
     /** Effets à l'impact et effets d'enchantement (Aura de feu...) de l'arme secondaire, pour un coup à deux armes. */
     private static void applyOffhandWeapon(ServerLevel level, Player player, LivingEntity victim, DamageSource source) {
         ItemStack offhand = player.getOffhandItem();
-        if (offhand.getItem() instanceof WeaponItem item) item.applyOnHitEffects(victim, player);
+        WeaponItem.applyOnHitEffects(offhand, victim, player);
         EnchantmentHelper.doPostAttackEffectsWithItemSource(level, victim, source, offhand);
     }
 

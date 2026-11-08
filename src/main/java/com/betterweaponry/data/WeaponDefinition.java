@@ -30,6 +30,7 @@ import java.util.Map;
  * @param parry            réglages de la parade, utilisés si {@code ability} vaut "parry"
  * @param dash             réglages du dash, utilisés si {@code ability} vaut "dash"
  * @param combo            combo : suite de coups qui se répète, avec des coups spéciaux
+ * @param items            autres objets qui reprennent les comportements de cette arme (ids, ou "#tag")
  */
 public record WeaponDefinition(int formatVersion,
                                boolean twoHanded,
@@ -45,12 +46,14 @@ public record WeaponDefinition(int formatVersion,
                                WeaponAbility ability,
                                ParryDefinition parry,
                                DashDefinition dash,
-                               ComboDefinition combo) {
+                               ComboDefinition combo,
+                               List<String> items) {
 
     public static final int FORMAT_VERSION = 1;
     /** Les dégâts calculés sont arrondis au demi-point pour des tooltips lisibles. */
     private static final double DAMAGE_ROUNDING = 0.5D;
     private static final int MAX_ON_HIT_EFFECTS = 8;
+    private static final int MAX_ITEMS = 64;
 
     public static final DataField<Integer> FORMAT = DataField.integer("format_version", 1, FORMAT_VERSION, FORMAT_VERSION);
     public static final DataField<Boolean> TWO_HANDED = DataField.bool("two_handed", false);
@@ -73,10 +76,11 @@ public record WeaponDefinition(int formatVersion,
             DataField.object("dash", DashDefinition.FIELDS, DashDefinition.CODEC, DashDefinition.DEFAULT);
     public static final DataField<ComboDefinition> COMBO =
             DataField.object("combo", ComboDefinition.FIELDS, ComboDefinition.CODEC, ComboDefinition.NONE);
+    public static final DataField<List<String>> ITEMS = DataField.itemList("items", MAX_ITEMS, "minecraft:diamond_sword", "#minecraft:axes");
 
     public static final FieldSet FIELDS = new FieldSet("weapon",
             List.of(FORMAT, TWO_HANDED, DUAL_WIELDED, ATTACK_SPEED, ATTACK_REACH, BASE_DAMAGE, MATERIAL_DAMAGE,
-                    ARMOR_PENETRATION, DISABLES_SHIELD, ON_HIT_EFFECTS, SWEEP, ABILITY, PARRY, DASH, COMBO),
+                    ARMOR_PENETRATION, DISABLES_SHIELD, ON_HIT_EFFECTS, SWEEP, ABILITY, PARRY, DASH, COMBO, ITEMS),
             // Noms de l'ancienne config TOML et variantes courantes
             Map.ofEntries(
                     Map.entry("attack_damage", "base_damage"),
@@ -99,7 +103,9 @@ public record WeaponDefinition(int formatVersion,
                     Map.entry("blocking", "parry"),
                     Map.entry("dodge", "dash"),
                     Map.entry("lunge", "dash"),
-                    Map.entry("combos", "combo")));
+                    Map.entry("combos", "combo"),
+                    Map.entry("item", "items"),
+                    Map.entry("applies_to", "items")));
 
     public static final Codec<WeaponDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             FORMAT.forGetter(WeaponDefinition::formatVersion),
@@ -116,18 +122,20 @@ public record WeaponDefinition(int formatVersion,
             ABILITY.forGetter(WeaponDefinition::ability),
             PARRY.forGetter(WeaponDefinition::parry),
             DASH.forGetter(WeaponDefinition::dash),
-            COMBO.forGetter(WeaponDefinition::combo)
+            COMBO.forGetter(WeaponDefinition::combo),
+            ITEMS.forGetter(WeaponDefinition::items)
     ).apply(instance, WeaponDefinition::new));
 
     /** Utilisé si une arme n'a aucune donnée (fichier du mod introuvable) : une épée vanilla en bois. */
     public static final WeaponDefinition FALLBACK = new WeaponDefinition(FORMAT_VERSION,
             false, false, ATTACK_SPEED.defaultValue(), ATTACK_REACH.defaultValue(), BASE_DAMAGE.defaultValue(), Map.of(),
             0.0D, false, List.of(), SweepDefinition.VANILLA, WeaponAbility.NONE, ParryDefinition.DEFAULT, DashDefinition.DEFAULT,
-            ComboDefinition.NONE);
+            ComboDefinition.NONE, List.of());
 
     public WeaponDefinition {
         materialDamage = Map.copyOf(materialDamage);
         onHitEffects = List.copyOf(onHitEffects);
+        items = List.copyOf(items);
     }
 
     /** Dégâts par seconde de l'épée en fer vanilla (6 × 1.6), la référence de l'équilibrage. */

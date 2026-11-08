@@ -377,6 +377,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Pause zwischen perfekten Paraden",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Wie lange es nach dem Fenster dauert, bis eine neue Deckung wieder eines öffnen kann, in Sekunden. Verhindert Rechtsklick-Spam.",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "Dauer des Deckungsbruchs",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Wie lange diese Waffe nach einem Treffer einer Axt oder einer schilddeaktivierenden Waffe nicht parieren kann, in Sekunden. Eine perfekte Parade wird nie gebrochen. 0: Die Deckung dieser Waffe bricht nie."
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Wie lange diese Waffe nach einem Treffer einer Axt oder einer schilddeaktivierenden Waffe nicht parieren kann, in Sekunden. Eine perfekte Parade wird nie gebrochen. 0: Die Deckung dieser Waffe bricht nie.",
+    "better_weaponry.field.weapon.items": "Gilt auch für",
+    "better_weaponry.field.weapon.items.help": "Andere Gegenstände, die sich wie diese Waffe verhalten, durch Kommas getrennt: Gegenstands-IDs oder mit # beginnende Tags. Sie übernehmen Parade oder Dash, Kombo, Effekte, Schwungangriff, Rüstungsdurchdringung, Zweihand- und Beidhand-Einstellungen, behalten aber ihren Schaden, ihre Geschwindigkeit und Reichweite. Die Waffen des Mods werden nie verändert.",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items: %2$s wird bereits von %3$s verwendet (hier ignoriert)"
   }
 }

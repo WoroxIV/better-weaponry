@@ -1,6 +1,7 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModTags;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -35,8 +36,7 @@ public final class DualWieldSystem {
      */
     public static boolean canDualWield(ItemStack stack) {
         if (WeaponItem.isTwoHanded(stack)) return false;
-        if (stack.getItem() instanceof WeaponItem weapon) return weapon.definition().dualWielded();
-        return stack.is(ModTags.DUAL_WIELDABLE);
+        return WeaponProfiles.definition(stack).map(WeaponDefinition::dualWielded).orElse(false) || stack.is(ModTags.DUAL_WIELDABLE);
     }
 
     /** Une arme ambidextre dans chaque main. Toujours faux si le dual wield est coupé (rules.json, Better Combat, Epic Fight). */

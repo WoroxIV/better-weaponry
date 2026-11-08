@@ -316,6 +316,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "完美招架间隔",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "窗口结束后，再次举起防御才能开启新窗口所需的时间（秒）。防止连点右键。",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "破防持续时间",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "被斧头或可禁用盾牌的武器击中后，此武器无法招架的时长（秒）。完美招架不会被破防。0：此武器永不被破防。"
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "被斧头或可禁用盾牌的武器击中后，此武器无法招架的时长（秒）。完美招架不会被破防。0：此武器永不被破防。",
+    "better_weaponry.field.weapon.items": "同时应用于",
+    "better_weaponry.field.weapon.items.help": "行为与此武器相同的其他物品，用逗号分隔：物品 ID，或以 # 开头的标签。它们获得此武器的招架或冲刺、连招、效果、横扫、护甲穿透、双手和双持设置，但保留自身的伤害、速度和攻击距离。本模组的武器不会被修改。",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items：%2$s 已被 %3$s 使用（此处忽略）"
   }
 }

@@ -2,7 +2,6 @@ package com.betterweaponry.combat;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.WeaponData;
-import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModAttributes;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -17,7 +16,7 @@ import net.neoforged.neoforge.event.entity.player.SweepAttackEvent;
 
 /**
  * Règles de combat ajoutées par les stats des armes : pénétration d'armure, coup balayé,
- * temps d'invulnérabilité en dual wield. (Les effets à l'impact sont dans {@link WeaponItem#hurtEnemy},
+ * temps d'invulnérabilité en dual wield. (Les effets à l'impact sont dans {@code WeaponItem.hurtEnemy},
  * les combos dans {@link ComboSystem}.)
  */
 @EventBusSubscriber(modid = BetterWeaponry.MODID)
@@ -65,7 +64,7 @@ public final class CombatEvents {
     public static void onSweepAttack(SweepAttackEvent event) {
         Player player = event.getEntity();
         boolean noSweep = WeaponData.rules().sweepActive()
-                && player.getMainHandItem().getItem() instanceof WeaponItem weapon && !weapon.definition().sweep().enabled();
+                && WeaponProfiles.definition(player.getMainHandItem()).map(definition -> !definition.sweep().enabled()).orElse(false);
         if (noSweep || ComboSystem.isAreaAttackInProgress(player)) {
             event.setSweeping(false);
         }

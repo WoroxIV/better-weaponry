@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  */
 public final class DataField<T> {
     /** Nature du champ, utilisée pour le schéma JSON et le README. */
-    public enum Kind { NUMBER, INTEGER, BOOLEAN, CHOICE, NUMBER_MAP, ID, OBJECT, OBJECT_LIST }
+    public enum Kind { NUMBER, INTEGER, BOOLEAN, CHOICE, NUMBER_MAP, ID, ITEM_LIST, OBJECT, OBJECT_LIST }
 
     private final String name;
     private final Kind kind;
@@ -106,6 +106,22 @@ public final class DataField<T> {
                 ? DataResult.success(id)
                 : DataResult.error(() -> "unknown " + what + " \"" + id + "\""));
         return new DataField<>(name, Kind.ID, codec, null, 0, 0, null, knownIds, List.of(examples));
+    }
+
+    /**
+     * Liste d'objets ou de tags (au plus {@code maxSize}), ex : ["minecraft:diamond_sword", "#minecraft:axes"]. Vide par défaut.
+     * Seule la forme est vérifiée : un objet d'un mod absent est simplement sans effet.
+     *
+     * @param examples valeurs typiques citées dans la documentation
+     */
+    public static DataField<List<String>> itemList(String name, int maxSize, String... examples) {
+        Codec<String> entry = Codec.STRING.validate(text -> ResourceLocation.tryParse(text.startsWith("#") ? text.substring(1) : text) != null
+                ? DataResult.success(text)
+                : DataResult.error(() -> "invalid item or tag \"" + text + "\""));
+        Codec<List<String>> codec = entry.listOf().validate(list -> list.size() <= maxSize
+                ? DataResult.success(list)
+                : DataResult.error(() -> "at most " + maxSize + " entries (" + list.size() + " given)"));
+        return new DataField<>(name, Kind.ITEM_LIST, codec, List.of(), 0, maxSize, null, null, List.of(examples));
     }
 
     /** Objet dont les sous-champs sont décrits par {@code children}, ex : "sweep": { "radius": 2 }. */

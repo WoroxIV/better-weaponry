@@ -389,6 +389,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Tijd tussen perfecte pareringen",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Hoe lang het na het venster duurt voordat een nieuwe dekking er weer een kan openen, in seconden. Voorkomt spammen met de rechtermuisklik.",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "Duur gebroken dekking",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Hoe lang dit wapen niet kan pareren na een klap van een bijl of een wapen dat schilden uitschakelt, in seconden. Een perfecte parering wordt nooit gebroken. 0: de dekking van dit wapen breekt nooit."
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Hoe lang dit wapen niet kan pareren na een klap van een bijl of een wapen dat schilden uitschakelt, in seconden. Een perfecte parering wordt nooit gebroken. 0: de dekking van dit wapen breekt nooit.",
+    "better_weaponry.field.weapon.items": "Geldt ook voor",
+    "better_weaponry.field.weapon.items.help": "Andere voorwerpen die zich als dit wapen gedragen, gescheiden door komma's: voorwerp-ID's of tags die met # beginnen. Ze krijgen de parering of dash, combo, effecten, verscherping, harnasdoordringing, tweehandig- en dual-wieldinstellingen, maar houden hun eigen schade, snelheid en bereik. De wapens van de mod worden nooit gewijzigd.",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items: %2$s wordt al gebruikt door %3$s (hier genegeerd)"
   }
 }

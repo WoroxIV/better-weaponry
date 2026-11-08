@@ -6,6 +6,8 @@ import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.combat.PlayerCombatState;
+import com.betterweaponry.combat.TwoHandedSystem;
+import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
@@ -29,7 +31,9 @@ import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.mixin.LivingEntityAccessor;
 import com.betterweaponry.item.WeaponType;
+import com.betterweaponry.registry.ModAttributes;
 import com.betterweaponry.registry.ModItems;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
@@ -47,6 +51,7 @@ import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -56,7 +61,9 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -623,6 +630,77 @@ public final class CombatGameTests {
 
     private static void startParry(GameTestHelper helper, Player player, ItemStack stack) {
         helper.assertTrue(stack.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).getResult().consumesAction(), "the parry should start");
+    }
+
+    /**
+     * Champ "items" : un objet vanilla adopté reprend les comportements de l'arme mais garde ses dégâts ; un id précis
+     * passe avant un tag ; une arme du mod n'est jamais adoptée ; un objet revendiqué deux fois est signalé.
+     */
+    @GameTest(template = ARENA)
+    public static void adoptedItems(GameTestHelper helper) {
+        assertModTagsLoaded(helper);
+        WeaponData.Snapshot original = WeaponData.current();
+        Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(original.weapons());
+        weapons.put(WeaponType.BROADSWORD, withItems(original.weapon(WeaponType.BROADSWORD), "minecraft:diamond_sword", "minecraft:iron_sword"));
+        // Le marteau revendique aussi tout le tag des épées, et même une arme du mod.
+        weapons.put(WeaponType.HAMMER, withItems(original.weapon(WeaponType.HAMMER), "minecraft:golden_sword", "#minecraft:swords", "better_weaponry:iron_dagger"));
+        try {
+            WeaponData.install(new WeaponData.Snapshot(weapons, original.rules()));
+
+            // Parade reprise, dégâts de l'objet conservés.
+            ItemStack diamondSword = new ItemStack(Items.DIAMOND_SWORD);
+            helper.assertTrue(WeaponProfiles.type(diamondSword).orElse(null) == WeaponType.BROADSWORD, "an exact id should win over the tag of swords");
+            Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+            Player defender = parrier(helper, diamondSword, position);
+            helper.assertTrue(defender.getAttributeValue(Attributes.ATTACK_DAMAGE) == 7.0D, "the diamond sword should keep its damage");
+            helper.assertTrue(defender.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE) == 3.0D, "the diamond sword should keep its reach");
+            helper.assertTrue(diamondSword.getUseAnimation() == UseAnim.BLOCK && diamondSword.getUseDuration(defender) == ParrySystem.USE_DURATION,
+                    "an adopted item should have the parry animation");
+            helper.assertTrue(ParrySystem.canParry(defender, InteractionHand.MAIN_HAND, diamondSword), "an adopted item should be able to parry");
+            ParrySystem.beginParry(defender, diamondSword);
+            defender.startUsingItem(InteractionHand.MAIN_HAND);
+            PlayerCombatState.of(defender).perfectParryUntil = 0L;
+            helper.assertTrue(ParrySystem.isParrying(defender), "the adopted item should be parrying");
+            defender.hurt(defender.damageSources().playerAttack(mockPlayerAt(helper, position.add(0.0D, 0.0D, 2.0D))), RAW_DAMAGE);
+            helper.assertTrue(TEST_HEALTH - defender.getHealth() < RAW_DAMAGE, "the parry of an adopted item should reduce the damage");
+
+            // Bonus de l'arme sur un objet adopté : pénétration, effets, boucliers, deux mains.
+            WeaponDefinition hammer = weapons.get(WeaponType.HAMMER);
+            ItemStack goldenSword = new ItemStack(Items.GOLDEN_SWORD);
+            Player attacker = player(helper, goldenSword, ItemStack.EMPTY);
+            helper.assertTrue(Math.abs(attacker.getAttributeValue(ModAttributes.ARMOR_PENETRATION) - hammer.armorPenetration() / 100.0D) < EPSILON,
+                    "an adopted item should get the armor penetration");
+            helper.assertTrue(attacker.canDisableShield() == hammer.disablesShield(), "an adopted item should disable shields like its weapon");
+            helper.assertTrue(TwoHandedSystem.isOffhandLocked(attacker) == hammer.twoHanded(), "an adopted item should lock the off hand like its weapon");
+            Pig target = armoredPig(helper, new BlockPos(2, 1, 2));
+            goldenSword.hurtEnemy(target, attacker);
+            for (OnHitEffect effect : hammer.onHitEffects()) {
+                if (effect.chance() >= 100.0D) helper.assertTrue(target.hasEffect(effect.holder().orElseThrow()), "an adopted item should give " + effect.effect());
+            }
+
+            // Une arme du mod n'est jamais adoptée.
+            helper.assertTrue(WeaponProfiles.type(weapon(WeaponType.DAGGER)).orElse(null) == WeaponType.DAGGER, "a weapon of the mod keeps its own profile");
+            helper.assertFalse(WeaponProfiles.of(new ItemStack(Items.STICK)).isPresent(), "a stick has no profile");
+
+            Map<WeaponType, WeaponDefinition> conflicting = new EnumMap<>(weapons);
+            conflicting.put(WeaponType.KATANA, withItems(original.weapon(WeaponType.KATANA), "minecraft:diamond_sword"));
+            List<DataProblem> problems = new ArrayList<>();
+            WeaponProfiles.reportConflicts(conflicting, problems);
+            helper.assertTrue(problems.size() == 1 && "minecraft:diamond_sword".equals(problems.getFirst().detail()), "the conflict should be reported: " + problems);
+        } finally {
+            WeaponData.install(original);
+        }
+        helper.assertFalse(WeaponProfiles.of(new ItemStack(Items.DIAMOND_SWORD)).isPresent(), "nothing is adopted by default");
+        helper.succeed();
+    }
+
+    /** Copie d'une arme avec ces valeurs dans son champ "items". */
+    private static WeaponDefinition withItems(WeaponDefinition definition, String... items) {
+        JsonObject json = WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, definition).getOrThrow().getAsJsonObject();
+        JsonArray list = new JsonArray();
+        for (String item : items) list.add(item);
+        json.add(WeaponDefinition.ITEMS.name(), list);
+        return WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
     }
 
     /**

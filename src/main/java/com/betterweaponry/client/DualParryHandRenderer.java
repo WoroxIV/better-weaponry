@@ -2,6 +2,7 @@ package com.betterweaponry.client;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.ParrySystem;
+import com.betterweaponry.combat.WeaponProfiles;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -14,9 +15,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 
 /**
- * Vue première personne d'une parade à deux armes (ex : deux saïs) : l'arme de la main secondaire prend aussi
- * la pose de parade 1.8. On la dessine nous-mêmes, ce qui marche avec n'importe quelle arme (même vanilla)
- * dans la main secondaire. L'arme principale est placée par {@link WeaponClientExtensions}.
+ * Vue première personne des parades que {@link WeaponClientExtensions} ne peut pas placer : l'arme de la main
+ * secondaire d'une parade à deux armes (ex : deux saïs), et un objet adopté par un fichier d'arme (ex : une épée
+ * vanilla). On les dessine nous-mêmes dans la pose de parade 1.8, ce qui marche avec n'importe quel objet.
  * (Vue troisième personne : PlayerRendererMixin lève aussi le bras secondaire.)
  */
 @EventBusSubscriber(modid = BetterWeaponry.MODID, value = Dist.CLIENT)
@@ -27,12 +28,16 @@ public final class DualParryHandRenderer {
 
     @SubscribeEvent
     public static void onRenderHand(RenderHandEvent event) {
-        if (event.getHand() != InteractionHand.OFF_HAND) return;
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
-        if (player == null || player.isScoping() || !ParrySystem.isParryingWithBothHands(player)) return;
+        if (player == null || player.isScoping()) return;
+        boolean mainHand = event.getHand() == InteractionHand.MAIN_HAND;
+        boolean posed = mainHand
+                ? ParrySystem.isParrying(player) && WeaponProfiles.isAdopted(event.getItemStack())
+                : ParrySystem.isParryingWithBothHands(player);
+        if (!posed) return;
 
-        HumanoidArm arm = player.getMainArm().getOpposite();
+        HumanoidArm arm = mainHand ? player.getMainArm() : player.getMainArm().getOpposite();
         boolean leftHand = arm == HumanoidArm.LEFT;
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();

@@ -70,7 +70,7 @@ public final class Docs {
             case CHOICE -> format(DOC + "choices", String.join(", ", field.examples()))
                     + " · " + format(DOC + "default", formatValue(field.defaultValue()));
             case NUMBER_MAP -> format(DOC + "range", number(field.min()), number(field.max()));
-            case ID -> field.examples().isEmpty() ? "" : format(DOC + "examples", String.join(", ", field.examples()));
+            case ID, ITEM_LIST -> field.examples().isEmpty() ? "" : format(DOC + "examples", String.join(", ", field.examples()));
             case OBJECT -> "";
             case OBJECT_LIST -> format(DOC + "max_entries", (int) field.max());
         };

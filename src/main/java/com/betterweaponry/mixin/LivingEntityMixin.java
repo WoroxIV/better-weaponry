@@ -2,15 +2,19 @@ package com.betterweaponry.mixin;
 
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.PlayerCombatState;
+import com.betterweaponry.combat.WeaponProfiles;
+import com.betterweaponry.data.WeaponData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Partie "LivingEntity" du dual wield et des combos. Ces méthodes sont définies dans LivingEntity,
@@ -62,6 +66,16 @@ public abstract class LivingEntityMixin {
             } finally {
                 state.redirectingSwing = false;
             }
+        }
+    }
+
+    /** Objet adopté par une arme qui désactive les boucliers (champ "items"). */
+    @Inject(method = "canDisableShield", at = @At("HEAD"), cancellable = true)
+    private void betterweaponry$adoptedDisablesShield(CallbackInfoReturnable<Boolean> cir) {
+        ItemStack weapon = ((LivingEntity) (Object) this).getMainHandItem();
+        if (WeaponData.rules().shieldDisablingActive() && WeaponProfiles.isAdopted(weapon)
+                && WeaponProfiles.definition(weapon).orElseThrow().disablesShield()) {
+            cir.setReturnValue(true);
         }
     }
 

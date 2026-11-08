@@ -5,10 +5,16 @@ import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.HandSwap;
 import com.betterweaponry.combat.ICombatPlayer;
 import com.betterweaponry.combat.PlayerCombatState;
+import com.betterweaponry.combat.WeaponProfiles;
+import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.item.WeaponItem;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -77,6 +83,16 @@ public abstract class PlayerCombatMixin implements ICombatPlayer {
         } finally {
             ComboSystem.endHit(player, state, hit);
         }
+    }
+
+    /** Rayon du coup balayé d'un objet adopté par un fichier d'arme ({@code WeaponItem} règle le sien lui-même). */
+    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/item/ItemStack;getSweepHitBox(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/AABB;"))
+    private AABB betterweaponry$adoptedSweepZone(ItemStack stack, Player player, Entity target, Operation<AABB> original) {
+        if (WeaponData.rules().sweepActive() && WeaponProfiles.isAdopted(stack)) {
+            return WeaponItem.sweepZone(WeaponProfiles.definition(stack).orElseThrow(), target);
+        }
+        return original.call(stack, player, target);
     }
 
     /**

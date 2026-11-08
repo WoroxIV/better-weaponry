@@ -316,6 +316,9 @@
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds": "Délai entre parades parfaites",
     "better_weaponry.field.weapon.parry.perfect_cooldown_seconds.help": "Après la fenêtre, délai avant qu'une nouvelle garde puisse en ouvrir une autre, en secondes. Évite de spammer le clic droit.",
     "better_weaponry.field.weapon.parry.guard_break_seconds": "Durée de garde brisée",
-    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Durée pendant laquelle cette arme ne peut plus parer après un coup de hache ou d'une arme qui désactive les boucliers, en secondes. Une parade parfaite n'est jamais brisée. 0 : la garde de cette arme ne se brise jamais."
+    "better_weaponry.field.weapon.parry.guard_break_seconds.help": "Durée pendant laquelle cette arme ne peut plus parer après un coup de hache ou d'une arme qui désactive les boucliers, en secondes. Une parade parfaite n'est jamais brisée. 0 : la garde de cette arme ne se brise jamais.",
+    "better_weaponry.field.weapon.items": "S'applique aussi à",
+    "better_weaponry.field.weapon.items.help": "Autres objets qui se comportent comme cette arme, séparés par des virgules : identifiants d'objets, ou tags commençant par #. Ils reprennent sa parade ou son dash, son combo, ses effets, son balayage, sa pénétration d'armure, ses réglages deux mains et dual wield, mais gardent leurs dégâts, leur vitesse et leur portée. Les armes du mod ne sont jamais modifiées.",
+    "better_weaponry.data.problem.item_conflict": "%1$s › items : %2$s est déjà utilisé par %3$s (ignoré ici)"
   }
 }
