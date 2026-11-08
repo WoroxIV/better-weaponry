@@ -17,15 +17,30 @@ public final class ClientConfig {
     public static final List<ChatFormatting> TOOLTIP_COLORS = Arrays.stream(ChatFormatting.values()).filter(ChatFormatting::isColor).toList();
 
     public static final ModConfigSpec SPEC;
-    public static final ModConfigSpec.BooleanValue SHOW_COMBO_HUD;
+    public static final ModConfigSpec.EnumValue<ComboHudStyle> COMBO_HUD_STYLE;
+    public static final ModConfigSpec.BooleanValue SHOW_ATTACK_ZONES;
     private static final Map<TooltipCategory, ModConfigSpec.EnumValue<TooltipPlacement>> TOOLTIP_PLACEMENTS = new EnumMap<>(TooltipCategory.class);
     private static final Map<TooltipCategory, ModConfigSpec.EnumValue<ChatFormatting>> TOOLTIP_COLOR_VALUES = new EnumMap<>(TooltipCategory.class);
+    private static final Map<HudElement, HudSettings> HUD = new EnumMap<>(HudElement.class);
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
-        SHOW_COMBO_HUD = builder
-                .comment("Show the combo progress under the crosshair.")
-                .define("show_combo_hud", true);
+        COMBO_HUD_STYLE = builder
+                .comment("Look of the combo progress: dots, squares, bar, ring (around the crosshair) or counter.")
+                .defineEnum("combo_hud_style", ComboHudStyle.DOTS);
+        SHOW_ATTACK_ZONES = builder
+                .comment("Debug view: draw the reach, the combo zones and the sweep zone of the held weapon in the world.")
+                .define("show_attack_zones", false);
+
+        builder.comment("On-screen elements: shown or not, and position of their center (0 = left or top, 1 = right or bottom).").push("hud");
+        for (HudElement element : HudElement.values()) {
+            builder.push(element.id());
+            HUD.put(element, new HudSettings(builder.define("show", true),
+                    builder.defineInRange("x", element.defaultX(), 0.0D, 1.0D),
+                    builder.defineInRange("y", element.defaultY(), 0.0D, 1.0D)));
+            builder.pop();
+        }
+        builder.pop();
 
         builder.comment("Layout of weapon tooltips: where each kind of line goes, and its color.").push("tooltip");
         for (TooltipCategory category : TooltipCategory.values()) {
@@ -39,6 +54,23 @@ public final class ClientConfig {
     }
 
     private ClientConfig() {
+    }
+
+    /** Réglages d'un élément de l'interface. */
+    public record HudSettings(ModConfigSpec.BooleanValue show, ModConfigSpec.DoubleValue x, ModConfigSpec.DoubleValue y) {
+    }
+
+    public static HudSettings hud(HudElement element) {
+        return HUD.get(element);
+    }
+
+    /** Remet tous les éléments de l'interface à leur place d'origine (ils restent affichés ou non). */
+    public static void resetHudPositions() {
+        for (HudElement element : HudElement.values()) {
+            hud(element).x().set(element.defaultX());
+            hud(element).y().set(element.defaultY());
+        }
+        SPEC.save();
     }
 
     /** Préréglages de la page Tooltips de l'éditeur. */

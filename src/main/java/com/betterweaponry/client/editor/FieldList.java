@@ -46,6 +46,7 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
     private static final int NUMBER_WIDTH = 70;
     private static final int TEXT_WIDTH = 140;
     private static final int TOOLTIP_WIDTH = 240;
+    private static final int PREVIEW_WIDTH = 34;
     private static final int LABEL_COLOR = 0xFFFFFF;
     private static final int CHANGED_COLOR = 0xFFFF55;
     private static final int INVALID_COLOR = 0xFF5555;
@@ -455,11 +456,18 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
     final class ButtonsRow extends Row {
         private final Component label;
         @Nullable private final Component tooltip;
+        @Nullable private final RowPreview preview;
 
         ButtonsRow(Component label, @Nullable Component tooltip, List<? extends AbstractWidget> buttons) {
+            this(label, tooltip, buttons, null);
+        }
+
+        /** @param preview petit aperçu dessiné à gauche des boutons */
+        ButtonsRow(Component label, @Nullable Component tooltip, List<? extends AbstractWidget> buttons, @Nullable RowPreview preview) {
             super(0);
             this.label = label;
             this.tooltip = tooltip;
+            this.preview = preview;
             widgets.addAll(buttons);
         }
 
@@ -473,11 +481,21 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
                 right -= widget.getWidth() + 2;
             }
             int x = labelX(left);
+            if (preview != null) {
+                preview.draw(graphics, right - PREVIEW_WIDTH / 2, top + WIDGET_HEIGHT / 2);
+                right -= PREVIEW_WIDTH;
+            }
             int labelWidth = right - x - 2;
             drawLabel(graphics, label.getString(), x, top, labelWidth, LABEL_COLOR);
             tooltipIfHovered(mouseX, mouseY, x, top, labelWidth, tooltip);
             for (AbstractWidget widget : widgets) widget.render(graphics, mouseX, mouseY, partialTick);
         }
+    }
+
+    /** Aperçu dessiné dans une ligne, centré sur ce point. */
+    @FunctionalInterface
+    interface RowPreview {
+        void draw(GuiGraphics graphics, int centerX, int centerY);
     }
 
     /** Une ligne de boutons répartis sur toute la largeur. */

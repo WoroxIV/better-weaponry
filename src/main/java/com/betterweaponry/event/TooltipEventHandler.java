@@ -94,6 +94,11 @@ public final class TooltipEventHandler {
         lines.put(TooltipCategory.DAMAGE, TooltipLayout.takeLines(tooltip, "attack_damage"));
         lines.put(TooltipCategory.SPEED, TooltipLayout.takeLines(tooltip, "attack_speed"));
         lines.put(TooltipCategory.ARMOR_PENETRATION, TooltipLayout.takeLines(tooltip, "armor_penetration"));
+        // Sans joueur (aperçu au menu principal), le jeu affiche l'écart avec la vitesse de base au lieu de la vitesse réelle.
+        if (event.getEntity() == null && stack.getItem() instanceof WeaponItem) {
+            lines.put(TooltipCategory.SPEED, List.of(Component.literal(" ").append(Component.translatable(VANILLA_STAT_FORMAT_KEY,
+                    number(definition.attackSpeed()), Component.translatable(Attributes.ATTACK_SPEED.value().getDescriptionId())))));
+        }
         TooltipLayout.takeLines(tooltip, VANILLA_REACH_KEY_PART);
         TooltipLayout.takeLines(tooltip, VANILLA_SWEEP_KEY_PART);
 

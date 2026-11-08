@@ -1,6 +1,6 @@
 package com.betterweaponry;
 
-import com.betterweaponry.client.ComboHud;
+import com.betterweaponry.client.CombatHud;
 import com.betterweaponry.client.ModKeyMappings;
 import com.betterweaponry.client.WeaponClientExtensions;
 import com.betterweaponry.client.editor.ClientEditorHooks;
@@ -57,10 +57,10 @@ public final class BetterWeaponryClient {
         event.register(ModKeyMappings.WEAPON_DETAILS);
     }
 
-    /** Indicateur du combo, dessiné juste au-dessus du viseur vanilla. */
+    /** Éléments de combat à l'écran, dessinés juste au-dessus du viseur vanilla. */
     private static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.CROSSHAIR,
-                ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "combo_progress"), ComboHud::render);
+                ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "combat_hud"), CombatHud::render);
     }
 
     /** Langue choisie dans les options du jeu (ex : "fr_fr"), ou l'anglais si les options ne sont pas encore chargées. */

@@ -52,20 +52,20 @@ By default, the katana, claymore, battleaxe, hammer, glaive and scythe are two-h
 - the off-hand item is hidden in first person
 - you can't use the off hand to use items, place blocks or interact with entities
 
-When Better Combat is installed, the mod turns this off and lets Better Combat handle two-handed behaviour.
+`two_handed_enabled: false` in `rules.json` turns this off for every weapon. It is also off with Better Combat or Epic Fight, see [Combat mods](#better-combat-and-epic-fight-compatibility).
 
 ### Dual wielding
 
-Hold a weapon (anything in the `better_weaponry:dual_wieldable` item tag: swords, axes, the trident and the common `c:tools/melee_weapon` tag, vanilla or modded) in **both** hands. If neither one is two-handed, your attacks alternate between the main hand and the off hand:
+Only weapons with the `dual_wielded` option can be used in pairs: by default the **dagger, sickle, chakram, sai and rapier**. Hold such a weapon in **both** hands (two different ones are fine) and your attacks alternate between the main hand and the off hand:
 
 - An off-hand hit really uses the off-hand weapon: its damage, attack speed, enchantments, knockback, sweep and durability. If it breaks, it breaks in the off hand.
 - The attack cooldown and the crosshair indicator follow the weapon whose turn it is, and `dual_wield_speed_multiplier` (in `rules.json`) makes the cooldown shorter.
 - A target is protected for only `dual_wield_invulnerability_seconds` (0.25 s by default, vanilla 0.5 s) after a dual-wield hit, so fast weapons such as daggers never lose a hit.
-- A data pack can add or remove items from the `better_weaponry:dual_wieldable` tag.
+- Vanilla swords and axes no longer dual wield. A data pack can add items of other mods to the `better_weaponry:dual_wieldable` tag (empty by default), or a weapon file can adopt them with its `items` field.
 
-> One-handed weapons (dagger, sai, sickle, rapier, chakram, broadsword, spear) can be dual wielded. With the default multiplier of 1.5, dual wielding is worth about as much as the two-handed bonus.
+> With the default multiplier of 1.5, dual wielding is worth about as much as the two-handed bonus.
 
-Dual wielding is turned off when Better Combat is installed, because Better Combat has its own dual-wield system.
+`dual_wield_enabled: false` in `rules.json` turns dual wielding off.
 
 ### Combos
 
@@ -89,9 +89,9 @@ Each weapon can have a **combo**: a series of hits that repeats, set by the `com
 - **Area hit** (`radius`, `angle`): hits every enemy within `radius` blocks in front of you (`angle` 360 = all around), with the vanilla sweep rules (charge, enchantments, Fire Aspect...) and the weapon's on-hit effects. It replaces the vanilla sweep for that hit. It never hits your allies, your tamed animals, marker armor stands, your mount, or players when PvP is off.
 - **Both weapons** (`both_hands`, with the same weapon type in each hand): **both arms swing at the same time** (first and third person, also seen by other players), damage = **average** of the two weapons, the effects of both weapons apply and both lose durability.
 - `damage_multiplier`, `knockback` and `cooldown_multiplier` change one hit. After a special hit, the next hit takes `cooldown_multiplier` times longer to charge (for a both-weapons hit, the average cooldown of the two weapons).
-- Feedback: a chime and sparkles when the next hit is the special one, and progress dots under the crosshair (client option `show_combo_hud`).
+- Feedback: a chime and sparkles when the next hit is the special one, and a progress indicator under the crosshair (dots, squares, segmented bar, ring or counter, see [Interface](#interface)).
 - Your game predicts the combo for the animation and the dots; the server decides the damage and corrects the combo if they ever disagree.
-- `combos_enabled: false` in `rules.json` turns every combo off. Combos are also off when Better Combat is installed (it has its own).
+- `combos_enabled: false` in `rules.json` turns every combo off.
 
 ### Right-click abilities
 
@@ -107,10 +107,12 @@ By default the broadsword, katana, glaive, claymore and sai can **parry**, like 
 - It works with one-handed and two-handed weapons. A one-handed weapon only parries with an **empty off hand**:
   - a **shield** in the off hand is raised instead;
   - a torch, food or a block in the off hand keeps its normal right-click action;
-  - with a weapon in the off hand, only weapons with `parry.while_dual_wielding` parry (the sai, by default).
+  - with a dual-wielded weapon in the off hand, only weapons with `parry.while_dual_wielding` parry (the sai, by default).
     Both weapons then take the parry pose, in first and third person.
 - A two-handed weapon always parries, since the off hand is locked.
-- `parry_enabled: false` in `rules.json` turns the parry off for every weapon.
+- **Perfect parry**: a hit taken during the first `parry.perfect_window_seconds` of the parry (0.25 s by default) is blocked entirely, without wear, with a sound and particles that depend on the weapon's material. Raising the guard again right after does not open a new window (`parry.perfect_cooldown_seconds`).
+- **Guard break**: a hit from an axe or a weapon with `disables_shield` is still reduced, but it stops the parry and the weapon cannot parry for `parry.guard_break_seconds` (1.5 s by default, shared by every material). A perfect parry is never broken.
+- `parry_enabled: false` in `rules.json` turns the parry off for every weapon; `perfect_parry_enabled` and `guard_break_enabled` turn off only those two.
 
 #### Dash
 
@@ -127,7 +129,19 @@ By default the dagger (sideways dodge) and the rapier (forward lunge) can **dash
 
 ### Tooltips
 
-Weapon tooltips can show **Attack Reach** and a **Two Handed** tag. Each player can turn them off in the client config (`config/better_weaponry-client.toml`, or the "Display preferences" page of the editor). Weapons with an ability show a gold line such as "Right Button: Parry (-50% damage from the front)" or "Right Button: Dash (~3.5 blocks, 1.5 s cooldown)", with the key the player actually bound to "Use Item". Weapons with a combo show a yellow line per special hit, such as "Combo, hit 3: 360° area, 3.5 blocks, recovery ×1.6".
+Each player chooses how weapon tooltips look on the **Tooltips** page of the editor: for each kind of line, its place (above the stats, with the stats, in the details, or hidden) and its color, with a live preview and three presets. By default:
+
+- **Two Handed** or **Dual Wielded** in dark gray, above the stats;
+- reach, damage, attack speed and armor penetration in dark green;
+- sweep, shield disabling, on-hit effects, abilities and combos only while holding the "Weapon details" key (Shift by default, changeable in the game's controls).
+
+Ability lines use the key the player actually bound to "Use Item", such as "Right Button: Parry (-50% damage from the front)".
+
+### Interface
+
+The **Interface** page of the editor turns each on-screen element on or off and opens a screen to drag them anywhere: the combo progress (dots, squares, segmented bar, ring around the crosshair, or counter), the guard break timer, and the ability cooldown (key and time left).
+
+**Show attack zones** is a debug view to tune weapons by eye: a white circle for the reach, cyan arcs for the combo zones (gold for the next hit), and a green box for the sweep zone around the target.
 
 ### Localization
 
@@ -191,7 +205,7 @@ config/better_weaponry/             ← created at first launch, applies to ever
 ├── weapons/<weapon>.json           ← your weapon changes (only what you change)
 └── defaults/                       ← the mod's default values, rewritten at every launch (read only)
 
-config/better_weaponry-client.toml  ← display preferences (tooltips, combo dots)
+config/better_weaponry-client.toml  ← display preferences (tooltips, on-screen elements)
 ```
 
 Layers, from lowest to highest priority (the last one wins):
@@ -219,6 +233,7 @@ Layers, from lowest to highest priority (the last one wins):
 | Field | Range | Meaning |
 |---|---|---|
 | `two_handed` | `true` / `false` | While held in the main hand, the off hand is hidden and locked |
+| `dual_wielded` | `true` / `false` | Can be used with another dual-wielded weapon in the other hand (ignored if two-handed) |
 | `attack_speed` | 0.1 – 20 | Attacks per second at full strength |
 | `attack_reach` | 0.5 – 64 | Reach in blocks |
 | `base_damage` | 0 – 1024 | Damage of the wooden version. Each material multiplies it (stone ×1.25, iron ×1.5, diamond ×1.75, netherite ×2, gold ×1, modded `(4 + bonus) / 4`), rounded to 0.5 |
@@ -232,7 +247,10 @@ Layers, from lowest to highest priority (the last one wins):
 | `ability` | `"none"` / `"parry"` / `"dash"` | What a right click does with the weapon in the main hand |
 | `parry.damage_reduction` | 0 – 100 | % of the damage blocked by the parry, front hits only (default 50) |
 | `parry.durability_per_damage` | 0 – 10 | Durability lost per point of damage blocked, rounded, at least 1 per hit (0 = no wear; default 1) |
-| `parry.while_dual_wielding` | `true` / `false` | `true`: also parries with a weapon in the off hand (default `false`) |
+| `parry.while_dual_wielding` | `true` / `false` | `true`: also parries with a dual-wielded weapon in the off hand (default `false`) |
+| `parry.perfect_window_seconds` | 0 – 2 | Start of the parry during which a hit is blocked entirely (default 0.25, 0 = never) |
+| `parry.perfect_cooldown_seconds` | 0 – 10 | Delay before raising the guard can open a new perfect window (default 1) |
+| `parry.guard_break_seconds` | 0 – 10 | How long the weapon cannot parry after a guard break (default 1.5, 0 = never broken) |
 | `dash.distance` | 0.5 – 16 | Approximate length of the dash on flat ground, in blocks (default 4) |
 | `dash.cooldown_seconds` | 0.1 – 60 | Time before the next dash, shared by every material of the type (default 2) |
 | `dash.direction` | `"look"` / `"input"` | Where you look, or where your movement keys point (default `"look"`) |
@@ -261,13 +279,33 @@ Example: give the spear a parry that blocks 30% of the damage.
 }
 ```
 
+### Applying a weapon's settings to other items
+
+The `items` field of a weapon file lists other items that behave like this weapon, by id or by tag:
+
+```json
+{ "items": ["minecraft:diamond_sword", "#minecraft:axes"] }
+```
+
+They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shield disabling, two-handed and dual wield settings, but **keep their own damage, attack speed and reach**. An exact id wins over a tag, items of a missing mod are ignored, the mod's own weapons are never changed, and an item claimed by two files is reported to operators.
+
 ### rules.json
 
 | Field | Range | Default | Meaning |
 |---|---|---|---|
+| `combat_changes_enabled` | `true` / `false` | `true` | `false`: vanilla combat, every system below is off at once. Weapons keep their own damage and attack speed |
 | `dual_wield_speed_multiplier` | 1 – 5 | 1.5 | Attack speed multiplier while holding a weapon in each hand |
 | `dual_wield_invulnerability_seconds` | 0 – 1 | 0.25 | How long a target ignores new hits after a dual-wield hit (vanilla: 0.5) |
+| `reach_enabled` | `true` / `false` | `true` | `false`: every weapon has the normal reach of a player |
+| `sweep_enabled` | `true` / `false` | `true` | `false`: weapons sweep like a vanilla sword |
+| `armor_penetration_enabled` | `true` / `false` | `true` | `false`: no weapon ignores armor |
+| `on_hit_effects_enabled` | `true` / `false` | `true` | `false`: weapons give no effect to their target |
+| `shield_disabling_enabled` | `true` / `false` | `true` | `false`: the mod's weapons no longer disable shields |
+| `two_handed_enabled` | `true` / `false` | `true` | `false`: no weapon locks the off hand |
+| `dual_wield_enabled` | `true` / `false` | `true` | `false`: only the main hand attacks |
 | `parry_enabled` | `true` / `false` | `true` | `false`: no weapon can parry, whatever its file says |
+| `perfect_parry_enabled` | `true` / `false` | `true` | `false`: no perfect parry |
+| `guard_break_enabled` | `true` / `false` | `true` | `false`: axes no longer interrupt a parry |
 | `dash_enabled` | `true` / `false` | `true` | `false`: no weapon can dash, whatever its file says |
 | `combos_enabled` | `true` / `false` | `true` | `false`: no weapon has a combo, whatever its file says |
 
@@ -328,12 +366,9 @@ These are starting values: damage has not been rebalanced yet to account for the
 
 ---
 
-## Better Combat compatibility
+## Better Combat and Epic Fight compatibility
 
-The mod checks at runtime whether `bettercombat` is loaded. If it is:
-
-- the two-handed off-hand restrictions and the off-hand render hiding are turned off
-- the dual-wield alternation and the combos are turned off (Better Combat has its own)
+The mod checks at runtime whether `bettercombat` or `epicfight` is loaded. These mods have their own combos, reach, dual wield and two-handed systems, so **all of the mod's combat systems turn off** (everything `rules.json` can switch), and the editor says so. The weapons themselves and their enchantments stay available.
 
 `./gradlew runData` writes one Better Combat weapon attribute file per weapon (`data/better_weaponry/weapon_attributes/<item>.json`, 650 files). Each one uses a Better Combat preset and forces the number of hands of Better Weaponry's defaults:
 
@@ -347,7 +382,7 @@ The mod checks at runtime whether `bettercombat` is loaded. If it is:
 | Sickle | `sickle` | Sai | `dagger` |
 | Katana | `katana` | | |
 
-The mapping is in `datagen/BetterCombatAttributesProvider.java`. Armor penetration, on-hit effects, shield disabling, the parry and the dash still work with Better Combat. Better Combat ignores the files of weapons whose mod is not installed.
+The mapping is in `datagen/BetterCombatAttributesProvider.java`. Better Combat ignores the files of weapons whose mod is not installed.
 
 ---
 
@@ -378,8 +413,8 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 src/main/java/com/betterweaponry/
 ├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
 ├── BetterWeaponryClient.java    # Client-only entry point (client config, editor as config screen, render extensions)
-├── client/                     # 1.8 parry pose in first person (both hands with two weapons), combo dots (ComboHud)
-│   └── editor/                 # Editor / Codex screen: document list, field rows built from the FieldSets, model
+├── client/                     # 1.8 parry pose, on-screen elements (CombatHud), tooltip layout, attack zones debug view, key bindings
+│   └── editor/                 # Editor / Codex screen: document list, field rows built from the FieldSets, model, HUD placement screen
 ├── command/BetterWeaponryCommand.java  # /betterweaponry (editor, codex, dps, reload)
 ├── editor/                     # Server side of the editor: documents, save (differences only), targets, client bridge
 ├── combat/
@@ -387,14 +422,17 @@ src/main/java/com/betterweaponry/
 │   ├── ParrySystem.java         # When a right click parries, frontal damage reduction, wear and sound
 │   ├── DashAbility.java         # When a right click dashes, impulse (client), cooldown and hunger (server)
 │   ├── DualWieldSystem.java     # Rules for dual wielding + cooldown of the hand whose turn it is
+│   ├── WeaponProfiles.java      # "Which weapon is this item?": the mod's weapons and the items adopted with "items"
+│   ├── AdoptedItemEvents.java   # Right click and attributes of adopted items
+│   ├── AbilityCooldowns.java, ParryMaterial.java  # Shared cooldowns, sound and particles of a perfect parry per material
 │   ├── HandSwap.java            # Swaps both hands (items + attributes) during an off-hand attack
 │   ├── TwoHandedSystem.java     # Rules for when the off hand is locked
 │   ├── ComboSystem.java         # Combo progress, special hits (area, both weapons), cooldown after a special hit
 │   ├── PlayerCombatState.java   # Per-player state: dual-wield turn, combo, two-arm animation
 │   └── ICombatPlayer.java       # Duck interface mixed into Player to hold its PlayerCombatState
-├── compat/BetterCombatCompat.java  # Detects Better Combat (turns off our systems)
+├── compat/CombatCompat.java      # Detects Better Combat and Epic Fight (turns off our systems)
 ├── config/
-│   ├── ClientConfig.java        # Display preferences (client TOML)
+│   ├── ClientConfig.java        # Display preferences (client TOML), TooltipCategory, TooltipPlacement, HudElement, ComboHudStyle
 │   ├── ConfigFolder.java        # config/better_weaponry/: defaults copy, user files, schemas, README
 │   ├── Docs.java, ReadmeWriter.java, SchemaWriter.java  # Documentation generated from the field declarations
 │   └── LegacyConfigMigration.java  # Converts the 1.x TOML
@@ -413,7 +451,7 @@ src/main/java/com/betterweaponry/
 │   ├── ModItems.java            # Registers one item per WeaponType × active WeaponMaterial
 │   ├── ModAttributes.java       # Armor penetration attribute (on every living entity)
 │   ├── ModSounds.java           # Parry, dash and combo-ready sounds (files and subtitles in assets/better_weaponry/sounds.json)
-│   └── ModTags.java             # better_weaponry:dual_wieldable
+│   └── ModTags.java             # better_weaponry:dual_wieldable and better_weaponry:melee_weapons
 ├── gametest/CombatGameTests.java  # Automated tests (gradlew runGameTestServer)
 ├── item/
 │   ├── WeaponType.java          # The 13 weapon types (+ base model and crafting pattern)

@@ -1,12 +1,15 @@
 package com.betterweaponry.client.editor;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.client.CombatHud;
 import com.betterweaponry.client.ModKeyMappings;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.config.ClientConfig;
+import com.betterweaponry.config.ComboHudStyle;
 import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.config.Docs;
 import com.betterweaponry.config.EditorFiles;
+import com.betterweaponry.config.HudElement;
 import com.betterweaponry.config.TooltipCategory;
 import com.betterweaponry.config.TooltipPlacement;
 import com.betterweaponry.data.ComboDefinition;
@@ -70,6 +73,7 @@ public final class WeaponEditorScreen extends Screen {
     private static final int COLOR_BUTTON_WIDTH = 34;
     private static final int RESET_BUTTON_WIDTH = 20;
     private static final int PREVIEW_BUTTON_WIDTH = 100;
+    private static final int STYLE_BUTTON_WIDTH = 100;
     private static final int OPERATOR_LEVEL = 2;
     private static final int MARGIN = 8;
     private static final int DOCUMENT_LIST_WIDTH = 112;
@@ -353,7 +357,17 @@ public final class WeaponEditorScreen extends Screen {
 
     private void addClientRows() {
         fieldList.add(fieldList.new NoteRow(Component.translatable(KEY + "client.note"), 0));
-        addToggle("show_combo_hud", ClientConfig.SHOW_COMBO_HUD);
+        for (HudElement element : HudElement.values()) {
+            addToggle(Component.translatable(KEY + "hud.element." + element.id()), Component.translatable(KEY + "hud.element." + element.id() + ".tooltip"),
+                    ClientConfig.hud(element).show());
+        }
+        fieldList.add(fieldList.new ButtonsRow(Component.translatable(KEY + "hud.style"), Component.translatable(KEY + "hud.style.tooltip"),
+                List.of(cycleButton(ClientConfig.COMBO_HUD_STYLE, List.of(ComboHudStyle.values()),
+                        value -> Component.translatable(KEY + "hud.style." + value.id()), STYLE_BUTTON_WIDTH)),
+                (graphics, x, y) -> CombatHud.drawSample(graphics, HudElement.COMBO, x, y)));
+        addToggle(Component.translatable(KEY + "hud.attack_zones"), Component.translatable(KEY + "hud.attack_zones.tooltip"), ClientConfig.SHOW_ATTACK_ZONES);
+        fieldList.add(fieldList.new WideButtonsRow(List.of(Button.builder(Component.translatable(KEY + "hud.open_layout"),
+                pressed -> minecraft.setScreen(new HudLayoutScreen(this))).build())));
     }
 
     /** Page Tooltips : aperçu, préréglages, puis placement et couleur de chaque catégorie de lignes. */
@@ -409,9 +423,8 @@ public final class WeaponEditorScreen extends Screen {
         return id.equals(CLIENT_PAGE) || id.equals(TOOLTIPS_PAGE);
     }
 
-    private void addToggle(String name, ModConfigSpec.BooleanValue value) {
-        String key = BetterWeaponry.MODID + ".configuration." + name;
-        fieldList.add(fieldList.new ToggleRow(Component.translatable(key), Component.translatable(key + ".tooltip"), value, ClientConfig.SPEC));
+    private void addToggle(Component label, Component tooltip, ModConfigSpec.BooleanValue value) {
+        fieldList.add(fieldList.new ToggleRow(label, tooltip, value, ClientConfig.SPEC));
     }
 
     /** Ligne au-dessus des champs : DPS de l'arme affichée (comparé à l'épée en fer vanilla), ou une description. */
