@@ -424,6 +424,11 @@
     "better_weaponry.editor.hud.style.ring": "Ring",
     "better_weaponry.editor.hud.style.counter": "Zähler",
     "better_weaponry.editor.hud.attack_zones": "Angriffszonen anzeigen",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Debug-Ansicht zum Einstellen der Waffen: weißer Kreis = Reichweite, Cyan = Kombozonen (Gold für den nächsten Treffer), grüner Rahmen = Schwungzone um das Ziel."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Debug-Ansicht zum Einstellen der Waffen: weißer Kreis = Reichweite, Cyan = Kombozonen (Gold für den nächsten Treffer), grüner Rahmen = Schwungzone um das Ziel.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "Nach einer perfekten Parade: +%s %% Schaden beim nächsten Treffer",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Schadensbonus nach perfekter Parade",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Nach einer perfekten Parade zusätzlicher Schaden beim nächsten Nahkampftreffer, in %. 0: kein Bonus.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Dauer des Bonus",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Wie lange der Bonus verfügbar bleibt, wenn du nicht triffst, in Sekunden."
   }
 }

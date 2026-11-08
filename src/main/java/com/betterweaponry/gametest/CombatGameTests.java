@@ -542,6 +542,22 @@ public final class CombatGameTests {
         helper.assertTrue(defender.getHealth() == TEST_HEALTH, "a perfect parry should block everything, took " + (TEST_HEALTH - defender.getHealth()));
         helper.assertTrue(stack.getDamageValue() == 0, "a perfect parry should not wear the weapon");
 
+        // Bonus : le coup suivant fait plus de dégâts, une seule fois.
+        Pig bonusTarget = pigAt(helper, new Vec3(1.5D, 1.0D, 1.5D));
+        bonusTarget.hurt(defender.damageSources().playerAttack(defender), RAW_DAMAGE);
+        double withBonus = TEST_HEALTH - bonusTarget.getHealth();
+        double expectedBonus = RAW_DAMAGE * (1.0D + parry.perfectDamageBonus() / 100.0D);
+        helper.assertTrue(Math.abs(withBonus - expectedBonus) < EPSILON, "the hit after a perfect parry did " + withBonus + " instead of " + expectedBonus);
+        heal(bonusTarget);
+        bonusTarget.hurt(defender.damageSources().playerAttack(defender), RAW_DAMAGE);
+        helper.assertTrue(Math.abs(TEST_HEALTH - bonusTarget.getHealth() - RAW_DAMAGE) < EPSILON, "the bonus should only work once");
+        heal(bonusTarget);
+        state.perfectBonus = 0.5D;
+        state.perfectBonusUntil = 0L;
+        bonusTarget.hurt(defender.damageSources().playerAttack(defender), RAW_DAMAGE);
+        helper.assertTrue(Math.abs(TEST_HEALTH - bonusTarget.getHealth() - RAW_DAMAGE) < EPSILON, "an expired bonus should do nothing");
+        bonusTarget.discard();
+
         // Fenêtre écoulée : le coup est réduit normalement.
         state.perfectParryUntil = 0L;
         defender.invulnerableTime = 0;

@@ -363,6 +363,11 @@
     "better_weaponry.editor.hud.style.ring": "Anneau",
     "better_weaponry.editor.hud.style.counter": "Compteur",
     "better_weaponry.editor.hud.attack_zones": "Afficher les zones d'attaque",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Vue debug pour régler les armes : cercle blanc = portée, cyan = zones de combo (doré pour le prochain coup), cadre vert = zone de balayage autour de la cible."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Vue debug pour régler les armes : cercle blanc = portée, cyan = zones de combo (doré pour le prochain coup), cadre vert = zone de balayage autour de la cible.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "Après une parade parfaite : +%s %% de dégâts au coup suivant",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Bonus de dégâts après parade parfaite",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Après une parade parfaite, dégâts en plus sur ton prochain coup au corps à corps, en %. 0 : aucun bonus.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Durée du bonus",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Temps pendant lequel le bonus reste disponible si tu ne frappes pas, en secondes."
   }
 }

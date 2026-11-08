@@ -364,6 +364,11 @@
     "better_weaponry.editor.hud.style.ring": "Anello",
     "better_weaponry.editor.hud.style.counter": "Contatore",
     "better_weaponry.editor.hud.attack_zones": "Mostra le zone d'attacco",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Vista di debug per regolare le armi: cerchio bianco = portata, ciano = zone combo (oro per il prossimo colpo), riquadro verde = zona del colpo sferzante attorno al bersaglio."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Vista di debug per regolare le armi: cerchio bianco = portata, ciano = zone combo (oro per il prossimo colpo), riquadro verde = zona del colpo sferzante attorno al bersaglio.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "Dopo una parata perfetta: +%s%% danni al colpo successivo",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Bonus danni dopo parata perfetta",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Dopo una parata perfetta, danni in più al prossimo colpo in mischia, in %. 0: nessun bonus.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Durata del bonus",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Per quanto il bonus resta disponibile se non colpisci, in secondi."
   }
 }

@@ -363,6 +363,11 @@
     "better_weaponry.editor.hud.style.ring": "圆环",
     "better_weaponry.editor.hud.style.counter": "计数",
     "better_weaponry.editor.hud.attack_zones": "显示攻击范围",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "用于调整武器的调试视图：白圈 = 攻击距离，青色 = 连招范围（金色为下一击），绿框 = 目标周围的横扫范围。"
+    "better_weaponry.editor.hud.attack_zones.tooltip": "用于调整武器的调试视图：白圈 = 攻击距离，青色 = 连招范围（金色为下一击），绿框 = 目标周围的横扫范围。",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "完美招架后：下一击伤害 +%s%%",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "完美招架后的伤害加成",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "完美招架后，下一次近战攻击的额外伤害（%）。0：无加成。",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "加成持续时间",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "未攻击时加成保持可用的时间（秒）。"
   }
 }

@@ -199,6 +199,9 @@ public final class TooltipEventHandler {
         add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_KEY, useKey, number(parry.damageReduction())));
         if (WeaponData.rules().perfectParryActive() && parry.perfectWindowSeconds() > 0.0D) {
             add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_KEY + ".perfect", number(parry.perfectWindowSeconds())));
+            if (parry.perfectDamageBonus() > 0.0D) {
+                add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_KEY + ".perfect_bonus", number(parry.perfectDamageBonus())));
+            }
         }
         if (parry.whileDualWielding()) add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_DUAL_WIELD_KEY));
     }

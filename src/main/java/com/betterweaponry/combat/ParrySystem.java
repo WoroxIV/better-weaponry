@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -151,7 +152,10 @@ public final class ParrySystem {
         if (isInPerfectWindow(player)) {
             // Rien ne passe : ni dégâts, ni recul, ni usure. La garde ne peut pas être brisée.
             event.setCanceled(true);
-            if (!ignoredAnyway) playPerfectParry(player, weapon);
+            if (!ignoredAnyway) {
+                playPerfectParry(player, weapon);
+                grantPerfectBonus(player, parry.perfectDamageBonus(), parry.perfectBonusSeconds());
+            }
             return;
         }
 
@@ -166,6 +170,38 @@ public final class ParrySystem {
                 ModSounds.PARRY.get(), SoundSource.PLAYERS, 1.0F, pitch);
 
         if (breaksGuard(source, parry)) breakGuard(player, weapon, parry);
+    }
+
+    /** Après une parade parfaite, le prochain coup porté dans le temps imparti fait plus de dégâts. */
+    public static void grantPerfectBonus(Player player, double percent, double seconds) {
+        if (percent <= 0.0D) return;
+        PlayerCombatState state = PlayerCombatState.of(player);
+        state.perfectBonus = percent / PERCENT;
+        state.perfectBonusUntil = player.level().getGameTime() + AbilityCooldowns.ticks(seconds);
+    }
+
+    /**
+     * Coup porté au corps à corps (côté serveur) : applique et consomme le bonus de parade parfaite.
+     * Avant les autres calculs, pour qu'une parade adverse réduise le coup déjà augmenté.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onHitWithPerfectBonus(LivingIncomingDamageEvent event) {
+        DamageSource source = event.getSource();
+        if (!(source.getEntity() instanceof Player attacker) || source.getDirectEntity() != attacker) return;
+        PlayerCombatState state = PlayerCombatState.of(attacker);
+        if (state.perfectBonus <= 0.0D) return;
+        if (attacker.level().getGameTime() >= state.perfectBonusUntil) {
+            state.perfectBonus = 0.0D;
+            return;
+        }
+        LivingEntity target = event.getEntity();
+        // Un coup que le jeu va ignorer (cible encore invulnérable) ne gâche pas le bonus.
+        if (target.invulnerableTime > VANILLA_INVULNERABILITY_THRESHOLD && !source.is(DamageTypeTags.BYPASSES_COOLDOWN)) return;
+        event.setAmount((float) (event.getAmount() * (1.0D + state.perfectBonus)));
+        state.perfectBonus = 0.0D;
+        if (attacker.level() instanceof ServerLevel level) {
+            level.sendParticles(ParticleTypes.ENCHANTED_HIT, target.getX(), target.getY(0.5D), target.getZ(), PERFECT_PARTICLES, 0.3D, 0.4D, 0.3D, 0.2D);
+        }
     }
 
     /** Coup direct d'une arme qui désactive les boucliers (hache vanilla, ou option disables_shield). */

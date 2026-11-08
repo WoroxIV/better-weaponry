@@ -406,6 +406,11 @@
     "better_weaponry.editor.hud.style.ring": "Anel",
     "better_weaponry.editor.hud.style.counter": "Contador",
     "better_weaponry.editor.hud.attack_zones": "Mostrar zonas de ataque",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Visão de depuração para ajustar armas: círculo branco = alcance, ciano = zonas de combo (dourado para o próximo golpe), caixa verde = zona do ataque lateral ao redor do alvo."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Visão de depuração para ajustar armas: círculo branco = alcance, ciano = zonas de combo (dourado para o próximo golpe), caixa verde = zona do ataque lateral ao redor do alvo.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "Após um aparo perfeito: +%s%% de dano no próximo golpe",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Bônus de dano após aparo perfeito",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Após um aparo perfeito, dano extra no próximo golpe corpo a corpo, em %. 0: sem bônus.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Duração do bônus",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Por quanto tempo o bônus fica disponível se você não acertar, em segundos."
   }
 }

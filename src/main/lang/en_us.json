@@ -363,6 +363,11 @@
     "better_weaponry.editor.hud.style.ring": "Ring",
     "better_weaponry.editor.hud.style.counter": "Counter",
     "better_weaponry.editor.hud.attack_zones": "Show attack zones",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Debug view for adjusting weapons: white circle = reach, cyan = combo zones (gold for the next hit), green box = sweep zone around the target."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Debug view for adjusting weapons: white circle = reach, cyan = combo zones (gold for the next hit), green box = sweep zone around the target.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "After a perfect parry: +%s%% damage on the next hit",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Damage bonus after a perfect parry",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "After a perfect parry, extra damage on your next melee hit, in %. 0: no bonus.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Duration of the bonus",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "How long the bonus stays available if you do not hit, in seconds."
   }
 }

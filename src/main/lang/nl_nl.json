@@ -436,6 +436,11 @@
     "better_weaponry.editor.hud.style.ring": "Ring",
     "better_weaponry.editor.hud.style.counter": "Teller",
     "better_weaponry.editor.hud.attack_zones": "Aanvalszones tonen",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Debugweergave om wapens af te stellen: witte cirkel = bereik, cyaan = combozones (goud voor de volgende klap), groen kader = verscherpingszone rond het doelwit."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Debugweergave om wapens af te stellen: witte cirkel = bereik, cyaan = combozones (goud voor de volgende klap), groen kader = verscherpingszone rond het doelwit.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "Na een perfecte parering: +%s%% schade bij de volgende klap",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Schadebonus na perfecte parering",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Na een perfecte parering extra schade bij je volgende melee-klap, in %. 0: geen bonus.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Duur van de bonus",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Hoe lang de bonus beschikbaar blijft als je niet raakt, in seconden."
   }
 }

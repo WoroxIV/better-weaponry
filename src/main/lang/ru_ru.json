@@ -482,6 +482,11 @@
     "better_weaponry.editor.hud.style.ring": "Кольцо",
     "better_weaponry.editor.hud.style.counter": "Счётчик",
     "better_weaponry.editor.hud.attack_zones": "Показывать зоны атаки",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Отладочный вид для настройки оружия: белый круг = дальность, голубой = зоны комбо (золотой для следующего удара), зелёная рамка = зона размашистого удара вокруг цели."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Отладочный вид для настройки оружия: белый круг = дальность, голубой = зоны комбо (золотой для следующего удара), зелёная рамка = зона размашистого удара вокруг цели.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "После идеального парирования: +%s%% урона следующим ударом",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Бонус урона после идеального парирования",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "После идеального парирования дополнительный урон следующего удара в ближнем бою, в %. 0: без бонуса.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Длительность бонуса",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Сколько секунд бонус доступен, если вы не наносите удар."
   }
 }

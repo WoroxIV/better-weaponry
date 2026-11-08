@@ -363,6 +363,11 @@
     "better_weaponry.editor.hud.style.ring": "Anillo",
     "better_weaponry.editor.hud.style.counter": "Contador",
     "better_weaponry.editor.hud.attack_zones": "Mostrar zonas de ataque",
-    "better_weaponry.editor.hud.attack_zones.tooltip": "Vista de depuración para ajustar armas: círculo blanco = alcance, cian = zonas de combo (dorado para el siguiente golpe), caja verde = zona de barrido alrededor del objetivo."
+    "better_weaponry.editor.hud.attack_zones.tooltip": "Vista de depuración para ajustar armas: círculo blanco = alcance, cian = zonas de combo (dorado para el siguiente golpe), caja verde = zona de barrido alrededor del objetivo.",
+    "better_weaponry.tooltip.ability.parry.perfect_bonus": "Tras una parada perfecta: +%s%% de daño en el siguiente golpe",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus": "Bonificación de daño tras parada perfecta",
+    "better_weaponry.field.weapon.parry.perfect_damage_bonus.help": "Tras una parada perfecta, daño adicional en tu siguiente golpe cuerpo a cuerpo, en %. 0: sin bonificación.",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds": "Duración de la bonificación",
+    "better_weaponry.field.weapon.parry.perfect_bonus_seconds.help": "Cuánto tiempo sigue disponible la bonificación si no golpeas, en segundos."
   }
 }

@@ -58,6 +58,10 @@ public final class PlayerCombatState {
     public long perfectParryUntil;
     /** Avant ce moment, relever la garde ne redonne pas de fenêtre de parade parfaite (anti-spam). */
     public long perfectParryReadyAt;
+    /** Dégâts en plus sur le prochain coup après une parade parfaite (0.2 = +20 %), 0 = aucun bonus. */
+    public double perfectBonus;
+    /** Moment où ce bonus se perd s'il n'a pas servi. */
+    public long perfectBonusUntil;
 
     /** Remet le combo au début (arme changée, combo désactivé...). */
     public void resetCombo() {
