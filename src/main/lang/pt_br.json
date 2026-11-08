@@ -441,19 +441,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Chance de livro encantado em baús",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Chance em % de um baú do Nether ou do End ter um livro com um encantamento do mod.",
     "enchantment.better_weaponry.reflective": "Reflexão",
-    "enchantment.better_weaponry.reflective.desc": "Um aparo perfeito devolve 10/20/30% de um ataque corpo a corpo ao atacante, com seus efeitos. Vai em escudos e em tudo que pode aparar.",
+    "enchantment.better_weaponry.reflective.desc": "Um aparo perfeito devolve 10/20/30% de um ataque corpo a corpo ao atacante, com seus efeitos, e depois o item recarrega. Vai em escudos e em tudo que pode aparar. Incompatível com Contra-ataque.",
     "enchantment.better_weaponry.vampirism": "Vampirismo",
-    "enchantment.better_weaponry.vampirism.desc": "Cura você com parte do dano corpo a corpo causado. A cura cresce cada vez mais devagar nos golpes fortes.",
+    "enchantment.better_weaponry.vampirism.desc": "Cura você com parte do dano corpo a corpo causado. A cura cresce cada vez mais devagar nos golpes fortes. Incompatível com Sangramento.",
     "enchantment.better_weaponry.riposte": "Contra-ataque",
-    "enchantment.better_weaponry.riposte.desc": "Após um aparo perfeito, seu próximo golpe causa 25/50/75% mais dano, além do bônus habitual.",
+    "enchantment.better_weaponry.riposte.desc": "Após um aparo perfeito, seu próximo golpe causa 25/50/75% mais dano, além do bônus habitual. Incompatível com Reflexão.",
     "enchantment.better_weaponry.momentum": "Impulso",
     "enchantment.better_weaponry.momentum.desc": "Reduz a recarga do avanço em 15/30/45%.",
     "enchantment.better_weaponry.execution": "Execução",
     "enchantment.better_weaponry.execution.desc": "Causa 10/20/30% mais dano a alvos abaixo de 30% da vida.",
     "enchantment.better_weaponry.bleeding": "Sangramento",
-    "enchantment.better_weaponry.bleeding.desc": "Golpes carregados fazem o alvo sangrar por 2/3/4 segundos. Só foicinhas, foices e katanas. Esqueletos são imunes. Incompatível com Aspecto Flamejante.",
+    "enchantment.better_weaponry.bleeding.desc": "Golpes carregados fazem o alvo sangrar por 2/3/4 segundos. Só foicinhas, foices e katanas. Esqueletos são imunes. Incompatível com Aspecto Flamejante e Vampirismo.",
     "effect.better_weaponry.bleeding": "Sangramento",
     "death.attack.better_weaponry.bleeding": "%1$s sangrou até a morte",
-    "death.attack.better_weaponry.bleeding.player": "%1$s sangrou até a morte lutando contra %2$s"
+    "death.attack.better_weaponry.bleeding.player": "%1$s sangrou até a morte lutando contra %2$s",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Recarga de Reflexão",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Depois que Reflexão devolve o dano, duração da recarga da arma ou do escudo, em segundos. 0: nenhuma."
   }
 }

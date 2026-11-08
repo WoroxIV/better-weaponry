@@ -16,5 +16,8 @@
     "mainhand"
   ],
   "supported_items": "#better_weaponry:enchantable/parry_weapons",
-  "weight": 2
+  "weight": 2,
+  "exclusive_set": [
+    "better_weaponry:reflective"
+  ]
 }

@@ -902,7 +902,7 @@ public final class CombatGameTests {
         GearDefinition gear = original.gear();
         WeaponData.install(new WeaponData.Snapshot(original.weapons(), original.rules(), new GearDefinition(1, gear.shieldPerfectWindow(), gear.shieldPerfectCooldown(),
                 gear.shieldPerfectDamageBonus(), gear.shieldPerfectBonusSeconds(), gear.shieldPerfectKnockback(), gear.reflectArrows(), gear.replaceVanillaGear(),
-                gear.lootUpgradeChance(), 100.0D)));
+                gear.lootUpgradeChance(), 100.0D, gear.reflectiveCooldownSeconds())));
         try {
             LootParams params = new LootParams.Builder(helper.getLevel()).withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO)).create(LootContextParamSets.CHEST);
             var tables = helper.getLevel().getServer().reloadableRegistries();
@@ -929,6 +929,25 @@ public final class CombatGameTests {
         defender.hurt(defender.damageSources().mobAttack(attacker), RAW_DAMAGE);
         double reflected = TEST_HEALTH - attacker.getHealth();
         helper.assertTrue(Math.abs(reflected - RAW_DAMAGE * 0.3D) < EPSILON, "reflective III should send back 30%, sent " + reflected);
+        helper.assertTrue(defender.getCooldowns().isOnCooldown(shield.getItem()), "the shield should go on cooldown after reflecting");
+        helper.assertTrue(defender.getCooldowns().isOnCooldown(ModItems.shield(WeaponMaterials.DIAMOND).get()), "every shield should share the cooldown");
+        heal(attacker);
+        ModEnchantments.reflect(defender, shield, defender.damageSources().mobAttack(attacker), RAW_DAMAGE);
+        helper.assertTrue(attacker.getHealth() == TEST_HEALTH, "no reflection during the cooldown");
+
+        // Sur une arme, la parade s'arrête pendant la recharge.
+        ItemStack blade = weapon(WeaponType.BROADSWORD);
+        blade.enchant(enchantment(helper, ModEnchantments.REFLECTIVE), 1);
+        Player swordsman = parrier(helper, blade, position);
+        startParry(helper, swordsman, blade);
+        heal(attacker);
+        swordsman.hurt(swordsman.damageSources().mobAttack(attacker), RAW_DAMAGE);
+        helper.assertTrue(attacker.getHealth() < TEST_HEALTH && swordsman.getCooldowns().isOnCooldown(blade.getItem()), "the weapon should reflect then go on cooldown");
+        helper.assertFalse(swordsman.isUsingItem(), "the parry should stop during the cooldown");
+
+        Holder<Enchantment> reflective = enchantment(helper, ModEnchantments.REFLECTIVE);
+        helper.assertFalse(Enchantment.areCompatible(reflective, enchantment(helper, ModEnchantments.RIPOSTE)), "reflective and riposte are incompatible");
+        helper.assertFalse(Enchantment.areCompatible(enchantment(helper, ModEnchantments.BLEEDING), enchantment(helper, ModEnchantments.VAMPIRISM)), "bleeding and vampirism are incompatible");
 
         heal(attacker);
         Arrow arrow = new Arrow(helper.getLevel(), attacker, new ItemStack(Items.ARROW), null);

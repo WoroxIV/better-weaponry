@@ -16,5 +16,8 @@
     "hand"
   ],
   "supported_items": "#better_weaponry:enchantable/parrying",
-  "weight": 1
+  "weight": 1,
+  "exclusive_set": [
+    "better_weaponry:riposte"
+  ]
 }

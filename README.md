@@ -143,12 +143,12 @@ The vanilla shield is replaced everywhere it can be: its recipe is off, it is go
 
 | Enchantment | Effect | Goes on | How to get it |
 |---|---|---|---|
-| Reflective I-III | On a perfect parry, sends 10/20/30% of a melee hit back, with its effects (Fire Aspect, on-hit effects, knockback, a cave spider's poison...) | Shields and weapons that parry | End cities |
-| Vampirism I-III | Heals `2 × ln(1 + damage × (10/20/30%) / 2)` per melee hit, at most every 0.5 s | Melee weapons | Nether chests |
-| Riposte I-III | After a perfect parry, the next hit deals 25/50/75% more | Weapons that parry | Enchanting table, End cities |
+| Reflective I-III | On a perfect parry, sends 10/20/30% of a melee hit back, with its effects (Fire Aspect, on-hit effects, knockback, a cave spider's poison...). The item then goes on cooldown (5 s). Incompatible with Riposte | Shields and weapons that parry | End cities |
+| Vampirism I-III | Heals `2 × ln(1 + damage × (10/20/30%) / 2)` per melee hit, at most every 0.5 s. Incompatible with Bleeding | Melee weapons | Nether chests |
+| Riposte I-III | After a perfect parry, the next hit deals 25/50/75% more. Incompatible with Reflective | Weapons that parry | Enchanting table, End cities |
 | Momentum I-III | Dash cooldown −15/30/45% | Weapons that dash | Enchanting table, End cities |
 | Execution I-III | +10/20/30% damage on targets below 30% health | Melee weapons | Enchanting table, Nether chests |
-| Bleeding I-III | Charged hits make the target bleed 0.5 HP per second for 2/3/4 s (skeletons are immune, incompatible with Fire Aspect) | Sickles, scythes, katanas | Enchanting table, Nether chests |
+| Bleeding I-III | Charged hits make the target bleed 0.5 HP per second for 2/3/4 s (skeletons are immune, incompatible with Fire Aspect and Vampirism) | Sickles, scythes, katanas | Enchanting table, Nether chests |
 
 Reflective, Riposte and Momentum follow the weapon's configured `ability`: giving `parry` to a weapon in the editor makes it accept them. Descriptions are provided for the Enchantment Descriptions mod. With Better Combat or Epic Fight, Reflective only goes on shields and works on any block; Riposte and Momentum no longer apply.
 
@@ -350,6 +350,7 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 | `replace_vanilla_gear` | `true` / `false` | `true` | Loot, trades and the login conversion use the mod's versions |
 | `loot_upgrade_chance` | 0 – 100 | 20 | In loot, chance to move up one material, rolled at each step (wood, gold, stone, iron, diamond, netherite) |
 | `enchanted_book_chance` | 0 – 100 | 20 | Chance for a Nether or End chest to hold a book with one of the mod's enchantments |
+| `reflective_cooldown_seconds` | 0 – 60 | 5 | Cooldown of the item after Reflective sends damage back (0 = none) |
 
 ### Upgrading from 1.x
 

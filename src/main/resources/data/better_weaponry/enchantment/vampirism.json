@@ -16,5 +16,8 @@
     "mainhand"
   ],
   "supported_items": "#minecraft:enchantable/sharp_weapon",
-  "weight": 1
+  "weight": 1,
+  "exclusive_set": [
+    "better_weaponry:bleeding"
+  ]
 }

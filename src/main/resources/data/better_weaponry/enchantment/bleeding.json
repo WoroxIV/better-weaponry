@@ -18,6 +18,7 @@
   "supported_items": "#better_weaponry:enchantable/bleeding",
   "weight": 2,
   "exclusive_set": [
-    "minecraft:fire_aspect"
+    "minecraft:fire_aspect",
+    "better_weaponry:vampirism"
   ]
 }

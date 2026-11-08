@@ -395,19 +395,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Enchanted book chance in chests",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Chance in % for a chest of the Nether or the End to hold a book with one of the mod's enchantments.",
     "enchantment.better_weaponry.reflective": "Reflective",
-    "enchantment.better_weaponry.reflective.desc": "A perfect parry sends 10/20/30% of a melee attack back at the attacker, along with its effects. Goes on shields and on anything that can parry.",
+    "enchantment.better_weaponry.reflective.desc": "A perfect parry sends 10/20/30% of a melee attack back at the attacker, along with its effects, then the item goes on cooldown. Goes on shields and on anything that can parry. Incompatible with Riposte.",
     "enchantment.better_weaponry.vampirism": "Vampirism",
-    "enchantment.better_weaponry.vampirism.desc": "Heals you for part of the melee damage you deal. The healing grows more and more slowly on big hits.",
+    "enchantment.better_weaponry.vampirism.desc": "Heals you for part of the melee damage you deal. The healing grows more and more slowly on big hits. Incompatible with Bleeding.",
     "enchantment.better_weaponry.riposte": "Riposte",
-    "enchantment.better_weaponry.riposte.desc": "After a perfect parry, your next hit deals 25/50/75% more damage, on top of the usual bonus.",
+    "enchantment.better_weaponry.riposte.desc": "After a perfect parry, your next hit deals 25/50/75% more damage, on top of the usual bonus. Incompatible with Reflective.",
     "enchantment.better_weaponry.momentum": "Momentum",
     "enchantment.better_weaponry.momentum.desc": "Shortens the dash cooldown by 15/30/45%.",
     "enchantment.better_weaponry.execution": "Execution",
     "enchantment.better_weaponry.execution.desc": "Deals 10/20/30% more damage to targets below 30% of their health.",
     "enchantment.better_weaponry.bleeding": "Bleeding",
-    "enchantment.better_weaponry.bleeding.desc": "Fully charged hits make the target bleed for 2/3/4 seconds. Sickles, scythes and katanas only. Skeletons are immune. Incompatible with Fire Aspect.",
+    "enchantment.better_weaponry.bleeding.desc": "Fully charged hits make the target bleed for 2/3/4 seconds. Sickles, scythes and katanas only. Skeletons are immune. Incompatible with Fire Aspect and Vampirism.",
     "effect.better_weaponry.bleeding": "Bleeding",
     "death.attack.better_weaponry.bleeding": "%1$s bled out",
-    "death.attack.better_weaponry.bleeding.player": "%1$s bled out while fighting %2$s"
+    "death.attack.better_weaponry.bleeding.player": "%1$s bled out while fighting %2$s",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Reflective cooldown",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "After Reflective sends damage back, how long the weapon or shield is on cooldown, in seconds. 0: none."
   }
 }

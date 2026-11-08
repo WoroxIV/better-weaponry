@@ -471,19 +471,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Kans op betoverd boek in kisten",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Kans in % dat een kist in de Nether of het End een boek met een betovering van de mod bevat.",
     "enchantment.better_weaponry.reflective": "Weerkaatsing",
-    "enchantment.better_weaponry.reflective.desc": "Een perfecte parering kaatst 10/20/30% van een melee-aanval met zijn effecten terug naar de aanvaller. Voor schilden en alles wat kan pareren.",
+    "enchantment.better_weaponry.reflective.desc": "Een perfecte parering kaatst 10/20/30% van een melee-aanval met zijn effecten terug naar de aanvaller, waarna het voorwerp herlaadt. Voor schilden en alles wat kan pareren. Onverenigbaar met Riposte.",
     "enchantment.better_weaponry.vampirism": "Vampirisme",
-    "enchantment.better_weaponry.vampirism.desc": "Geneest je met een deel van de melee-schade die je toebrengt. Bij grote klappen groeit de genezing steeds langzamer.",
+    "enchantment.better_weaponry.vampirism.desc": "Geneest je met een deel van de melee-schade die je toebrengt. Bij grote klappen groeit de genezing steeds langzamer. Onverenigbaar met Bloeding.",
     "enchantment.better_weaponry.riposte": "Riposte",
-    "enchantment.better_weaponry.riposte.desc": "Na een perfecte parering doet je volgende klap 25/50/75% meer schade, bovenop de gebruikelijke bonus.",
+    "enchantment.better_weaponry.riposte.desc": "Na een perfecte parering doet je volgende klap 25/50/75% meer schade, bovenop de gebruikelijke bonus. Onverenigbaar met Weerkaatsing.",
     "enchantment.better_weaponry.momentum": "Vaart",
     "enchantment.better_weaponry.momentum.desc": "Verkort de herlaadtijd van de dash met 15/30/45%.",
     "enchantment.better_weaponry.execution": "Executie",
     "enchantment.better_weaponry.execution.desc": "Doet 10/20/30% meer schade aan doelwitten onder 30% van hun gezondheid.",
     "enchantment.better_weaponry.bleeding": "Bloeding",
-    "enchantment.better_weaponry.bleeding.desc": "Volledig opgeladen klappen laten het doelwit 2/3/4 seconden bloeden. Alleen sikkels, zeisen en katana's. Skeletten zijn immuun. Onverenigbaar met Vuuraspect.",
+    "enchantment.better_weaponry.bleeding.desc": "Volledig opgeladen klappen laten het doelwit 2/3/4 seconden bloeden. Alleen sikkels, zeisen en katana's. Skeletten zijn immuun. Onverenigbaar met Vuuraspect en Vampirisme.",
     "effect.better_weaponry.bleeding": "Bloeding",
     "death.attack.better_weaponry.bleeding": "%1$s is doodgebloed",
-    "death.attack.better_weaponry.bleeding.player": "%1$s is doodgebloed tijdens het vechten tegen %2$s"
+    "death.attack.better_weaponry.bleeding.player": "%1$s is doodgebloed tijdens het vechten tegen %2$s",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Herlaadtijd van Weerkaatsing",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Hoe lang het wapen of schild herlaadt nadat Weerkaatsing schade terugkaatst, in seconden. 0: geen."
   }
 }

@@ -14,6 +14,7 @@
     "PlayerCombatMixin",
     "ItemStackMixin",
     "AxeItemMixin",
+    "ItemCooldownsMixin",
     "LivingEntityMixin",
     "LivingEntityAccessor",
     "SweepParticleMixin"

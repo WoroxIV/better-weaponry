@@ -154,6 +154,8 @@ public final class ParrySystem {
             // Rien ne passe : ni dégâts, ni recul, ni usure. La garde ne peut pas être brisée.
             event.setCanceled(true);
             if (!ignoredAnyway) onPerfectParry(player, weapon, source, damage, parry.perfectDamageBonus(), parry.perfectBonusSeconds());
+            // Réflexion a mis l'arme en recharge : elle ne pare plus, la pose ne doit pas rester.
+            if (player.getCooldowns().isOnCooldown(weapon.getItem())) player.stopUsingItem();
             return;
         }
 

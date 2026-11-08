@@ -395,19 +395,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Chance de livre enchanté dans les coffres",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Chance en % qu'un coffre du Nether ou de l'End contienne un livre avec un enchantement du mod.",
     "enchantment.better_weaponry.reflective": "Réflexion",
-    "enchantment.better_weaponry.reflective.desc": "Une parade parfaite renvoie 10/20/30 % d'une attaque au corps à corps à l'attaquant, avec ses effets. Se place sur les boucliers et tout ce qui peut parer.",
+    "enchantment.better_weaponry.reflective.desc": "Une parade parfaite renvoie 10/20/30 % d'une attaque au corps à corps à l'attaquant, avec ses effets, puis l'objet se recharge. Se place sur les boucliers et tout ce qui peut parer. Incompatible avec Riposte.",
     "enchantment.better_weaponry.vampirism": "Vampirisme",
-    "enchantment.better_weaponry.vampirism.desc": "Te soigne d'une partie des dégâts infligés au corps à corps. Le soin augmente de moins en moins vite sur les gros coups.",
+    "enchantment.better_weaponry.vampirism.desc": "Te soigne d'une partie des dégâts infligés au corps à corps. Le soin augmente de moins en moins vite sur les gros coups. Incompatible avec Saignement.",
     "enchantment.better_weaponry.riposte": "Riposte",
-    "enchantment.better_weaponry.riposte.desc": "Après une parade parfaite, ton coup suivant fait 25/50/75 % de dégâts en plus, en plus du bonus habituel.",
+    "enchantment.better_weaponry.riposte.desc": "Après une parade parfaite, ton coup suivant fait 25/50/75 % de dégâts en plus, en plus du bonus habituel. Incompatible avec Réflexion.",
     "enchantment.better_weaponry.momentum": "Élan",
     "enchantment.better_weaponry.momentum.desc": "Réduit la recharge du dash de 15/30/45 %.",
     "enchantment.better_weaponry.execution": "Exécution",
     "enchantment.better_weaponry.execution.desc": "Inflige 10/20/30 % de dégâts en plus aux cibles sous 30 % de leur vie.",
     "enchantment.better_weaponry.bleeding": "Saignement",
-    "enchantment.better_weaponry.bleeding.desc": "Les coups chargés font saigner la cible pendant 2/3/4 secondes. Faucilles, faux et katanas seulement. Les squelettes sont immunisés. Incompatible avec Aura de feu.",
+    "enchantment.better_weaponry.bleeding.desc": "Les coups chargés font saigner la cible pendant 2/3/4 secondes. Faucilles, faux et katanas seulement. Les squelettes sont immunisés. Incompatible avec Aura de feu et Vampirisme.",
     "effect.better_weaponry.bleeding": "Saignement",
     "death.attack.better_weaponry.bleeding": "%1$s s'est vidé de son sang",
-    "death.attack.better_weaponry.bleeding.player": "%1$s s'est vidé de son sang en combattant %2$s"
+    "death.attack.better_weaponry.bleeding.player": "%1$s s'est vidé de son sang en combattant %2$s",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Recharge de Réflexion",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Après un renvoi de Réflexion, durée de recharge de l'arme ou du bouclier, en secondes. 0 : aucune."
   }
 }

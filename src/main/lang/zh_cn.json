@@ -395,19 +395,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "箱子中附魔书几率",
     "better_weaponry.field.gear.enchanted_book_chance.help": "下界或末地箱子中出现带本模组附魔的书的几率（%）。",
     "enchantment.better_weaponry.reflective": "反射",
-    "enchantment.better_weaponry.reflective.desc": "完美招架将近战攻击的 10/20/30% 连同其效果反弹给攻击者。可用于盾牌和所有能招架的物品。",
+    "enchantment.better_weaponry.reflective.desc": "完美招架将近战攻击的 10/20/30% 连同其效果反弹给攻击者，之后物品进入冷却。可用于盾牌和所有能招架的物品。与反击冲突。",
     "enchantment.better_weaponry.vampirism": "吸血",
-    "enchantment.better_weaponry.vampirism.desc": "按造成的近战伤害的一部分为你治疗。伤害越高，治疗增长越慢。",
+    "enchantment.better_weaponry.vampirism.desc": "按造成的近战伤害的一部分为你治疗。伤害越高，治疗增长越慢。与流血冲突。",
     "enchantment.better_weaponry.riposte": "反击",
-    "enchantment.better_weaponry.riposte.desc": "完美招架后，下一击额外造成 25/50/75% 伤害，可与常规加成叠加。",
+    "enchantment.better_weaponry.riposte.desc": "完美招架后，下一击额外造成 25/50/75% 伤害，可与常规加成叠加。与反射冲突。",
     "enchantment.better_weaponry.momentum": "冲势",
     "enchantment.better_weaponry.momentum.desc": "冲刺冷却缩短 15/30/45%。",
     "enchantment.better_weaponry.execution": "处决",
     "enchantment.better_weaponry.execution.desc": "对生命值低于 30% 的目标额外造成 10/20/30% 伤害。",
     "enchantment.better_weaponry.bleeding": "流血",
-    "enchantment.better_weaponry.bleeding.desc": "蓄满力的攻击使目标流血 2/3/4 秒。仅限镰刀、长柄镰刀和武士刀。骷髅免疫。与火焰附加冲突。",
+    "enchantment.better_weaponry.bleeding.desc": "蓄满力的攻击使目标流血 2/3/4 秒。仅限镰刀、长柄镰刀和武士刀。骷髅免疫。与火焰附加和吸血冲突。",
     "effect.better_weaponry.bleeding": "流血",
     "death.attack.better_weaponry.bleeding": "%1$s 失血而亡",
-    "death.attack.better_weaponry.bleeding.player": "%1$s 在与 %2$s 战斗时失血而亡"
+    "death.attack.better_weaponry.bleeding.player": "%1$s 在与 %2$s 战斗时失血而亡",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "反射冷却",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "反射反弹伤害后，武器或盾牌的冷却时间（秒）。0：无。"
   }
 }

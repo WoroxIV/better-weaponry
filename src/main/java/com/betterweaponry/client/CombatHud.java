@@ -1,6 +1,7 @@
 package com.betterweaponry.client;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.combat.AbilityCooldowns;
 import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.ParrySystem;
@@ -9,7 +10,6 @@ import com.betterweaponry.config.ComboHudStyle;
 import com.betterweaponry.config.HudElement;
 import com.betterweaponry.data.DashDefinition;
 import com.betterweaponry.data.ParryDefinition;
-import com.betterweaponry.data.WeaponData;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -75,13 +75,13 @@ public final class CombatHud {
         float cooldown = player.getCooldowns().getCooldownPercent(stack.getItem(), partialTick);
         if (cooldown <= 0.0F) return;
         Optional<ParryDefinition> parry = ParrySystem.parryOf(stack);
-        if (parry.isPresent() && WeaponData.rules().guardBreakActive() && isShown(HudElement.GUARD_BREAK)) {
-            String seconds = seconds(cooldown * parry.get().guardBreakSeconds());
+        if (parry.isPresent() && isShown(HudElement.GUARD_BREAK)) {
+            String seconds = seconds(AbilityCooldowns.remainingSeconds(player, stack.getItem(), cooldown));
             drawAtConfiguredPosition(graphics, HudElement.GUARD_BREAK, guardBreakSize(seconds), (x, y) -> drawGuardBreak(graphics, stack, seconds, x, y));
         }
         Optional<DashDefinition> dash = DashAbility.dashOf(stack);
         if (dash.isPresent() && isShown(HudElement.ABILITY_COOLDOWN)) {
-            Component text = cooldownText(minecraft, Component.translatable(KEY + "ability.dash"), seconds(cooldown * DashAbility.cooldownSeconds(player, stack, dash.get())));
+            Component text = cooldownText(minecraft, Component.translatable(KEY + "ability.dash"), seconds(AbilityCooldowns.remainingSeconds(player, stack.getItem(), cooldown)));
             drawAtConfiguredPosition(graphics, HudElement.ABILITY_COOLDOWN, textSize(text), (x, y) -> drawText(graphics, text, COOLDOWN_TEXT_COLOR, x, y));
         }
     }

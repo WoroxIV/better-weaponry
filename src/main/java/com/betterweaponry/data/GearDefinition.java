@@ -20,10 +20,12 @@ import java.util.Map;
  * @param replaceVanillaGear       le butin et les villageois donnent les versions du mod au lieu du vanilla
  * @param lootUpgradeChance        dans le butin, chance en % de passer au matériau suivant (répétée à chaque matériau)
  * @param enchantedBookChance      chance en % d'un livre d'enchantement du mod dans les coffres du Nether et de l'End
+ * @param reflectiveCooldownSeconds recharge de l'objet après un renvoi de Réflexion (0 = aucune)
  */
 public record GearDefinition(int formatVersion, double shieldPerfectWindow, double shieldPerfectCooldown,
                              double shieldPerfectDamageBonus, double shieldPerfectBonusSeconds, double shieldPerfectKnockback,
-                             boolean reflectArrows, boolean replaceVanillaGear, double lootUpgradeChance, double enchantedBookChance) {
+                             boolean reflectArrows, boolean replaceVanillaGear, double lootUpgradeChance, double enchantedBookChance,
+                             double reflectiveCooldownSeconds) {
 
     public static final int FORMAT_VERSION = 1;
 
@@ -37,16 +39,19 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
     public static final DataField<Boolean> REPLACE_VANILLA_GEAR = DataField.bool("replace_vanilla_gear", true);
     public static final DataField<Double> LOOT_UPGRADE_CHANCE = DataField.number("loot_upgrade_chance", 0.0D, 100.0D, 20.0D);
     public static final DataField<Double> ENCHANTED_BOOK_CHANCE = DataField.number("enchanted_book_chance", 0.0D, 100.0D, 20.0D);
+    public static final DataField<Double> REFLECTIVE_COOLDOWN = DataField.number("reflective_cooldown_seconds", 0.0D, 60.0D, 5.0D);
 
     public static final FieldSet FIELDS = new FieldSet("gear",
             List.of(FORMAT, SHIELD_PERFECT_WINDOW, SHIELD_PERFECT_COOLDOWN, SHIELD_PERFECT_DAMAGE_BONUS, SHIELD_PERFECT_BONUS_SECONDS,
-                    SHIELD_PERFECT_KNOCKBACK, REFLECT_ARROWS, REPLACE_VANILLA_GEAR, LOOT_UPGRADE_CHANCE, ENCHANTED_BOOK_CHANCE),
+                    SHIELD_PERFECT_KNOCKBACK, REFLECT_ARROWS, REPLACE_VANILLA_GEAR, LOOT_UPGRADE_CHANCE, ENCHANTED_BOOK_CHANCE,
+                    REFLECTIVE_COOLDOWN),
             Map.of("perfect_window", "shield_perfect_window_seconds",
                     "perfect_cooldown", "shield_perfect_cooldown_seconds",
                     "knockback", "shield_perfect_knockback",
                     "replace_vanilla", "replace_vanilla_gear",
                     "upgrade_chance", "loot_upgrade_chance",
-                    "book_chance", "enchanted_book_chance"));
+                    "book_chance", "enchanted_book_chance",
+                    "reflective_cooldown", "reflective_cooldown_seconds"));
 
     public static final Codec<GearDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             FORMAT.forGetter(GearDefinition::formatVersion),
@@ -58,11 +63,13 @@ public record GearDefinition(int formatVersion, double shieldPerfectWindow, doub
             REFLECT_ARROWS.forGetter(GearDefinition::reflectArrows),
             REPLACE_VANILLA_GEAR.forGetter(GearDefinition::replaceVanillaGear),
             LOOT_UPGRADE_CHANCE.forGetter(GearDefinition::lootUpgradeChance),
-            ENCHANTED_BOOK_CHANCE.forGetter(GearDefinition::enchantedBookChance)
+            ENCHANTED_BOOK_CHANCE.forGetter(GearDefinition::enchantedBookChance),
+            REFLECTIVE_COOLDOWN.forGetter(GearDefinition::reflectiveCooldownSeconds)
     ).apply(instance, GearDefinition::new));
 
     public static final GearDefinition FALLBACK = new GearDefinition(FORMAT_VERSION,
             SHIELD_PERFECT_WINDOW.defaultValue(), SHIELD_PERFECT_COOLDOWN.defaultValue(), SHIELD_PERFECT_DAMAGE_BONUS.defaultValue(),
             SHIELD_PERFECT_BONUS_SECONDS.defaultValue(), SHIELD_PERFECT_KNOCKBACK.defaultValue(), REFLECT_ARROWS.defaultValue(),
-            REPLACE_VANILLA_GEAR.defaultValue(), LOOT_UPGRADE_CHANCE.defaultValue(), ENCHANTED_BOOK_CHANCE.defaultValue());
+            REPLACE_VANILLA_GEAR.defaultValue(), LOOT_UPGRADE_CHANCE.defaultValue(), ENCHANTED_BOOK_CHANCE.defaultValue(),
+            REFLECTIVE_COOLDOWN.defaultValue());
 }

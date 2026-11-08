@@ -459,19 +459,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Chance auf verzaubertes Buch in Truhen",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Chance in %, dass eine Truhe im Nether oder im End ein Buch mit einer Verzauberung des Mods enthält.",
     "enchantment.better_weaponry.reflective": "Reflexion",
-    "enchantment.better_weaponry.reflective.desc": "Eine perfekte Parade wirft 10/20/30 % eines Nahkampfangriffs samt seinen Effekten auf den Angreifer zurück. Für Schilde und alles, was parieren kann.",
+    "enchantment.better_weaponry.reflective.desc": "Eine perfekte Parade wirft 10/20/30 % eines Nahkampfangriffs samt seinen Effekten auf den Angreifer zurück, danach lädt der Gegenstand auf. Für Schilde und alles, was parieren kann. Unvereinbar mit Riposte.",
     "enchantment.better_weaponry.vampirism": "Vampirismus",
-    "enchantment.better_weaponry.vampirism.desc": "Heilt dich um einen Teil des verursachten Nahkampfschadens. Bei großen Treffern wächst die Heilung immer langsamer.",
+    "enchantment.better_weaponry.vampirism.desc": "Heilt dich um einen Teil des verursachten Nahkampfschadens. Bei großen Treffern wächst die Heilung immer langsamer. Unvereinbar mit Blutung.",
     "enchantment.better_weaponry.riposte": "Riposte",
-    "enchantment.better_weaponry.riposte.desc": "Nach einer perfekten Parade verursacht dein nächster Treffer 25/50/75 % mehr Schaden, zusätzlich zum üblichen Bonus.",
+    "enchantment.better_weaponry.riposte.desc": "Nach einer perfekten Parade verursacht dein nächster Treffer 25/50/75 % mehr Schaden, zusätzlich zum üblichen Bonus. Unvereinbar mit Reflexion.",
     "enchantment.better_weaponry.momentum": "Schwung",
     "enchantment.better_weaponry.momentum.desc": "Verkürzt die Abklingzeit des Sprints um 15/30/45 %.",
     "enchantment.better_weaponry.execution": "Hinrichtung",
     "enchantment.better_weaponry.execution.desc": "Verursacht 10/20/30 % mehr Schaden an Zielen unter 30 % ihrer Gesundheit.",
     "enchantment.better_weaponry.bleeding": "Blutung",
-    "enchantment.better_weaponry.bleeding.desc": "Voll aufgeladene Treffer lassen das Ziel 2/3/4 Sekunden bluten. Nur Sicheln, Sensen und Katanas. Skelette sind immun. Unvereinbar mit Verbrennung.",
+    "enchantment.better_weaponry.bleeding.desc": "Voll aufgeladene Treffer lassen das Ziel 2/3/4 Sekunden bluten. Nur Sicheln, Sensen und Katanas. Skelette sind immun. Unvereinbar mit Verbrennung und Vampirismus.",
     "effect.better_weaponry.bleeding": "Blutung",
     "death.attack.better_weaponry.bleeding": "%1$s ist verblutet",
-    "death.attack.better_weaponry.bleeding.player": "%1$s ist im Kampf gegen %2$s verblutet"
+    "death.attack.better_weaponry.bleeding.player": "%1$s ist im Kampf gegen %2$s verblutet",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Abklingzeit von Reflexion",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Wie lange Waffe oder Schild nach einer Rückwerfung durch Reflexion aufladen, in Sekunden. 0: keine."
   }
 }

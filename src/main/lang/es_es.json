@@ -395,19 +395,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Probabilidad de libro encantado en cofres",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Probabilidad en % de que un cofre del Nether o del End contenga un libro con un encantamiento del mod.",
     "enchantment.better_weaponry.reflective": "Reflejo",
-    "enchantment.better_weaponry.reflective.desc": "Una parada perfecta devuelve al atacante el 10/20/30% de un ataque cuerpo a cuerpo, con sus efectos. Para escudos y todo lo que pueda parar.",
+    "enchantment.better_weaponry.reflective.desc": "Una parada perfecta devuelve al atacante el 10/20/30% de un ataque cuerpo a cuerpo, con sus efectos, y luego el objeto se recarga. Para escudos y todo lo que pueda parar. Incompatible con Contraataque.",
     "enchantment.better_weaponry.vampirism": "Vampirismo",
-    "enchantment.better_weaponry.vampirism.desc": "Te cura con parte del daño cuerpo a cuerpo que infliges. La curación crece cada vez más despacio en los golpes fuertes.",
+    "enchantment.better_weaponry.vampirism.desc": "Te cura con parte del daño cuerpo a cuerpo que infliges. La curación crece cada vez más despacio en los golpes fuertes. Incompatible con Sangrado.",
     "enchantment.better_weaponry.riposte": "Contraataque",
-    "enchantment.better_weaponry.riposte.desc": "Tras una parada perfecta, tu siguiente golpe inflige un 25/50/75% más de daño, además de la bonificación habitual.",
+    "enchantment.better_weaponry.riposte.desc": "Tras una parada perfecta, tu siguiente golpe inflige un 25/50/75% más de daño, además de la bonificación habitual. Incompatible con Reflejo.",
     "enchantment.better_weaponry.momentum": "Impulso",
     "enchantment.better_weaponry.momentum.desc": "Reduce la recarga de la embestida un 15/30/45%.",
     "enchantment.better_weaponry.execution": "Ejecución",
     "enchantment.better_weaponry.execution.desc": "Inflige un 10/20/30% más de daño a objetivos por debajo del 30% de su vida.",
     "enchantment.better_weaponry.bleeding": "Sangrado",
-    "enchantment.better_weaponry.bleeding.desc": "Los golpes cargados hacen sangrar al objetivo durante 2/3/4 segundos. Solo hoces, guadañas y katanas. Los esqueletos son inmunes. Incompatible con Aspecto ígneo.",
+    "enchantment.better_weaponry.bleeding.desc": "Los golpes cargados hacen sangrar al objetivo durante 2/3/4 segundos. Solo hoces, guadañas y katanas. Los esqueletos son inmunes. Incompatible con Aspecto ígneo y Vampirismo.",
     "effect.better_weaponry.bleeding": "Sangrado",
     "death.attack.better_weaponry.bleeding": "%1$s se desangró",
-    "death.attack.better_weaponry.bleeding.player": "%1$s se desangró luchando contra %2$s"
+    "death.attack.better_weaponry.bleeding.player": "%1$s se desangró luchando contra %2$s",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Recarga de Reflejo",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Tras devolver el daño con Reflejo, duración de la recarga del arma o del escudo, en segundos. 0: ninguna."
   }
 }

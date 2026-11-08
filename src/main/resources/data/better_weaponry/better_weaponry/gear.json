@@ -8,5 +8,6 @@
   "reflect_arrows": true,
   "replace_vanilla_gear": true,
   "loot_upgrade_chance": 20,
-  "enchanted_book_chance": 20
+  "enchanted_book_chance": 20,
+  "reflective_cooldown_seconds": 5.0
 }

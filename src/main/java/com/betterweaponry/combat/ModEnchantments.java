@@ -116,7 +116,10 @@ public final class ModEnchantments {
         LivingEntity attacker = meleeAttacker(source);
         if (attacker == null || !(defender.level() instanceof ServerLevel world)) return;
         int enchantmentLevel = level(world, guard, REFLECTIVE);
-        if (enchantmentLevel <= 0) return;
+        // Après un renvoi, l'objet se recharge : l'icône vanilla de la barre d'objets le montre.
+        if (enchantmentLevel <= 0 || defender.getCooldowns().isOnCooldown(guard.getItem())) return;
+        double cooldown = WeaponData.gear().reflectiveCooldownSeconds();
+        if (cooldown > 0.0D) AbilityCooldowns.start(defender, guard, cooldown);
 
         ItemStack attackerWeapon = attacker.getMainHandItem();
         DamageSource reflected = defender.damageSources().thorns(defender);

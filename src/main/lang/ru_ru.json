@@ -517,19 +517,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Шанс зачарованной книги в сундуках",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Шанс в %, что сундук в Незере или Энде содержит книгу с зачарованием мода.",
     "enchantment.better_weaponry.reflective": "Отражение",
-    "enchantment.better_weaponry.reflective.desc": "Идеальное парирование возвращает атакующему 10/20/30% удара в ближнем бою вместе с его эффектами. Для щитов и всего, что может парировать.",
+    "enchantment.better_weaponry.reflective.desc": "Идеальное парирование возвращает атакующему 10/20/30% удара в ближнем бою вместе с его эффектами, затем предмет перезаряжается. Для щитов и всего, что может парировать. Несовместимо с ответным ударом.",
     "enchantment.better_weaponry.vampirism": "Вампиризм",
-    "enchantment.better_weaponry.vampirism.desc": "Исцеляет на часть урона, нанесённого в ближнем бою. На сильных ударах исцеление растёт всё медленнее.",
+    "enchantment.better_weaponry.vampirism.desc": "Исцеляет на часть урона, нанесённого в ближнем бою. На сильных ударах исцеление растёт всё медленнее. Несовместимо с кровотечением.",
     "enchantment.better_weaponry.riposte": "Ответный удар",
-    "enchantment.better_weaponry.riposte.desc": "После идеального парирования следующий удар наносит на 25/50/75% больше урона, сверх обычного бонуса.",
+    "enchantment.better_weaponry.riposte.desc": "После идеального парирования следующий удар наносит на 25/50/75% больше урона, сверх обычного бонуса. Несовместимо с отражением.",
     "enchantment.better_weaponry.momentum": "Разгон",
     "enchantment.better_weaponry.momentum.desc": "Сокращает перезарядку рывка на 15/30/45%.",
     "enchantment.better_weaponry.execution": "Казнь",
     "enchantment.better_weaponry.execution.desc": "Наносит на 10/20/30% больше урона целям с менее чем 30% здоровья.",
     "enchantment.better_weaponry.bleeding": "Кровотечение",
-    "enchantment.better_weaponry.bleeding.desc": "Полностью заряженные удары вызывают кровотечение на 2/3/4 секунды. Только серпы, косы и катаны. Скелеты невосприимчивы. Несовместимо с заговором огня.",
+    "enchantment.better_weaponry.bleeding.desc": "Полностью заряженные удары вызывают кровотечение на 2/3/4 секунды. Только серпы, косы и катаны. Скелеты невосприимчивы. Несовместимо с заговором огня и вампиризмом.",
     "effect.better_weaponry.bleeding": "Кровотечение",
     "death.attack.better_weaponry.bleeding": "%1$s истёк кровью",
-    "death.attack.better_weaponry.bleeding.player": "%1$s истёк кровью в бою с %2$s"
+    "death.attack.better_weaponry.bleeding.player": "%1$s истёк кровью в бою с %2$s",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Перезарядка отражения",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Сколько секунд оружие или щит перезаряжаются после отражения урона. 0: нет."
   }
 }

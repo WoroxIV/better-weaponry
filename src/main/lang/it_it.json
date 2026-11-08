@@ -396,19 +396,21 @@
     "better_weaponry.field.gear.enchanted_book_chance": "Probabilità di libro incantato nei forzieri",
     "better_weaponry.field.gear.enchanted_book_chance.help": "Probabilità in % che un forziere del Nether o dell'End contenga un libro con un incantesimo della mod.",
     "enchantment.better_weaponry.reflective": "Riflessione",
-    "enchantment.better_weaponry.reflective.desc": "Una parata perfetta rimanda all'attaccante il 10/20/30% di un attacco in mischia, con i suoi effetti. Per scudi e tutto ciò che può parare.",
+    "enchantment.better_weaponry.reflective.desc": "Una parata perfetta rimanda all'attaccante il 10/20/30% di un attacco in mischia, con i suoi effetti, poi l'oggetto si ricarica. Per scudi e tutto ciò che può parare. Incompatibile con Riposta.",
     "enchantment.better_weaponry.vampirism": "Vampirismo",
-    "enchantment.better_weaponry.vampirism.desc": "Ti cura di una parte dei danni inflitti in mischia. La cura cresce sempre più lentamente sui colpi potenti.",
+    "enchantment.better_weaponry.vampirism.desc": "Ti cura di una parte dei danni inflitti in mischia. La cura cresce sempre più lentamente sui colpi potenti. Incompatibile con Sanguinamento.",
     "enchantment.better_weaponry.riposte": "Riposta",
-    "enchantment.better_weaponry.riposte.desc": "Dopo una parata perfetta, il colpo successivo infligge il 25/50/75% di danni in più, oltre al bonus abituale.",
+    "enchantment.better_weaponry.riposte.desc": "Dopo una parata perfetta, il colpo successivo infligge il 25/50/75% di danni in più, oltre al bonus abituale. Incompatibile con Riflessione.",
     "enchantment.better_weaponry.momentum": "Slancio",
     "enchantment.better_weaponry.momentum.desc": "Riduce la ricarica dello scatto del 15/30/45%.",
     "enchantment.better_weaponry.execution": "Esecuzione",
     "enchantment.better_weaponry.execution.desc": "Infligge il 10/20/30% di danni in più ai bersagli sotto il 30% della salute.",
     "enchantment.better_weaponry.bleeding": "Sanguinamento",
-    "enchantment.better_weaponry.bleeding.desc": "I colpi caricati fanno sanguinare il bersaglio per 2/3/4 secondi. Solo falcetti, falci e katane. Gli scheletri sono immuni. Incompatibile con Aspetto di fuoco.",
+    "enchantment.better_weaponry.bleeding.desc": "I colpi caricati fanno sanguinare il bersaglio per 2/3/4 secondi. Solo falcetti, falci e katane. Gli scheletri sono immuni. Incompatibile con Aspetto di fuoco e Vampirismo.",
     "effect.better_weaponry.bleeding": "Sanguinamento",
     "death.attack.better_weaponry.bleeding": "%1$s è morto dissanguato",
-    "death.attack.better_weaponry.bleeding.player": "%1$s è morto dissanguato combattendo contro %2$s"
+    "death.attack.better_weaponry.bleeding.player": "%1$s è morto dissanguato combattendo contro %2$s",
+    "better_weaponry.field.gear.reflective_cooldown_seconds": "Ricarica di Riflessione",
+    "better_weaponry.field.gear.reflective_cooldown_seconds.help": "Dopo che Riflessione rimanda i danni, durata della ricarica di arma o scudo, in secondi. 0: nessuna."
   }
 }
