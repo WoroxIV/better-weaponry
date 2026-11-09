@@ -54,6 +54,7 @@ public final class VanillaGearEvents {
         if (!armorer && profession != VillagerProfession.FLETCHER) return;
         MATERIAL_BY_LEVEL.forEach((level, material) -> {
             List<VillagerTrades.ItemListing> listings = trades.get(level.intValue());
+            if (listings == null) return;
             listings.replaceAll(listing -> sellingMaterial(listing, material));
             Integer emeralds = EMERALDS_BY_NEW_LEVEL.get(level);
             if (armorer && emeralds != null) {

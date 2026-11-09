@@ -1,0 +1,32 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.betterweaponry.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AttributeSupplierMixin",
+    "CrossbowAttackMixin",
+    "GearHoldingMixin",
+    "HardcodedGearMixin",
+    "ItemStackFabricMixin",
+    "LivingEntityFabricMixin",
+    "LootTableMixin",
+    "PiglinAiMixin",
+    "PiglinArmPoseMixin",
+    "PillagerArmPoseMixin",
+    "PlayerFabricMixin",
+    "ProjectileFabricMixin",
+    "ProjectileUtilMixin",
+    "ServerLevelMixin"
+  ],
+  "client": [
+    "AbstractClientPlayerMixin",
+    "ItemInHandRendererFabricMixin",
+    "ItemRendererFabricMixin",
+    "KeyMappingFabricMixin",
+    "PlayerRendererFabricMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

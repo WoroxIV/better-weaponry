@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": ["${mod_authors}"],
+  "contact": {
+    "homepage": "${mod_display_url}",
+    "issues": "${mod_issue_tracker_url}",
+    "sources": "https://github.com/WoroxIV/better-weaponry"
+  },
+  "license": "${mod_license}",
+  "icon": "assets/better_weaponry/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": ["com.betterweaponry.gametest.CombatGameTests"],
+    "main": ["com.betterweaponry.fabric.BetterWeaponryFabric"],
+    "client": ["com.betterweaponry.fabric.BetterWeaponryFabricClient"],
+    "modmenu": ["com.betterweaponry.fabric.ModMenuIntegration"],
+    "jei_mod_plugin": ["com.betterweaponry.compat.jei.BetterWeaponryJeiPlugin"],
+    "emi": ["com.betterweaponry.compat.emi.BetterWeaponryEmiPlugin"]
+  },
+  "mixins": [
+    "betterweaponry.mixins.json",
+    "betterweaponry.fabric.mixins.json"
+  ],
+  "accessWidener": "better_weaponry.accesswidener",
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "modmenu": "*",
+    "jei": "*",
+    "emi": "*"
+  }
+}

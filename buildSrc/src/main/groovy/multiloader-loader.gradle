@@ -42,13 +42,26 @@ tasks.named('processResources', ProcessResources) {
             mod_authors            : mod_authors,
             mod_description        : mod_description,
             mod_display_url        : mod_display_url,
-            mod_issue_tracker_url  : mod_issue_tracker_url
+            mod_issue_tracker_url  : mod_issue_tracker_url,
+            fabric_loader_version  : fabric_loader_version
     ]
     inputs.properties replaceProperties
-    filesMatching(['META-INF/neoforge.mods.toml']) {
+    filesMatching(['META-INF/neoforge.mods.toml', 'fabric.mod.json']) {
         expand replaceProperties
     }
 }
+
+// Les tests automatiques sont écrits une seule fois (common/src/gametest) : chaque chargeur y met ce qui lui est propre.
+def prepareGameTests = tasks.register('prepareGameTests', Sync) {
+    from(rootProject.file('common/src/gametest/java'))
+    into(layout.buildDirectory.dir('generated/gametest/java'))
+    inputs.property('annotations', providers.provider { project.ext.gameTestAnnotations })
+    inputs.property('arena', providers.provider { project.ext.gameTestArena })
+    filter { String line ->
+        line.replace('//@LOADER_TEST_ANNOTATIONS@', project.ext.gameTestAnnotations).replace('@ARENA@', project.ext.gameTestArena)
+    }
+}
+sourceSets.main.java.srcDir(prepareGameTests)
 
 // Les GameTests servent seulement au développement : ils ne partent pas dans le jar publié.
 tasks.named('jar', Jar) {

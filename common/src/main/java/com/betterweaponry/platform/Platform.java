@@ -1,14 +1,17 @@
 package com.betterweaponry.platform;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.enchantment.Enchantment;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -70,6 +73,12 @@ public interface Platform {
 
     /** Côté client uniquement. */
     void sendToServer(CustomPacketPayload payload);
+
+    /** Cet objet accepte cet enchantement sur une table ou une enclume. */
+    boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment);
+
+    /** Joueur simulé, pour les tests automatiques. */
+    ServerPlayer createFakePlayer(ServerLevel level);
 
     /** Reprend les anciennes configs du mod, s'il y en a pour ce chargeur. */
     default void migrateLegacyConfig() {

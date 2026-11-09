@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,6 +41,11 @@ public final class GearIngredients {
         }
         all.addAll(additions);
         return all.stream();
+    }
+
+    /** Même chose pour un ingrédient donné sous forme de tableau. */
+    public static Ingredient.Value[] withModVersions(Ingredient.Value[] values) {
+        return values.length == 0 ? values : withModVersions(Arrays.stream(values)).toArray(Ingredient.Value[]::new);
     }
 
     private static boolean isFromThisMod(ItemStack stack) {

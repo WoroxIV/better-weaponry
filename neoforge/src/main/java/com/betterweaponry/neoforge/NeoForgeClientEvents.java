@@ -38,7 +38,7 @@ final class NeoForgeClientEvents {
             event.setCanceled(true);
             return;
         }
-        if (DualParryHandRenderer.render(event.getHand(), event.getItemStack(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getEquipProgress())) {
+        if (DualParryHandRenderer.render(event.getHand(), event.getItemStack(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), event.getEquipProgress(), false)) {
             event.setCanceled(true);
         }
     }

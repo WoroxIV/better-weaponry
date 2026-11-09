@@ -22,14 +22,17 @@ public final class DualParryHandRenderer {
     private DualParryHandRenderer() {
     }
 
-    /** @return vrai si l'objet a été dessiné ici : le jeu ne doit pas le dessiner une seconde fois */
-    public static boolean render(InteractionHand hand, ItemStack stack, PoseStack poseStack, MultiBufferSource buffers, int packedLight, float equipProgress) {
+    /**
+     * @param allParries aussi les armes du mod en main principale, pour les chargeurs qui n'ont pas de rendu par objet
+     * @return vrai si l'objet a été dessiné ici : le jeu ne doit pas le dessiner une seconde fois
+     */
+    public static boolean render(InteractionHand hand, ItemStack stack, PoseStack poseStack, MultiBufferSource buffers, int packedLight, float equipProgress, boolean allParries) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null || player.isScoping()) return false;
         boolean mainHand = hand == InteractionHand.MAIN_HAND;
         boolean posed = mainHand
-                ? ParrySystem.isParrying(player) && WeaponProfiles.isAdopted(stack)
+                ? ParrySystem.isParrying(player) && (allParries || WeaponProfiles.isAdopted(stack))
                 : ParrySystem.isParryingWithBothHands(player);
         if (!posed) return false;
 

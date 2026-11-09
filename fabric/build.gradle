@@ -1,0 +1,108 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+plugins {
+    id 'multiloader-loader'
+    id 'net.fabricmc.fabric-loom-remap'
+}
+
+ext.gameTestAnnotations = ''
+ext.gameTestArena = 'better_weaponry:empty'
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+
+    // Mods optionnels, seulement pour compiler nos plugins. Pour tester : gradlew :fabric:runClient -Pbw_compat=jei,modmenu (ou emi).
+    modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
+    modCompileOnly "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}"
+    modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
+    def compat = project.findProperty('bw_compat')?.toString()?.split(',') as List ?: []
+    if ('jei' in compat) modLocalRuntime "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+    if ('emi' in compat) modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
+    if ('modmenu' in compat) modLocalRuntime "com.terraformersmc:modmenu:${modmenu_version}"
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/better_weaponry.accesswidener')
+    mixin {
+        defaultRefmapName = "${mod_id}.refmap.json"
+    }
+    runs {
+        client {
+            client()
+            configName = 'Fabric Client'
+            ideConfigGenerated(true)
+            runDir '../run/fabric-client'
+        }
+        server {
+            server()
+            configName = 'Fabric Server'
+            ideConfigGenerated(true)
+            runDir '../run/fabric-server'
+        }
+        gameTestServer {
+            server()
+            configName = 'Fabric GameTest'
+            vmArg '-Dfabric-api.gametest'
+            runDir '../run/fabric-gametest'
+        }
+    }
+}
+
+// Les recettes sont générées pour NeoForge : on traduit leurs conditions pour Fabric au moment de construire le jar.
+def fabricCondition
+fabricCondition = { Map condition ->
+    switch (condition.type) {
+        case 'neoforge:mod_loaded':
+            return [condition: 'fabric:all_mods_loaded', values: [condition.modid]]
+        case 'neoforge:tag_empty':
+            return [condition: 'fabric:not', value: [condition: 'fabric:tags_populated', registry: 'minecraft:item', values: [condition.tag]]]
+        case 'neoforge:not':
+            return [condition: 'fabric:not', value: fabricCondition(condition.value)]
+        case 'neoforge:or':
+            return [condition: 'fabric:or', values: condition.values.collect { fabricCondition(it) }]
+        case 'neoforge:false':
+            return [condition: 'fabric:not', value: [condition: 'fabric:true']]
+        default:
+            throw new GradleException("Unknown recipe condition: ${condition.type}")
+    }
+}
+
+tasks.named('processResources', ProcessResources) {
+    doLast {
+        def data = new File(destinationDir, 'data')
+        data.eachFileRecurse { file ->
+            if (!file.isFile() || !file.name.endsWith('.json') || !file.text.contains('neoforge:conditions')) return
+            def json = new JsonSlurper().parse(file)
+            def converted = ['fabric:load_conditions': json.remove('neoforge:conditions').collect { fabricCondition(it) }] + json
+            file.text = JsonOutput.toJson(converted)
+        }
+    }
+}
+
+// Le point d'entrée des tests ne doit pas rester dans le jar publié : leur classe n'y est pas.
+tasks.named('jar', Jar) {
+    filesMatching('fabric.mod.json') {
+        filter { String line -> line.contains('fabric-gametest') ? null : line }
+    }
+}
+
+// Lance le vrai jar avec le chargeur tel que les joueurs l'installent : le code y est renommé, contrairement au lancement de développement.
+configurations {
+    productionRuntimeMods { transitive = false }
+}
+
+dependencies {
+    productionRuntimeMods "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+}
+
+tasks.register('runProductionClient', net.fabricmc.loom.task.prod.ClientProductionRunTask) {
+    mods.from(tasks.named('remapJar'))
+    mods.from(configurations.productionRuntimeMods)
+}

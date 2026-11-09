@@ -44,6 +44,9 @@ neoForge {
     }
 }
 
+ext.gameTestAnnotations = '@net.neoforged.neoforge.gametest.GameTestHolder(BetterWeaponry.MODID)\n@net.neoforged.neoforge.gametest.PrefixGameTestTemplate(false)'
+ext.gameTestArena = 'empty'
+
 dependencies {
     // JEI et EMI restent optionnels pour les joueurs. Pour tester avec l'un des deux : gradlew :neoforge:runClient -Pbw_compat=jei (ou emi).
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"

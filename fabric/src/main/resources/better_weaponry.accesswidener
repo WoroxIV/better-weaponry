@@ -1,0 +1,15 @@
+accessWidener v2 named
+
+# Les mêmes éléments que common/accesstransformer.cfg : NeoForge les ouvre déjà, pas le jeu de base.
+accessible class net/minecraft/world/item/crafting/Ingredient$Value
+accessible class net/minecraft/world/item/crafting/Ingredient$ItemValue
+accessible method net/minecraft/world/item/crafting/Ingredient$ItemValue <init> (Lnet/minecraft/world/item/ItemStack;)V
+accessible class net/minecraft/world/item/crafting/Ingredient$TagValue
+accessible method net/minecraft/world/item/crafting/Ingredient$TagValue <init> (Lnet/minecraft/tags/TagKey;)V
+accessible method net/minecraft/client/renderer/item/ItemProperties register (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/renderer/item/ClampedItemPropertyFunction;)V
+accessible class net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations$PalettedSpriteSupplier
+accessible method net/minecraft/client/renderer/texture/atlas/sources/PalettedPermutations$PalettedSpriteSupplier <init> (Lnet/minecraft/client/renderer/texture/atlas/sources/LazyLoadedImage;Ljava/util/function/Supplier;Lnet/minecraft/resources/ResourceLocation;)V
+accessible field net/minecraft/world/entity/Mob goalSelector Lnet/minecraft/world/entity/ai/goal/GoalSelector;
+
+# Propre à Fabric : déclarer notre source de textures d'armes.
+accessible field net/minecraft/client/renderer/texture/atlas/SpriteSources TYPES Lcom/google/common/collect/BiMap;

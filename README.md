@@ -1,11 +1,11 @@
 # Better Weaponry
 
-A NeoForge mod for Minecraft **1.21.1** that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
+A mod for Minecraft **1.21.1**, on NeoForge and Fabric, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
 
 - **Mod ID:** `better_weaponry`
 - **Version:** 2.0.0
 - **Author:** WoroxIV
-- **Loader:** NeoForge 21.1.220 or newer
+- **Loaders:** NeoForge 21.1.220 or newer, or Fabric with [Fabric API](https://modrinth.com/mod/fabric-api)
 - **Java:** 21
 - **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) and Epic Fight compatibility, JEI and EMI information pages
 - **Download:** [Modrinth](https://modrinth.com/mod/better-weaponry), [CurseForge](https://www.curseforge.com/minecraft/mc-mods/better-weaponry-system)
@@ -509,9 +509,10 @@ The mapping is in `datagen/BetterCombatAttributesProvider.java`. Better Combat i
 ### Common tasks
 
 ```powershell
-./gradlew :neoforge:runClient     # launch a dev client
+./gradlew :neoforge:runClient     # launch a dev client (or :fabric:runClient)
 ./gradlew :neoforge:runServer     # launch a dev dedicated server (nogui)
-./gradlew :neoforge:runGameTestServer  # run the automated combat tests, then exit (fails if a test fails)
+./gradlew runGameTestServer  # run the automated combat tests on every loader, then exit (fails if a test fails)
+./gradlew :fabric:runProductionClient  # launch the real Fabric jar, as players install it
 ./gradlew :neoforge:runData       # regenerate item models, translations, tags and recipes into common/src/generated/resources
 ./gradlew build         # build the mod jar -> neoforge/build/libs/better_weaponry-<version>+1.21.1-neoforge.jar
 ```
@@ -520,7 +521,7 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 
 ### Project layout
 
-The project has one Gradle module per mod loader. `common/` holds everything that does not depend on a loader and only talks to it through `platform/Platform.java`. `neoforge/` holds the entry points, the event bridges (`neoforge/.../neoforge/`), data generation, loot modifiers, the JEI and EMI plugins and the GameTests.
+The project has one Gradle module per mod loader. `common/` holds everything that does not depend on a loader and only talks to it through `platform/Platform.java`, including the JEI and EMI plugins. `neoforge/` holds the entry points, the event bridges, data generation and loot modifiers. `fabric/` holds the entry points and the mixins that replace NeoForge's events. The GameTests are in `common/src/gametest/` and run on each loader.
 
 ```
 common/src/main/java/com/betterweaponry/
@@ -593,6 +594,10 @@ common/src/main/resources/
 └── betterweaponry.mixins.json   # Mixin config
 
 common/src/generated/resources/         # Output of runData (do not edit by hand)
+
+fabric/src/main/
+├── java/com/betterweaponry/fabric/    # Fabric entry points, network and mixins
+└── resources/fabric.mod.json          # Mod metadata (filled in from gradle.properties)
 
 neoforge/src/main/
 ├── java/com/betterweaponry/neoforge/  # NeoForge entry points and event bridges

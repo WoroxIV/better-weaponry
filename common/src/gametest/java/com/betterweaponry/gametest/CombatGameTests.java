@@ -17,7 +17,6 @@ import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.compat.RecipeViewerInfo;
 import com.betterweaponry.config.EditorFiles;
-import com.betterweaponry.config.LegacyConfigMigration;
 import com.betterweaponry.config.TooltipCategory;
 import com.betterweaponry.config.TooltipPlacement;
 import com.betterweaponry.data.ComboDefinition;
@@ -141,13 +140,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import com.betterweaponry.tutorial.TutorialHints;
-import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.common.util.FakePlayer;
-import net.neoforged.neoforge.common.util.FakePlayerFactory;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.gametest.GameTestHolder;
+import com.betterweaponry.platform.Platform;
 import com.betterweaponry.platform.Registered;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -164,17 +158,16 @@ import java.util.function.Predicate;
  * Ils lisent les stats actuelles des armes : ils restent valables si les valeurs par défaut changent.
  * Ils ne tournent jamais dans une partie normale (les GameTests ne sont actifs qu'en développement).
  */
-@GameTestHolder(BetterWeaponry.MODID)
-@PrefixGameTestTemplate(false)
+//@LOADER_TEST_ANNOTATIONS@
 public final class CombatGameTests {
     /** Structure vide (data/better_weaponry/structure/empty.nbt) qui sert de terrain. */
-    private static final String ARENA = "empty";
+    private static final String ARENA = "@ARENA@";
     private static final double EPSILON = 0.01D;
     private static final float TEST_HEALTH = 100.0F;
     private static final float RAW_DAMAGE = 10.0F;
     private static final int VANILLA_INVULNERABILITY_TICKS = 20;
 
-    private CombatGameTests() {
+    public CombatGameTests() {
     }
 
     /** Fusion des couches : valeur invalide ignorée, sous-champ fusionné, fautes de frappe signalées avec suggestion. */
@@ -219,7 +212,7 @@ public final class CombatGameTests {
         double armorReduction = RAW_DAMAGE - (TEST_HEALTH - withoutPenetration.getHealth());
         double reducedArmorReduction = RAW_DAMAGE - (TEST_HEALTH - withPenetration.getHealth());
         helper.assertTrue(armorReduction > 1.0D, "the armor should absorb damage, absorbed " + armorReduction);
-        boolean apothic = ModList.get().isLoaded("apothic_attributes");
+        boolean apothic = Platform.get().isModLoaded("apothic_attributes");
         helper.assertTrue(ModAttributes.armorPenetration().equals(ModAttributes.ARMOR_PENETRATION.holder()) != apothic, "the penetration attribute should depend on Apothic Attributes");
         double expected = armorReduction * (1.0D - penetration);
         // Avec Apothic Attributes, c'est son calcul de l'armure qui s'applique : l'armure protège seulement moins.
@@ -676,7 +669,7 @@ public final class CombatGameTests {
     /** Faux joueur (déployeur de Create...) : une arme simple, ses dégâts et rien d'autre. */
     @GameTest(template = ARENA)
     public static void fakePlayersUsePlainWeapons(GameTestHelper helper) {
-        FakePlayer fake = FakePlayerFactory.getMinecraft(helper.getLevel());
+        ServerPlayer fake = Platform.get().createFakePlayer(helper.getLevel());
         ItemStack dagger = weapon(WeaponType.DAGGER);
         fake.setItemInHand(InteractionHand.MAIN_HAND, dagger);
         fake.setItemInHand(InteractionHand.OFF_HAND, weapon(WeaponType.DAGGER));
@@ -1101,7 +1094,7 @@ public final class CombatGameTests {
         ItemStack iron = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
         helper.assertTrue(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.IRON_INGOT)), "an iron shield is repaired with iron");
         helper.assertFalse(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.OAK_PLANKS)), "not with planks");
-        helper.assertTrue(iron.is(Tags.Items.TOOLS_SHIELD) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "shield tags should be loaded");
+        helper.assertTrue(iron.is(WeaponMaterial.itemTag("c:tools/shield")) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "shield tags should be loaded");
         helper.succeed();
     }
 
@@ -1258,7 +1251,7 @@ public final class CombatGameTests {
             heal(attacker);
             other.hurt(other.damageSources().mobAttack(attacker), RAW_DAMAGE);
             helper.assertTrue(attacker.getHealth() < TEST_HEALTH, "with a combat mod, any shield block should reflect");
-            helper.assertFalse(weapon(WeaponType.BROADSWORD).supportsEnchantment(enchantment(helper, ModEnchantments.REFLECTIVE)), "with a combat mod, reflective is for shields only");
+            helper.assertFalse(supports(weapon(WeaponType.BROADSWORD), enchantment(helper, ModEnchantments.REFLECTIVE)), "with a combat mod, reflective is for shields only");
         } finally {
             CombatCompat.simulateForTests(false);
         }
@@ -1314,16 +1307,16 @@ public final class CombatGameTests {
         helper.assertFalse(skeleton.hasEffect(ModEffects.BLEEDING.holder()), "skeletons should not bleed");
         Holder<Enchantment> bleeding = enchantment(helper, ModEnchantments.BLEEDING);
         helper.assertFalse(Enchantment.areCompatible(bleeding, enchantment(helper, Enchantments.FIRE_ASPECT)), "bleeding is incompatible with fire aspect");
-        helper.assertFalse(weapon(WeaponType.DAGGER).supportsEnchantment(bleeding), "a dagger cannot bleed");
+        helper.assertFalse(supports(weapon(WeaponType.DAGGER), bleeding), "a dagger cannot bleed");
 
         // Élan raccourcit la recharge du dash.
         helper.assertTrue(Math.abs(ModEnchantments.momentumMultiplier(3) - 0.55D) < EPSILON, "momentum III leaves 55% of the cooldown");
 
         // Reflective et Riposte suivent la capacité configurée, pas un tag figé.
         Holder<Enchantment> reflective = enchantment(helper, ModEnchantments.REFLECTIVE);
-        helper.assertTrue(weapon(WeaponType.BROADSWORD).supportsEnchantment(reflective), "a broadsword parries");
+        helper.assertTrue(supports(weapon(WeaponType.BROADSWORD), reflective), "a broadsword parries");
         ItemStack dagger = weapon(WeaponType.DAGGER);
-        helper.assertFalse(dagger.supportsEnchantment(reflective), "a dagger does not parry");
+        helper.assertFalse(supports(dagger, reflective), "a dagger does not parry");
         WeaponData.Snapshot original = WeaponData.current();
         Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(original.weapons());
         JsonObject parrying = WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, original.weapon(WeaponType.DAGGER)).getOrThrow().getAsJsonObject();
@@ -1331,7 +1324,7 @@ public final class CombatGameTests {
         weapons.put(WeaponType.DAGGER, WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, parrying).getOrThrow());
         try {
             WeaponData.install(new WeaponData.Snapshot(weapons, original.rules(), original.gear()));
-            helper.assertTrue(dagger.supportsEnchantment(reflective), "a dagger configured to parry should accept reflective");
+            helper.assertTrue(supports(dagger, reflective), "a dagger configured to parry should accept reflective");
         } finally {
             WeaponData.install(original);
         }
@@ -1411,7 +1404,7 @@ public final class CombatGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, vampiric);
         player.setHealth(4.0F);
         int stolenBefore = statValue(player, ModStats.HEALTH_STOLEN.get());
-        player.getAttributes().addTransientAttributeModifiers(vampiric.getItem().getDefaultAttributeModifiers(vampiric).modifiers().stream()
+        player.getAttributes().addTransientAttributeModifiers(vampiric.getItem().getDefaultAttributeModifiers().modifiers().stream()
                 .collect(ImmutableMultimap::<Holder<Attribute>, AttributeModifier>builder, (map, entry) -> map.put(entry.attribute(), entry.modifier()), (left, right) -> left.putAll(right.build())).build());
         pig.hurt(player.damageSources().playerAttack(player), RAW_DAMAGE);
         double regained = player.getHealth() - 4.0F;
@@ -1669,14 +1662,20 @@ public final class CombatGameTests {
         }
         helper.assertTrue(recoverable == sturdy.getDamageValue() && recoverable < throwsDone, "only paid throws are recoverable: " + recoverable + " for " + sturdy.getDamageValue() + " durability");
 
-        // Mode créatif : ne s'use pas.
+        // Mode créatif : ne s'use pas. Il faut un vrai joueur serveur : le jeu de base ne vérifie le mode créatif que pour eux.
         ItemStack creative = new ItemStack(iron);
-        Player creativePlayer = thrower(helper, creative, GameType.CREATIVE);
-        creativePlayer.getAbilities().instabuild = true;
-        iron.throwFrom(helper.getLevel(), creativePlayer, InteractionHand.MAIN_HAND, creative);
-        ShurikenEntity creativeShot = thrownBy(helper, creativePlayer).getFirst();
-        helper.assertTrue(creative.getDamageValue() == 0 && creativeShot.pickup == AbstractArrow.Pickup.CREATIVE_ONLY, "creative throws cost nothing");
-        creativeShot.discard();
+        ServerPlayer creativePlayer = helper.makeMockServerPlayerInLevel();
+        try {
+            creativePlayer.setGameMode(GameType.CREATIVE);
+            creativePlayer.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
+            creativePlayer.setItemInHand(InteractionHand.MAIN_HAND, creative);
+            iron.throwFrom(helper.getLevel(), creativePlayer, InteractionHand.MAIN_HAND, creative);
+            ShurikenEntity creativeShot = thrownBy(helper, creativePlayer).getFirst();
+            helper.assertTrue(creative.getDamageValue() == 0 && creativeShot.pickup == AbstractArrow.Pickup.CREATIVE_ONLY, "creative throws cost nothing");
+            creativeShot.discard();
+        } finally {
+            helper.getLevel().getServer().getPlayerList().remove(creativePlayer);
+        }
         helper.succeed();
     }
 
@@ -1687,10 +1686,10 @@ public final class CombatGameTests {
         ItemStack probe = new ItemStack(iron);
         for (ResourceKey<Enchantment> accepted : List.of(Enchantments.POWER, Enchantments.PUNCH, Enchantments.FLAME, Enchantments.PIERCING, Enchantments.MULTISHOT,
                 Enchantments.UNBREAKING, Enchantments.MENDING, ModEnchantments.RETURNING)) {
-            helper.assertTrue(probe.supportsEnchantment(enchantment(helper, accepted)), "a shuriken should accept " + accepted.location());
+            helper.assertTrue(supports(probe, enchantment(helper, accepted)), "a shuriken should accept " + accepted.location());
         }
         for (ResourceKey<Enchantment> refused : List.of(Enchantments.INFINITY, Enchantments.QUICK_CHARGE)) {
-            helper.assertFalse(probe.supportsEnchantment(enchantment(helper, refused)), "a shuriken should refuse " + refused.location());
+            helper.assertFalse(supports(probe, enchantment(helper, refused)), "a shuriken should refuse " + refused.location());
         }
         helper.assertFalse(Enchantment.areCompatible(enchantment(helper, ModEnchantments.RETURNING), enchantment(helper, Enchantments.MENDING)), "Returning and Mending are incompatible");
         helper.assertFalse(Enchantment.areCompatible(enchantment(helper, Enchantments.PIERCING), enchantment(helper, Enchantments.MULTISHOT)), "Piercing or Multishot, not both");
@@ -1959,7 +1958,7 @@ public final class CombatGameTests {
             helper.assertTrue(new ItemStack(ModItems.crossbow(materials[i]).get()).getMaxDamage() == expected[i][1], materials[i] + " crossbow durability");
         }
         ItemStack iron = new ItemStack(ModItems.bow(WeaponMaterials.IRON).get());
-        helper.assertTrue(iron.is(Tags.Items.TOOLS_BOW) && iron.is(ItemTags.BOW_ENCHANTABLE) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "bow tags should be loaded");
+        helper.assertTrue(iron.is(WeaponMaterial.itemTag("c:tools/bow")) && iron.is(ItemTags.BOW_ENCHANTABLE) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "bow tags should be loaded");
         helper.assertTrue(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.IRON_INGOT)), "an iron bow is repaired with iron");
 
         RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
@@ -2173,8 +2172,8 @@ public final class CombatGameTests {
             helper.assertTrue(ParrySystem.parryOf(sai).isEmpty(), "main switch off: no parry");
             helper.assertTrue(ComboSystem.activeCombo(twoHands).isEmpty(), "main switch off: no combo");
             ItemStack hammer = weapon(WeaponType.HAMMER);
-            helper.assertFalse(hammer.getItem().canDisableShield(hammer, new ItemStack(Items.SHIELD), target, twoHands), "main switch off: shields stay up");
-            AABB zone = hammer.getSweepHitBox(twoHands, target);
+            helper.assertFalse(((WeaponItem) hammer.getItem()).canDisableShield(hammer, new ItemStack(Items.SHIELD), target, twoHands), "main switch off: shields stay up");
+            AABB zone = ((WeaponItem) hammer.getItem()).getSweepHitBox(hammer, twoHands, target);
             helper.assertTrue(Math.abs(zone.getXsize() - (target.getBoundingBox().getXsize() + 2.0D)) < EPSILON, "main switch off: vanilla sweep zone");
         } finally {
             WeaponData.install(original);
@@ -2422,35 +2421,6 @@ public final class CombatGameTests {
         helper.succeed();
     }
 
-    /** Réglages 1.x propres à un monde : convertis dans le datapack de l'éditeur, et l'ancien fichier est mis de côté. */
-    @GameTest(template = ARENA)
-    public static void legacyWorldConfigIsConverted(GameTestHelper helper) {
-        try {
-            Path worldRoot = Files.createTempDirectory("better_weaponry_migration");
-            Path legacy = worldRoot.resolve("serverconfig").resolve(LegacyConfigMigration.LEGACY_FILE_NAME);
-            Files.createDirectories(legacy.getParent());
-            Files.writeString(legacy, "[weapon_stats.glaive]\nattack_speed = 2.5\n\n[other]\ndual_wield_speed_multiplier = 3.0\n");
-
-            helper.assertTrue(LegacyConfigMigration.migrateWorld(worldRoot), "the world config should be converted");
-            helper.assertFalse(Files.exists(legacy), "the old file should be moved away");
-            helper.assertTrue(Files.exists(legacy.resolveSibling(LegacyConfigMigration.LEGACY_FILE_NAME + ".old")), "the old file should be kept as .old");
-
-            Path data = EditorFiles.editorPack(worldRoot).resolve("data").resolve(BetterWeaponry.MODID).resolve(WeaponDataLoader.DATA_DIRECTORY);
-            JsonObject glaive = JsonUtil.parseLenient(Files.readString(data.resolve(EditorDocument.weapon(WeaponType.GLAIVE).relativePath()))).getAsJsonObject();
-            helper.assertTrue(glaive.get("attack_speed").getAsDouble() == 2.5D, "the changed value should be converted: " + glaive);
-            JsonObject rules = JsonUtil.parseLenient(Files.readString(data.resolve(EditorDocument.rules().relativePath()))).getAsJsonObject();
-            helper.assertTrue(rules.get(RulesDefinition.DUAL_WIELD_SPEED_MULTIPLIER.name()).getAsDouble() == 3.0D, "the global rule should be converted: " + rules);
-
-            helper.assertFalse(LegacyConfigMigration.migrateWorld(worldRoot), "a converted world should not be converted twice");
-            try (var files = Files.walk(worldRoot)) {
-                files.sorted(java.util.Comparator.reverseOrder()).forEach(file -> file.toFile().delete());
-            }
-        } catch (java.io.IOException e) {
-            helper.fail("could not prepare the world folder: " + e.getMessage());
-        }
-        helper.succeed();
-    }
-
     /** Une recette qui demande un arc, une arbalète ou un bouclier vanilla accepte les versions du mod, quel que soit le matériau. */
     @GameTest(template = ARENA)
     public static void vanillaGearIngredientsAcceptModGear(GameTestHelper helper) {
@@ -2464,8 +2434,8 @@ public final class CombatGameTests {
         helper.assertFalse(bow.test(new ItemStack(ModItems.crossbow(WeaponMaterials.IRON).get())), "a crossbow is not a bow");
         helper.assertFalse(Ingredient.of(Items.STICK).test(netheriteBow), "other ingredients should not change");
         // Reçu d'un serveur : chaque objet est déjà listé, il ne faut pas rajouter le tag.
-        Ingredient received = Ingredient.fromValues(java.util.stream.Stream.of(new Ingredient.ItemValue(new ItemStack(Items.BOW)), new Ingredient.ItemValue(netheriteBow)));
-        helper.assertTrue(received.getValues().length == 2, "an ingredient received from a server should stay as it is");
+        Ingredient received = Ingredient.of(new ItemStack(Items.BOW), netheriteBow);
+        helper.assertTrue(received.getItems().length == 2, "an ingredient received from a server should stay as it is");
         helper.succeed();
     }
 
@@ -2492,6 +2462,10 @@ public final class CombatGameTests {
     }
 
     // --- Outils ---
+
+    private static boolean supports(ItemStack stack, Holder<Enchantment> enchantment) {
+        return Platform.get().supportsEnchantment(stack, enchantment);
+    }
 
     private static long modItemCount() {
         return net.minecraft.core.registries.BuiltInRegistries.ITEM.keySet().stream().filter(id -> id.getNamespace().equals(BetterWeaponry.MODID)).count();

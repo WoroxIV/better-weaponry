@@ -25,6 +25,9 @@ tasks.named('processResources', ProcessResources) {
 dependencies {
     compileOnly 'org.spongepowered:mixin:0.8.5'
     compileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+    // Plugins d'information de JEI et d'EMI : ces mods restent optionnels pour les joueurs.
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "dev.emi:emi-xplat-mojmap:${emi_version}:api"
 }
 
 // Ce que les chargeurs récupèrent : les sources Java et les ressources, compilées et empaquetées chez eux.

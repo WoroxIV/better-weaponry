@@ -122,6 +122,12 @@ public class WeaponItem extends SwordItem {
         return current.modifiers();
     }
 
+    /** Version du jeu de base (sans NeoForge) : les mêmes bonus, recalculés quand les données changent. */
+    @Override
+    public ItemAttributeModifiers getDefaultAttributeModifiers() {
+        return getDefaultAttributeModifiers(ItemStack.EMPTY);
+    }
+
     // Les données stockent les valeurs finales affichées au joueur, on retire donc ses valeurs de base.
     private ItemAttributeModifiers buildModifiers(WeaponDefinition definition, RulesDefinition rules) {
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder()
@@ -231,6 +237,11 @@ public class WeaponItem extends SwordItem {
         ItemStack sameWear = oldStack.copy();
         sameWear.setDamageValue(newStack.getDamageValue());
         return !ItemStack.isSameItemSameComponents(sameWear, newStack);
+    }
+
+    /** Méthode de Fabric : même règle que {@link #shouldCauseReequipAnimation}. */
+    public boolean allowComponentsUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
+        return shouldCauseReequipAnimation(oldStack, newStack, false);
     }
 
     /** Reflective, Riposte et Élan suivent la capacité configurée de l'arme ; les autres enchantements, leur tag. */
