@@ -153,20 +153,27 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
 
     // --- Couches pour l'éditeur ---
 
-    /** Les couches sous lesquelles l'éditeur écrit : seules les différences avec elles sont enregistrées. */
+    /** Les couches que l'éditeur compare entre elles pour savoir quoi écrire. */
     public enum Base {
-        /** Valeurs par défaut des mods (cible "tous les mondes", qui écrit dans config/better_weaponry). */
+        /** Valeurs par défaut des mods. */
         MOD_DEFAULTS,
+        /** Valeurs des mods et dossier config/better_weaponry : ce que la cible "tous les mondes" peut écrire. */
+        CONFIG_FOLDER,
         /** Tout sauf le datapack de l'éditeur (cible "ce monde seulement", qui écrit dans ce datapack). */
-        BELOW_EDITOR_PACK
+        BELOW_EDITOR_PACK,
+        /** Toutes les couches : les valeurs en vigueur dans ce monde. */
+        ALL
     }
 
     /** Fusion des couches qui forment cette base, pour un fichier (ex : "weapons/katana.json"). */
     public static JsonObject mergedJson(ResourceManager resourceManager, FieldSet set, String relativePath, Path configFile, Base base) {
         List<DataProblem> ignored = new ArrayList<>();
-        List<FieldSet.Layer> layers = base == Base.MOD_DEFAULTS
-                ? collectLayers(resourceManager, relativePath, null, false, ignored)
-                : collectLayers(resourceManager, relativePath, configFile, true, ignored);
+        List<FieldSet.Layer> layers = switch (base) {
+            case MOD_DEFAULTS -> collectLayers(resourceManager, relativePath, null, false, ignored);
+            case CONFIG_FOLDER -> collectLayers(resourceManager, relativePath, configFile, false, ignored);
+            case BELOW_EDITOR_PACK -> collectLayers(resourceManager, relativePath, configFile, true, ignored);
+            case ALL -> collectLayers(resourceManager, relativePath, configFile, ignored);
+        };
         return set.merge(layers, ignored);
     }
 

@@ -25,6 +25,7 @@ public abstract class SweepParticleMixin {
 
     @WrapOperation(
             method = "sweepAttack",
+            require = 0,
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I")
     )

@@ -4,6 +4,7 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponDefinition;
+import com.betterweaponry.editor.EditorDocument;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
@@ -13,6 +14,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.neoforged.fml.loading.FMLPaths;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -21,8 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Reprend la config 1.x ({@code config/better_weaponry-server.toml}) dans le nouveau format JSON.
@@ -30,9 +34,12 @@ import java.util.Map;
  * Seules les valeurs différentes des défauts de la 1.1.4 sont copiées dans {@code config/better_weaponry/} :
  * les autres suivront les valeurs du mod, même si elles changent dans une future version.
  * L'ancien fichier est ensuite renommé en {@code .old} pour ne pas être repris deux fois.
+ * Les réglages propres à un monde sont repris séparément ({@link #migrateWorld}).
  */
 public final class LegacyConfigMigration {
     public static final String LEGACY_FILE_NAME = "better_weaponry-server.toml";
+    private static final String SERVER_CONFIG_FOLDER = "serverconfig";
+    private static final String OLD_SUFFIX = ".old";
 
     private record LegacyStats(double attackSpeed, double attackReach, boolean twoHanded, double baseDamage) {
     }
@@ -64,44 +71,83 @@ public final class LegacyConfigMigration {
         Path legacy = FMLPaths.CONFIGDIR.get().resolve(LEGACY_FILE_NAME);
         if (!Files.isRegularFile(legacy)) return;
 
+        Optional<Converted> converted = read(legacy);
+        if (converted.isEmpty()) return;
+
+        try {
+            for (Map.Entry<WeaponType, JsonObject> weapon : converted.get().weapons().entrySet()) {
+                mergeInto(ConfigFolder.weaponFile(weapon.getKey()), weapon.getValue(), "../" + ConfigFolder.WEAPON_SCHEMA);
+            }
+            if (converted.get().rules() != null) {
+                mergeInto(ConfigFolder.rulesFile(), converted.get().rules(), "./" + ConfigFolder.RULES_SCHEMA);
+            }
+
+            Path renamed = legacy.resolveSibling(LEGACY_FILE_NAME + OLD_SUFFIX);
+            Files.move(legacy, renamed, StandardCopyOption.REPLACE_EXISTING);
+            BetterWeaponry.LOGGER.info("[Better Weaponry] Converted the 1.x config: {} weapon type(s) and {} global setting(s) "
+                            + "different from the defaults were copied to {}. The old file was renamed to {}. "
+                            + "Tooltip options are now in better_weaponry-client.toml.",
+                    converted.get().weapons().size(), converted.get().rules() != null ? 1 : 0, ConfigFolder.displayPath(ConfigFolder.root()), renamed.getFileName());
+        } catch (IOException e) {
+            BetterWeaponry.LOGGER.error("[Better Weaponry] Could not convert the 1.x config {}", legacy, e);
+        }
+    }
+
+    /**
+     * La 1.1.4 gardait ses réglages dans chaque monde ({@code <monde>/serverconfig/}). Ils passent dans le datapack
+     * de l'éditeur de ce monde, pour rester propres à ce monde.
+     *
+     * @return vrai si des réglages ont été écrits : le datapack doit alors être activé
+     */
+    public static boolean migrateWorld(Path worldRoot) {
+        Path legacy = worldRoot.resolve(SERVER_CONFIG_FOLDER).resolve(LEGACY_FILE_NAME);
+        if (!Files.isRegularFile(legacy)) return false;
+        Optional<Converted> converted = read(legacy);
+        if (converted.isEmpty()) return false;
+
+        try {
+            for (Map.Entry<WeaponType, JsonObject> weapon : converted.get().weapons().entrySet()) {
+                EditorFiles.writeWorld(worldRoot, EditorDocument.weapon(weapon.getKey()), weapon.getValue());
+            }
+            if (converted.get().rules() != null) EditorFiles.writeWorld(worldRoot, EditorDocument.rules(), converted.get().rules());
+            Files.move(legacy, legacy.resolveSibling(LEGACY_FILE_NAME + OLD_SUFFIX), StandardCopyOption.REPLACE_EXISTING);
+            BetterWeaponry.LOGGER.info("[Better Weaponry] Converted the 1.x settings of this world into its editor data pack ({} weapon type(s)).",
+                    converted.get().weapons().size());
+            return !converted.get().weapons().isEmpty() || converted.get().rules() != null;
+        } catch (IOException e) {
+            BetterWeaponry.LOGGER.error("[Better Weaponry] Could not convert the 1.x config {}", legacy, e);
+            return false;
+        }
+    }
+
+    /** Valeurs d'un ancien fichier qui diffèrent des défauts de la 1.1.4. */
+    private record Converted(Map<WeaponType, JsonObject> weapons, @Nullable JsonObject rules) {
+    }
+
+    private static Optional<Converted> read(Path legacy) {
         CommentedConfig toml;
         try (Reader reader = Files.newBufferedReader(legacy, StandardCharsets.UTF_8)) {
             toml = new TomlParser().parse(reader);
         } catch (Exception e) {
             BetterWeaponry.LOGGER.warn("[Better Weaponry] Could not read the 1.x config {}, it was not converted", legacy, e);
-            return;
+            return Optional.empty();
         }
 
-        try {
-            int weaponsChanged = 0;
-            for (WeaponType type : WeaponType.values()) {
-                LegacyStats defaults = DEFAULTS_1_1_4.get(type.id());
-                if (defaults == null) continue;
-                JsonObject changes = weaponChanges(toml, type, defaults);
-                if (changes.size() > 0) {
-                    mergeInto(ConfigFolder.weaponFile(type), changes, "../" + ConfigFolder.WEAPON_SCHEMA);
-                    weaponsChanged++;
-                }
-            }
-
-            int rulesChanged = 0;
-            Double multiplier = number(toml, "other", "dual_wield_speed_multiplier");
-            if (multiplier != null && !same(multiplier, LEGACY_DUAL_WIELD_MULTIPLIER)) {
-                JsonObject changes = new JsonObject();
-                changes.addProperty(RulesDefinition.DUAL_WIELD_SPEED_MULTIPLIER.name(), multiplier);
-                mergeInto(ConfigFolder.rulesFile(), changes, "./" + ConfigFolder.RULES_SCHEMA);
-                rulesChanged++;
-            }
-
-            Path renamed = legacy.resolveSibling(LEGACY_FILE_NAME + ".old");
-            Files.move(legacy, renamed, StandardCopyOption.REPLACE_EXISTING);
-            BetterWeaponry.LOGGER.info("[Better Weaponry] Converted the 1.x config: {} weapon type(s) and {} global setting(s) "
-                            + "different from the defaults were copied to {}. The old file was renamed to {}. "
-                            + "Tooltip options are now in better_weaponry-client.toml.",
-                    weaponsChanged, rulesChanged, ConfigFolder.displayPath(ConfigFolder.root()), renamed.getFileName());
-        } catch (IOException e) {
-            BetterWeaponry.LOGGER.error("[Better Weaponry] Could not convert the 1.x config {}", legacy, e);
+        Map<WeaponType, JsonObject> weapons = new EnumMap<>(WeaponType.class);
+        for (WeaponType type : WeaponType.values()) {
+            LegacyStats defaults = DEFAULTS_1_1_4.get(type.id());
+            if (defaults == null) continue;
+            JsonObject changes = weaponChanges(toml, type, defaults);
+            if (changes.size() > 0) weapons.put(type, changes);
         }
+
+        JsonObject rules = null;
+        Double multiplier = number(toml, "other", "dual_wield_speed_multiplier");
+        if (multiplier != null && !same(multiplier, LEGACY_DUAL_WIELD_MULTIPLIER)) {
+            rules = new JsonObject();
+            rules.addProperty(RulesDefinition.DUAL_WIELD_SPEED_MULTIPLIER.name(), multiplier);
+        }
+        return Optional.of(new Converted(weapons, rules));
     }
 
     /** Valeurs d'une arme qui diffèrent des défauts de la 1.1.4, au format JSON. */

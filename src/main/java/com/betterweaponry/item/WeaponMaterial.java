@@ -3,6 +3,7 @@ package com.betterweaponry.item;
 import com.betterweaponry.BetterWeaponry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -89,6 +90,16 @@ public final class WeaponMaterial {
     }
 
     /** Ingrédient qui remplace "M" dans les motifs de craft, ou null si le matériau ne se fabrique pas à l'établi. */
+    /**
+     * Vrai si ce matériau a de quoi être fabriqué. Toujours vrai pour un matériau vanilla ; pour un matériau de mod, il
+     * faut que son tag d'ingrédient contienne au moins un objet (les tags doivent être chargés).
+     */
+    public boolean hasIngredients() {
+        if (!isModded()) return true;
+        TagKey<Item> tag = craftingIngredient != null ? craftingIngredient.tag() : smithingUpgrade.addition().tag();
+        return BuiltInRegistries.ITEM.getTag(tag).map(items -> items.size() > 0).orElse(false);
+    }
+
     @Nullable
     public MaterialIngredient craftingIngredient() {
         return craftingIngredient;

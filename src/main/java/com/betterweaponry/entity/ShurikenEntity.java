@@ -117,7 +117,8 @@ public class ShurikenEntity extends AbstractArrow {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        this.keepOnRemoval = true;
+        // Un shuriken qu'on ne peut pas récupérer (mob, Tir multiple) disparaît à l'impact, comme une flèche.
+        this.keepOnRemoval = this.pickup == Pickup.ALLOWED;
         try {
             super.onHitEntity(result);
         } finally {
@@ -150,8 +151,11 @@ public class ShurikenEntity extends AbstractArrow {
     protected boolean tryPickup(Player player) {
         if (this.pickup != Pickup.ALLOWED) return super.tryPickup(player);
         if (!ownedBy(player)) return false;
-        // Revenu vers un joueur qui n'a plus l'objet : il disparaît au lieu de le suivre sans fin.
-        return ShurikenItem.recover(player, getPickupItemStackOrigin()) || isNoPhysics();
+        if (ShurikenItem.recover(player, getPickupItemStackOrigin())) return true;
+        if (!isNoPhysics()) return false;
+        // Revenu vers un joueur qui ne peut pas le reprendre : il disparaît au lieu de le suivre sans fin, sans perdre l'objet.
+        ShurikenItem.dropIfBroken(player, getPickupItemStackOrigin());
+        return true;
     }
 
     /** Ramassage direct, pour les tests. */

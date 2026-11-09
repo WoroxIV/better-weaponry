@@ -110,6 +110,7 @@
   "better_weaponry.editor.move_up": "Mover para cima",
   "better_weaponry.editor.no_permission": "Só os operadores podem alterar as configurações das armas.",
   "better_weaponry.editor.overridden": "Substituído por uma configuração com prioridade maior: %s",
+  "better_weaponry.editor.pack_failed": "O arquivo %s foi gravado, mas o pacote de dados do mundo não pôde ser ativado. Use /reload ou reabra o mundo.",
   "better_weaponry.editor.paste": "Colar JSON",
   "better_weaponry.editor.paste.tooltip": "Aplica o JSON da área de transferência a este arquivo. Campos inválidos são ignorados.",
   "better_weaponry.editor.preset.applied": "%s aplicado. Nada muda até salvar.",

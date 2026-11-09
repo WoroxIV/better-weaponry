@@ -17,8 +17,9 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  * @param documentId id du type d'arme, ou "rules"
  * @param target     {@link EditorTarget} (index)
  * @param json       valeurs complètes du fichier
+ * @param last       dernier fichier de ce clic sur Enregistrer : le serveur recharge alors les données, une seule fois
  */
-public record SaveDocumentPayload(String documentId, int target, String json) implements CustomPacketPayload {
+public record SaveDocumentPayload(String documentId, int target, String json, boolean last) implements CustomPacketPayload {
     public static final Type<SaveDocumentPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "save_document"));
 
     private static final int MAX_ID_LENGTH = 64;
@@ -29,6 +30,7 @@ public record SaveDocumentPayload(String documentId, int target, String json) im
             ByteBufCodecs.stringUtf8(MAX_ID_LENGTH), SaveDocumentPayload::documentId,
             ByteBufCodecs.VAR_INT, SaveDocumentPayload::target,
             ByteBufCodecs.stringUtf8(MAX_JSON_LENGTH), SaveDocumentPayload::json,
+            ByteBufCodecs.BOOL, SaveDocumentPayload::last,
             SaveDocumentPayload::new);
 
     @Override
@@ -39,7 +41,7 @@ public record SaveDocumentPayload(String documentId, int target, String json) im
     public static void handle(SaveDocumentPayload payload, IPayloadContext context) {
         context.enqueueWork(() -> {
             if (context.player() instanceof ServerPlayer player) {
-                EditorService.handleSave(player, payload.documentId(), EditorTarget.byIndex(payload.target()), payload.json());
+                EditorService.handleSave(player, payload.documentId(), EditorTarget.byIndex(payload.target()), payload.json(), payload.last());
             }
         });
     }

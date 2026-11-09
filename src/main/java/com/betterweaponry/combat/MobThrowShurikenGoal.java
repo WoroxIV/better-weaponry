@@ -15,8 +15,12 @@ public class MobThrowShurikenGoal extends Goal {
     private static final int THROW_INTERVAL_TICKS = 30;
     private static final double APPROACH_SPEED = 1.0D;
 
+    /** Recalculer un chemin à chaque tick coûte cher quand la cible est inaccessible. */
+    private static final int REPATH_INTERVAL_TICKS = 10;
+
     private final PathfinderMob mob;
     private int cooldown;
+    private int repathDelay;
 
     public MobThrowShurikenGoal(PathfinderMob mob) {
         this.mob = mob;
@@ -56,9 +60,13 @@ public class MobThrowShurikenGoal extends Goal {
         this.mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
         boolean inSight = this.mob.getSensing().hasLineOfSight(target);
         if (this.mob.distanceToSqr(target) > RANGE_SQUARED || !inSight) {
-            this.mob.getNavigation().moveTo(target, APPROACH_SPEED);
+            if (--this.repathDelay <= 0) {
+                this.repathDelay = REPATH_INTERVAL_TICKS;
+                this.mob.getNavigation().moveTo(target, APPROACH_SPEED);
+            }
             return;
         }
+        this.repathDelay = 0;
         this.mob.getNavigation().stop();
         if (--this.cooldown > 0) return;
         this.cooldown = THROW_INTERVAL_TICKS;

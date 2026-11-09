@@ -44,6 +44,12 @@ public final class EditorService {
     private static final int MAX_OVERRIDDEN_SHOWN = 3;
     private static final String KEY = BetterWeaponry.MODID + ".editor.";
 
+    /** Fichiers écrits en attente du rechargement du lot (thread du serveur uniquement). */
+    private static final List<Written> batch = new ArrayList<>();
+
+    private record Written(EditorDocument document, JsonObject requested, Path file, EditorTarget target, Consumer<Outcome> done) {
+    }
+
     private EditorService() {
     }
 
@@ -55,22 +61,40 @@ public final class EditorService {
         return player.hasPermissions(OPERATOR_LEVEL) || player.server.isSingleplayerOwner(player.getGameProfile());
     }
 
-    /** Paquet reçu d'un joueur : vérifie ses droits, enregistre, puis lui répond. */
-    public static void handleSave(ServerPlayer player, String documentId, EditorTarget target, String json) {
+    /**
+     * Paquet reçu d'un joueur : vérifie ses droits, enregistre, puis lui répond.
+     *
+     * @param last dernier fichier de ce clic sur Enregistrer : c'est lui qui déclenche le rechargement
+     */
+    public static void handleSave(ServerPlayer player, String documentId, EditorTarget target, String json, boolean last) {
         if (!canEdit(player)) {
             reply(player, documentId, new Outcome(false, Component.translatable(KEY + "no_permission")));
+            if (last) finishBatch(player.server);
             return;
         }
-        save(player.server, documentId, target, json, outcome -> reply(player, documentId, outcome));
+        save(player.server, documentId, target, json, last, outcome -> reply(player, documentId, outcome));
+    }
+
+    /** Enregistre un seul fichier et recharge aussitôt (voir {@link #save(MinecraftServer, String, EditorTarget, String, boolean, Consumer)}). */
+    public static void save(MinecraftServer server, String documentId, EditorTarget target, String json, Consumer<Outcome> done) {
+        save(server, documentId, target, json, true, done);
     }
 
     /**
-     * Enregistre un fichier modifié dans l'éditeur. Le résultat est donné à {@code done} sur le thread du serveur
-     * (tout de suite, ou après l'activation du datapack de l'éditeur).
+     * Écrit un fichier modifié dans l'éditeur. Le rechargement n'a lieu qu'au dernier fichier du lot, pour qu'un clic
+     * sur Enregistrer ne recharge les données qu'une fois. Le résultat est donné à {@code done} sur le thread du serveur
+     * (tout de suite en cas de refus, sinon après le rechargement).
      *
      * @param json valeurs complètes du fichier telles qu'affichées dans l'éditeur
+     * @param last dernier fichier du lot
      */
-    public static void save(MinecraftServer server, String documentId, EditorTarget target, String json, Consumer<Outcome> done) {
+    public static void save(MinecraftServer server, String documentId, EditorTarget target, String json, boolean last, Consumer<Outcome> done) {
+        write(server, documentId, target, json, done);
+        if (last) finishBatch(server);
+    }
+
+    /** Vérifie et écrit un fichier ; une réussite attend le rechargement dans {@link #batch}. */
+    private static void write(MinecraftServer server, String documentId, EditorTarget target, String json, Consumer<Outcome> done) {
         Optional<EditorDocument> found = EditorDocument.byId(documentId);
         if (found.isEmpty()) {
             done.accept(failure("unknown_document", documentId));
@@ -92,30 +116,59 @@ public final class EditorService {
         }
         JsonObject requested = JsonTree.expand(document.fields(), valid);
 
-        WeaponDataLoader.Base base = target == EditorTarget.ALL_WORLDS ? WeaponDataLoader.Base.MOD_DEFAULTS : WeaponDataLoader.Base.BELOW_EDITOR_PACK;
-        JsonObject below = JsonTree.expand(document.fields(), WeaponDataLoader.mergedJson(server.getResourceManager(),
-                document.fields(), document.relativePath(), document.configFile(), base));
-        JsonObject differences = JsonTree.diff(document.fields(), requested, below);
-
         Path file;
         try {
-            file = target == EditorTarget.ALL_WORLDS
-                    ? EditorFiles.writeGlobal(document, differences)
-                    : EditorFiles.writeWorld(server.getWorldPath(LevelResource.ROOT), document, differences);
+            if (target == EditorTarget.ALL_WORLDS) {
+                file = EditorFiles.writeGlobal(document, globalDifferences(document.fields(), requested, layer(server, document, WeaponDataLoader.Base.ALL),
+                        layer(server, document, WeaponDataLoader.Base.CONFIG_FOLDER), layer(server, document, WeaponDataLoader.Base.MOD_DEFAULTS)));
+            } else {
+                JsonObject differences = JsonTree.diff(document.fields(), requested, layer(server, document, WeaponDataLoader.Base.BELOW_EDITOR_PACK));
+                file = EditorFiles.writeWorld(server.getWorldPath(LevelResource.ROOT), document, differences);
+            }
         } catch (IOException e) {
             BetterWeaponry.LOGGER.error("[Better Weaponry] The editor could not write {}", document.relativePath(), e);
             done.accept(failure("write_failed", e.getMessage()));
             return;
         }
+        batch.add(new Written(document, requested, file, target, done));
+    }
 
-        Runnable finish = () -> done.accept(outcomeAfterReload(document, requested, file));
-        if (target == EditorTarget.THIS_WORLD && !server.getPackRepository().getSelectedIds().contains(WeaponDataLoader.EDITOR_PACK_ID)) {
+    private static JsonObject layer(MinecraftServer server, EditorDocument document, WeaponDataLoader.Base base) {
+        return JsonTree.expand(document.fields(), WeaponDataLoader.mergedJson(server.getResourceManager(),
+                document.fields(), document.relativePath(), document.configFile(), base));
+    }
+
+    /**
+     * Ce que la cible "tous les mondes" écrit : la config actuelle, plus ce que l'utilisateur vient de changer.
+     * Une valeur qui vient seulement d'un datapack du monde est affichée dans l'éditeur, mais ne doit pas passer dans la
+     * config globale, sinon elle s'appliquerait à tous les mondes.
+     *
+     * @param requested    valeurs envoyées par l'éditeur
+     * @param effective    valeurs en vigueur dans ce monde
+     * @param configFolder valeurs des mods et du dossier de config
+     * @param modDefaults  valeurs des mods seuls
+     */
+    public static JsonObject globalDifferences(FieldSet fields, JsonObject requested, JsonObject effective, JsonObject configFolder, JsonObject modDefaults) {
+        JsonObject changedByUser = JsonTree.diff(fields, requested, effective);
+        return JsonTree.diff(fields, JsonTree.overlay(fields, configFolder, changedByUser), modDefaults);
+    }
+
+    /** Recharge une seule fois pour tout le lot, puis donne leur résultat aux fichiers écrits. */
+    private static void finishBatch(MinecraftServer server) {
+        if (batch.isEmpty()) return;
+        List<Written> written = List.copyOf(batch);
+        batch.clear();
+
+        boolean packMissing = !server.getPackRepository().getSelectedIds().contains(WeaponDataLoader.EDITOR_PACK_ID);
+        if (packMissing && written.stream().anyMatch(entry -> entry.target() == EditorTarget.THIS_WORLD)) {
             // Premier réglage propre à ce monde : le datapack vient d'être créé, il faut l'activer (rechargement complet,
             // qui envoie aussi les nouvelles données aux joueurs).
-            enableEditorPack(server).whenComplete((ignored, error) -> server.execute(finish));
+            enableEditorPack(server).whenComplete((ignored, error) -> server.execute(() -> written.forEach(entry -> entry.done().accept(error == null
+                    ? outcomeAfterReload(entry.document(), entry.requested(), entry.file())
+                    : failure("pack_failed", EditorFiles.displayPath(entry.file()))))));
         } else {
             reloadWeaponData(server);
-            finish.run();
+            written.forEach(entry -> entry.done().accept(outcomeAfterReload(entry.document(), entry.requested(), entry.file())));
         }
     }
 
@@ -145,7 +198,8 @@ public final class EditorService {
         return new Outcome(true, saved.copy().append(" ").append(Component.translatable(KEY + "overridden", shown)));
     }
 
-    private static CompletableFuture<Void> enableEditorPack(MinecraftServer server) {
+    /** Active le datapack de l'éditeur sans attendre le prochain lancement du monde. */
+    public static CompletableFuture<Void> enableEditorPack(MinecraftServer server) {
         PackRepository repository = server.getPackRepository();
         repository.reload();
         List<String> selected = new ArrayList<>(repository.getSelectedIds());

@@ -1,6 +1,7 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.item.WeaponItem;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -15,5 +16,12 @@ public final class TwoHandedSystem {
     /** Toujours faux si les armes à deux mains sont coupées (rules.json, Better Combat, Epic Fight). */
     public static boolean isOffhandLocked(Player player) {
         return WeaponItem.isTwoHanded(player.getMainHandItem());
+    }
+
+    /** Un bouclier levé avant de passer à une arme à deux mains ne doit pas continuer à bloquer, caché. */
+    public static void stopLockedOffhandUse(Player player) {
+        if (player.isUsingItem() && player.getUsedItemHand() == InteractionHand.OFF_HAND && isOffhandLocked(player)) {
+            player.stopUsingItem();
+        }
     }
 }

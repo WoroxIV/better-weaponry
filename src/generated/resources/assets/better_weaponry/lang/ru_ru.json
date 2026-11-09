@@ -110,6 +110,7 @@
   "better_weaponry.editor.move_up": "Выше",
   "better_weaponry.editor.no_permission": "Только операторы могут менять настройки оружия.",
   "better_weaponry.editor.overridden": "Заменено настройкой с более высоким приоритетом: %s",
+  "better_weaponry.editor.pack_failed": "Файл %s записан, но не удалось активировать набор данных мира. Выполните /reload или откройте мир заново.",
   "better_weaponry.editor.paste": "Вставить JSON",
   "better_weaponry.editor.paste.tooltip": "Применяет JSON из буфера обмена к этому файлу. Неверные поля пропускаются.",
   "better_weaponry.editor.preset.applied": "%s применено. Изменения вступят в силу после сохранения.",

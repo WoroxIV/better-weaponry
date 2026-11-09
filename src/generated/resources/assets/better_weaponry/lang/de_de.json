@@ -110,6 +110,7 @@
   "better_weaponry.editor.move_up": "Nach oben",
   "better_weaponry.editor.no_permission": "Nur Operatoren können die Waffeneinstellungen ändern.",
   "better_weaponry.editor.overridden": "Durch eine Einstellung mit höherer Priorität ersetzt: %s",
+  "better_weaponry.editor.pack_failed": "Die Datei %s wurde geschrieben, aber das Datenpaket der Welt konnte nicht aktiviert werden. Führe /reload aus oder öffne die Welt erneut.",
   "better_weaponry.editor.paste": "JSON einfügen",
   "better_weaponry.editor.paste.tooltip": "Wendet das JSON aus der Zwischenablage auf diese Datei an. Ungültige Felder werden ignoriert.",
   "better_weaponry.editor.preset.applied": "%s angewendet. Erst nach dem Speichern wirksam.",

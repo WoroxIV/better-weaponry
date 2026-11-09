@@ -12,6 +12,7 @@ import com.betterweaponry.item.WeaponItem;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -58,6 +59,7 @@ public abstract class PlayerCombatMixin implements ICombatPlayer {
         }
 
         ComboSystem.Hit hit = ComboSystem.beginHit(player, state);
+        state.attackLanded = false;
         state.lastAttackStrength = hit.strength();
         boolean special = hit.special();
         boolean dualWielding = DualWieldSystem.isDualWielding(player);
@@ -84,12 +86,21 @@ public abstract class PlayerCombatMixin implements ICombatPlayer {
                 original.call(target);
             }
         } finally {
-            ComboSystem.endHit(player, state, hit);
+            ComboSystem.endHit(player, state, hit, target);
         }
     }
 
-    /** Rayon du coup balayé d'un objet adopté par un fichier d'arme ({@code WeaponItem} règle le sien lui-même). */
+    /** Note si la cible principale a encaissé le coup. Le coup balayé passe par LivingEntity.hurt, il n'est donc pas compté ici. */
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
+    private boolean betterweaponry$rememberHit(Entity target, DamageSource source, float amount, Operation<Boolean> original) {
+        boolean landed = original.call(target, source, amount);
+        betterweaponry$combat.attackLanded = landed;
+        return landed;
+    }
+
+    /** Rayon du coup balayé d'un objet adopté par un fichier d'arme ({@code WeaponItem} règle le sien lui-même). */
+    @WrapOperation(method = "attack", require = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/item/ItemStack;getSweepHitBox(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/AABB;"))
     private AABB betterweaponry$adoptedSweepZone(ItemStack stack, Player player, Entity target, Operation<AABB> original) {
         if (WeaponData.rules().sweepActive() && WeaponProfiles.isAdopted(stack)) {

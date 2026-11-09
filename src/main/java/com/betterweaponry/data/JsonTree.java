@@ -66,6 +66,22 @@ public final class JsonTree {
         return result;
     }
 
+    /** Copie de {@code base} où les valeurs de {@code changes} remplacent les siennes : objets champ par champ, listes en entier. */
+    public static JsonObject overlay(FieldSet set, JsonObject base, JsonObject changes) {
+        JsonObject result = base.deepCopy();
+        for (DataField<?> field : set.fields()) {
+            JsonElement change = changes.get(field.name());
+            if (change == null) continue;
+            JsonElement current = result.get(field.name());
+            if (field.kind() == DataField.Kind.OBJECT && change.isJsonObject() && current != null && current.isJsonObject()) {
+                result.add(field.name(), overlay(field.children(), current.getAsJsonObject(), change.getAsJsonObject()));
+            } else {
+                result.add(field.name(), change.deepCopy());
+            }
+        }
+        return result;
+    }
+
     /** Chemins des valeurs d'un diff, ex : ["attack_speed", "sweep.radius"]. */
     public static List<String> paths(JsonObject diff) {
         List<String> paths = new ArrayList<>();

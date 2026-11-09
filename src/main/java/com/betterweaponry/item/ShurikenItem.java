@@ -40,6 +40,7 @@ public class ShurikenItem extends Item implements RangedWeapon {
     /** Les mobs visent plus haut de 20 % de la distance pour une flèche à 1,6 de vitesse : la marge varie selon la vitesse. */
     private static final double MOB_REFERENCE_SPEED = 1.6D;
     private static final float MOB_INACCURACY = 6.0F;
+    private static final int MAX_REMEMBERED_BROKEN = 64;
 
     private final WeaponMaterial material;
 
@@ -134,20 +135,34 @@ public class ShurikenItem extends Item implements RangedWeapon {
                 return true;
             }
         }
+        return recreate(player, thrown, batch.get(), false);
+    }
+
+    /** Shuriken revenu vers un inventaire plein : s'il avait été cassé par ce lancer, il tombe aux pieds du joueur. */
+    public static void dropIfBroken(Player player, ItemStack thrown) {
+        batchOf(thrown).ifPresent(batch -> recreate(player, thrown, batch, true));
+    }
+
+    private static boolean recreate(Player player, ItemStack thrown, UUID batch, boolean dropIfFull) {
         List<UUID> broken = player.getData(ModAttachments.BROKEN_SHURIKENS);
-        if (!broken.contains(batch.get())) return false;
+        if (!broken.contains(batch)) return false;
         ItemStack recreated = thrown.copyWithCount(1);
         recreated.setDamageValue(recreated.getMaxDamage() - 1);
-        if (!player.getInventory().add(recreated)) return false;
+        if (!player.getInventory().add(recreated)) {
+            if (!dropIfFull) return false;
+            player.spawnAtLocation(recreated);
+        }
         List<UUID> remaining = new ArrayList<>(broken);
-        remaining.remove(batch.get());
+        remaining.remove(batch);
         player.setData(ModAttachments.BROKEN_SHURIKENS, List.copyOf(remaining));
         return true;
     }
 
+    /** Les plus anciens sont oubliés : un shuriken tombé dans le vide ne doit pas rester dans les données du joueur pour toujours. */
     private static void rememberBroken(Player player, UUID batch) {
         List<UUID> broken = new ArrayList<>(player.getData(ModAttachments.BROKEN_SHURIKENS));
         broken.add(batch);
+        if (broken.size() > MAX_REMEMBERED_BROKEN) broken.subList(0, broken.size() - MAX_REMEMBERED_BROKEN).clear();
         player.setData(ModAttachments.BROKEN_SHURIKENS, List.copyOf(broken));
     }
 

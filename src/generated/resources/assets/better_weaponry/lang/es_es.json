@@ -110,6 +110,7 @@
   "better_weaponry.editor.move_up": "Subir",
   "better_weaponry.editor.no_permission": "Solo los operadores pueden cambiar los ajustes de las armas.",
   "better_weaponry.editor.overridden": "Sustituido por un ajuste con más prioridad: %s",
+  "better_weaponry.editor.pack_failed": "El archivo %s se ha escrito, pero no se ha podido activar el paquete de datos del mundo. Usa /reload o vuelve a abrir el mundo.",
   "better_weaponry.editor.paste": "Pegar JSON",
   "better_weaponry.editor.paste.tooltip": "Aplica el JSON del portapapeles a este archivo. Los campos no válidos se ignoran.",
   "better_weaponry.editor.preset.applied": "%s aplicado. Nada cambia hasta guardar.",

@@ -6,6 +6,7 @@ import net.minecraft.world.InteractionHand;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /**
  * Empêche toute utilisation de la main secondaire pendant qu'on tient une arme à deux mains.
@@ -39,6 +40,12 @@ public final class TwoHandedEventHandler {
     @SubscribeEvent
     public static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
         if (isLockedOffhand(event)) event.setCanceled(true);
+    }
+
+    /** Une utilisation commencée avant de prendre l'arme à deux mains : côté client et côté serveur. */
+    @SubscribeEvent
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        TwoHandedSystem.stopLockedOffhandUse(event.getEntity());
     }
 
     private static boolean isLockedOffhand(PlayerInteractEvent event) {

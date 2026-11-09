@@ -401,6 +401,7 @@
     "better_weaponry.editor.unreadable": "Не удалось прочитать данные, отправленные для %s.",
     "better_weaponry.editor.invalid": "Не сохранено: %s",
     "better_weaponry.editor.write_failed": "Не удалось записать файл: %s",
+    "better_weaponry.editor.pack_failed": "Файл %s записан, но не удалось активировать набор данных мира. Выполните /reload или откройте мир заново.",
     "better_weaponry.editor.saved": "Сохранено в %s.",
     "better_weaponry.editor.overridden": "Заменено настройкой с более высоким приоритетом: %s",
     "better_weaponry.command.no_permission": "Только операторы могут открыть редактор. Используйте /betterweaponry codex, чтобы посмотреть характеристики оружия.",

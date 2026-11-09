@@ -57,6 +57,7 @@ public final class ModEnchantments {
     private static final double VAMPIRISM_CURVE = 2.0D;
     public static final double RIPOSTE_PERCENT_PER_LEVEL = 25.0D;
     private static final double MOMENTUM_PER_LEVEL = 0.15D;
+    private static final double MOMENTUM_MIN_MULTIPLIER = 0.25D;
     public static final double EXECUTION_PER_LEVEL = 0.1D;
     public static final double EXECUTION_HEALTH_THRESHOLD = 0.3D;
     /** Recul de base d'un coup renvoyé, comme un coup normal. */
@@ -100,8 +101,9 @@ public final class ModEnchantments {
         return VAMPIRISM_CURVE * Math.log1p(damage * level * VAMPIRISM_PER_LEVEL / VAMPIRISM_CURVE);
     }
 
+    /** Borné : un niveau obtenu par commande ou par un mod ne doit pas supprimer la recharge. */
     public static double momentumMultiplier(int level) {
-        return 1.0D - level * MOMENTUM_PER_LEVEL;
+        return Math.max(MOMENTUM_MIN_MULTIPLIER, 1.0D - level * MOMENTUM_PER_LEVEL);
     }
 
     /** L'attaquant s'il a frappé lui-même au corps à corps : ni projectile, ni dégâts renvoyés. */

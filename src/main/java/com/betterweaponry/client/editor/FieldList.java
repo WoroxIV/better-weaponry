@@ -269,7 +269,10 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
             boolean number = field.kind() == DataField.Kind.NUMBER || field.kind() == DataField.Kind.INTEGER;
             EditBox box = new EditBox(font(), 0, 0, number ? NUMBER_WIDTH : TEXT_WIDTH, WIDGET_HEIGHT, label);
             box.setMaxLength(1024);
-            box.setValue(displayText());
+            // Une saisie invalide survit à un changement de page : sinon la case afficherait une valeur correcte tout en bloquant Enregistrer.
+            String invalidText = model.invalidText(documentId, path);
+            box.setValue(invalidText != null ? invalidText : displayText());
+            if (invalidText != null) box.setTextColor(INVALID_COLOR);
             box.setEditable(editable);
             box.setResponder(this::onTextChanged);
             return box;
@@ -281,7 +284,7 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
             if (valid) {
                 model.set(documentId, path, parsed.get());
             } else {
-                model.setInvalid(documentId, path, true);
+                model.setInvalid(documentId, path, text);
             }
             ((EditBox) editor).setTextColor(valid ? TEXT_COLOR : INVALID_COLOR);
         }

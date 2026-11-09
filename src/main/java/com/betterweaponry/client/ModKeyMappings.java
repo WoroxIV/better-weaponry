@@ -16,9 +16,9 @@ public final class ModKeyMappings {
     public static final KeyMapping WEAPON_DETAILS = new KeyMapping("key." + BetterWeaponry.MODID + ".weapon_details",
             KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_SHIFT, CATEGORY);
 
-    /** Ouvre le tutoriel qui vient d'être proposé, sinon la liste des tutoriels. */
+    /** Ouvre le tutoriel qui vient d'être proposé, sinon la liste des tutoriels. Pas K : c'est la touche des shaders d'Iris. */
     public static final KeyMapping OPEN_TUTORIAL = new KeyMapping("key." + BetterWeaponry.MODID + ".open_tutorial",
-            KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, CATEGORY);
+            KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, CATEGORY);
 
     private ModKeyMappings() {
     }

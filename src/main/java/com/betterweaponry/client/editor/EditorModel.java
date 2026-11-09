@@ -8,11 +8,10 @@ import com.google.gson.JsonObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -26,8 +25,8 @@ final class EditorModel {
     private final Map<String, JsonObject> working = new LinkedHashMap<>();
     private final Map<String, JsonObject> saved = new LinkedHashMap<>();
     private final Map<String, JsonObject> defaults = new LinkedHashMap<>();
-    /** Saisies invalides : "id du fichier|chemin". */
-    private final Set<String> invalid = new HashSet<>();
+    /** Saisies invalides : "id du fichier|chemin" → texte tapé, pour le retrouver quand la ligne est reconstruite. */
+    private final Map<String, String> invalid = new HashMap<>();
     /** Augmente à chaque modification (pour recalculer ce qui en dépend, comme le DPS affiché). */
     private int version;
 
@@ -78,14 +77,14 @@ final class EditorModel {
 
     void set(String id, FieldPath path, JsonElement value) {
         path.set(working.get(id), value);
-        setInvalid(id, path, false);
+        invalid.remove(id + "|" + path.key());
         version++;
     }
 
     /** Remplace toutes les valeurs d'un fichier (coller, réinitialiser, réponse du serveur). */
     void replace(String id, JsonObject values) {
         working.put(id, values.deepCopy());
-        invalid.removeIf(key -> key.startsWith(id + "|"));
+        invalid.keySet().removeIf(key -> key.startsWith(id + "|"));
         version++;
     }
 
@@ -114,18 +113,22 @@ final class EditorModel {
         return ids;
     }
 
-    void setInvalid(String id, FieldPath path, boolean isInvalid) {
-        String key = id + "|" + path.key();
-        if (isInvalid) invalid.add(key);
-        else invalid.remove(key);
+    void setInvalid(String id, FieldPath path, String typedText) {
+        invalid.put(id + "|" + path.key(), typedText);
     }
 
     boolean isInvalid(String id, FieldPath path) {
-        return invalid.contains(id + "|" + path.key());
+        return invalid.containsKey(id + "|" + path.key());
+    }
+
+    /** Texte invalide tapé à cet endroit, ou null s'il n'y en a pas. */
+    @Nullable
+    String invalidText(String id, FieldPath path) {
+        return invalid.get(id + "|" + path.key());
     }
 
     boolean hasInvalid(String id) {
-        return invalid.stream().anyMatch(key -> key.startsWith(id + "|"));
+        return invalid.keySet().stream().anyMatch(key -> key.startsWith(id + "|"));
     }
 
     boolean anyInvalid() {
@@ -135,6 +138,6 @@ final class EditorModel {
     /** Les saisies invalides d'une liste ne suivent pas ses éléments quand on les déplace : on les oublie. */
     void clearInvalidUnder(String id, FieldPath path) {
         String prefix = id + "|" + path.key();
-        invalid.removeIf(key -> key.startsWith(prefix));
+        invalid.keySet().removeIf(key -> key.startsWith(prefix));
     }
 }

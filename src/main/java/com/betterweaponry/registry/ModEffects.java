@@ -38,14 +38,15 @@ public final class ModEffects {
             super(MobEffectCategory.HARMFUL, COLOR);
         }
 
+        /** Chaque tick : le rythme suit l'âge de la cible ({@code applyEffectTick}), car chaque coup remet la durée à zéro. */
         @Override
         public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
-            return duration % INTERVAL_TICKS == 0;
+            return true;
         }
 
         @Override
         public boolean applyEffectTick(LivingEntity entity, int amplifier) {
-            if (entity.level() instanceof ServerLevel level) {
+            if (entity.tickCount % INTERVAL_TICKS == 0 && entity.level() instanceof ServerLevel level) {
                 // Le saignement ne doit pas protéger la cible contre le coup suivant.
                 int invulnerability = entity.invulnerableTime;
                 entity.hurt(new DamageSource(level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(BLEEDING_DAMAGE)), DAMAGE);

@@ -110,6 +110,7 @@
   "better_weaponry.editor.move_up": "Move up",
   "better_weaponry.editor.no_permission": "Only operators can change the weapon settings.",
   "better_weaponry.editor.overridden": "Overridden by a setting with a higher priority: %s",
+  "better_weaponry.editor.pack_failed": "The file %s was written, but the world's data pack could not be activated. Run /reload or reopen the world.",
   "better_weaponry.editor.paste": "Paste JSON",
   "better_weaponry.editor.paste.tooltip": "Apply the JSON of the clipboard to this file. Invalid fields are ignored.",
   "better_weaponry.editor.preset.applied": "%s applied. Nothing changes until you save.",

@@ -15,6 +15,7 @@ import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModEntities;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -28,6 +29,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -55,6 +57,7 @@ public final class BetterWeaponryClient {
         modEventBus.addListener(BetterWeaponryClient::registerKeyMappings);
         modEventBus.addListener(BetterWeaponryClient::clientSetup);
         NeoForge.EVENT_BUS.addListener(BetterWeaponryClient::onLoggingOut);
+        NeoForge.EVENT_BUS.addListener(BetterWeaponryClient::onScreenOpening);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -100,5 +103,10 @@ public final class BetterWeaponryClient {
     /** En quittant un serveur, on oublie ses stats : on revient aux valeurs par défaut du mod. */
     private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         WeaponData.resetToBuiltin();
+    }
+
+    /** Une connexion qui échoue pendant le chargement ne déclenche pas LoggingOut, alors que les stats du serveur sont déjà reçues. */
+    private static void onScreenOpening(ScreenEvent.Opening event) {
+        if (event.getNewScreen() instanceof TitleScreen && Minecraft.getInstance().level == null) WeaponData.resetToBuiltin();
     }
 }

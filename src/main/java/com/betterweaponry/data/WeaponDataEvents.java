@@ -2,6 +2,7 @@ package com.betterweaponry.data;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.config.LegacyConfigMigration;
+import com.betterweaponry.editor.EditorService;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.network.WeaponDataSyncPayload;
 import net.minecraft.ChatFormatting;
@@ -13,11 +14,9 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 /** Branche le chargement des données sur le jeu : rechargement, synchronisation, messages d'erreur. */
@@ -54,15 +53,11 @@ public final class WeaponDataEvents {
         });
     }
 
-    /** Un ancien réglage propre à un monde (serverconfig) n'est pas repris automatiquement : on le signale. */
+    /** Reprend les réglages 1.x propres à ce monde. Après le démarrage : les datapacks sont déjà chargés avant ServerAboutToStart. */
     @SubscribeEvent
-    public static void onServerAboutToStart(ServerAboutToStartEvent event) {
+    public static void onServerStarted(ServerStartedEvent event) {
         MinecraftServer server = event.getServer();
-        Path legacy = server.getWorldPath(LevelResource.ROOT).resolve("serverconfig").resolve(LegacyConfigMigration.LEGACY_FILE_NAME);
-        if (Files.isRegularFile(legacy)) {
-            BetterWeaponry.LOGGER.warn("[Better Weaponry] {} is a 1.x config specific to this world. It is no longer read: "
-                    + "copy its changed values into a data pack (data/better_weaponry/better_weaponry/weapons/<weapon>.json).", legacy);
-        }
+        if (LegacyConfigMigration.migrateWorld(server.getWorldPath(LevelResource.ROOT))) EditorService.enableEditorPack(server);
     }
 
     /** Les opérateurs, et le joueur qui héberge une partie solo (même sans triches), voient les erreurs. */

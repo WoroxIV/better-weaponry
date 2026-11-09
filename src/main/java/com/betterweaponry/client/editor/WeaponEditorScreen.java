@@ -569,10 +569,11 @@ public final class WeaponEditorScreen extends Screen {
             saveLocally(dirty);
             return;
         }
-        for (String id : dirty) {
+        for (int i = 0; i < dirty.size(); i++) {
+            String id = dirty.get(i);
             String json = model.working(id).toString();
             pendingSaves.put(id, json);
-            PacketDistributor.sendToServer(new SaveDocumentPayload(id, target.ordinal(), json));
+            PacketDistributor.sendToServer(new SaveDocumentPayload(id, target.ordinal(), json, i == dirty.size() - 1));
         }
         status(Component.translatable(KEY + "status.saving", dirty.size()), INFO_COLOR);
     }

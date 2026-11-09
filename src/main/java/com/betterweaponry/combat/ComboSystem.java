@@ -34,6 +34,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.entity.PartEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
@@ -157,7 +158,7 @@ public final class ComboSystem {
         state.activeStep = step;
         try {
             vanillaAttack.run();
-            if (player.level() instanceof ServerLevel level) {
+            if (state.attackLanded && player.level() instanceof ServerLevel level) {
                 DamageSource source = player.damageSources().playerAttack(player);
                 if (hit.bothHands() && target instanceof LivingEntity living) applyOffhandWeapon(level, player, living, source);
                 if (step.hasArea()) hitArea(level, player, target, hit, source);
@@ -170,30 +171,39 @@ public final class ComboSystem {
     }
 
     /** Après le coup : fait avancer (ou remet à zéro) le combo, règle la recharge suivante, prévient le client. */
-    public static void endHit(Player player, PlayerCombatState state, Hit hit) {
+    public static void endHit(Player player, PlayerCombatState state, Hit hit, Entity target) {
         state.nextAttackDelay = 0.0F;
         if (hit.combo() == null) return;
 
         Level level = player.level();
-        if (hit.counts()) {
-            state.comboStep = (hit.index() + 1) % hit.combo().steps().size();
-            if (hit.special() && (hit.bothHands() || hit.step().cooldownMultiplier() != 1.0D)) {
-                state.nextAttackDelay = nextAttackDelay(player, hit);
+        // Côté client, hurt() renvoie toujours faux : on prédit d'après la cible, et le serveur corrige ensuite.
+        boolean landed = isCreature(target) && (level.isClientSide || state.attackLanded);
+        if (landed) {
+            if (hit.counts()) {
+                state.comboStep = (hit.index() + 1) % hit.combo().steps().size();
+                if (hit.special() && (hit.bothHands() || hit.step().cooldownMultiplier() != 1.0D)) {
+                    state.nextAttackDelay = nextAttackDelay(player, hit);
+                }
+                if (hit.bothHands()) {
+                    state.dualSwingPending = true;
+                    if (!level.isClientSide) PacketDistributor.sendToPlayersTrackingEntity(player, new DualSwingPayload(player.getId()));
+                }
+            } else {
+                state.comboStep = 0;
             }
-            if (hit.bothHands()) {
-                state.dualSwingPending = true;
-                if (!level.isClientSide) PacketDistributor.sendToPlayersTrackingEntity(player, new DualSwingPayload(player.getId()));
-            }
-        } else {
-            state.comboStep = 0;
+            state.comboExpiresAt = level.getGameTime() + Math.round(hit.combo().resetAfterSeconds() * TICKS_PER_SECOND);
         }
-        state.comboExpiresAt = level.getGameTime() + Math.round(hit.combo().resetAfterSeconds() * TICKS_PER_SECOND);
 
         if (player instanceof ServerPlayer serverPlayer && serverPlayer.connection != null) {
             PacketDistributor.sendToPlayer(serverPlayer, ComboSyncPayload.of(player, state));
-        } else if (level.isClientSide && hit.counts() && hit.combo().steps().get(state.comboStep).isSpecial()) {
+        } else if (level.isClientSide && landed && hit.counts() && hit.combo().steps().get(state.comboStep).isSpecial()) {
             comboReadyFeedback(player);
         }
+    }
+
+    /** Une créature, ou la partie d'un boss à plusieurs corps (dragon). Un bateau ou un cadre ne font pas avancer le combo. */
+    private static boolean isCreature(Entity target) {
+        return target instanceof LivingEntity || target instanceof PartEntity<?>;
     }
 
     /** Recharge imposée par le dernier coup spécial, si le joueur tient toujours cette arme. */

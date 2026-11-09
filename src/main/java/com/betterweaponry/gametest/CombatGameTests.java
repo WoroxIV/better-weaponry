@@ -16,6 +16,8 @@ import com.betterweaponry.combat.TwoHandedSystem;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.compat.RecipeViewerInfo;
+import com.betterweaponry.config.EditorFiles;
+import com.betterweaponry.config.LegacyConfigMigration;
 import com.betterweaponry.config.TooltipCategory;
 import com.betterweaponry.config.TooltipPlacement;
 import com.betterweaponry.data.ComboDefinition;
@@ -34,6 +36,7 @@ import com.betterweaponry.data.RulesPreset;
 import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponComparison;
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.data.WeaponDataLoader;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.data.JsonTree;
 import com.betterweaponry.editor.EditorDocument;
@@ -108,6 +111,10 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
@@ -117,6 +124,7 @@ import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -142,6 +150,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -2211,6 +2220,262 @@ public final class CombatGameTests {
         String offhandName = offhand.isEmpty() ? "an empty off hand" : offhand.getItem().toString();
         helper.assertTrue(started == expected && player.isUsingItem() == expected,
                 type.id() + " with " + offhandName + ": the parry should " + (expected ? "" : "not ") + "start");
+    }
+
+    // --- Corrections avant publication ---
+
+    /** "Tous les mondes" : une valeur venue d'un datapack du monde ne passe pas dans la config, ce qui était déjà dans la config reste. */
+    @GameTest(template = ARENA)
+    public static void editorAllWorldsIgnoresWorldValues(GameTestHelper helper) {
+        EditorDocument document = EditorDocument.weapon(WeaponType.GLAIVE);
+        FieldSet fields = document.fields();
+        JsonObject defaults = document.defaults();
+        double speed = defaults.get("attack_speed").getAsDouble();
+        double reach = defaults.get("attack_reach").getAsDouble();
+
+        JsonObject configFolder = defaults.deepCopy();
+        configFolder.addProperty("attack_reach", reach + 0.25D);
+        JsonObject effective = configFolder.deepCopy();
+        effective.addProperty("attack_speed", speed + 0.5D);
+
+        JsonObject untouched = EditorService.globalDifferences(fields, effective, effective, configFolder, defaults);
+        helper.assertFalse(untouched.has("attack_speed"), "the value of the world data pack should stay out of the global config");
+        helper.assertTrue(untouched.has("attack_reach"), "the value already in the config should be kept");
+
+        JsonObject requested = effective.deepCopy();
+        requested.addProperty("attack_speed", speed + 1.0D);
+        JsonObject changed = EditorService.globalDifferences(fields, requested, effective, configFolder, defaults);
+        helper.assertTrue(changed.has("attack_speed") && changed.get("attack_speed").getAsDouble() == speed + 1.0D, "a value the user changed should be written");
+        helper.succeed();
+    }
+
+    /** Un clic sur Enregistrer ne recharge les données qu'une fois, au dernier fichier du lot. */
+    @GameTest(template = ARENA)
+    public static void editorReloadsOncePerBatch(GameTestHelper helper) {
+        MinecraftServer server = helper.getLevel().getServer();
+        EditorDocument glaive = EditorDocument.weapon(WeaponType.GLAIVE);
+        EditorDocument katana = EditorDocument.weapon(WeaponType.KATANA);
+        JsonObject originalGlaive = glaive.json(WeaponData.current());
+        JsonObject originalKatana = katana.json(WeaponData.current());
+        double reach = originalGlaive.get("attack_reach").getAsDouble();
+        List<EditorService.Outcome> outcomes = new ArrayList<>();
+        try {
+            JsonObject editedGlaive = originalGlaive.deepCopy();
+            editedGlaive.addProperty("attack_reach", reach + 0.25D);
+            EditorService.save(server, glaive.id(), EditorTarget.ALL_WORLDS, editedGlaive.toString(), false, outcomes::add);
+            helper.assertTrue(outcomes.isEmpty() && WeaponData.weapon(WeaponType.GLAIVE).attackReach() == reach, "nothing should reload before the last file");
+            JsonObject editedKatana = originalKatana.deepCopy();
+            editedKatana.addProperty("attack_reach", originalKatana.get("attack_reach").getAsDouble() + 0.25D);
+            EditorService.save(server, katana.id(), EditorTarget.ALL_WORLDS, editedKatana.toString(), true, outcomes::add);
+            helper.assertTrue(outcomes.size() == 2 && outcomes.stream().allMatch(EditorService.Outcome::success), "both files should be confirmed: " + outcomes);
+            helper.assertTrue(WeaponData.weapon(WeaponType.GLAIVE).attackReach() == reach + 0.25D, "the batch should apply once the last file arrives");
+        } finally {
+            EditorService.save(server, glaive.id(), EditorTarget.ALL_WORLDS, originalGlaive.toString(), outcome -> { });
+            EditorService.save(server, katana.id(), EditorTarget.ALL_WORLDS, originalKatana.toString(), outcome -> { });
+        }
+        helper.succeed();
+    }
+
+    /** Coup refusé par la cible : ni main gauche, ni zone, ni usure, et le combo n'avance pas. Un bateau ne le fait pas avancer non plus. */
+    @GameTest(template = ARENA)
+    public static void comboNeedsALandedHit(GameTestHelper helper) {
+        int tested = 0;
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            ComboDefinition combo = definition.combo();
+            int areaStep = firstStep(combo, ComboStep::hasArea);
+            if (!combo.enabled() || areaStep < 0) continue;
+            ComboStep area = combo.steps().get(areaStep);
+
+            Vec3 origin = new Vec3(2.5D, 1.0D, 0.5D);
+            ItemStack offhand = definition.dualWielded() ? weapon(type) : ItemStack.EMPTY;
+            Player player = player(helper, weapon(type), offhand);
+            player.setPos(helper.absoluteVec(origin));
+            player.setYRot(0.0F);
+            player.setYHeadRot(0.0F);
+            double sideAngle = Math.toRadians(Math.min(20.0D, area.angle() / 4.0D));
+            double sideDistance = area.radius() * 0.7D;
+            Pig target = pigAt(helper, origin.add(0.0D, 0.0D, 1.5D));
+            Pig nearby = pigAt(helper, origin.add(Math.sin(sideAngle) * sideDistance, 0.0D, Math.cos(sideAngle) * sideDistance));
+            target.setInvulnerable(true);
+
+            PlayerCombatState state = PlayerCombatState.of(player);
+            state.comboType = type;
+            state.comboStep = areaStep;
+            state.comboExpiresAt = helper.getLevel().getGameTime() + 200L;
+            fullyCharge(player);
+            player.attack(target);
+            helper.assertFalse(isHurt(nearby), type.id() + ": the area should not fire after a refused hit");
+            helper.assertTrue(player.getOffhandItem().getDamageValue() == 0, type.id() + ": a refused hit should not wear the off-hand weapon");
+            helper.assertTrue(state.comboStep == areaStep, type.id() + ": a refused hit should not advance the combo, step " + state.comboStep);
+
+            Boat boat = new Boat(helper.getLevel(), player.getX(), player.getY(), player.getZ() + 1.0D);
+            helper.getLevel().addFreshEntity(boat);
+            fullyCharge(player);
+            player.attack(boat);
+            boat.discard();
+            helper.assertTrue(state.comboStep == areaStep, type.id() + ": a boat should not advance the combo, step " + state.comboStep);
+
+            target.setInvulnerable(false);
+            heal(target);
+            heal(nearby);
+            fullyCharge(player);
+            player.attack(target);
+            helper.assertTrue(isHurt(target) && isHurt(nearby), type.id() + ": a landed area hit should hurt both pigs");
+            helper.assertTrue(state.comboStep == (areaStep + 1) % combo.steps().size(), type.id() + ": a landed hit should advance the combo");
+
+            target.discard();
+            nearby.discard();
+            tested++;
+        }
+        helper.assertTrue(tested > 0, "no weapon has an area combo");
+        helper.succeed();
+    }
+
+    /** Parade parfaite : un trident ou un shuriken récupérable ne change pas de propriétaire, le shuriken d'un mob si. */
+    @GameTest(template = ARENA)
+    public static void reflectionKeepsOwnedProjectiles(GameTestHelper helper) {
+        Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+        Player defender = shieldBearer(helper, new ItemStack(ModItems.shield(WeaponMaterials.IRON).get()), position);
+        Pig shooter = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
+
+        ThrownTrident trident = new ThrownTrident(helper.getLevel(), shooter, new ItemStack(Items.TRIDENT));
+        trident.setPos(position.add(0.0D, 1.0D, 1.0D));
+        trident.setDeltaMovement(0.0D, 0.0D, -2.0D);
+        helper.assertFalse(ShieldSystem.tryReflectArrow(trident, defender), "a trident should not be reflected");
+        helper.assertTrue(trident.getOwner() == shooter, "a trident should keep its owner");
+
+        ItemStack stack = new ItemStack(ModItems.shuriken(WeaponMaterials.IRON).get());
+        Player thrower = thrower(helper, stack, GameType.SURVIVAL);
+        ShurikenEntity recoverable = new ShurikenEntity(helper.getLevel(), thrower, stack, true);
+        recoverable.setPos(position.add(0.0D, 1.0D, 1.0D));
+        recoverable.setDeltaMovement(0.0D, 0.0D, -2.0D);
+        helper.assertFalse(ShieldSystem.tryReflectArrow(recoverable, defender), "a recoverable shuriken should not be reflected");
+        helper.assertTrue(recoverable.getOwner() == thrower, "its thrower should still be able to pick it up");
+
+        ShurikenEntity fromMob = new ShurikenEntity(helper.getLevel(), shooter, stack.copyWithCount(1), false);
+        fromMob.setPos(position.add(0.0D, 1.0D, 1.0D));
+        fromMob.setDeltaMovement(0.0D, 0.0D, -2.0D);
+        helper.assertTrue(ShieldSystem.tryReflectArrow(fromMob, defender), "the shuriken of a mob can be reflected");
+        helper.succeed();
+    }
+
+    /** Un shuriken Retour cassé par son dernier lancer revient vers un inventaire plein : il tombe aux pieds du joueur au lieu d'être perdu. */
+    @GameTest(template = ARENA)
+    public static void returningShurikenIsNeverLost(GameTestHelper helper) {
+        ShurikenItem iron = ModItems.shuriken(WeaponMaterials.IRON).get();
+        ItemStack last = new ItemStack(iron);
+        last.setDamageValue(last.getMaxDamage() - 1);
+        Player player = thrower(helper, last, GameType.SURVIVAL);
+        iron.throwFrom(helper.getLevel(), player, InteractionHand.MAIN_HAND, last);
+        ShurikenEntity shot = thrownBy(helper, player).getFirst();
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            player.getInventory().setItem(slot, new ItemStack(Items.DIRT, 64));
+        }
+
+        helper.assertFalse(shot.tryRecover(player), "lying on the ground, it should wait for a free slot");
+        shot.setNoPhysics(true);
+        helper.assertTrue(shot.tryRecover(player), "coming back, it should disappear");
+        List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(3.0D), item -> item.getItem().is(iron));
+        helper.assertTrue(drops.size() == 1 && drops.getFirst().getItem().getDamageValue() == iron.getDefaultInstance().getMaxDamage() - 1, "the shuriken should be dropped with 1 durability: " + drops);
+        drops.forEach(ItemEntity::discard);
+        shot.discard();
+        helper.succeed();
+    }
+
+    /** Un bouclier levé avant de prendre une arme à deux mains est baissé ; une main principale vide ne le fait pas. */
+    @GameTest(template = ARENA)
+    public static void twoHandedStopsRaisedOffhand(GameTestHelper helper) {
+        WeaponType twoHanded = null;
+        for (WeaponType type : WeaponType.values()) {
+            if (WeaponData.weapon(type).twoHanded()) twoHanded = type;
+        }
+        helper.assertTrue(twoHanded != null, "no two-handed weapon");
+        Player player = player(helper, ItemStack.EMPTY, new ItemStack(Items.SHIELD));
+        player.startUsingItem(InteractionHand.OFF_HAND);
+        helper.assertTrue(player.isUsingItem(), "the shield should be raised");
+        TwoHandedSystem.stopLockedOffhandUse(player);
+        helper.assertTrue(player.isUsingItem(), "an empty main hand does not lock the off hand");
+        player.setItemInHand(InteractionHand.MAIN_HAND, weapon(twoHanded));
+        TwoHandedSystem.stopLockedOffhandUse(player);
+        helper.assertFalse(player.isUsingItem(), "a two-handed weapon should lower the shield");
+        helper.succeed();
+    }
+
+    /** Le saignement garde son rythme d'un coup de 0,5 PV par seconde, même réappliqué sans arrêt. */
+    @GameTest(template = ARENA, timeoutTicks = 200)
+    public static void bleedingKeepsItsRhythm(GameTestHelper helper) {
+        Pig pig = pigAt(helper, new Vec3(2.5D, 1.0D, 2.5D));
+        helper.onEachTick(() -> pig.addEffect(new MobEffectInstance(ModEffects.BLEEDING, 40)));
+        helper.runAfterDelay(100L, () -> {
+            double lost = TEST_HEALTH - pig.getHealth();
+            helper.assertTrue(lost >= 2.0D && lost <= 3.0D, "5 seconds of bleeding should cost about 2.5 health, lost " + lost);
+            helper.succeed();
+        });
+    }
+
+    /** Momentum : la réduction de recharge reste bornée, même à un niveau obtenu par commande. */
+    @GameTest(template = ARENA)
+    public static void momentumStaysBounded(GameTestHelper helper) {
+        helper.assertTrue(Math.abs(ModEnchantments.momentumMultiplier(1) - 0.85D) < EPSILON, "level 1");
+        helper.assertTrue(ModEnchantments.momentumMultiplier(50) == 0.25D, "a huge level should be capped");
+        helper.succeed();
+    }
+
+    /** Réglages 1.x propres à un monde : convertis dans le datapack de l'éditeur, et l'ancien fichier est mis de côté. */
+    @GameTest(template = ARENA)
+    public static void legacyWorldConfigIsConverted(GameTestHelper helper) {
+        try {
+            Path worldRoot = Files.createTempDirectory("better_weaponry_migration");
+            Path legacy = worldRoot.resolve("serverconfig").resolve(LegacyConfigMigration.LEGACY_FILE_NAME);
+            Files.createDirectories(legacy.getParent());
+            Files.writeString(legacy, "[weapon_stats.glaive]\nattack_speed = 2.5\n\n[other]\ndual_wield_speed_multiplier = 3.0\n");
+
+            helper.assertTrue(LegacyConfigMigration.migrateWorld(worldRoot), "the world config should be converted");
+            helper.assertFalse(Files.exists(legacy), "the old file should be moved away");
+            helper.assertTrue(Files.exists(legacy.resolveSibling(LegacyConfigMigration.LEGACY_FILE_NAME + ".old")), "the old file should be kept as .old");
+
+            Path data = EditorFiles.editorPack(worldRoot).resolve("data").resolve(BetterWeaponry.MODID).resolve(WeaponDataLoader.DATA_DIRECTORY);
+            JsonObject glaive = JsonUtil.parseLenient(Files.readString(data.resolve(EditorDocument.weapon(WeaponType.GLAIVE).relativePath()))).getAsJsonObject();
+            helper.assertTrue(glaive.get("attack_speed").getAsDouble() == 2.5D, "the changed value should be converted: " + glaive);
+            JsonObject rules = JsonUtil.parseLenient(Files.readString(data.resolve(EditorDocument.rules().relativePath()))).getAsJsonObject();
+            helper.assertTrue(rules.get(RulesDefinition.DUAL_WIELD_SPEED_MULTIPLIER.name()).getAsDouble() == 3.0D, "the global rule should be converted: " + rules);
+
+            helper.assertFalse(LegacyConfigMigration.migrateWorld(worldRoot), "a converted world should not be converted twice");
+            try (var files = Files.walk(worldRoot)) {
+                files.sorted(java.util.Comparator.reverseOrder()).forEach(file -> file.toFile().delete());
+            }
+        } catch (java.io.IOException e) {
+            helper.fail("could not prepare the world folder: " + e.getMessage());
+        }
+        helper.succeed();
+    }
+
+    /** Une recette qui demande un arc, une arbalète ou un bouclier vanilla accepte les versions du mod, quel que soit le matériau. */
+    @GameTest(template = ARENA)
+    public static void vanillaGearIngredientsAcceptModGear(GameTestHelper helper) {
+        assertModTagsLoaded(helper);
+        ItemStack netheriteBow = new ItemStack(ModItems.bow(WeaponMaterials.NETHERITE).get());
+        Ingredient bow = Ingredient.of(Items.BOW);
+        helper.assertTrue(bow.test(new ItemStack(Items.BOW)) && bow.test(netheriteBow), "a bow ingredient should accept the vanilla bow and the bows of the mod");
+        helper.assertTrue(bow.getStackingIds().contains(StackedContents.getStackingIndex(netheriteBow)), "the recipe book should see them too");
+        helper.assertTrue(Ingredient.of(Items.CROSSBOW).test(new ItemStack(ModItems.crossbow(WeaponMaterials.WOODEN).get())), "crossbow");
+        helper.assertTrue(Ingredient.of(Items.SHIELD).test(new ItemStack(ModItems.shield(WeaponMaterials.DIAMOND).get())), "shield");
+        helper.assertFalse(bow.test(new ItemStack(ModItems.crossbow(WeaponMaterials.IRON).get())), "a crossbow is not a bow");
+        helper.assertFalse(Ingredient.of(Items.STICK).test(netheriteBow), "other ingredients should not change");
+        // Reçu d'un serveur : chaque objet est déjà listé, il ne faut pas rajouter le tag.
+        Ingredient received = Ingredient.fromValues(java.util.stream.Stream.of(new Ingredient.ItemValue(new ItemStack(Items.BOW)), new Ingredient.ItemValue(netheriteBow)));
+        helper.assertTrue(received.getValues().length == 2, "an ingredient received from a server should stay as it is");
+        helper.succeed();
+    }
+
+    /** Un matériau de mod sans aucun ingrédient n'est pas proposé ; un matériau vanilla l'est toujours. */
+    @GameTest(template = ARENA)
+    public static void materialsNeedIngredients(GameTestHelper helper) {
+        helper.assertTrue(WeaponMaterials.IRON.hasIngredients(), "vanilla materials always have ingredients");
+        WeaponMaterial modded = WeaponMaterials.all().stream().filter(WeaponMaterial::isModded).findFirst().orElseThrow();
+        helper.assertFalse(modded.hasIngredients(), modded.id() + " has no ingredient without its mod");
+        helper.succeed();
     }
 
     // --- Outils ---

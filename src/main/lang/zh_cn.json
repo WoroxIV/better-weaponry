@@ -270,6 +270,7 @@
     "better_weaponry.editor.unreadable": "无法读取为%s发送的数据。",
     "better_weaponry.editor.invalid": "未保存：%s",
     "better_weaponry.editor.write_failed": "无法写入文件：%s",
+    "better_weaponry.editor.pack_failed": "文件 %s 已写入，但无法启用该世界的数据包。请执行 /reload 或重新打开世界。",
     "better_weaponry.editor.saved": "已保存到%s。",
     "better_weaponry.editor.overridden": "被优先级更高的设置覆盖：%s",
     "better_weaponry.command.no_permission": "只有管理员可以打开编辑器。使用 /betterweaponry codex 查看武器属性。",

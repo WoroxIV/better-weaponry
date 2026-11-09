@@ -110,6 +110,7 @@
   "better_weaponry.editor.move_up": "上移",
   "better_weaponry.editor.no_permission": "只有管理员可以修改武器设置。",
   "better_weaponry.editor.overridden": "被优先级更高的设置覆盖：%s",
+  "better_weaponry.editor.pack_failed": "文件 %s 已写入，但无法启用该世界的数据包。请执行 /reload 或重新打开世界。",
   "better_weaponry.editor.paste": "粘贴JSON",
   "better_weaponry.editor.paste.tooltip": "将剪贴板中的JSON应用到此文件。无效字段会被忽略。",
   "better_weaponry.editor.preset.applied": "已应用 %s。保存后才会生效。",

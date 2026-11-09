@@ -2,12 +2,16 @@ package com.betterweaponry.registry;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.item.RangedWeapon;
+import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterials;
+import com.betterweaponry.item.WeaponShieldItem;
 import com.betterweaponry.item.WeaponType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -47,6 +51,14 @@ public final class ModCreativeTabs {
     }
 
     private static void addAll(List<ItemStack> stacks, Collection<? extends DeferredItem<?>> items) {
-        items.forEach(item -> stacks.add(new ItemStack(item.get())));
+        items.stream().filter(item -> canBeObtained(item.get())).forEach(item -> stacks.add(new ItemStack(item.get())));
+    }
+
+    /** Un matériau de mod sans ingrédient (objet renommé, retiré par un script) a ses recettes coupées : autant ne pas le montrer. */
+    private static boolean canBeObtained(Item item) {
+        if (item instanceof WeaponItem weapon) return weapon.getMaterial().hasIngredients();
+        if (item instanceof WeaponShieldItem shield) return shield.getMaterial().hasIngredients();
+        if (item instanceof RangedWeapon ranged) return ranged.getMaterial().hasIngredients();
+        return true;
     }
 }

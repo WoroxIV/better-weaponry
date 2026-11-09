@@ -44,6 +44,8 @@ public final class PlayerCombatState {
     /** Coup spécial en cours (pendant attack()), pour couper le coup balayé vanilla d'un coup en zone. */
     @Nullable
     public ComboStep activeStep;
+    /** La cible a bien encaissé le coup vanilla de l'attaque en cours (coéquipier, PvP coupé, invulnérable : faux). */
+    public boolean attackLanded;
 
     // --- Animation à deux bras ---
 

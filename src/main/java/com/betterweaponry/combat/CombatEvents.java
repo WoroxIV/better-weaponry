@@ -4,7 +4,9 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.network.ComboSyncPayload;
 import com.betterweaponry.registry.ModAttributes;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,7 +17,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.SweepAttackEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
  * Règles de combat ajoutées par les stats des armes : pénétration d'armure, coup balayé,
@@ -30,6 +34,13 @@ public final class CombatEvents {
     private static final double PERCENT = 100.0D;
 
     private CombatEvents() {
+    }
+
+    @SubscribeEvent
+    public static void onChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            PacketDistributor.sendToPlayer(player, ComboSyncPayload.withHand(player, PlayerCombatState.of(player)));
+        }
     }
 
     @SubscribeEvent

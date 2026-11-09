@@ -178,9 +178,10 @@ public record WeaponDefinition(int formatVersion,
     }
 
     /**
-     * Dégâts affichés pour ce matériau : la valeur imposée dans {@code material_damage} s'il y en a une,
-     * sinon {@code base_damage × facteur du matériau}, arrondi au demi-point. Le mode "équilibrage global" retire
-     * ensuite une petite part de ces dégâts selon les capacités de l'arme ({@link #abilityPenalty}).
+     * Dégâts affichés pour ce matériau : la valeur imposée dans {@code material_damage} s'il y en a une (elle est
+     * prise telle quelle, sans pénalité), sinon {@code base_damage × facteur du matériau}, arrondi au demi-point.
+     * Dans ce second cas, le mode "équilibrage global" retire une petite part de ces dégâts selon les capacités
+     * de l'arme ({@link #abilityPenalty}).
      */
     public double damageFor(WeaponMaterial material) {
         Double forced = materialDamage.get(material.id());

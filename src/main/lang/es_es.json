@@ -270,6 +270,7 @@
     "better_weaponry.editor.unreadable": "No se han podido leer los datos enviados para %s.",
     "better_weaponry.editor.invalid": "No guardado: %s",
     "better_weaponry.editor.write_failed": "No se ha podido escribir el archivo: %s",
+    "better_weaponry.editor.pack_failed": "El archivo %s se ha escrito, pero no se ha podido activar el paquete de datos del mundo. Usa /reload o vuelve a abrir el mundo.",
     "better_weaponry.editor.saved": "Guardado en %s.",
     "better_weaponry.editor.overridden": "Sustituido por un ajuste con más prioridad: %s",
     "better_weaponry.command.no_permission": "Solo los operadores pueden abrir el editor. Usa /betterweaponry codex para consultar los atributos de las armas.",

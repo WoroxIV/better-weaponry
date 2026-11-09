@@ -3,12 +3,14 @@ package com.betterweaponry.combat;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.data.WeaponData;
+import com.betterweaponry.entity.ShurikenEntity;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.phys.EntityHitResult;
@@ -92,6 +94,8 @@ public final class ShieldSystem {
     /** @return vrai si la flèche a été renvoyée */
     public static boolean tryReflectArrow(AbstractArrow arrow, Player player) {
         GearDefinition gear = WeaponData.gear();
+        // Changer leur propriétaire volerait un trident Loyauté, ou empêcherait le lanceur de récupérer son shuriken.
+        if (arrow instanceof ThrownTrident || (arrow instanceof ShurikenEntity && arrow.pickup == AbstractArrow.Pickup.ALLOWED)) return false;
         if (!gear.reflectArrows() || !player.isBlocking() || !ParrySystem.isInPerfectWindow(player)
                 || !player.isDamageSourceBlocked(player.damageSources().arrow(arrow, arrow.getOwner()))) return false;
 

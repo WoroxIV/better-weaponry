@@ -270,6 +270,7 @@
     "better_weaponry.editor.unreadable": "The data sent for %s could not be read.",
     "better_weaponry.editor.invalid": "Not saved: %s",
     "better_weaponry.editor.write_failed": "The file could not be written: %s",
+    "better_weaponry.editor.pack_failed": "The file %s was written, but the world's data pack could not be activated. Run /reload or reopen the world.",
     "better_weaponry.editor.saved": "Saved in %s.",
     "better_weaponry.editor.overridden": "Overridden by a setting with a higher priority: %s",
     "better_weaponry.command.no_permission": "Only operators can open the editor. Use /betterweaponry codex to read the weapon stats.",
