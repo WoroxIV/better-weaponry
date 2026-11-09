@@ -1,0 +1,39 @@
+plugins {
+    id 'multiloader-common'
+    id 'net.neoforged.moddev'
+}
+
+neoForge {
+    neoFormVersion = neo_form_version
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
+}
+
+sourceSets.main.resources {
+    // Fichiers générés par :neoforge:runData (modèles, traductions, tags, recettes...).
+    srcDir 'src/generated/resources'
+    exclude '.cache/**'
+}
+
+tasks.named('processResources', ProcessResources) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+dependencies {
+    compileOnly 'org.spongepowered:mixin:0.8.5'
+    compileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+}
+
+// Ce que les chargeurs récupèrent : les sources Java et les ressources, compilées et empaquetées chez eux.
+configurations {
+    commonJava { canBeResolved = false; canBeConsumed = true }
+    commonResources { canBeResolved = false; canBeConsumed = true }
+}
+
+artifacts {
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources file('src/main/resources')
+    commonResources file('src/generated/resources')
+}

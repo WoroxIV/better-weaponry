@@ -1,0 +1,57 @@
+// Réglages d'un chargeur (neoforge, fabric...) : compile le code de common avec le sien et fabrique le jar.
+plugins {
+    id 'multiloader-common'
+}
+
+version = "${mod_version}+${minecraft_version}-${project.name}"
+
+configurations {
+    commonJava { canBeResolved = true }
+    commonResources { canBeResolved = true }
+}
+
+dependencies {
+    compileOnly project(':common')
+    commonJava project(path: ':common', configuration: 'commonJava')
+    commonResources project(path: ':common', configuration: 'commonResources')
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+
+tasks.named('processResources', ProcessResources) {
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+    exclude '.cache/**'
+
+    // Un fichier écrit à la main dans common/src/main/resources gagne sur l'ancien fichier généré, en attendant que runData le supprime.
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+            mod_display_url        : mod_display_url,
+            mod_issue_tracker_url  : mod_issue_tracker_url
+    ]
+    inputs.properties replaceProperties
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
+}
+
+// Les GameTests servent seulement au développement : ils ne partent pas dans le jar publié.
+tasks.named('jar', Jar) {
+    exclude 'com/betterweaponry/gametest/**'
+    exclude 'data/better_weaponry/structure/empty.nbt'
+}

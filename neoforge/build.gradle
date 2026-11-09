@@ -1,0 +1,54 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.neoforged.moddev'
+}
+
+neoForge {
+    version = neo_version
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
+
+    runs {
+        configureEach {
+            gameDirectory = rootProject.file("run/${name}")
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            systemProperty 'forge.logging.console.level', 'debug'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', mod_id, '--all',
+                    '--output', rootProject.file('common/src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+            // Sources des traductions lues par ModLanguageProvider (un fichier par langue).
+            systemProperty 'betterweaponry.langSources', rootProject.file('common/src/main/lang').absolutePath
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    // JEI et EMI restent optionnels pour les joueurs. Pour tester avec l'un des deux : gradlew :neoforge:runClient -Pbw_compat=jei (ou emi).
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    compileOnly "dev.emi:emi-neoforge:${emi_version}"
+    if (project.findProperty('bw_compat') == 'jei') runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    if (project.findProperty('bw_compat') == 'emi') runtimeOnly "dev.emi:emi-neoforge:${emi_version}"
+}
