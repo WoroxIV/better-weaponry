@@ -627,5 +627,6 @@
     "better_weaponry.tutorial.combos.hits": "Jeder Treffer bringt die Kombo voran, sie wird angezeigt.",
     "better_weaponry.tutorial.combos.finisher": "Der letzte Schlag trifft einen ganzen Bereich: %s Blöcke über %s°.",
     "better_weaponry.tutorial.combos.reset": "Triffst du %s s lang nicht, beginnt die Kombo von vorn."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "Schwungschadensverhältnis"
 }

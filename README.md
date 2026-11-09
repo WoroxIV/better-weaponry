@@ -1,11 +1,11 @@
 # Better Weaponry
 
-A mod for Minecraft **1.21.1**, on NeoForge and Fabric, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
+A mod for Minecraft **1.20.1**, on Forge, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
 
 - **Mod ID:** `better_weaponry`
 - **Version:** 2.0.0
 - **Author:** WoroxIV
-- **Loaders:** NeoForge 21.1.220 or newer, or Fabric with [Fabric API](https://modrinth.com/mod/fabric-api)
+- **Loader:** Forge 47.4 or newer. The 1.21.1 version (NeoForge and Fabric) is on the `mc/1.21.1` branch
 - **Java:** 21
 - **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) and Epic Fight compatibility, JEI and EMI information pages
 - **Download:** [Modrinth](https://modrinth.com/mod/better-weaponry), [CurseForge](https://www.curseforge.com/minecraft/mc-mods/better-weaponry-system)

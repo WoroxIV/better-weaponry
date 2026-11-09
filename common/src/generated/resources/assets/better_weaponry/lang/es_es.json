@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Armas cuerpo a cuerpo",
   "tag.item.better_weaponry.shields": "Escudos",
   "tag.item.better_weaponry.shurikens": "Shuriken",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Plantillas de mejora de netherita"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Plantillas de mejora de netherita",
+  "attribute.name.player.sweeping_damage_ratio": "Proporción del daño de barrido"
 }

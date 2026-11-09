@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/andesite_alloy",
+      "required": false
+    },
+    {
+      "id": "create:andesite_alloy",
+      "required": false
+    }
+  ]
+}

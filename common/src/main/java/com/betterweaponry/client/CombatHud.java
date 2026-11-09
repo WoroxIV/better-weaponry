@@ -4,7 +4,6 @@ import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.config.ComboHudStyle;
 import com.betterweaponry.config.HudElement;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -43,7 +42,7 @@ public final class CombatHud {
     }
 
     /** Couche d'interface enregistrée par le point d'entrée client. */
-    public static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public static void render(GuiGraphics graphics) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null || minecraft.options.hideGui || minecraft.screen != null) return;

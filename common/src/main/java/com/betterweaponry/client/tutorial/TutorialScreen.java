@@ -80,7 +80,7 @@ public final class TutorialScreen extends Screen {
     private ControlButton playButton;
 
     private static ResourceLocation sprite(String name) {
-        return ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "tutorial/" + name);
+        return new ResourceLocation(BetterWeaponry.MODID, "textures/gui/sprites/tutorial/" + name + ".png");
     }
 
     /** Bouton carré des commandes du tutoriel : son texte, ou une icône (textures/gui/sprites/tutorial/) s'il en a une. */
@@ -97,7 +97,7 @@ public final class TutorialScreen extends Screen {
                 super.renderString(graphics, font, color);
                 return;
             }
-            graphics.blitSprite(sprite, getX() + (width - SPRITE_SIZE) / 2, getY() + (height - SPRITE_SIZE) / 2, SPRITE_SIZE, SPRITE_SIZE);
+            graphics.blit(sprite, getX() + (width - SPRITE_SIZE) / 2, getY() + (height - SPRITE_SIZE) / 2, 0.0F, 0.0F, SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE);
         }
     }
 
@@ -201,8 +201,8 @@ public final class TutorialScreen extends Screen {
 
     // --- Dessin ---
 
-    @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    /** Le fond et la scène animée, sous les boutons. */
+    private void drawScene(GuiGraphics graphics, float partialTick) {
         graphics.fillGradient(0, 0, width, height, BACKGROUND_TOP, BACKGROUND_BOTTOM);
         float scale = Math.min(width, height * 1.3F) / BLOCKS_ACROSS * zoom;
         renderer.render(graphics, scene, playhead(partialTick), width / 2, height / 2 + 6, scale, yaw, pitch);
@@ -212,6 +212,7 @@ public final class TutorialScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        drawScene(graphics, partialTick);
         super.render(graphics, mouseX, mouseY, partialTick);
         float time = playhead(partialTick);
         drawOverlays(graphics);
@@ -348,8 +349,8 @@ public final class TutorialScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        zoom = Mth.clamp(zoom + (float) scrollY * ZOOM_STEP, MIN_ZOOM, MAX_ZOOM);
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        zoom = Mth.clamp(zoom + (float) delta * ZOOM_STEP, MIN_ZOOM, MAX_ZOOM);
         return true;
     }
 

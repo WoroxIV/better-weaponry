@@ -1,5 +1,6 @@
 package com.betterweaponry;
 
+import com.betterweaponry.combat.ModEnchantments;
 import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.platform.Platform;
 import com.betterweaponry.registry.ModAttributes;
@@ -42,6 +43,7 @@ public final class BetterWeaponry {
         ModSounds.init();
         ModRecipes.init();
         ModEffects.init();
+        ModEnchantments.init();
     }
 
     /** Appelé par le point d'entrée client pour écrire la documentation dans la langue du joueur. */

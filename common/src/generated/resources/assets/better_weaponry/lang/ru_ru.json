@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Оружие ближнего боя",
   "tag.item.better_weaponry.shields": "Щиты",
   "tag.item.better_weaponry.shurikens": "Сюрикены",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Шаблоны незеритового улучшения"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Шаблоны незеритового улучшения",
+  "attribute.name.player.sweeping_damage_ratio": "Коэффициент разящего удара"
 }

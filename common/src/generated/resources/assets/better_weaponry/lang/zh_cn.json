@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "近战武器",
   "tag.item.better_weaponry.shields": "盾牌",
   "tag.item.better_weaponry.shurikens": "手里剑",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "下界合金升级模板"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "下界合金升级模板",
+  "attribute.name.player.sweeping_damage_ratio": "横扫伤害比率"
 }

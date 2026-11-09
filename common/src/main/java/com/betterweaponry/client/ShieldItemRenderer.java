@@ -15,14 +15,12 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BannerPatternLayers;
-
-import java.util.Objects;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.level.block.entity.BannerBlockEntity;
 
 /**
  * Dessine les boucliers du mod comme le jeu dessine le sien (modèle 3D, bannière).
@@ -41,9 +39,7 @@ public final class ShieldItemRenderer extends BlockEntityWithoutLevelRenderer {
     public void renderByItem(ItemStack stack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
         if (model == null) model = new ShieldModel(Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.SHIELD));
 
-        BannerPatternLayers patterns = stack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
-        DyeColor color = stack.get(DataComponents.BASE_COLOR);
-        boolean decorated = !patterns.layers().isEmpty() || color != null;
+        boolean decorated = BlockItem.getBlockEntityData(stack) != null;
 
         poseStack.pushPose();
         poseStack.scale(1.0F, -1.0F, -1.0F);
@@ -53,7 +49,7 @@ public final class ShieldItemRenderer extends BlockEntityWithoutLevelRenderer {
         model.handle().render(poseStack, consumer, packedLight, packedOverlay);
         if (decorated) {
             BannerRenderer.renderPatterns(poseStack, buffer, packedLight, packedOverlay, model.plate(), material, false,
-                    Objects.requireNonNullElse(color, DyeColor.WHITE), patterns, stack.hasFoil());
+                    BannerBlockEntity.createPatterns(ShieldItem.getColor(stack), BannerBlockEntity.getItemPatterns(stack)), stack.hasFoil());
         } else {
             model.plate().render(poseStack, consumer, packedLight, packedOverlay);
         }
@@ -64,7 +60,7 @@ public final class ShieldItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static Material materialOf(ItemStack stack, boolean decorated) {
         if (stack.getItem() instanceof WeaponShieldItem shield) {
             String name = "entity/shield/" + shield.getMaterial().id() + "_shield";
-            Material custom = new Material(Sheets.SHIELD_SHEET, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, name));
+            Material custom = new Material(Sheets.SHIELD_SHEET, new ResourceLocation(BetterWeaponry.MODID, name));
             if (!custom.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return custom;
         }
         return decorated ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;

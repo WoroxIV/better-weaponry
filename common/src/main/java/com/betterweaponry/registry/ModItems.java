@@ -41,12 +41,12 @@ public final class ModItems {
             // Garde l'ordre de déclaration des matériaux : c'est celui de l'onglet créatif.
             Map<WeaponMaterial, Registered<Item, WeaponItem>> byMaterial = new LinkedHashMap<>();
             for (WeaponMaterial material : WeaponMaterials.active()) {
-                byMaterial.put(material, register(material.itemName(type), () -> new WeaponItem(type, material, properties(new Item.Properties(), material))));
+                byMaterial.put(material, register(material.itemName(type), () -> Platform.get().createWeapon(type, material, properties(new Item.Properties(), material))));
             }
             WEAPONS.put(type, byMaterial);
         }
         for (WeaponMaterial material : WeaponMaterials.active()) {
-            SHIELDS.put(material, register(material.itemName(GearType.SHIELD), () -> new WeaponShieldItem(material, new Item.Properties())));
+            SHIELDS.put(material, register(material.itemName(GearType.SHIELD), () -> Platform.get().createShield(material, new Item.Properties())));
             BOWS.put(material, register(material.itemName(GearType.BOW), () -> new WeaponBowItem(material, new Item.Properties())));
             CROSSBOWS.put(material, register(material.itemName(GearType.CROSSBOW), () -> new WeaponCrossbowItem(material, new Item.Properties())));
             SHURIKENS.put(material, register(material.itemName(GearType.SHURIKEN), () -> new ShurikenItem(material, new Item.Properties())));

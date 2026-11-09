@@ -1,0 +1,404 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_dagger",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:wooden_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_rapier",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_rapier",
+      "required": false
+    }
+  ]
+}

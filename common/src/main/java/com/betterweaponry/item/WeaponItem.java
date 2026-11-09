@@ -1,8 +1,6 @@
 package com.betterweaponry.item;
 
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.DashAbility;
-import com.betterweaponry.combat.ModEnchantments;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.compat.CombatCompat;
@@ -11,13 +9,13 @@ import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.registry.ModAttributes;
-import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
+import com.betterweaponry.platform.Platform;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -27,12 +25,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Item unique pour toutes les armes du mod.
@@ -48,21 +45,22 @@ public class WeaponItem extends SwordItem {
     /** Hauteur de la zone de balayage autour de la cible (vanilla : 0.25 bloc). */
     private static final double SWEEP_HEIGHT = 0.25D;
     /** Un seul identifiant pour le balayage de toutes les armes, comme les dégâts et la vitesse vanilla. */
-    public static final ResourceLocation BASE_SWEEPING_RATIO_ID =
-            ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "base_sweeping_damage_ratio");
+    public static final UUID BASE_SWEEPING_RATIO_ID = ModAttributes.uuid("base_sweeping_damage_ratio");
+    private static final String MODIFIER_NAME = "Weapon modifier";
 
     private final WeaponType type;
     private final WeaponMaterial material;
-    private final ResourceLocation reachModifierId;
+    private final UUID reachModifierId;
 
     /** Derniers modificateurs construits, réutilisés tant que les données n'ont pas changé. */
     private volatile CachedModifiers cache;
 
     public WeaponItem(WeaponType type, WeaponMaterial material, Properties properties) {
-        super(material.tier(), properties);
+        // Dégâts et vitesse viennent des données des armes : voir getDefaultAttributeModifiers.
+        super(material.tier(), 0, 0.0F, properties);
         this.type = type;
         this.material = material;
-        this.reachModifierId = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, material.itemName(type) + "_reach");
+        this.reachModifierId = ModAttributes.uuid(material.itemName(type) + "_reach");
     }
 
     public WeaponType getType() {
@@ -91,26 +89,27 @@ public class WeaponItem extends SwordItem {
     public static void refreshEquippedModifiers(LivingEntity entity) {
         ItemStack stack = entity.getMainHandItem();
         if (WeaponProfiles.of(stack).isEmpty()) return;
-        if (stack.getItem() instanceof WeaponItem weapon) removeModifier(entity, Attributes.ENTITY_INTERACTION_RANGE, weapon.reachModifierId);
+        if (stack.getItem() instanceof WeaponItem weapon) removeModifier(entity, Platform.get().entityReachAttribute(), weapon.reachModifierId);
         removeModifier(entity, ModAttributes.armorPenetration(), ModAttributes.BASE_ARMOR_PENETRATION_ID);
-        removeModifier(entity, Attributes.SWEEPING_DAMAGE_RATIO, BASE_SWEEPING_RATIO_ID);
-        stack.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+        removeModifier(entity, ModAttributes.SWEEPING_DAMAGE_RATIO.get(), BASE_SWEEPING_RATIO_ID);
+        stack.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
             AttributeInstance instance = entity.getAttribute(attribute);
             if (instance == null) return;
-            instance.removeModifier(modifier.id());
+            instance.removeModifier(modifier.getId());
             instance.addTransientModifier(modifier);
         });
     }
 
-    private static void removeModifier(LivingEntity entity, Holder<Attribute> attribute, ResourceLocation id) {
+    private static void removeModifier(LivingEntity entity, Attribute attribute, UUID id) {
         AttributeInstance instance = entity.getAttribute(attribute);
         if (instance != null) instance.removeModifier(id);
     }
 
     // --- Stats ---
 
-    /** Remplace la méthode de NeoForge du même nom ; les autres chargeurs l'appellent à leur façon. */
-    public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
+    @Override
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        if (slot != EquipmentSlot.MAINHAND) return ImmutableMultimap.of();
         // Cette méthode est appelée très souvent (tooltips, changements d'équipement...) :
         // on ne reconstruit l'objet que si les données des armes ont été remplacées depuis.
         WeaponData.Versioned data = WeaponData.versioned();
@@ -122,37 +121,32 @@ public class WeaponItem extends SwordItem {
         return current.modifiers();
     }
 
-    /** Version du jeu de base (sans NeoForge) : les mêmes bonus, recalculés quand les données changent. */
+    /** Les mobs comparent les épées avec cette valeur pour choisir laquelle garder. */
     @Override
-    public ItemAttributeModifiers getDefaultAttributeModifiers() {
-        return getDefaultAttributeModifiers(ItemStack.EMPTY);
+    public float getDamage() {
+        return (float) (definition().damageFor(material) - PLAYER_BASE_DAMAGE);
     }
 
     // Les données stockent les valeurs finales affichées au joueur, on retire donc ses valeurs de base.
-    private ItemAttributeModifiers buildModifiers(WeaponDefinition definition, RulesDefinition rules) {
-        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder()
-                .add(Attributes.ATTACK_DAMAGE, addValue(BASE_ATTACK_DAMAGE_ID, definition.damageFor(material) - PLAYER_BASE_DAMAGE),
-                        EquipmentSlotGroup.MAINHAND)
-                .add(Attributes.ATTACK_SPEED, addValue(BASE_ATTACK_SPEED_ID, definition.attackSpeed() - PLAYER_BASE_SPEED),
-                        EquipmentSlotGroup.MAINHAND);
+    private Multimap<Attribute, AttributeModifier> buildModifiers(WeaponDefinition definition, RulesDefinition rules) {
+        ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+        builder.put(Attributes.ATTACK_DAMAGE, addValue(BASE_ATTACK_DAMAGE_UUID, definition.damageFor(material) - PLAYER_BASE_DAMAGE));
+        builder.put(Attributes.ATTACK_SPEED, addValue(BASE_ATTACK_SPEED_UUID, definition.attackSpeed() - PLAYER_BASE_SPEED));
         if (rules.reachActive()) {
-            builder.add(Attributes.ENTITY_INTERACTION_RANGE, addValue(reachModifierId, definition.attackReach() - PLAYER_BASE_REACH),
-                    EquipmentSlotGroup.MAINHAND);
+            builder.put(Platform.get().entityReachAttribute(), addValue(reachModifierId, definition.attackReach() - PLAYER_BASE_REACH));
         }
         // Absents à 0 : la ligne du tooltip n'apparaît que si la stat sert à quelque chose.
         if (rules.armorPenetrationActive() && definition.armorPenetration() > 0.0D) {
-            builder.add(ModAttributes.armorPenetration(),
-                    addValue(ModAttributes.BASE_ARMOR_PENETRATION_ID, definition.armorPenetration() / PERCENT), EquipmentSlotGroup.MAINHAND);
+            builder.put(ModAttributes.armorPenetration(), addValue(ModAttributes.BASE_ARMOR_PENETRATION_ID, definition.armorPenetration() / PERCENT));
         }
         if (rules.sweepActive() && definition.sweep().enabled() && definition.sweep().damageRatio() > 0.0D) {
-            builder.add(Attributes.SWEEPING_DAMAGE_RATIO,
-                    addValue(BASE_SWEEPING_RATIO_ID, definition.sweep().damageRatio() / PERCENT), EquipmentSlotGroup.MAINHAND);
+            builder.put(ModAttributes.SWEEPING_DAMAGE_RATIO.get(), addValue(BASE_SWEEPING_RATIO_ID, definition.sweep().damageRatio() / PERCENT));
         }
         return builder.build();
     }
 
-    private static AttributeModifier addValue(ResourceLocation id, double amount) {
-        return new AttributeModifier(id, amount, AttributeModifier.Operation.ADD_VALUE);
+    private static AttributeModifier addValue(UUID id, double amount) {
+        return new AttributeModifier(id, MODIFIER_NAME, amount, AttributeModifier.Operation.ADDITION);
     }
 
     // --- Combat ---
@@ -224,8 +218,8 @@ public class WeaponItem extends SwordItem {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return ParrySystem.parryOf(stack).isPresent() ? ParrySystem.USE_DURATION : super.getUseDuration(stack, entity);
+    public int getUseDuration(ItemStack stack) {
+        return ParrySystem.parryOf(stack).isPresent() ? ParrySystem.USE_DURATION : super.getUseDuration(stack);
     }
 
     /**
@@ -236,20 +230,15 @@ public class WeaponItem extends SwordItem {
         if (slotChanged || !newStack.is(oldStack.getItem())) return true;
         ItemStack sameWear = oldStack.copy();
         sameWear.setDamageValue(newStack.getDamageValue());
-        return !ItemStack.isSameItemSameComponents(sameWear, newStack);
+        return !ItemStack.isSameItemSameTags(sameWear, newStack);
     }
 
     /** Méthode de Fabric : même règle que {@link #shouldCauseReequipAnimation}. */
-    public boolean allowComponentsUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
+    public boolean allowNbtUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
         return shouldCauseReequipAnimation(oldStack, newStack, false);
     }
 
-    /** Reflective, Riposte et Élan suivent la capacité configurée de l'arme ; les autres enchantements, leur tag. */
-    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-        return ModEnchantments.supportedByAbility(definition(), enchantment).orElseGet(() -> enchantment.value().isSupportedItem(stack));
-    }
-
     // Record immuable : l'item est partagé entre le thread client et le thread serveur en solo.
-    private record CachedModifiers(int generation, ItemAttributeModifiers modifiers) {
+    private record CachedModifiers(int generation, Multimap<Attribute, AttributeModifier> modifiers) {
     }
 }

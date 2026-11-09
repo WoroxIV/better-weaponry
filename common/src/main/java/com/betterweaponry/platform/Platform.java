@@ -1,16 +1,20 @@
 package com.betterweaponry.platform;
 
-import net.minecraft.core.Holder;
+import com.betterweaponry.item.WeaponItem;
+import com.betterweaponry.item.WeaponMaterial;
+import com.betterweaponry.item.WeaponShieldItem;
+import com.betterweaponry.item.WeaponType;
+import com.betterweaponry.network.Payload;
 import net.minecraft.core.Registry;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantment;
 
 import java.nio.file.Path;
@@ -48,8 +52,14 @@ public interface Platform {
     /** Cet objet bloque comme un bouclier (celui du jeu, du mod, ou d'un autre mod). */
     boolean isShield(ItemStack stack);
 
-    /** Tous les bonus d'attributs de cet objet, y compris ceux ajoutés par les mods. */
-    ItemAttributeModifiers attributeModifiers(ItemStack stack);
+    /** L'attribut de portée d'attaque du chargeur (la 1.20.1 n'en a pas dans le jeu de base). */
+    Attribute entityReachAttribute();
+
+    /** Portée d'attaque actuelle de ce joueur. */
+    double entityReach(Player player);
+
+    /** Nom d'un tag commun, écrit "c:ingots/steel" dans le code : chaque chargeur a sa propre convention. */
+    String commonTag(String id);
 
     /** Partie d'une créature à plusieurs corps (dragon, boss d'un mod). */
     boolean isBossPart(Entity entity);
@@ -60,22 +70,29 @@ public interface Platform {
     /** Enregistre un objet du jeu (item, son, effet...). Il n'est utilisable qu'une fois les registres remplis. */
     <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, String name, Supplier<T> factory);
 
-    /** Attribut en pourcentage, de 0 à 1 (affiché "30%" par le chargeur qui le permet). */
-    Attribute createArmorPenetrationAttribute(String descriptionId);
-
     /** Début de la construction d'un onglet créatif, placé après l'onglet Combat. */
     CreativeModeTab.Builder creativeTabBuilder();
 
-    void sendToPlayer(ServerPlayer player, CustomPacketPayload payload);
+    void sendToPlayer(ServerPlayer player, Payload payload);
 
     /** Envoie aux joueurs qui voient cette entité, sans elle-même. */
-    void sendToPlayersTracking(Entity entity, CustomPacketPayload payload);
+    void sendToPlayersTracking(Entity entity, Payload payload);
 
     /** Côté client uniquement. */
-    void sendToServer(CustomPacketPayload payload);
+    void sendToServer(Payload payload);
 
     /** Cet objet accepte cet enchantement sur une table ou une enclume. */
-    boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment);
+    boolean supportsEnchantment(ItemStack stack, Enchantment enchantment);
+
+    /** Une arme : Forge a besoin d'une version à lui, pour le rendu en main. */
+    default WeaponItem createWeapon(WeaponType type, WeaponMaterial material, Item.Properties properties) {
+        return new WeaponItem(type, material, properties);
+    }
+
+    /** Un bouclier : Forge a besoin d'une version à lui, pour son modèle 3D. */
+    default WeaponShieldItem createShield(WeaponMaterial material, Item.Properties properties) {
+        return new WeaponShieldItem(material, properties);
+    }
 
     /** Joueur simulé, pour les tests automatiques. */
     ServerPlayer createFakePlayer(ServerLevel level);

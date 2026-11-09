@@ -554,5 +554,6 @@
     "better_weaponry.tutorial.combos.hits": "Chaque coup qui touche fait avancer le combo, affiché à l'écran.",
     "better_weaponry.tutorial.combos.finisher": "Le dernier coup frappe toute une zone : %s blocs sur %s°.",
     "better_weaponry.tutorial.combos.reset": "Sans toucher pendant %s s, le combo repart du début."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "ratio de dégâts par balayage"
 }

@@ -1,0 +1,33 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "mekanism"
+    },
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:tag_empty",
+        "tag": "better_weaponry:weapon_materials/refined_obsidian"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "better_weaponry:weapon_materials/refined_obsidian"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "pattern": [
+    "  M",
+    " S ",
+    "S  "
+  ],
+  "result": {
+    "item": "better_weaponry:refined_obsidian_spear"
+  }
+}

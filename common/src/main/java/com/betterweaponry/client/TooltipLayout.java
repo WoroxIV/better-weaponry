@@ -5,7 +5,7 @@ import com.betterweaponry.config.TooltipPlacement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.PlainTextContents;
+import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
 
 import java.util.ArrayList;
@@ -120,7 +120,7 @@ public final class TooltipLayout {
 
     /** Sans l'espace qui indente les stats. */
     private static Component withoutIndent(Component line) {
-        if (!(line.getContents() instanceof PlainTextContents.LiteralContents literal) || !literal.text().equals(INDENT)) return line;
+        if (!(line.getContents() instanceof LiteralContents literal) || !literal.text().equals(INDENT)) return line;
         MutableComponent copy = Component.empty().setStyle(line.getStyle());
         line.getSiblings().forEach(copy::append);
         return copy;

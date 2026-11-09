@@ -111,7 +111,7 @@ public final class EditorService {
         List<DataProblem> problems = new ArrayList<>();
         JsonObject valid = document.fields().merge(List.of(new FieldSet.Layer(document.relativePath(), edited.get())), problems);
         if (!problems.isEmpty()) {
-            done.accept(new Outcome(false, Component.translatable(KEY + "invalid", problems.getFirst().toComponent())));
+            done.accept(new Outcome(false, Component.translatable(KEY + "invalid", problems.get(0).toComponent())));
             return;
         }
         JsonObject requested = JsonTree.expand(document.fields(), valid);

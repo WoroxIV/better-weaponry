@@ -32,7 +32,7 @@ public final class CombatCompat {
     /** Nom du mod de combat installé, pour l'afficher au joueur. */
     public static Optional<String> externalCombatModName() {
         if (LOADED.isEmpty()) return simulated ? Optional.of("Better Combat") : Optional.empty();
-        return Optional.of(LOADED.getFirst().equals(BETTER_COMBAT) ? "Better Combat" : "Epic Fight");
+        return Optional.of(LOADED.get(0).equals(BETTER_COMBAT) ? "Better Combat" : "Epic Fight");
     }
 
     /**

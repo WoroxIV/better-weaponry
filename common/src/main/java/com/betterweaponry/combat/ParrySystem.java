@@ -1,5 +1,6 @@
 package com.betterweaponry.combat;
 
+import com.betterweaponry.item.GearWear;
 import com.betterweaponry.platform.IncomingDamage;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.compat.CombatCompat;
@@ -172,8 +173,8 @@ public final class ParrySystem {
     private static void wearGuard(Player player, ItemStack weapon, int cost) {
         if (cost <= 0) return;
         int offhandCost = DualWieldSystem.isDualWielding(player) ? cost / 2 : 0;
-        weapon.hurtAndBreak(cost - offhandCost, player, EquipmentSlot.MAINHAND);
-        if (offhandCost > 0) player.getOffhandItem().hurtAndBreak(offhandCost, player, EquipmentSlot.OFFHAND);
+        GearWear.hurt(weapon, cost - offhandCost, player, EquipmentSlot.MAINHAND);
+        if (offhandCost > 0) GearWear.hurt(player.getOffhandItem(), offhandCost, player, EquipmentSlot.OFFHAND);
     }
 
     /**

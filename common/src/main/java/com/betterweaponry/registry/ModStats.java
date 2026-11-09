@@ -24,7 +24,7 @@ public final class ModStats {
     }
 
     private static Supplier<ResourceLocation> register(String name) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, name);
+        ResourceLocation id = new ResourceLocation(BetterWeaponry.MODID, name);
         return Platform.get().register(Registries.CUSTOM_STAT, name, () -> id);
     }
 

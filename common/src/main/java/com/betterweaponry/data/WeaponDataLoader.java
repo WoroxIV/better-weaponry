@@ -227,7 +227,7 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
     }
 
     private static ResourceLocation resourceId(String relativePath) {
-        return ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, DATA_DIRECTORY + "/" + relativePath);
+        return new ResourceLocation(BetterWeaponry.MODID, DATA_DIRECTORY + "/" + relativePath);
     }
 
     private static List<FieldSet.Layer> builtinLayer(String relativePath, List<DataProblem> problems) {
@@ -305,12 +305,12 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
     /** Toutes les valeurs ont déjà été validées une par une : le décodage complet ne devrait jamais échouer. */
     private static <T> T decode(Codec<T> codec, JsonObject merged, T fallback, String file, List<DataProblem> problems) {
         DataResult<T> result = codec.parse(JsonOps.INSTANCE, merged);
-        Optional<DataResult.Error<T>> error = result.error();
+        Optional<DataResult.PartialResult<T>> error = result.error();
         if (error.isPresent()) {
             problems.add(new DataProblem(DataProblem.Kind.INVALID, file, "*", error.get().message()));
             return fallback;
         }
-        return result.getOrThrow();
+        return DataResults.orThrow(result);
     }
 
     /** Un matériau inconnu n'empêche rien (il est simplement inutilisé), mais c'est souvent une faute de frappe. */

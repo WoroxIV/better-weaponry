@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "forge:rods/wooden"
+    },
+    "X": {
+      "tag": "forge:string"
+    }
+  },
+  "pattern": [
+    " MX",
+    "M X",
+    " MX"
+  ],
+  "result": {
+    "item": "better_weaponry:wooden_bow"
+  }
+}

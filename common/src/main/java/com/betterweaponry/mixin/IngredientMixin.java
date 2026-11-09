@@ -16,10 +16,4 @@ public abstract class IngredientMixin {
     private static Stream<? extends Ingredient.Value> betterweaponry$acceptModGear(Stream<? extends Ingredient.Value> values) {
         return GearIngredients.withModVersions(values);
     }
-
-    /** Les recettes lues dans les fichiers JSON passent par ce constructeur-ci. */
-    @ModifyVariable(method = "<init>([Lnet/minecraft/world/item/crafting/Ingredient$Value;)V", at = @At("HEAD"), argsOnly = true)
-    private static Ingredient.Value[] betterweaponry$acceptModGear(Ingredient.Value[] values) {
-        return GearIngredients.withModVersions(values);
-    }
 }

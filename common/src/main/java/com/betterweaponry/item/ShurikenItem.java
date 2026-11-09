@@ -2,23 +2,23 @@ package com.betterweaponry.item;
 
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.entity.ShurikenEntity;
+import com.betterweaponry.combat.ModEnchantment;
 import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.registry.ModStats;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentCategory;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
@@ -41,6 +41,8 @@ public class ShurikenItem extends Item implements RangedWeapon {
     private static final double MOB_REFERENCE_SPEED = 1.6D;
     private static final float MOB_INACCURACY = 6.0F;
     private static final int MAX_REMEMBERED_BROKEN = 64;
+    private static final int PROJECTILES_PER_MULTISHOT = 2;
+    private static final float SPREAD_PER_MULTISHOT = 10.0F;
 
     private final WeaponMaterial material;
 
@@ -82,11 +84,12 @@ public class ShurikenItem extends Item implements RangedWeapon {
     public void throwFrom(ServerLevel level, Player player, InteractionHand hand, ItemStack stack) {
         UUID batch = batchOf(stack).orElseGet(() -> assignBatch(stack));
         ItemStack thrown = stack.copyWithCount(1);
-        int count = EnchantmentHelper.processProjectileCount(level, stack, player, 1);
-        float spread = EnchantmentHelper.processProjectileSpread(level, stack, player, 0.0F);
+        int multishot = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.MULTISHOT, stack);
+        int count = 1 + PROJECTILES_PER_MULTISHOT * multishot;
+        float spread = SPREAD_PER_MULTISHOT * multishot;
 
         int damageBefore = stack.getDamageValue();
-        stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+        GearWear.hurt(stack, 1, player, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
         boolean broke = stack.isEmpty();
         boolean paid = broke || stack.getDamageValue() > damageBefore;
         if (broke) rememberBroken(player, batch);
@@ -168,13 +171,13 @@ public class ShurikenItem extends Item implements RangedWeapon {
 
     /** Identifie cet objet parmi tous les shurikens : les projectiles savent ainsi à qui rendre leur point. */
     private static Optional<UUID> batchOf(ItemStack stack) {
-        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return tag.hasUUID(BATCH_KEY) ? Optional.of(tag.getUUID(BATCH_KEY)) : Optional.empty();
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.hasUUID(BATCH_KEY) ? Optional.of(tag.getUUID(BATCH_KEY)) : Optional.empty();
     }
 
     private static UUID assignBatch(ItemStack stack) {
         UUID batch = UUID.randomUUID();
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putUUID(BATCH_KEY, batch));
+        stack.getOrCreateTag().putUUID(BATCH_KEY, batch);
         return batch;
     }
 
@@ -189,8 +192,14 @@ public class ShurikenItem extends Item implements RangedWeapon {
     }
 
     /** Il accepte les enchantements des arcs et des arbalètes, sauf ceux qui n'ont pas de sens sur un objet lancé. */
-    public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-        if (enchantment.is(Enchantments.INFINITY) || enchantment.is(Enchantments.QUICK_CHARGE)) return false;
-        return enchantment.value().isSupportedItem(stack);
+    public boolean supportsEnchantment(ItemStack stack, Enchantment enchantment) {
+        if (enchantment == Enchantments.INFINITY_ARROWS || enchantment == Enchantments.QUICK_CHARGE) return false;
+        if (enchantment instanceof ModEnchantment) return enchantment.canEnchant(stack);
+        return enchantment.category == EnchantmentCategory.BOW || enchantment.category == EnchantmentCategory.CROSSBOW || enchantment.category.canEnchant(this);
+    }
+
+    /** Méthode de Forge : la table d'enchantement suit les mêmes règles que l'enclume. */
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        return supportsEnchantment(stack, enchantment);
     }
 }

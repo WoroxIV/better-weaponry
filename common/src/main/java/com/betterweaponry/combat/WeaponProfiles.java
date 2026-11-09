@@ -91,9 +91,9 @@ public final class WeaponProfiles {
         for (WeaponType type : WeaponType.values()) {
             for (String entry : data.snapshot().weapon(type).items()) {
                 if (entry.startsWith(TAG_PREFIX)) {
-                    tags.add(new TagBinding(TagKey.create(Registries.ITEM, ResourceLocation.parse(entry.substring(1))), type));
+                    tags.add(new TagBinding(TagKey.create(Registries.ITEM, new ResourceLocation(entry.substring(1))), type));
                 } else {
-                    exact.putIfAbsent(ResourceLocation.parse(entry), type);
+                    exact.putIfAbsent(new ResourceLocation(entry), type);
                 }
             }
         }

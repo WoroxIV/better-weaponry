@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.betterweaponry.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_17",
   "client": [
     "ItemInHandLayerMixin",
     "KeyMappingAccessor",
@@ -20,16 +20,22 @@
     "ServerPlayerMixin",
     "IngredientMixin",
     "ItemStackMixin",
-    "AxeItemMixin",
     "CrossbowItemMixin",
     "MobRangedWeaponMixin",
     "PiglinMixin",
-    "AbstractArrowMixin",
     "MobAccessor",
     "MobMixin",
     "LivingEntityMixin",
     "LivingEntityAccessor",
-    "SweepParticleMixin"
+    "SweepParticleMixin",
+    "AbstractSkeletonMixin",
+    "BowItemMixin",
+    "EnchantmentHelperMixin",
+    "EnchantmentMixin",
+    "LivingEntityDamageMixin",
+    "LootTableMixin",
+    "PlayerDamageMixin",
+    "RecipeManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

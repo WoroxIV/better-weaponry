@@ -1,5 +1,6 @@
 package com.betterweaponry.event;
 
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.Entity;
@@ -18,7 +19,6 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 
 import java.util.List;
@@ -70,14 +70,21 @@ public final class VanillaGearEvents {
             if (!loadedFromDisk) MobEquipment.onFreshSpawn(mob, WeaponData.gear());
             VanillaGear.convertMobHands(mob, WeaponData.gear());
             MobCombat.addGoals(mob);
-        } else if (!loadedFromDisk && entity instanceof AbstractArrow arrow && !(arrow instanceof ShurikenEntity) && arrow.getOwner() instanceof Mob
-                && arrow.getWeaponItem() != null && arrow.getWeaponItem().getItem() instanceof RangedWeapon weapon) {
-            arrow.setDeltaMovement(RangedWeapon.mobShotVelocity(arrow.getDeltaMovement(), weapon.speedMultiplier()));
+        } else if (!loadedFromDisk && entity instanceof AbstractArrow arrow && !(arrow instanceof ShurikenEntity) && arrow.getOwner() instanceof Mob shooter) {
+            RangedWeapon weapon = rangedWeaponOf(shooter);
+            if (weapon != null) arrow.setDeltaMovement(RangedWeapon.mobShotVelocity(arrow.getDeltaMovement(), weapon.speedMultiplier()));
         }
     }
 
+    /** Une flèche ne sait pas de quelle arme elle vient : c'est celle que le tireur tient. */
+    @Nullable
+    private static RangedWeapon rangedWeaponOf(Mob mob) {
+        if (mob.getMainHandItem().getItem() instanceof RangedWeapon weapon) return weapon;
+        return mob.getOffhandItem().getItem() instanceof RangedWeapon weapon ? weapon : null;
+    }
+
     private static VillagerTrades.ItemListing sellsShield(int emeralds, WeaponMaterial material) {
-        return (trader, random) -> new MerchantOffer(new ItemCost(Items.EMERALD, emeralds), new ItemStack(ModItems.shield(material).get()), SHIELD_MAX_TRADES, SHIELD_XP, SHIELD_PRICE_MULTIPLIER);
+        return (trader, random) -> new MerchantOffer(new ItemStack(Items.EMERALD, emeralds), new ItemStack(ModItems.shield(material).get()), SHIELD_MAX_TRADES, SHIELD_XP, SHIELD_PRICE_MULTIPLIER);
     }
 
     /** Même échange, mais qui donne la version du mod si l'objet vendu est un objet vanilla remplacé. */
@@ -91,9 +98,9 @@ public final class VanillaGearEvents {
     /** Offre avec la version du mod si l'objet vendu est un objet vanilla remplacé, sinon l'offre d'origine. */
     public static MerchantOffer convertOffer(MerchantOffer offer, WeaponMaterial material) {
         if (!WeaponData.gear().replaceVanillaGear() || !VanillaGear.isReplaced(offer.getResult())) return offer;
-        ItemCost cost = offer.getItemCostA();
-        int emeralds = Math.min(MAX_EMERALDS, cost.count() * PRICE_MULTIPLIER_BY_MATERIAL.getOrDefault(material, 1));
-        return new MerchantOffer(new ItemCost(cost.item(), emeralds, cost.components()), offer.getItemCostB(), VanillaGear.convert(offer.getResult(), material),
+        ItemStack cost = offer.getBaseCostA();
+        int emeralds = Math.min(MAX_EMERALDS, cost.getCount() * PRICE_MULTIPLIER_BY_MATERIAL.getOrDefault(material, 1));
+        return new MerchantOffer(cost.copyWithCount(emeralds), offer.getCostB(), VanillaGear.convert(offer.getResult(), material),
                 offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier());
     }
 }

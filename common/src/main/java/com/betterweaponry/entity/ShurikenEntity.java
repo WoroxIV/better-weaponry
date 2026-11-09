@@ -3,9 +3,7 @@ package com.betterweaponry.entity;
 import com.betterweaponry.combat.ModEnchantments;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.item.ShurikenItem;
-import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.registry.ModEntities;
-import com.betterweaponry.registry.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -19,6 +17,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -36,6 +36,9 @@ public class ShurikenEntity extends AbstractArrow {
     private static final int RETURN_DELAY_TICKS = 4;
     /** Équivalent de Loyauté III : le retour doit rester rapide, les shurikens sont nombreux. */
     private static final int RETURN_STRENGTH = 3;
+    private static final double POWER_DAMAGE_PER_LEVEL = 0.5D;
+    private static final int FLAME_SECONDS = 100;
+    private static final String ITEM_KEY = "Item";
 
     private boolean dealtDamage;
     /** Pendant l'impact, le jeu supprimerait le projectile : on le garde pour le faire tomber. */
@@ -51,9 +54,10 @@ public class ShurikenEntity extends AbstractArrow {
      * @param recoverable le joueur peut le récupérer : le lancer a coûté un point de durabilité et ce n'est pas un extra de Tir multiple
      */
     public ShurikenEntity(Level level, LivingEntity owner, ItemStack stack, boolean recoverable) {
-        super(ModEntities.SHURIKEN.get(), owner, level, stack, stack);
+        super(ModEntities.SHURIKEN.get(), owner, level);
         setBaseDamage(WeaponData.gear().shurikens().baseDamage());
-        if (owner instanceof Player player && player.hasInfiniteMaterials()) {
+        applyEnchantments(stack);
+        if (owner instanceof Player player && player.getAbilities().instabuild) {
             this.pickup = Pickup.CREATIVE_ONLY;
         } else if (!recoverable) {
             this.pickup = Pickup.DISALLOWED;
@@ -62,11 +66,22 @@ public class ShurikenEntity extends AbstractArrow {
         this.entityData.set(DATA_RETURNING, this.pickup == Pickup.ALLOWED && ModEnchantments.level(level, stack, ModEnchantments.RETURNING) > 0);
     }
 
+    /** Le jeu lit ces enchantements dans l'arc qui tire : ici, c'est l'objet lancé. */
+    private void applyEnchantments(ItemStack stack) {
+        int power = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.POWER_ARROWS, stack);
+        if (power > 0) setBaseDamage(getBaseDamage() + power * POWER_DAMAGE_PER_LEVEL + POWER_DAMAGE_PER_LEVEL);
+        int punch = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PUNCH_ARROWS, stack);
+        if (punch > 0) setKnockback(punch);
+        if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.FLAMING_ARROWS, stack) > 0) setSecondsOnFire(FLAME_SECONDS);
+        int piercing = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.PIERCING, stack);
+        if (piercing > 0) setPierceLevel((byte) piercing);
+    }
+
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_ITEM, ItemStack.EMPTY);
-        builder.define(DATA_RETURNING, false);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_ITEM, ItemStack.EMPTY);
+        this.entityData.define(DATA_RETURNING, false);
     }
 
     /** L'objet lancé, pour le rendu. */
@@ -151,10 +166,10 @@ public class ShurikenEntity extends AbstractArrow {
     protected boolean tryPickup(Player player) {
         if (this.pickup != Pickup.ALLOWED) return super.tryPickup(player);
         if (!ownedBy(player)) return false;
-        if (ShurikenItem.recover(player, getPickupItemStackOrigin())) return true;
+        if (ShurikenItem.recover(player, getItem())) return true;
         if (!isNoPhysics()) return false;
         // Revenu vers un joueur qui ne peut pas le reprendre : il disparaît au lieu de le suivre sans fin, sans perdre l'objet.
-        ShurikenItem.dropIfBroken(player, getPickupItemStackOrigin());
+        ShurikenItem.dropIfBroken(player, getItem());
         return true;
     }
 
@@ -167,11 +182,6 @@ public class ShurikenEntity extends AbstractArrow {
     @Override
     protected ItemStack getPickupItem() {
         return ItemStack.EMPTY;
-    }
-
-    @Override
-    protected ItemStack getDefaultPickupItem() {
-        return new ItemStack(ModItems.shuriken(WeaponMaterials.WOODEN).get());
     }
 
     @Override
@@ -189,6 +199,7 @@ public class ShurikenEntity extends AbstractArrow {
         super.addAdditionalSaveData(compound);
         compound.putBoolean("DealtDamage", this.dealtDamage);
         compound.putBoolean("Returning", isReturning());
+        compound.put(ITEM_KEY, getItem().save(new CompoundTag()));
     }
 
     @Override
@@ -196,6 +207,6 @@ public class ShurikenEntity extends AbstractArrow {
         super.readAdditionalSaveData(compound);
         this.dealtDamage = compound.getBoolean("DealtDamage");
         this.entityData.set(DATA_RETURNING, compound.getBoolean("Returning"));
-        this.entityData.set(DATA_ITEM, getPickupItemStackOrigin().copyWithCount(1));
+        this.entityData.set(DATA_ITEM, ItemStack.of(compound.getCompound(ITEM_KEY)));
     }
 }

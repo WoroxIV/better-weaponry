@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/enderium",
+      "required": false
+    },
+    {
+      "id": "thermal:enderium_ingot",
+      "required": false
+    }
+  ]
+}

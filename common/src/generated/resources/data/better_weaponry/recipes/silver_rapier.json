@@ -1,0 +1,58 @@
+{
+  "conditions": [
+    {
+      "type": "forge:or",
+      "values": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "immersiveengineering"
+        },
+        {
+          "type": "forge:mod_loaded",
+          "modid": "thermal"
+        },
+        {
+          "type": "forge:mod_loaded",
+          "modid": "occultism"
+        },
+        {
+          "type": "forge:mod_loaded",
+          "modid": "oreganized"
+        },
+        {
+          "type": "forge:mod_loaded",
+          "modid": "galosphere"
+        },
+        {
+          "type": "forge:mod_loaded",
+          "modid": "iceandfire"
+        }
+      ]
+    },
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:tag_empty",
+        "tag": "forge:ingots/silver"
+      }
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "forge:ingots/silver"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "pattern": [
+    "  M",
+    " M ",
+    "S  "
+  ],
+  "result": {
+    "item": "better_weaponry:silver_rapier"
+  }
+}

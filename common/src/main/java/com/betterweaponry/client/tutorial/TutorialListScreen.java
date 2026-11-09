@@ -17,7 +17,7 @@ import java.util.Map;
 
 /** Tous les tutoriels, avec une coche sur ceux déjà vus. */
 final class TutorialListScreen extends Screen {
-    private static final ResourceLocation SEEN_SPRITE = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "tutorial/seen");
+    private static final ResourceLocation SEEN_SPRITE = new ResourceLocation(BetterWeaponry.MODID, "textures/gui/sprites/tutorial/seen.png");
     private static final int BUTTON_WIDTH = 150;
     private static final int BUTTON_HEIGHT = 20;
     private static final int GAP = 4;
@@ -61,11 +61,12 @@ final class TutorialListScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(font, title, width / 2, TITLE_Y, TITLE_COLOR);
         buttons.forEach((id, button) -> {
             if (ClientConfig.isTutorialSeen(id)) {
-                graphics.blitSprite(SEEN_SPRITE, button.getX() + SPRITE_MARGIN, button.getY() + SPRITE_MARGIN, SPRITE_SIZE, SPRITE_SIZE);
+                graphics.blit(SEEN_SPRITE, button.getX() + SPRITE_MARGIN, button.getY() + SPRITE_MARGIN, 0.0F, 0.0F, SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE, SPRITE_SIZE);
             }
         });
     }

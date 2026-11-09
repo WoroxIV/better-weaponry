@@ -42,7 +42,7 @@ public final class ModSounds {
     }
 
     private static Registered<SoundEvent, SoundEvent> register(String name) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, name);
+        ResourceLocation id = new ResourceLocation(BetterWeaponry.MODID, name);
         return Platform.get().register(Registries.SOUND_EVENT, name, () -> SoundEvent.createVariableRangeEvent(id));
     }
 

@@ -9,7 +9,6 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,10 +41,13 @@ public abstract class MobMixin implements ICombatMob {
         betterweaponry$guardBrokenUntil = gameTime;
     }
 
-    @ModifyReturnValue(method = "getAttackBoundingBox", at = @At("RETURN"))
-    private AABB betterweaponry$weaponReach(AABB zone) {
+    /** Le jeu compare des distances au carré : la portée de l'arme s'ajoute à la distance, pas à son carré. */
+    @ModifyReturnValue(method = "getMeleeAttackRangeSqr", at = @At("RETURN"))
+    private double betterweaponry$weaponReach(double rangeSqr) {
         double extra = MobCombat.extraReach((Mob) (Object) this);
-        return extra == 0.0D ? zone : zone.inflate(extra, 0.0D, extra);
+        if (extra == 0.0D) return rangeSqr;
+        double range = Math.max(0.0D, Math.sqrt(rangeSqr) + extra);
+        return range * range;
     }
 
     /**

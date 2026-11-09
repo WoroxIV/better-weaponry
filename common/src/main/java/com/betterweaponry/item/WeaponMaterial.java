@@ -1,10 +1,10 @@
 package com.betterweaponry.item;
 
+import com.betterweaponry.platform.Platform;
 import com.betterweaponry.BetterWeaponry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tier;
@@ -58,9 +58,11 @@ public final class WeaponMaterial {
         return new Builder(id);
     }
 
+    private static final int IRON_TOOL_LEVEL = 2;
+
     /** Raccourci pour un tag d'item, ex : {@code itemTag("c:ingots/steel")}. */
     public static TagKey<Item> itemTag(String id) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.parse(id));
+        return TagKey.create(Registries.ITEM, new ResourceLocation(Platform.get().commonTag(id)));
     }
 
     // --- Accesseurs ---
@@ -172,7 +174,7 @@ public final class WeaponMaterial {
                 return new MaterialIngredient(itemTag(entries[0].substring(1)), List.of());
             }
             TagKey<Item> tag = TagKey.create(Registries.ITEM,
-                    ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "weapon_materials/" + generatedTagPath));
+                    new ResourceLocation(BetterWeaponry.MODID, "weapon_materials/" + generatedTagPath));
             return new MaterialIngredient(tag, List.of(entries));
         }
     }
@@ -274,8 +276,8 @@ public final class WeaponMaterial {
             // Réparation : l'ingrédient du matériau (ou l'ajout de l'amélioration). Lu à la demande, donc
             // les tags n'ont pas besoin d'être chargés au démarrage.
             TagKey<Item> repairTag = craftingIngredient != null ? craftingIngredient.tag() : smithingUpgrade.addition().tag();
-            // Le tag de blocs n'a pas d'effet pour une épée (elle ne mine que les toiles d'araignée).
-            return new WeaponTier(BlockTags.INCORRECT_FOR_IRON_TOOL, durability, 6.0F, attackBonus, enchantability,
+            // Le niveau de minage n'a pas d'effet pour une épée (elle ne mine que les toiles d'araignée).
+            return new WeaponTier(IRON_TOOL_LEVEL, durability, 6.0F, attackBonus, enchantability,
                     () -> Ingredient.of(repairTag));
         }
     }

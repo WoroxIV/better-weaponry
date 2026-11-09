@@ -1,0 +1,187 @@
+{
+  "values": [
+    "minecraft:crossbow",
+    "better_weaponry:wooden_crossbow",
+    "better_weaponry:stone_crossbow",
+    "better_weaponry:iron_crossbow",
+    "better_weaponry:golden_crossbow",
+    "better_weaponry:diamond_crossbow",
+    "better_weaponry:netherite_crossbow",
+    {
+      "id": "better_weaponry:steel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_crossbow",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_crossbow",
+      "required": false
+    }
+  ]
+}

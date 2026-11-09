@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:gems/zanite",
+      "required": false
+    },
+    {
+      "id": "aether:zanite_gemstone",
+      "required": false
+    }
+  ]
+}

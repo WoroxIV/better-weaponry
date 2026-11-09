@@ -63,7 +63,7 @@ public final class EnchantmentEvents {
         float healthBefore = attacker.getHealth();
         attacker.heal((float) ModEnchantments.vampirismHeal(damage, level));
         // La statistique compte ce qui a vraiment été regagné, en dixièmes de point de vie.
-        if (attacker instanceof Player player) player.awardStat(ModStats.HEALTH_STOLEN.get(), Math.round((player.getHealth() - healthBefore) * 10.0F));
+        attacker.awardStat(ModStats.HEALTH_STOLEN.get(), Math.round((attacker.getHealth() - healthBefore) * 10.0F));
         ModEnchantments.trail(world, BLOOD, target.getEyePosition(), attacker.getEyePosition());
         world.playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.SCULK_BLOCK_CHARGE, SoundSource.PLAYERS, 0.6F, 1.4F);
     }
@@ -72,6 +72,6 @@ public final class EnchantmentEvents {
     private static void applyBleeding(ServerLevel world, Player attacker, ItemStack weapon, LivingEntity target) {
         int level = ModEnchantments.level(world, weapon, ModEnchantments.BLEEDING);
         if (level <= 0 || PlayerCombatState.of(attacker).lastAttackStrength < CHARGED_HIT || target.getType().is(EntityTypeTags.SKELETONS)) return;
-        target.addEffect(new MobEffectInstance(ModEffects.BLEEDING.holder(), (BLEEDING_BASE_SECONDS + level) * TICKS_PER_SECOND), attacker);
+        target.addEffect(new MobEffectInstance(ModEffects.BLEEDING.get(), (BLEEDING_BASE_SECONDS + level) * TICKS_PER_SECOND), attacker);
     }
 }

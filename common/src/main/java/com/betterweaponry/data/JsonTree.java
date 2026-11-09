@@ -58,7 +58,7 @@ public final class JsonTree {
             JsonElement reference = base.get(field.name());
             if (field.kind() == DataField.Kind.OBJECT && value.isJsonObject() && reference != null && reference.isJsonObject()) {
                 JsonObject changed = diff(field.children(), value.getAsJsonObject(), reference.getAsJsonObject());
-                if (!changed.isEmpty()) result.add(field.name(), changed);
+                if (changed.size() > 0) result.add(field.name(), changed);
             } else if (!sameValue(value, reference)) {
                 result.add(field.name(), value.deepCopy());
             }
@@ -92,7 +92,7 @@ public final class JsonTree {
     private static void collectPaths(JsonObject object, String prefix, List<String> paths) {
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             String path = prefix + entry.getKey();
-            if (entry.getValue().isJsonObject() && !entry.getValue().getAsJsonObject().isEmpty()) {
+            if (entry.getValue().isJsonObject() && entry.getValue().getAsJsonObject().size() > 0) {
                 collectPaths(entry.getValue().getAsJsonObject(), path + ".", paths);
             } else {
                 paths.add(path);

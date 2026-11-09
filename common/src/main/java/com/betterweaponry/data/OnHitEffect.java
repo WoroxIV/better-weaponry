@@ -2,7 +2,6 @@ package com.betterweaponry.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
@@ -43,8 +42,8 @@ public record OnHitEffect(ResourceLocation effect, double durationSeconds, int l
     ).apply(instance, OnHitEffect::new));
 
     /** L'effet du registre, vide s'il a disparu (mod retiré depuis la validation). */
-    public Optional<Holder<MobEffect>> holder() {
-        return BuiltInRegistries.MOB_EFFECT.getHolder(effect).map(reference -> reference);
+    public Optional<MobEffect> mobEffect() {
+        return BuiltInRegistries.MOB_EFFECT.getOptional(effect);
     }
 
     public int durationTicks() {
@@ -53,6 +52,6 @@ public record OnHitEffect(ResourceLocation effect, double durationSeconds, int l
 
     /** Effet prêt à appliquer (le jeu compte les niveaux à partir de 0). */
     public Optional<MobEffectInstance> createInstance() {
-        return holder().map(holder -> new MobEffectInstance(holder, durationTicks(), level - 1));
+        return mobEffect().map(value -> new MobEffectInstance(value, durationTicks(), level - 1));
     }
 }

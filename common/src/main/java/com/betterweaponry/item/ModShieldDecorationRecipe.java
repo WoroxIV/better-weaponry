@@ -1,37 +1,38 @@
 package com.betterweaponry.item;
 
 import com.betterweaponry.registry.ModRecipes;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.BannerItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BannerPatternLayers;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 /** Bouclier + bannière = bouclier décoré. La recette vanilla n'accepte que le bouclier vanilla. */
 public class ModShieldDecorationRecipe extends CustomRecipe {
 
-    public ModShieldDecorationRecipe(CraftingBookCategory category) {
-        super(category);
+    public ModShieldDecorationRecipe(ResourceLocation id, CraftingBookCategory category) {
+        super(id, category);
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingContainer input, Level level) {
         ItemStack shield = ItemStack.EMPTY;
         ItemStack banner = ItemStack.EMPTY;
-        for (int i = 0; i < input.size(); i++) {
+        for (int i = 0; i < input.getContainerSize(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.isEmpty()) continue;
             if (stack.getItem() instanceof BannerItem) {
                 if (!banner.isEmpty()) return false;
                 banner = stack;
             } else {
-                boolean undecorated = stack.getItem() instanceof WeaponShieldItem
-                        && stack.getOrDefault(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY).layers().isEmpty();
+                boolean undecorated = stack.getItem() instanceof WeaponShieldItem && BlockItem.getBlockEntityData(stack) == null;
                 if (!undecorated || !shield.isEmpty()) return false;
                 shield = stack;
             }
@@ -40,17 +41,19 @@ public class ModShieldDecorationRecipe extends CustomRecipe {
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(CraftingContainer input, RegistryAccess registries) {
         ItemStack shield = ItemStack.EMPTY;
         ItemStack banner = ItemStack.EMPTY;
-        for (int i = 0; i < input.size(); i++) {
+        for (int i = 0; i < input.getContainerSize(); i++) {
             ItemStack stack = input.getItem(i);
             if (stack.getItem() instanceof BannerItem) banner = stack;
             else if (stack.getItem() instanceof WeaponShieldItem) shield = stack.copy();
         }
         if (shield.isEmpty() || banner.isEmpty()) return ItemStack.EMPTY;
-        shield.set(DataComponents.BANNER_PATTERNS, banner.get(DataComponents.BANNER_PATTERNS));
-        shield.set(DataComponents.BASE_COLOR, ((BannerItem) banner.getItem()).getColor());
+        CompoundTag bannerData = BlockItem.getBlockEntityData(banner);
+        CompoundTag decoration = bannerData == null ? new CompoundTag() : bannerData.copy();
+        decoration.putInt("Base", ((BannerItem) banner.getItem()).getColor().getId());
+        BlockItem.setBlockEntityData(shield, BlockEntityType.BANNER, decoration);
         return shield;
     }
 

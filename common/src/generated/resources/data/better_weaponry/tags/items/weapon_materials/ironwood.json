@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/ironwood",
+      "required": false
+    },
+    {
+      "id": "twilightforest:ironwood_ingot",
+      "required": false
+    }
+  ]
+}

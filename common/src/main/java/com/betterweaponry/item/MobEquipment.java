@@ -68,7 +68,7 @@ public final class MobEquipment {
         boolean dualWield = WeaponData.rules().dualWieldActive() && !dualWielded.isEmpty() && roll(random, settings.dualWieldChance());
         WeaponType type = dualWield ? dualWielded.get(random.nextInt(dualWielded.size())) : WeaponType.values()[random.nextInt(WeaponType.values().length)];
         Item weapon = ModItems.get(type, material).get();
-        mob.setItemSlot(EquipmentSlot.MAINHAND, original.transmuteCopy(weapon, 1));
+        mob.setItemSlot(EquipmentSlot.MAINHAND, VanillaGear.transmute(original, weapon, 1));
         if (dualWield) {
             mob.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(weapon));
             mob.setDropChance(EquipmentSlot.OFFHAND, 0.0F);

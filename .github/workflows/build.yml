@@ -12,11 +12,12 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      # Le mod se compile en Java 21 ; Gradle doit tourner en Java 25 pour l'outil de build de Fabric (le dernier listé est celui par défaut).
+      # Le mod se compile en Java 17 pour Forge 1.20.1 ; Gradle doit tourner en Java 25 pour l'outil de build de Fabric (le dernier listé est celui par défaut).
       - name: Setup JDK 21 and 25
         uses: actions/setup-java@v4
         with:
           java-version: |
+            17
             21
             25
           distribution: 'temurin'

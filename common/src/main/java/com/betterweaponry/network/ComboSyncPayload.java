@@ -1,13 +1,8 @@
 package com.betterweaponry.network;
 
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.item.WeaponType;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -21,16 +16,20 @@ import net.minecraft.world.entity.player.Player;
  * @param handTurn  main qui frappe ensuite : 0 = principale, 1 = secondaire, -1 = ne pas y toucher (après un coup,
  *                  le client a pu frapper de nouveau entre-temps et a déjà la bonne main)
  */
-public record ComboSyncPayload(int step, int ticksLeft, int typeIndex, int handTurn) implements CustomPacketPayload {
-    public static final Type<ComboSyncPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "combo_sync"));
+public record ComboSyncPayload(int step, int ticksLeft, int typeIndex, int handTurn) implements Payload {
     private static final int KEEP_HAND = -1;
 
-    public static final StreamCodec<ByteBuf, ComboSyncPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT, ComboSyncPayload::step,
-            ByteBufCodecs.VAR_INT, ComboSyncPayload::ticksLeft,
-            ByteBufCodecs.VAR_INT, ComboSyncPayload::typeIndex,
-            ByteBufCodecs.VAR_INT, ComboSyncPayload::handTurn,
-            ComboSyncPayload::new);
+    public static ComboSyncPayload read(FriendlyByteBuf buffer) {
+        return new ComboSyncPayload(buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt());
+    }
+
+    @Override
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeVarInt(step);
+        buffer.writeVarInt(ticksLeft);
+        buffer.writeVarInt(typeIndex);
+        buffer.writeVarInt(handTurn);
+    }
 
     public static ComboSyncPayload of(Player player, PlayerCombatState state) {
         return create(player, state, KEEP_HAND);
@@ -45,11 +44,6 @@ public record ComboSyncPayload(int step, int ticksLeft, int typeIndex, int handT
         long ticksLeft = Math.max(0L, state.comboExpiresAt - player.level().getGameTime());
         int typeIndex = state.comboType == null ? -1 : state.comboType.ordinal();
         return new ComboSyncPayload(state.comboStep, (int) Math.min(Integer.MAX_VALUE, ticksLeft), typeIndex, handTurn);
-    }
-
-    @Override
-    public Type<ComboSyncPayload> type() {
-        return TYPE;
     }
 
     /** Côté client : remplace l'état du combo du joueur par celui du serveur. */

@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Slagwapens",
   "tag.item.better_weaponry.shields": "Schilden",
   "tag.item.better_weaponry.shurikens": "Shuriken",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherietverbeteringssjablonen"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherietverbeteringssjablonen",
+  "attribute.name.player.sweeping_damage_ratio": "verscherpingsschaderatio"
 }

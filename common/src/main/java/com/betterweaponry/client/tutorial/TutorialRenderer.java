@@ -53,10 +53,10 @@ final class TutorialRenderer {
     private static final float RISE_BLOCKS = 0.9F;
     private static final float RISE_SIDE_PIXELS = 26.0F;
     /** La version à bras larges, comme le modèle : celle à bras fins laisse des trous transparents. */
-    private static final ResourceLocation PLAYER_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/player/wide/steve.png");
-    private static final ResourceLocation ZOMBIE_TEXTURE = ResourceLocation.withDefaultNamespace("textures/entity/zombie/zombie.png");
-    private static final ResourceLocation ARMOR_OUTER_TEXTURE = ResourceLocation.withDefaultNamespace("textures/models/armor/iron_layer_1.png");
-    private static final ResourceLocation ARMOR_INNER_TEXTURE = ResourceLocation.withDefaultNamespace("textures/models/armor/iron_layer_2.png");
+    private static final ResourceLocation PLAYER_TEXTURE = new ResourceLocation("textures/entity/player/wide/steve.png");
+    private static final ResourceLocation ZOMBIE_TEXTURE = new ResourceLocation("textures/entity/zombie/zombie.png");
+    private static final ResourceLocation ARMOR_OUTER_TEXTURE = new ResourceLocation("textures/models/armor/iron_layer_1.png");
+    private static final ResourceLocation ARMOR_INNER_TEXTURE = new ResourceLocation("textures/models/armor/iron_layer_2.png");
 
     /** Un texte ou une étincelle à dessiner par-dessus la scène, à cet endroit de l'écran. */
     record ScreenLabel(float x, float y, Component text, int color) {
@@ -144,10 +144,10 @@ final class TutorialRenderer {
     }
 
     private static void quad(Matrix4f matrix, VertexConsumer quads, float x1, float z1, float x2, float z2, float x3, float z3, float x4, float z4, int color) {
-        quads.addVertex(matrix, x1, GROUND_OFFSET, z1).setColor(color);
-        quads.addVertex(matrix, x2, GROUND_OFFSET, z2).setColor(color);
-        quads.addVertex(matrix, x3, GROUND_OFFSET, z3).setColor(color);
-        quads.addVertex(matrix, x4, GROUND_OFFSET, z4).setColor(color);
+        quads.vertex(matrix, x1, GROUND_OFFSET, z1).color(color).endVertex();
+        quads.vertex(matrix, x2, GROUND_OFFSET, z2).color(color).endVertex();
+        quads.vertex(matrix, x3, GROUND_OFFSET, z3).color(color).endVertex();
+        quads.vertex(matrix, x4, GROUND_OFFSET, z4).color(color).endVertex();
     }
 
     /** Disque ou secteur au sol, avec un bord plus visible. */
@@ -225,7 +225,7 @@ final class TutorialRenderer {
         pose.translate(0.0F, -MODEL_OFFSET, 0.0F);
 
         ResourceLocation texture = zombie ? ZOMBIE_TEXTURE : PLAYER_TEXTURE;
-        model.renderToBuffer(pose, buffers.getBuffer(model.renderType(texture)), LIGHT, overlay);
+        model.renderToBuffer(pose, buffers.getBuffer(model.renderType(texture)), LIGHT, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
         if (actor.armored()) drawArmor(pose, buffers, model, overlay);
         drawHeldItem(pose, buffers, model.rightArm, state.mainHand(), false, model);
         drawHeldItem(pose, buffers, model.leftArm, state.offHand(), true, model);
@@ -243,11 +243,11 @@ final class TutorialRenderer {
             armor.leftLeg.copyFrom(model.leftLeg);
             armor.hat.visible = false;
         }
-        armorOuter.renderToBuffer(pose, buffers.getBuffer(RenderType.armorCutoutNoCull(ARMOR_OUTER_TEXTURE)), LIGHT, overlay);
+        armorOuter.renderToBuffer(pose, buffers.getBuffer(RenderType.armorCutoutNoCull(ARMOR_OUTER_TEXTURE)), LIGHT, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
         armorInner.head.visible = false;
         armorInner.rightArm.visible = false;
         armorInner.leftArm.visible = false;
-        armorInner.renderToBuffer(pose, buffers.getBuffer(RenderType.armorCutoutNoCull(ARMOR_INNER_TEXTURE)), LIGHT, overlay);
+        armorInner.renderToBuffer(pose, buffers.getBuffer(RenderType.armorCutoutNoCull(ARMOR_INNER_TEXTURE)), LIGHT, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     /** Même placement que le calque vanilla des objets en main. */

@@ -20,7 +20,9 @@ final class DocumentList extends ObjectSelectionList<DocumentList.Entry> {
 
     DocumentList(Minecraft minecraft, int width, int height, int y, Consumer<String> onSelect,
                  Predicate<String> isDirty, Predicate<String> isInvalid) {
-        super(minecraft, width, height, y, ITEM_HEIGHT);
+        super(minecraft, width, height, y, y + height, ITEM_HEIGHT);
+        setRenderBackground(false);
+        setRenderTopAndBottom(false);
         this.onSelect = onSelect;
         this.isDirty = isDirty;
         this.isInvalid = isInvalid;
@@ -43,7 +45,7 @@ final class DocumentList extends ObjectSelectionList<DocumentList.Entry> {
 
     @Override
     protected int getScrollbarPosition() {
-        return getX() + width - 6;
+        return x0 + width - 6;
     }
 
     final class Entry extends ObjectSelectionList.Entry<Entry> {

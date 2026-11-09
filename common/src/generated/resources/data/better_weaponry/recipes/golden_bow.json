@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "forge:ingots/gold"
+    },
+    "X": {
+      "tag": "forge:string"
+    }
+  },
+  "pattern": [
+    " MX",
+    "M X",
+    " MX"
+  ],
+  "result": {
+    "item": "better_weaponry:golden_bow"
+  }
+}

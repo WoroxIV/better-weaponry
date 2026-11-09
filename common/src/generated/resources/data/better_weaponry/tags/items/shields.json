@@ -1,0 +1,186 @@
+{
+  "values": [
+    "better_weaponry:wooden_shield",
+    "better_weaponry:stone_shield",
+    "better_weaponry:iron_shield",
+    "better_weaponry:golden_shield",
+    "better_weaponry:diamond_shield",
+    "better_weaponry:netherite_shield",
+    {
+      "id": "better_weaponry:steel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_shield",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_shield",
+      "required": false
+    }
+  ]
+}

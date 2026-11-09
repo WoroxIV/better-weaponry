@@ -57,8 +57,10 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
     private final WeaponEditorScreen screen;
 
     FieldList(Minecraft minecraft, WeaponEditorScreen screen, int width, int height, int y) {
-        super(minecraft, width, height, y, ROW_HEIGHT);
+        super(minecraft, width, height, y, y + height, ROW_HEIGHT);
         this.screen = screen;
+        setRenderBackground(false);
+        setRenderTopAndBottom(false);
     }
 
     @Override
@@ -66,9 +68,17 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
         return width - 14;
     }
 
+    int listWidth() {
+        return width;
+    }
+
+    int left() {
+        return x0;
+    }
+
     @Override
     protected int getScrollbarPosition() {
-        return getX() + width - 6;
+        return x0 + width - 6;
     }
 
     void clear(boolean resetScroll) {
@@ -446,7 +456,7 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
         @Override
         public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
                            boolean hovering, float partialTick) {
-            AbstractWidget button = widgets.getFirst();
+            AbstractWidget button = widgets.get(0);
             button.setPosition(labelX(left), top);
             button.render(graphics, mouseX, mouseY, partialTick);
         }
@@ -629,7 +639,7 @@ final class FieldList extends ContainerObjectSelectionList<FieldList.Row> {
         @Override
         public void render(GuiGraphics graphics, int index, int top, int left, int width, int height, int mouseX, int mouseY,
                            boolean hovering, float partialTick) {
-            AbstractWidget button = widgets.getFirst();
+            AbstractWidget button = widgets.get(0);
             button.setPosition(left + width - 2 - button.getWidth(), top);
             int x = labelX(left);
             graphics.renderItem(stack.get(), x, top + 1);

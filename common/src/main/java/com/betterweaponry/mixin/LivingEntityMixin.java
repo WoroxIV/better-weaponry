@@ -1,23 +1,22 @@
 package com.betterweaponry.mixin;
 
+import net.minecraft.world.item.ItemStack;
+import com.betterweaponry.item.WeaponItem;
+import com.betterweaponry.combat.AdoptedItemEvents;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.MobCombat;
 import com.betterweaponry.combat.PlayerCombatState;
-import com.betterweaponry.combat.WeaponProfiles;
-import com.betterweaponry.compat.CombatCompat;
-import com.betterweaponry.data.WeaponData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Partie "LivingEntity" du dual wield et des combos. Ces méthodes sont définies dans LivingEntity,
@@ -80,14 +79,13 @@ public abstract class LivingEntityMixin {
         }
     }
 
-    /** Objet adopté par une arme qui désactive les boucliers (champ "items"). */
-    @Inject(method = "canDisableShield", at = @At("HEAD"), cancellable = true)
-    private void betterweaponry$adoptedDisablesShield(CallbackInfoReturnable<Boolean> cir) {
-        ItemStack weapon = ((LivingEntity) (Object) this).getMainHandItem();
-        if (WeaponData.rules().shieldDisablingActive() && WeaponProfiles.isAdopted(weapon) && !CombatCompat.isFakePlayer((LivingEntity) (Object) this)
-                && WeaponProfiles.definition(weapon).orElseThrow().disablesShield()) {
-            cir.setReturnValue(true);
-        }
+    /** En 1.20.1, le jeu ne regarde que la hache : les armes du mod et les objets adoptés comptent aussi. */
+    @ModifyReturnValue(method = "canDisableShield", at = @At("RETURN"))
+    private boolean betterweaponry$weaponsDisableShields(boolean disables) {
+        LivingEntity self = (LivingEntity) (Object) this;
+        ItemStack weapon = self.getMainHandItem();
+        if (weapon.getItem() instanceof WeaponItem item) return item.canDisableShield(weapon, self.getUseItem(), self, self);
+        return disables || AdoptedItemEvents.disablesShield(weapon, self);
     }
 
     /**
@@ -95,7 +93,7 @@ public abstract class LivingEntityMixin {
      * signalerait la casse de la main principale : son et particules seraient ceux de la mauvaise arme.
      * On inverse donc la main signalée tant que les mains sont échangées.
      */
-    @ModifyVariable(method = "onEquippedItemBroken", at = @At("HEAD"), argsOnly = true)
+    @ModifyVariable(method = "broadcastBreakEvent(Lnet/minecraft/world/entity/EquipmentSlot;)V", at = @At("HEAD"), argsOnly = true)
     private EquipmentSlot betterweaponry$reportBrokenHandCorrectly(EquipmentSlot slot) {
         if ((Object) this instanceof Player player && PlayerCombatState.of(player).activeSwap != null) {
             if (slot == EquipmentSlot.MAINHAND) return EquipmentSlot.OFFHAND;

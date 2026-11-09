@@ -554,5 +554,6 @@
     "better_weaponry.tutorial.combos.hits": "Cada golpe que acierta hace avanzar el combo, que se muestra en pantalla.",
     "better_weaponry.tutorial.combos.finisher": "El último golpe alcanza toda un área: %s bloques en %s°.",
     "better_weaponry.tutorial.combos.reset": "Si no aciertas durante %s s, el combo vuelve a empezar."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "Proporción del daño de barrido"
 }

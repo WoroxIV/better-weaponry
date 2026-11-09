@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/signalum",
+      "required": false
+    },
+    {
+      "id": "thermal:signalum_ingot",
+      "required": false
+    }
+  ]
+}

@@ -12,33 +12,33 @@ public final class ModTags {
      * Objets d'autres mods utilisables en dual wield sans être déclarés dans une arme. Vide par défaut :
      * pour les armes du mod, c'est l'option "dual_wielded" de leur fichier qui compte.
      */
-    public static final TagKey<Item> DUAL_WIELDABLE = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "dual_wieldable"));
+    public static final TagKey<Item> DUAL_WIELDABLE = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "dual_wieldable"));
 
     /**
      * Objets qui comptent comme des armes de mêlée (ligne de portée du tooltip, dash avec une arme dans l'autre main).
      * Par défaut : épées, haches, trident et le tag commun des armes de mêlée ({@code c:tools/melee_weapon}).
      */
-    public static final TagKey<Item> MELEE_WEAPONS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "melee_weapons"));
+    public static final TagKey<Item> MELEE_WEAPONS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "melee_weapons"));
 
     /** Tous les boucliers du mod. */
-    public static final TagKey<Item> SHIELDS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "shields"));
+    public static final TagKey<Item> SHIELDS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "shields"));
 
     /** Arcs du mod et arc vanilla (recette du distributeur). */
-    public static final TagKey<Item> BOWS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "bows"));
+    public static final TagKey<Item> BOWS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "bows"));
     /** Arbalètes du mod et arbalète vanilla (succès Ol' Betsy). */
-    public static final TagKey<Item> CROSSBOWS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "crossbows"));
+    public static final TagKey<Item> CROSSBOWS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "crossbows"));
 
     /** Tous les shurikens : reçoivent les enchantements des arcs et des arbalètes. */
-    public static final TagKey<Item> SHURIKENS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "shurikens"));
+    public static final TagKey<Item> SHURIKENS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "shurikens"));
 
     /** Armes qui parent : elles peuvent recevoir Riposte. */
-    public static final TagKey<Item> ENCHANTABLE_PARRY_WEAPONS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/parry_weapons"));
+    public static final TagKey<Item> ENCHANTABLE_PARRY_WEAPONS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/parry_weapons"));
     /** Tout ce qui peut parer ou bloquer (armes qui parent et boucliers) : peut recevoir Reflective. */
-    public static final TagKey<Item> ENCHANTABLE_PARRYING = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/parrying"));
+    public static final TagKey<Item> ENCHANTABLE_PARRYING = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/parrying"));
     /** Armes qui peuvent recevoir Élan. */
-    public static final TagKey<Item> ENCHANTABLE_DASHING = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/dashing"));
+    public static final TagKey<Item> ENCHANTABLE_DASHING = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/dashing"));
     /** Faucilles, faux et katanas : les armes qui peuvent recevoir Saignement. */
-    public static final TagKey<Item> ENCHANTABLE_BLEEDING = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "enchantable/bleeding"));
+    public static final TagKey<Item> ENCHANTABLE_BLEEDING = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/bleeding"));
 
     private ModTags() {
     }

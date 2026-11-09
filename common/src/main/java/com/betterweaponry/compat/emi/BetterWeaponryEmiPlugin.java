@@ -22,7 +22,7 @@ public final class BetterWeaponryEmiPlugin implements EmiPlugin {
         if (Minecraft.getInstance().level == null) return;
         for (RecipeViewerInfo.Entry entry : RecipeViewerInfo.entries(Minecraft.getInstance().level.registryAccess())) {
             List<EmiIngredient> stacks = entry.stacks().stream().<EmiIngredient>map(EmiStack::of).toList();
-            registry.addRecipe(new EmiInfoRecipe(stacks, entry.lines(), ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "/info/" + entry.id())));
+            registry.addRecipe(new EmiInfoRecipe(stacks, entry.lines(), new ResourceLocation(BetterWeaponry.MODID, "/info/" + entry.id())));
         }
     }
 }

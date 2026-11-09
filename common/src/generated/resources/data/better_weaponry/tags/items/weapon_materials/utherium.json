@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:gems/utherium",
+      "required": false
+    },
+    {
+      "id": "undergarden:utherium_crystal",
+      "required": false
+    }
+  ]
+}

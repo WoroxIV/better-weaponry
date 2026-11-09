@@ -1,7 +1,8 @@
 package com.betterweaponry.combat;
 
+import com.betterweaponry.registry.ModAttributes;
+import java.util.UUID;
 import com.betterweaponry.platform.IncomingDamage;
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
@@ -10,7 +11,6 @@ import com.betterweaponry.item.ShurikenItem;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.registry.ModSounds;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -33,7 +33,7 @@ import java.util.function.BooleanSupplier;
  * peuvent parer, voir leur garde brisée, et alternent leurs coups en dual wield. Tout se coupe avec rules.json, Better Combat ou Epic Fight.
  */
 public final class MobCombat {
-    private static final ResourceLocation SWORD_DAMAGE_ID = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "mob_sword_damage");
+    private static final UUID SWORD_DAMAGE_ID = ModAttributes.uuid("mob_sword_damage");
     private static final double PLAYER_BASE_REACH = 3.0D;
     /** Une arme plus courte que le vanilla réduit la zone du mob, sans jamais l'annuler. */
     private static final double SMALLEST_REACH_CHANGE = -0.5D;
@@ -60,7 +60,7 @@ public final class MobCombat {
         if (damage == null || !(mob.getMainHandItem().getItem() instanceof WeaponItem weapon)) return attack.getAsBoolean();
         WeaponMaterial material = weapon.getMaterial();
         double correction = material.swordDamage() - weapon.definition().damageFor(material);
-        damage.addTransientModifier(new AttributeModifier(SWORD_DAMAGE_ID, correction, AttributeModifier.Operation.ADD_VALUE));
+        damage.addTransientModifier(new AttributeModifier(SWORD_DAMAGE_ID, "Mob sword damage", correction, AttributeModifier.Operation.ADDITION));
         try {
             return attack.getAsBoolean();
         } finally {

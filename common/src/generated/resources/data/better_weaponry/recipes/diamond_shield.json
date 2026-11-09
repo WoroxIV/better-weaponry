@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "forge:gems/diamond"
+    },
+    "o": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "pattern": [
+    "MoM",
+    "MMM",
+    " M "
+  ],
+  "result": {
+    "item": "better_weaponry:diamond_shield"
+  }
+}

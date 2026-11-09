@@ -61,7 +61,7 @@ public final class CombatEvents {
      */
     private static void applyArmorPenetration(IncomingDamage event, LivingEntity attacker) {
         if (!WeaponData.rules().armorPenetrationActive() || event.source().is(DamageTypeTags.BYPASSES_ARMOR) || CombatCompat.isFakePlayer(attacker)) return;
-        AttributeInstance attribute = attacker.getAttribute(ModAttributes.ARMOR_PENETRATION.holder());
+        AttributeInstance attribute = attacker.getAttribute(ModAttributes.ARMOR_PENETRATION.get());
         double penetration = attribute == null ? 0.0D : attribute.getValue();
         if (penetration <= 0.0D) return;
 

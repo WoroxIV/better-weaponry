@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/cloggrum",
+      "required": false
+    },
+    {
+      "id": "undergarden:cloggrum_ingot",
+      "required": false
+    }
+  ]
+}

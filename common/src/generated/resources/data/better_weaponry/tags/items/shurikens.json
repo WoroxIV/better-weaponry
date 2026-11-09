@@ -1,0 +1,186 @@
+{
+  "values": [
+    "better_weaponry:wooden_shuriken",
+    "better_weaponry:stone_shuriken",
+    "better_weaponry:iron_shuriken",
+    "better_weaponry:golden_shuriken",
+    "better_weaponry:diamond_shuriken",
+    "better_weaponry:netherite_shuriken",
+    {
+      "id": "better_weaponry:steel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_shuriken",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_shuriken",
+      "required": false
+    }
+  ]
+}

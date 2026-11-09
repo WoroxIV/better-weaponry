@@ -554,5 +554,6 @@
     "better_weaponry.tutorial.combos.hits": "每次命中都会推进连击，并显示在屏幕上。",
     "better_weaponry.tutorial.combos.finisher": "最后一击打击整个区域：%s 格、%s°。",
     "better_weaponry.tutorial.combos.reset": "若 %s 秒内未命中，连击将从头开始。"
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "横扫伤害比率"
 }

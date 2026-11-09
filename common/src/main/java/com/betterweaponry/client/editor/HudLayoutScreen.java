@@ -47,12 +47,8 @@ final class HudLayoutScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        graphics.fill(0, 0, width, height, minecraft.level != null ? BACKGROUND_IN_GAME : BACKGROUND_IN_MENU);
-    }
-
-    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fill(0, 0, width, height, minecraft.level != null ? BACKGROUND_IN_GAME : BACKGROUND_IN_MENU);
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(font, title, width / 2, 8, 0xFFFFFF);
         graphics.drawCenteredString(font, Component.translatable(KEY + "instructions"), width / 2, 20, 0xA0A0A0);

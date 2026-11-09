@@ -40,7 +40,7 @@ record FieldPath(List<Object> parts) {
 
     @Nullable
     Object last() {
-        return parts.isEmpty() ? null : parts.getLast();
+        return parts.isEmpty() ? null : parts.get(parts.size() - 1);
     }
 
     /** Valeur à ce chemin dans {@code root}, ou null si elle n'existe pas. */

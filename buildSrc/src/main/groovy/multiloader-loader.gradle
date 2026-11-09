@@ -32,8 +32,7 @@ tasks.named('processResources', ProcessResources) {
     var replaceProperties = [
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
+            forge_version_range    : forge_version_range,
             loader_version_range   : loader_version_range,
             mod_id                 : mod_id,
             mod_name               : mod_name,
@@ -46,7 +45,7 @@ tasks.named('processResources', ProcessResources) {
             fabric_loader_version  : fabric_loader_version
     ]
     inputs.properties replaceProperties
-    filesMatching(['META-INF/neoforge.mods.toml', 'fabric.mod.json']) {
+    filesMatching(['META-INF/mods.toml', 'fabric.mod.json']) {
         expand replaceProperties
     }
 }
@@ -66,5 +65,5 @@ sourceSets.main.java.srcDir(prepareGameTests)
 // Les GameTests servent seulement au développement : ils ne partent pas dans le jar publié.
 tasks.named('jar', Jar) {
     exclude 'com/betterweaponry/gametest/**'
-    exclude 'data/better_weaponry/structure/empty.nbt'
+    exclude 'data/better_weaponry/structures/empty.nbt'
 }

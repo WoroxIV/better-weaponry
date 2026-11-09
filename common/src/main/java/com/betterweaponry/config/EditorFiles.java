@@ -43,7 +43,7 @@ public final class EditorFiles {
 
         Path file = pack.resolve("data").resolve(BetterWeaponry.MODID).resolve(WeaponDataLoader.DATA_DIRECTORY)
                 .resolve(document.relativePath());
-        if (differences.isEmpty()) {
+        if (differences.size() == 0) {
             Files.deleteIfExists(file);
         } else {
             ConfigFolder.writeJson(file, differences);

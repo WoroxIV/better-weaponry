@@ -1,5 +1,6 @@
 package com.betterweaponry.compat;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import java.util.function.Supplier;
 import com.betterweaponry.BetterWeaponry;
@@ -10,9 +11,7 @@ import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModItems;
-import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.EnchantedBookItem;
@@ -41,7 +40,7 @@ public final class RecipeViewerInfo {
     public static List<Entry> entries(RegistryAccess registries) {
         List<Entry> entries = new ArrayList<>();
         for (ResourceKey<Enchantment> key : ModEnchantments.ALL) {
-            registries.registryOrThrow(Registries.ENCHANTMENT).getHolder(key).ifPresent(holder -> entries.add(enchantmentEntry(key, holder)));
+            BuiltInRegistries.ENCHANTMENT.getOptional(key).ifPresent(enchantment -> entries.add(enchantmentEntry(key, enchantment)));
         }
         RulesDefinition rules = WeaponData.rules();
         for (WeaponType type : WeaponType.values()) {
@@ -56,9 +55,9 @@ public final class RecipeViewerInfo {
     }
 
     /** Un livre par niveau : JEI et EMI les listent séparément. */
-    private static Entry enchantmentEntry(ResourceKey<Enchantment> key, Holder<Enchantment> enchantment) {
+    private static Entry enchantmentEntry(ResourceKey<Enchantment> key, Enchantment enchantment) {
         List<ItemStack> books = new ArrayList<>();
-        for (int level = enchantment.value().getMinLevel(); level <= enchantment.value().getMaxLevel(); level++) {
+        for (int level = enchantment.getMinLevel(); level <= enchantment.getMaxLevel(); level++) {
             books.add(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, level)));
         }
         return new Entry(key.location().getPath(), books, List.of(Component.translatable("enchantment." + BetterWeaponry.MODID + "." + key.location().getPath() + ".desc")));

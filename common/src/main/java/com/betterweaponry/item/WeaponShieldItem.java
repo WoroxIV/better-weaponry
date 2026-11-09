@@ -1,10 +1,8 @@
 package com.betterweaponry.item;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShieldItem;
-import net.minecraft.world.level.block.entity.BannerPatternLayers;
 
 /**
  * Bouclier d'un matériau. Il se comporte comme le bouclier vanilla (blocage, bannières, enchantements à l'enclume) ;
@@ -23,7 +21,7 @@ public class WeaponShieldItem extends ShieldItem {
     }
 
     private static Item.Properties configure(WeaponMaterial material, Item.Properties properties) {
-        properties.durability(durabilityOf(material)).component(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY);
+        properties.durability(durabilityOf(material));
         if (material.isFireResistant()) properties.fireResistant();
         return properties;
     }

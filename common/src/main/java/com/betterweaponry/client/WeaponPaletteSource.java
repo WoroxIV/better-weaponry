@@ -4,11 +4,11 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSourceType;
+import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.client.renderer.texture.atlas.sources.LazyLoadedImage;
 import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
 import net.minecraft.resources.FileToIdConverter;
@@ -38,11 +38,10 @@ import java.util.function.IntUnaryOperator;
  * Déclarée dans {@code assets/minecraft/atlases/} pour les atlas où vivent les textures concernées.
  */
 public final class WeaponPaletteSource implements SpriteSource {
-    private static final MapCodec<WeaponPaletteSource> CODEC = Codec.STRING.fieldOf("directory")
-            .xmap(WeaponPaletteSource::new, source -> source.directory);
-    public static final SpriteSourceType TYPE = new SpriteSourceType(CODEC);
-    /** Nom du type utilisé par les fichiers d'atlas. */
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "weapon_palettes");
+    private static final Codec<WeaponPaletteSource> CODEC = Codec.STRING.fieldOf("directory")
+            .xmap(WeaponPaletteSource::new, source -> source.directory).codec();
+    /** Déclaré au premier appel, qui doit avoir lieu avant le chargement des textures. */
+    public static final SpriteSourceType TYPE = SpriteSources.register(BetterWeaponry.MODID + ":weapon_palettes", CODEC);
 
     /** Dossier de la texture finale dans "textures/" : "item" ou "entity/shield". */
     private final String directory;
@@ -71,7 +70,7 @@ public final class WeaponPaletteSource implements SpriteSource {
                           Map<WeaponMaterial, IntUnaryOperator> palettes) {
         Map<ResourceLocation, IntUnaryOperator> targets = new LinkedHashMap<>();
         palettes.forEach((material, palette) -> {
-            ResourceLocation target = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, directory + "/" + material.id() + "_" + template);
+            ResourceLocation target = new ResourceLocation(BetterWeaponry.MODID, directory + "/" + material.id() + "_" + template);
             boolean handDrawn = manager.getResource(TEXTURE_ID_CONVERTER.idToFile(target)).isPresent();
             if (!handDrawn) targets.put(target, palette);
         });
@@ -109,7 +108,7 @@ public final class WeaponPaletteSource implements SpriteSource {
 
     @Nullable
     private static int[] readPalette(ResourceManager manager, String name) {
-        ResourceLocation palette = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "palettes/" + name);
+        ResourceLocation palette = new ResourceLocation(BetterWeaponry.MODID, "palettes/" + name);
         if (manager.getResource(TEXTURE_ID_CONVERTER.idToFile(palette)).isEmpty()) return null;
         try {
             return PalettedPermutations.loadPaletteEntryFromImage(manager, palette);

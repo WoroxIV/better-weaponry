@@ -555,5 +555,6 @@
     "better_weaponry.tutorial.combos.hits": "Ogni colpo a segno fa avanzare la combo, mostrata a schermo.",
     "better_weaponry.tutorial.combos.finisher": "L'ultimo colpo investe un'intera area: %s blocchi su %s°.",
     "better_weaponry.tutorial.combos.reset": "Se non colpisci per %s s, la combo ricomincia."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "Rapporto del danno sferzante"
 }

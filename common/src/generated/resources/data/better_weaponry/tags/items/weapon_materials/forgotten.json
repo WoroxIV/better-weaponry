@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/forgotten_metal",
+      "required": false
+    },
+    {
+      "id": "undergarden:forgotten_ingot",
+      "required": false
+    }
+  ]
+}

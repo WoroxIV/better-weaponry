@@ -685,5 +685,6 @@
     "better_weaponry.tutorial.combos.hits": "Каждый удар в цель продвигает комбо, показанное на экране.",
     "better_weaponry.tutorial.combos.finisher": "Последний удар бьёт по целой области: %s бл. на %s°.",
     "better_weaponry.tutorial.combos.reset": "Если не попадать %s с, комбо начнётся заново."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "Коэффициент разящего удара"
 }

@@ -1,5 +1,18 @@
 package com.betterweaponry.gametest;
 
+import io.netty.channel.embedded.EmbeddedChannel;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.Connection;
+import net.minecraft.world.Difficulty;
+import java.util.UUID;
+import com.mojang.authlib.GameProfile;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.TransientCraftingContainer;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ShieldItem;
+import net.minecraft.core.registries.BuiltInRegistries;
+import com.betterweaponry.data.DataResults;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.client.TooltipLayout;
 import com.betterweaponry.combat.ComboSystem;
@@ -69,9 +82,6 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -84,7 +94,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.locale.Language;
-import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.stats.Stats;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
@@ -122,14 +131,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
-import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -179,7 +186,7 @@ public final class CombatGameTests {
                 + " \"on_hit_effects\": [ { \"effect\": \"minecraft:slownes\" } ], \"atack_speed\": 2, \"ability\": \"parade\" }");
         List<DataProblem> problems = new ArrayList<>();
         JsonObject merged = WeaponDefinition.FIELDS.merge(List.of(new FieldSet.Layer("defaults", defaults), new FieldSet.Layer("user", user)), problems);
-        WeaponDefinition definition = WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, merged).getOrThrow();
+        WeaponDefinition definition = DataResults.orThrow(WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, merged));
 
         helper.assertTrue(definition.armorPenetration() == 10.0D, "armor_penetration 150 must be ignored, got " + definition.armorPenetration());
         helper.assertTrue(definition.sweep().radius() == 2.5D && definition.sweep().enabled(), "sweep must merge field by field: " + definition.sweep());
@@ -212,8 +219,8 @@ public final class CombatGameTests {
         double armorReduction = RAW_DAMAGE - (TEST_HEALTH - withoutPenetration.getHealth());
         double reducedArmorReduction = RAW_DAMAGE - (TEST_HEALTH - withPenetration.getHealth());
         helper.assertTrue(armorReduction > 1.0D, "the armor should absorb damage, absorbed " + armorReduction);
-        boolean apothic = Platform.get().isModLoaded("apothic_attributes");
-        helper.assertTrue(ModAttributes.armorPenetration().equals(ModAttributes.ARMOR_PENETRATION.holder()) != apothic, "the penetration attribute should depend on Apothic Attributes");
+        boolean apothic = Platform.get().isModLoaded("attributeslib");
+        helper.assertTrue(ModAttributes.armorPenetration().equals(ModAttributes.ARMOR_PENETRATION.get()) != apothic, "the penetration attribute should depend on Apothic Attributes");
         double expected = armorReduction * (1.0D - penetration);
         // Avec Apothic Attributes, c'est son calcul de l'armure qui s'applique : l'armure protège seulement moins.
         helper.assertTrue(apothic ? reducedArmorReduction < armorReduction : Math.abs(reducedArmorReduction - expected) < EPSILON,
@@ -227,13 +234,13 @@ public final class CombatGameTests {
         int index = 0;
         for (WeaponType type : WeaponType.values()) {
             for (OnHitEffect effect : WeaponData.weapon(type).onHitEffects()) {
-                if (effect.chance() < 100.0D || effect.holder().isEmpty()) continue;
+                if (effect.chance() < 100.0D || effect.mobEffect().isEmpty()) continue;
                 Pig target = armoredPig(helper, new BlockPos(index % 5, 1, (index / 5) % 5));
                 ItemStack stack = weapon(type);
                 Player attacker = player(helper, stack, ItemStack.EMPTY);
                 stack.getItem().hurtEnemy(stack, target, attacker);
 
-                MobEffectInstance applied = target.getEffect(effect.holder().get());
+                MobEffectInstance applied = target.getEffect(effect.mobEffect().get());
                 helper.assertTrue(applied != null, type.id() + " should give " + effect.effect());
                 helper.assertTrue(applied.getAmplifier() == effect.level() - 1, type.id() + ": wrong level for " + effect.effect());
                 index++;
@@ -660,7 +667,7 @@ public final class CombatGameTests {
                 double dealt = TEST_HEALTH - pig.getHealth();
                 helper.assertTrue(Math.abs(dealt - reference) < EPSILON, "a mod weapon should hit like a sword: " + dealt + " instead of " + reference);
             }
-            helper.assertFalse(hammer.getAttribute(Attributes.ATTACK_DAMAGE).getModifiers().stream().anyMatch(modifier -> modifier.id().getPath().equals("mob_sword_damage")),
+            helper.assertFalse(hammer.getAttribute(Attributes.ATTACK_DAMAGE).getModifiers().stream().anyMatch(modifier -> modifier.getName().equals("Mob sword damage")),
                     "the correction should be removed after the hit");
             helper.succeed();
         });
@@ -686,9 +693,9 @@ public final class CombatGameTests {
 
         ItemStack hammer = weapon(WeaponType.HAMMER);
         fake.setItemInHand(InteractionHand.MAIN_HAND, hammer);
-        hammer.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+        hammer.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
             AttributeInstance instance = fake.getAttribute(attribute);
-            if (instance != null && !instance.hasModifier(modifier.id())) instance.addTransientModifier(modifier);
+            if (instance != null && instance.getModifier(modifier.getId()) == null) instance.addTransientModifier(modifier);
         });
         Pig pig = pigAt(helper, new Vec3(1.5D, 1.0D, 1.5D));
         double expected = WeaponData.weapon(WeaponType.HAMMER).damageFor(WeaponMaterials.IRON);
@@ -702,9 +709,9 @@ public final class CombatGameTests {
             }
             helper.assertFalse(pig.hasEffect(MobEffects.MOVEMENT_SLOWDOWN), "a fake player should not apply the weapon's effects");
         } finally {
-            hammer.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+            hammer.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
                 AttributeInstance instance = fake.getAttribute(attribute);
-                if (instance != null) instance.removeModifier(modifier.id());
+                if (instance != null) instance.removeModifier(modifier.getId());
             });
             fake.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
@@ -777,7 +784,7 @@ public final class CombatGameTests {
         for (var field : document.fields().fields()) {
             helper.assertTrue(defaults.has(field.name()), "the expanded file should contain " + field.name());
         }
-        helper.assertTrue(JsonTree.diff(document.fields(), defaults, defaults).isEmpty(), "no difference between a file and itself");
+        helper.assertTrue(JsonTree.diff(document.fields(), defaults, defaults).size() == 0, "no difference between a file and itself");
 
         JsonObject edited = defaults.deepCopy();
         edited.getAsJsonObject("sweep").addProperty("radius", defaults.getAsJsonObject("sweep").get("radius").getAsDouble() + 1.5D);
@@ -802,7 +809,7 @@ public final class CombatGameTests {
             JsonObject edited = original.deepCopy();
             edited.addProperty("attack_reach", reach);
             EditorService.save(server, document.id(), EditorTarget.ALL_WORLDS, edited.toString(), outcomes::add);
-            helper.assertTrue(outcomes.size() == 1 && outcomes.getFirst().success(), "the save should succeed: " + outcomes);
+            helper.assertTrue(outcomes.size() == 1 && outcomes.get(0).success(), "the save should succeed: " + outcomes);
             helper.assertTrue(WeaponData.weapon(WeaponType.GLAIVE).attackReach() == reach, "the new reach should apply at once");
 
             JsonObject written = JsonUtil.parseLenient(Files.readString(document.configFile())).getAsJsonObject();
@@ -816,7 +823,7 @@ public final class CombatGameTests {
             invalid.addProperty("attack_speed", 50);
             outcomes.clear();
             EditorService.save(server, document.id(), EditorTarget.ALL_WORLDS, invalid.toString(), outcomes::add);
-            helper.assertTrue(outcomes.size() == 1 && !outcomes.getFirst().success(), "an out-of-range value should be refused");
+            helper.assertTrue(outcomes.size() == 1 && !outcomes.get(0).success(), "an out-of-range value should be refused");
             helper.assertTrue(WeaponData.weapon(WeaponType.GLAIVE).attackReach() == reach, "a refused save should change nothing");
         } catch (java.io.IOException e) {
             helper.fail("could not read " + document.configFile() + ": " + e.getMessage());
@@ -980,8 +987,8 @@ public final class CombatGameTests {
             Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
             Player defender = parrier(helper, diamondSword, position);
             helper.assertTrue(defender.getAttributeValue(Attributes.ATTACK_DAMAGE) == 7.0D, "the diamond sword should keep its damage");
-            helper.assertTrue(defender.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE) == 3.0D, "the diamond sword should keep its reach");
-            helper.assertTrue(diamondSword.getUseAnimation() == UseAnim.BLOCK && diamondSword.getUseDuration(defender) == ParrySystem.USE_DURATION,
+            helper.assertTrue(defender.getAttributeValue(Platform.get().entityReachAttribute()) == 3.0D, "the diamond sword should keep its reach");
+            helper.assertTrue(diamondSword.getUseAnimation() == UseAnim.BLOCK && diamondSword.getUseDuration() == ParrySystem.USE_DURATION,
                     "an adopted item should have the parry animation");
             helper.assertTrue(ParrySystem.canParry(defender, InteractionHand.MAIN_HAND, diamondSword), "an adopted item should be able to parry");
             ParrySystem.beginParry(defender, diamondSword);
@@ -1002,7 +1009,7 @@ public final class CombatGameTests {
             Pig target = armoredPig(helper, new BlockPos(2, 1, 2));
             goldenSword.hurtEnemy(target, attacker);
             for (OnHitEffect effect : hammer.onHitEffects()) {
-                if (effect.chance() >= 100.0D) helper.assertTrue(target.hasEffect(effect.holder().orElseThrow()), "an adopted item should give " + effect.effect());
+                if (effect.chance() >= 100.0D) helper.assertTrue(target.hasEffect(effect.mobEffect().orElseThrow()), "an adopted item should give " + effect.effect());
             }
 
             // Une arme du mod n'est jamais adoptée.
@@ -1013,7 +1020,7 @@ public final class CombatGameTests {
             conflicting.put(WeaponType.KATANA, withItems(original.weapon(WeaponType.KATANA), "minecraft:diamond_sword"));
             List<DataProblem> problems = new ArrayList<>();
             WeaponProfiles.reportConflicts(conflicting, problems);
-            helper.assertTrue(problems.size() == 1 && "minecraft:diamond_sword".equals(problems.getFirst().detail()), "the conflict should be reported: " + problems);
+            helper.assertTrue(problems.size() == 1 && "minecraft:diamond_sword".equals(problems.get(0).detail()), "the conflict should be reported: " + problems);
         } finally {
             WeaponData.install(original);
         }
@@ -1023,11 +1030,11 @@ public final class CombatGameTests {
 
     /** Copie d'une arme avec ces valeurs dans son champ "items". */
     private static WeaponDefinition withItems(WeaponDefinition definition, String... items) {
-        JsonObject json = WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, definition).getOrThrow().getAsJsonObject();
+        JsonObject json = DataResults.orThrow(WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, definition)).getAsJsonObject();
         JsonArray list = new JsonArray();
         for (String item : items) list.add(item);
         json.add(WeaponDefinition.ITEMS.name(), list);
-        return WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
+        return DataResults.orThrow(WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, json));
     }
 
     /**
@@ -1094,7 +1101,7 @@ public final class CombatGameTests {
         ItemStack iron = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
         helper.assertTrue(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.IRON_INGOT)), "an iron shield is repaired with iron");
         helper.assertFalse(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.OAK_PLANKS)), "not with planks");
-        helper.assertTrue(iron.is(WeaponMaterial.itemTag("c:tools/shield")) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "shield tags should be loaded");
+        helper.assertTrue(iron.is(WeaponMaterial.itemTag("c:tools/shields")), "shield tags should be loaded");
         helper.succeed();
     }
 
@@ -1127,13 +1134,13 @@ public final class CombatGameTests {
         ItemStack arrowShield = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
         Player archerTarget = shieldBearer(helper, arrowShield, position);
         Pig shooter = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
-        Arrow arrow = new Arrow(helper.getLevel(), shooter, new ItemStack(Items.ARROW), null);
+        Arrow arrow = new Arrow(helper.getLevel(), shooter);
         arrow.setPos(position.add(0.0D, 1.0D, 1.0D));
         arrow.setDeltaMovement(0.0D, 0.0D, -2.0D);
         helper.assertTrue(ShieldSystem.tryReflectArrow(arrow, archerTarget), "the arrow should be reflected");
         helper.assertTrue(arrow.getOwner() == archerTarget && arrow.getDeltaMovement().z > 0.0D, "the arrow should fly back toward its shooter");
         PlayerCombatState.of(archerTarget).perfectParryUntil = 0L;
-        Arrow late = new Arrow(helper.getLevel(), shooter, new ItemStack(Items.ARROW), null);
+        Arrow late = new Arrow(helper.getLevel(), shooter);
         late.setPos(position.add(0.0D, 1.0D, 1.0D));
         helper.assertFalse(ShieldSystem.tryReflectArrow(late, archerTarget), "no reflection outside of the window");
         helper.succeed();
@@ -1150,7 +1157,7 @@ public final class CombatGameTests {
         helper.assertTrue(Math.abs((double) converted.getDamageValue() / converted.getMaxDamage() - 0.5D) < 0.01D, "the wear should stay proportional");
         helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.UNBREAKING), converted) == 2, "enchantments should be kept");
 
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = makeMockPlayer(helper, GameType.SURVIVAL);
         player.getInventory().setItem(3, new ItemStack(Items.SHIELD));
         player.getEnderChestInventory().setItem(1, new ItemStack(Items.SHIELD));
         VanillaGear.convertInventory(player);
@@ -1163,19 +1170,19 @@ public final class CombatGameTests {
         helper.assertTrue(VanillaGear.rollMaterial(helper.getLevel().getRandom(), 0.0D) == WeaponMaterials.WOODEN, "no upgrade at 0%");
         helper.assertTrue(VanillaGear.rollMaterial(helper.getLevel().getRandom(), 100.0D) == WeaponMaterials.NETHERITE, "always upgraded at 100%");
 
-        MerchantOffer offer = new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(Items.SHIELD), 12, 10, 0.05F);
+        MerchantOffer offer = new MerchantOffer(new ItemStack(Items.EMERALD, 5), new ItemStack(Items.SHIELD), 12, 10, 0.05F);
         helper.assertTrue(VanillaGearEvents.convertOffer(offer, WeaponMaterials.IRON).getResult().is(ModItems.shield(WeaponMaterials.IRON).get()), "the trade should sell an iron shield");
 
         // Recettes : celle du bouclier vanilla est coupée, celles du mod existent.
         RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
-        helper.assertTrue(recipes.byKey(ResourceLocation.withDefaultNamespace("shield")).isEmpty(), "the vanilla shield recipe should be disabled");
+        helper.assertTrue(recipes.byKey(new ResourceLocation("shield")).isEmpty(), "the vanilla shield recipe should be disabled");
         for (String id : List.of("wooden_shield", "iron_shield", "netherite_shield_smithing", "shield_decoration")) {
-            helper.assertTrue(recipes.byKey(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, id)).isPresent(), "missing recipe " + id);
+            helper.assertTrue(recipes.byKey(new ResourceLocation(BetterWeaponry.MODID, id)).isPresent(), "missing recipe " + id);
         }
-        CraftingInput decoration = CraftingInput.of(2, 1, List.of(new ItemStack(ModItems.shield(WeaponMaterials.IRON).get()), new ItemStack(Items.RED_BANNER)));
-        ModShieldDecorationRecipe bannerRecipe = new ModShieldDecorationRecipe(CraftingBookCategory.MISC);
+        CraftingContainer decoration = craftingGrid(2, 1, List.of(new ItemStack(ModItems.shield(WeaponMaterials.IRON).get()), new ItemStack(Items.RED_BANNER)));
+        ModShieldDecorationRecipe bannerRecipe = new ModShieldDecorationRecipe(new ResourceLocation(BetterWeaponry.MODID, "test_decoration"), CraftingBookCategory.MISC);
         helper.assertTrue(bannerRecipe.matches(decoration, helper.getLevel()), "a banner should go on a shield of the mod");
-        helper.assertTrue(bannerRecipe.assemble(decoration, helper.getLevel().registryAccess()).get(DataComponents.BASE_COLOR) == DyeColor.RED, "the shield should take the banner's color");
+        helper.assertTrue(ShieldItem.getColor(bannerRecipe.assemble(decoration, helper.getLevel().registryAccess())) == DyeColor.RED, "the shield should take the banner's color");
 
         // Vrai butin : les fichiers de loot_modifiers doivent être lus et leurs conditions justes.
         WeaponData.Snapshot original = WeaponData.current();
@@ -1186,7 +1193,7 @@ public final class CombatGameTests {
                 gear.goldenDrawTime(), gear.shurikens(), gear.mobs())));
         try {
             LootParams params = new LootParams.Builder(helper.getLevel()).withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO)).create(LootContextParamSets.CHEST);
-            var tables = helper.getLevel().getServer().reloadableRegistries();
+            var tables = helper.getLevel().getServer().getLootData();
             helper.assertTrue(tables.getLootTable(BuiltInLootTables.NETHER_BRIDGE).getRandomItems(params).stream().anyMatch(item -> item.is(Items.ENCHANTED_BOOK)),
                     "a nether fortress chest should hold a book");
             // Le tirage normal du jeu peut donner un de nos livres dans un donjon. Mais à 100 %, l'ajout dédié en mettrait un dans chaque coffre.
@@ -1194,7 +1201,7 @@ public final class CombatGameTests {
             int chestsWithModBook = 0;
             for (int i = 0; i < chests; i++) {
                 boolean modBook = tables.getLootTable(BuiltInLootTables.SIMPLE_DUNGEON).getRandomItems(params).stream().anyMatch(item ->
-                        EnchantmentHelper.getEnchantmentsForCrafting(item).keySet().stream().anyMatch(holder -> holder.getRegisteredName().startsWith(BetterWeaponry.MODID)));
+                        EnchantmentHelper.getEnchantments(item).keySet().stream().anyMatch(value -> BuiltInRegistries.ENCHANTMENT.getKey(value).getNamespace().equals(BetterWeaponry.MODID)));
                 if (modBook) chestsWithModBook++;
             }
             helper.assertTrue(chestsWithModBook < chests, "the mod's dedicated books should not be added to overworld dungeons");
@@ -1207,6 +1214,8 @@ public final class CombatGameTests {
     /** Reflective : renvoie 10 % par niveau d'un coup au corps à corps sur parade parfaite, jamais sur un projectile. */
     @GameTest(template = ARENA)
     public static void reflectiveEnchantment(GameTestHelper helper) {
+        // Le serveur de test démarre en "facile" sur Forge 1.20.1 : un coup de mob y serait réduit.
+        helper.getLevel().getServer().setDifficulty(Difficulty.NORMAL, true);
         Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
         ItemStack shield = new ItemStack(ModItems.shield(WeaponMaterials.IRON).get());
         shield.enchant(enchantment(helper, ModEnchantments.REFLECTIVE), 3);
@@ -1232,12 +1241,12 @@ public final class CombatGameTests {
         helper.assertTrue(attacker.getHealth() < TEST_HEALTH && swordsman.getCooldowns().isOnCooldown(blade.getItem()), "the weapon should reflect then go on cooldown");
         helper.assertFalse(swordsman.isUsingItem(), "the parry should stop during the cooldown");
 
-        Holder<Enchantment> reflective = enchantment(helper, ModEnchantments.REFLECTIVE);
-        helper.assertFalse(Enchantment.areCompatible(reflective, enchantment(helper, ModEnchantments.RIPOSTE)), "reflective and riposte are incompatible");
-        helper.assertFalse(Enchantment.areCompatible(enchantment(helper, ModEnchantments.BLEEDING), enchantment(helper, ModEnchantments.VAMPIRISM)), "bleeding and vampirism are incompatible");
+        Enchantment reflective = enchantment(helper, ModEnchantments.REFLECTIVE);
+        helper.assertFalse(areCompatible(reflective, enchantment(helper, ModEnchantments.RIPOSTE)), "reflective and riposte are incompatible");
+        helper.assertFalse(areCompatible(enchantment(helper, ModEnchantments.BLEEDING), enchantment(helper, ModEnchantments.VAMPIRISM)), "bleeding and vampirism are incompatible");
 
         heal(attacker);
-        Arrow arrow = new Arrow(helper.getLevel(), attacker, new ItemStack(Items.ARROW), null);
+        Arrow arrow = new Arrow(helper.getLevel(), attacker);
         ModEnchantments.reflect(defender, shield, defender.damageSources().arrow(arrow, attacker), RAW_DAMAGE);
         helper.assertTrue(attacker.getHealth() == TEST_HEALTH, "projectiles should not be reflected by the enchantment");
 
@@ -1297,31 +1306,31 @@ public final class CombatGameTests {
         Pig weak = pigAt(helper, new Vec3(1.5D, 1.0D, 3.5D));
         butcherState.lastAttackStrength = 0.2F;
         weak.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
-        helper.assertFalse(weak.hasEffect(ModEffects.BLEEDING.holder()), "a weak hit should not cause bleeding");
+        helper.assertFalse(weak.hasEffect(ModEffects.BLEEDING.get()), "a weak hit should not cause bleeding");
         butcherState.lastAttackStrength = 1.0F;
         heal(weak);
         weak.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
-        helper.assertTrue(weak.hasEffect(ModEffects.BLEEDING.holder()), "a charged hit should cause bleeding");
+        helper.assertTrue(weak.hasEffect(ModEffects.BLEEDING.get()), "a charged hit should cause bleeding");
         Skeleton skeleton = helper.spawnWithNoFreeWill(EntityType.SKELETON, new BlockPos(3, 1, 3));
         skeleton.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
-        helper.assertFalse(skeleton.hasEffect(ModEffects.BLEEDING.holder()), "skeletons should not bleed");
-        Holder<Enchantment> bleeding = enchantment(helper, ModEnchantments.BLEEDING);
-        helper.assertFalse(Enchantment.areCompatible(bleeding, enchantment(helper, Enchantments.FIRE_ASPECT)), "bleeding is incompatible with fire aspect");
+        helper.assertFalse(skeleton.hasEffect(ModEffects.BLEEDING.get()), "skeletons should not bleed");
+        Enchantment bleeding = enchantment(helper, ModEnchantments.BLEEDING);
+        helper.assertFalse(areCompatible(bleeding, enchantment(helper, Enchantments.FIRE_ASPECT)), "bleeding is incompatible with fire aspect");
         helper.assertFalse(supports(weapon(WeaponType.DAGGER), bleeding), "a dagger cannot bleed");
 
         // Élan raccourcit la recharge du dash.
         helper.assertTrue(Math.abs(ModEnchantments.momentumMultiplier(3) - 0.55D) < EPSILON, "momentum III leaves 55% of the cooldown");
 
         // Reflective et Riposte suivent la capacité configurée, pas un tag figé.
-        Holder<Enchantment> reflective = enchantment(helper, ModEnchantments.REFLECTIVE);
+        Enchantment reflective = enchantment(helper, ModEnchantments.REFLECTIVE);
         helper.assertTrue(supports(weapon(WeaponType.BROADSWORD), reflective), "a broadsword parries");
         ItemStack dagger = weapon(WeaponType.DAGGER);
         helper.assertFalse(supports(dagger, reflective), "a dagger does not parry");
         WeaponData.Snapshot original = WeaponData.current();
         Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(original.weapons());
-        JsonObject parrying = WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, original.weapon(WeaponType.DAGGER)).getOrThrow().getAsJsonObject();
+        JsonObject parrying = DataResults.orThrow(WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, original.weapon(WeaponType.DAGGER))).getAsJsonObject();
         parrying.addProperty("ability", "parry");
-        weapons.put(WeaponType.DAGGER, WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, parrying).getOrThrow());
+        weapons.put(WeaponType.DAGGER, DataResults.orThrow(WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, parrying)));
         try {
             WeaponData.install(new WeaponData.Snapshot(weapons, original.rules(), original.gear()));
             helper.assertTrue(supports(dagger, reflective), "a dagger configured to parry should accept reflective");
@@ -1339,8 +1348,72 @@ public final class CombatGameTests {
         return player;
     }
 
-    private static Holder<Enchantment> enchantment(GameTestHelper helper, ResourceKey<Enchantment> key) {
-        return helper.getLevel().registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(key);
+    private static Enchantment enchantment(GameTestHelper helper, ResourceKey<Enchantment> key) {
+        return BuiltInRegistries.ENCHANTMENT.getOrThrow(key);
+    }
+
+    /** Pour garder la même écriture avec les enchantements vanilla, qui sont déjà des objets. */
+    private static Enchantment enchantment(GameTestHelper helper, Enchantment enchantment) {
+        return enchantment;
+    }
+
+    private static boolean areCompatible(Enchantment first, Enchantment second) {
+        return first.isCompatibleWith(second);
+    }
+
+    /** Grille d'atelier remplie, pour interroger les recettes. */
+    private static CraftingContainer craftingGrid(int width, int height, List<ItemStack> items) {
+        AbstractContainerMenu menu = new AbstractContainerMenu(null, -1) {
+            @Override
+            public ItemStack quickMoveStack(Player player, int index) {
+                return ItemStack.EMPTY;
+            }
+
+            @Override
+            public boolean stillValid(Player player) {
+                return true;
+            }
+        };
+        return new TransientCraftingContainer(menu, width, height, NonNullList.of(ItemStack.EMPTY, items.toArray(ItemStack[]::new)));
+    }
+
+    /** Joueur de serveur simulé : Forge a besoin d'un vrai canal réseau, même vide, pour le connecter. */
+    private static ServerPlayer mockServerPlayer(GameTestHelper helper) {
+        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(), new GameProfile(UUID.randomUUID(), "test-mock-player")) {
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return true;
+            }
+        };
+        Connection connection = new Connection(PacketFlow.SERVERBOUND);
+        new EmbeddedChannel(connection);
+        helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player);
+        return player;
+    }
+
+    /** Joueur simulé dans le mode de jeu voulu. */
+    private static Player makeMockPlayer(GameTestHelper helper, GameType mode) {
+        return new Player(helper.getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player")) {
+            @Override
+            public boolean isSpectator() {
+                return mode == GameType.SPECTATOR;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return mode.isCreative();
+            }
+
+            @Override
+            public boolean isLocalPlayer() {
+                return true;
+            }
+        };
     }
 
     /** Onglet créatif : boucliers, mêlée de la plus courte à la plus longue, arcs, arbalètes, shurikens ; plus rien dans l'onglet Combat. */
@@ -1373,7 +1446,7 @@ public final class CombatGameTests {
     /** Statistiques : parades parfaites, shurikens lancés, vie volée. */
     @GameTest(template = ARENA)
     public static void playerStatistics(GameTestHelper helper) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        ServerPlayer player = mockServerPlayer(helper);
         try {
             checkStatistics(helper, player);
         } finally {
@@ -1404,8 +1477,7 @@ public final class CombatGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, vampiric);
         player.setHealth(4.0F);
         int stolenBefore = statValue(player, ModStats.HEALTH_STOLEN.get());
-        player.getAttributes().addTransientAttributeModifiers(vampiric.getItem().getDefaultAttributeModifiers().modifiers().stream()
-                .collect(ImmutableMultimap::<Holder<Attribute>, AttributeModifier>builder, (map, entry) -> map.put(entry.attribute(), entry.modifier()), (left, right) -> left.putAll(right.build())).build());
+        player.getAttributes().addTransientAttributeModifiers(vampiric.getAttributeModifiers(EquipmentSlot.MAINHAND));
         pig.hurt(player.damageSources().playerAttack(player), RAW_DAMAGE);
         double regained = player.getHealth() - 4.0F;
         helper.assertTrue(regained > 0.0D, "Vampirism should have healed the player");
@@ -1452,19 +1524,19 @@ public final class CombatGameTests {
         List<WeaponComparison.Row> byPair = WeaponComparison.rows(weapons, WeaponMaterials.IRON, WeaponComparison.Column.PAIR_DPS, true);
         for (int i = 1; i < byPair.size(); i++) helper.assertTrue(byPair.get(i - 1).pairDps() >= byPair.get(i).pairDps(), "the table should be sorted by pair DPS");
         // Trop rapide pour la protection de la cible : les coups en trop ne comptent pas.
-        WeaponDefinition tooFast = WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, json("{ \"attack_speed\": 10, \"base_damage\": 4, \"dual_wielded\": true }")).getOrThrow();
+        WeaponDefinition tooFast = DataResults.orThrow(WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, json("{ \"attack_speed\": 10, \"base_damage\": 4, \"dual_wielded\": true }")));
         double fastDamage = tooFast.damageFor(WeaponMaterials.IRON);
         helper.assertTrue(Math.abs(tooFast.dps(WeaponMaterials.IRON) - fastDamage * 2.0D) < EPSILON, "a lone weapon lands at most 2 hits per second, got " + tooFast.dps(WeaponMaterials.IRON));
         helper.assertTrue(Math.abs(tooFast.pairDps(WeaponMaterials.IRON) - fastDamage * 4.0D) < EPSILON, "a pair lands at most 4 hits per second, got " + tooFast.pairDps(WeaponMaterials.IRON));
-        helper.assertTrue(WeaponComparison.rows(weapons, WeaponMaterials.NETHERITE, WeaponComparison.Column.DAMAGE, true).getFirst().damage()
-                > WeaponComparison.rows(weapons, WeaponMaterials.WOODEN, WeaponComparison.Column.DAMAGE, true).getFirst().damage(), "the material should change the damage");
+        helper.assertTrue(WeaponComparison.rows(weapons, WeaponMaterials.NETHERITE, WeaponComparison.Column.DAMAGE, true).get(0).damage()
+                > WeaponComparison.rows(weapons, WeaponMaterials.WOODEN, WeaponComparison.Column.DAMAGE, true).get(0).damage(), "the material should change the damage");
         helper.succeed();
     }
 
     private static RulesDefinition presetRules(RulesPreset preset) {
         JsonObject rules = EditorDocument.rules().defaults();
         preset.applyToRules(rules);
-        return RulesDefinition.CODEC.parse(JsonOps.INSTANCE, rules).getOrThrow();
+        return DataResults.orThrow(RulesDefinition.CODEC.parse(JsonOps.INSTANCE, rules));
     }
 
     /** JEI et EMI : une page par enchantement, livres de chaque niveau, et seulement les capacités actives. */
@@ -1475,7 +1547,7 @@ public final class CombatGameTests {
         for (ResourceKey<Enchantment> key : ModEnchantments.ALL) {
             String path = key.location().getPath();
             RecipeViewerInfo.Entry page = entries.stream().filter(entry -> entry.id().equals(path)).findFirst().orElseThrow();
-            helper.assertTrue(page.stacks().size() == enchantment(helper, key).value().getMaxLevel(), path + " should list one book per level");
+            helper.assertTrue(page.stacks().size() == enchantment(helper, key).getMaxLevel(), path + " should list one book per level");
             helper.assertTrue(page.stacks().stream().allMatch(book -> book.is(Items.ENCHANTED_BOOK)), path + " should list books");
         }
         RecipeViewerInfo.Entry katana = entries.stream().filter(entry -> entry.id().equals(WeaponType.KATANA.id())).findFirst().orElseThrow();
@@ -1527,7 +1599,7 @@ public final class CombatGameTests {
             TutorialScene scene = TutorialScenes.create(id);
             helper.assertTrue(language.has(BetterWeaponry.MODID + ".tutorial." + id + ".title"), id + " has no title");
             helper.assertTrue(TutorialScenes.theme(id) != null, id + " has no theme");
-            helper.assertTrue(scene.steps().getFirst().start() == 0, id + " should start with a step");
+            helper.assertTrue(scene.steps().get(0).start() == 0, id + " should start with a step");
             int previous = -1;
             for (TutorialScene.Step step : scene.steps()) {
                 helper.assertTrue(step.start() > previous && step.start() < scene.duration(), id + " has a misplaced step");
@@ -1617,7 +1689,7 @@ public final class CombatGameTests {
         Player player = thrower(helper, stack, GameType.SURVIVAL);
         iron.throwFrom(helper.getLevel(), player, InteractionHand.MAIN_HAND, stack);
         helper.assertTrue(stack.getDamageValue() == 1, "a throw should cost 1 durability");
-        ShurikenEntity shot = thrownBy(helper, player).getFirst();
+        ShurikenEntity shot = thrownBy(helper, player).get(0);
         helper.assertTrue(shot.pickup == AbstractArrow.Pickup.ALLOWED, "a paid throw can be picked up");
         helper.assertFalse(shot.tryRecover(thrower(helper, ItemStack.EMPTY, GameType.SURVIVAL)), "only the thrower can pick it up");
         helper.assertTrue(shot.tryRecover(player) && stack.getDamageValue() == 0, "picking it up should give the point back");
@@ -1626,15 +1698,15 @@ public final class CombatGameTests {
         // Le dernier point : l'objet disparaît, le ramassage le recrée avec ses enchantements.
         ItemStack last = new ItemStack(iron);
         last.setDamageValue(last.getMaxDamage() - 1);
-        last.enchant(enchantment(helper, Enchantments.POWER), 3);
+        last.enchant(enchantment(helper, Enchantments.POWER_ARROWS), 3);
         Player lastPlayer = thrower(helper, last, GameType.SURVIVAL);
         iron.throwFrom(helper.getLevel(), lastPlayer, InteractionHand.MAIN_HAND, last);
         helper.assertTrue(lastPlayer.getMainHandItem().isEmpty(), "the last point should break the item");
-        ShurikenEntity lastShot = thrownBy(helper, lastPlayer).getFirst();
+        ShurikenEntity lastShot = thrownBy(helper, lastPlayer).get(0);
         helper.assertTrue(lastShot.tryRecover(lastPlayer), "the last shuriken should be recoverable");
         ItemStack recreated = lastPlayer.getInventory().getItem(firstShuriken(lastPlayer));
         helper.assertTrue(recreated.getItem() == iron && recreated.getDamageValue() == recreated.getMaxDamage() - 1
-                && EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.POWER), recreated) == 3, "the item should come back with 1 durability and its enchantments");
+                && EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.POWER_ARROWS), recreated) == 3, "the item should come back with 1 durability and its enchantments");
         lastShot.discard();
 
         // Objet rangé ailleurs : ramasser ne le copie pas.
@@ -1642,7 +1714,7 @@ public final class CombatGameTests {
         Player storing = thrower(helper, stored, GameType.SURVIVAL);
         iron.throwFrom(helper.getLevel(), storing, InteractionHand.MAIN_HAND, stored);
         storing.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        ShurikenEntity storedShot = thrownBy(helper, storing).getFirst();
+        ShurikenEntity storedShot = thrownBy(helper, storing).get(0);
         helper.assertFalse(storedShot.tryRecover(storing), "a shuriken whose item was stored elsewhere must not duplicate it");
         helper.assertTrue(firstShuriken(storing) < 0, "nothing should have been created");
         storedShot.discard();
@@ -1664,13 +1736,13 @@ public final class CombatGameTests {
 
         // Mode créatif : ne s'use pas. Il faut un vrai joueur serveur : le jeu de base ne vérifie le mode créatif que pour eux.
         ItemStack creative = new ItemStack(iron);
-        ServerPlayer creativePlayer = helper.makeMockServerPlayerInLevel();
+        ServerPlayer creativePlayer = mockServerPlayer(helper);
         try {
             creativePlayer.setGameMode(GameType.CREATIVE);
             creativePlayer.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
             creativePlayer.setItemInHand(InteractionHand.MAIN_HAND, creative);
             iron.throwFrom(helper.getLevel(), creativePlayer, InteractionHand.MAIN_HAND, creative);
-            ShurikenEntity creativeShot = thrownBy(helper, creativePlayer).getFirst();
+            ShurikenEntity creativeShot = thrownBy(helper, creativePlayer).get(0);
             helper.assertTrue(creative.getDamageValue() == 0 && creativeShot.pickup == AbstractArrow.Pickup.CREATIVE_ONLY, "creative throws cost nothing");
             creativeShot.discard();
         } finally {
@@ -1684,40 +1756,38 @@ public final class CombatGameTests {
     public static void shurikenEnchantments(GameTestHelper helper) {
         ShurikenItem iron = ModItems.shuriken(WeaponMaterials.IRON).get();
         ItemStack probe = new ItemStack(iron);
-        for (ResourceKey<Enchantment> accepted : List.of(Enchantments.POWER, Enchantments.PUNCH, Enchantments.FLAME, Enchantments.PIERCING, Enchantments.MULTISHOT,
-                Enchantments.UNBREAKING, Enchantments.MENDING, ModEnchantments.RETURNING)) {
-            helper.assertTrue(supports(probe, enchantment(helper, accepted)), "a shuriken should accept " + accepted.location());
+        for (Enchantment accepted : List.of(Enchantments.POWER_ARROWS, Enchantments.PUNCH_ARROWS, Enchantments.FLAMING_ARROWS, Enchantments.PIERCING, Enchantments.MULTISHOT,
+                Enchantments.UNBREAKING, Enchantments.MENDING, enchantment(helper, ModEnchantments.RETURNING))) {
+            helper.assertTrue(supports(probe, accepted), "a shuriken should accept " + BuiltInRegistries.ENCHANTMENT.getKey(accepted));
         }
-        for (ResourceKey<Enchantment> refused : List.of(Enchantments.INFINITY, Enchantments.QUICK_CHARGE)) {
-            helper.assertFalse(supports(probe, enchantment(helper, refused)), "a shuriken should refuse " + refused.location());
+        for (Enchantment refused : List.of(Enchantments.INFINITY_ARROWS, Enchantments.QUICK_CHARGE)) {
+            helper.assertFalse(supports(probe, refused), "a shuriken should refuse " + BuiltInRegistries.ENCHANTMENT.getKey(refused));
         }
-        helper.assertFalse(Enchantment.areCompatible(enchantment(helper, ModEnchantments.RETURNING), enchantment(helper, Enchantments.MENDING)), "Returning and Mending are incompatible");
-        helper.assertFalse(Enchantment.areCompatible(enchantment(helper, Enchantments.PIERCING), enchantment(helper, Enchantments.MULTISHOT)), "Piercing or Multishot, not both");
+        helper.assertFalse(areCompatible(enchantment(helper, ModEnchantments.RETURNING), enchantment(helper, Enchantments.MENDING)), "Returning and Mending are incompatible");
+        helper.assertFalse(areCompatible(enchantment(helper, Enchantments.PIERCING), enchantment(helper, Enchantments.MULTISHOT)), "Piercing or Multishot, not both");
 
         ItemStack powered = new ItemStack(iron);
-        powered.enchant(enchantment(helper, Enchantments.POWER), 5);
+        powered.enchant(enchantment(helper, Enchantments.POWER_ARROWS), 5);
         Player player = thrower(helper, powered, GameType.SURVIVAL);
         iron.throwFrom(helper.getLevel(), player, InteractionHand.MAIN_HAND, powered);
-        ShurikenEntity shot = thrownBy(helper, player).getFirst();
+        ShurikenEntity shot = thrownBy(helper, player).get(0);
         helper.assertTrue(shot.getType().is(EntityTypeTags.ARROWS), "a shuriken should count as an arrow for enchantments");
-        Pig pig = pigAt(helper, new Vec3(2.5D, 1.0D, 4.5D));
-        float boosted = EnchantmentHelper.modifyDamage(helper.getLevel(), shot.getWeaponItem(), pig, helper.getLevel().damageSources().arrow(shot, player), (float) shot.getBaseDamage());
-        helper.assertTrue(boosted > shot.getBaseDamage() + 1.0F, "Power should raise the damage, got " + boosted);
+        helper.assertTrue(shot.getBaseDamage() > WeaponData.gear().shurikens().baseDamage() + 1.0D, "Power should raise the damage, got " + shot.getBaseDamage());
         shot.discard();
 
         ItemStack piercing = new ItemStack(iron);
         piercing.enchant(enchantment(helper, Enchantments.PIERCING), 3);
         Player piercer = thrower(helper, piercing, GameType.SURVIVAL);
         iron.throwFrom(helper.getLevel(), piercer, InteractionHand.MAIN_HAND, piercing);
-        ShurikenEntity piercingShot = thrownBy(helper, piercer).getFirst();
+        ShurikenEntity piercingShot = thrownBy(helper, piercer).get(0);
         helper.assertTrue(piercingShot.getPierceLevel() == 3, "Piercing should apply");
         piercingShot.discard();
 
         ItemStack flaming = new ItemStack(iron);
-        flaming.enchant(enchantment(helper, Enchantments.FLAME), 1);
+        flaming.enchant(enchantment(helper, Enchantments.FLAMING_ARROWS), 1);
         Player igniter = thrower(helper, flaming, GameType.SURVIVAL);
         iron.throwFrom(helper.getLevel(), igniter, InteractionHand.MAIN_HAND, flaming);
-        ShurikenEntity flamingShot = thrownBy(helper, igniter).getFirst();
+        ShurikenEntity flamingShot = thrownBy(helper, igniter).get(0);
         helper.assertTrue(flamingShot.isOnFire(), "Flame should ignite the shuriken");
         flamingShot.discard();
 
@@ -1931,7 +2001,7 @@ public final class CombatGameTests {
     }
 
     private static Player thrower(GameTestHelper helper, ItemStack stack, GameType mode) {
-        Player player = helper.makeMockPlayer(mode);
+        Player player = makeMockPlayer(helper, mode);
         player.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
         player.setItemInHand(InteractionHand.MAIN_HAND, stack);
         return player;
@@ -1958,23 +2028,23 @@ public final class CombatGameTests {
             helper.assertTrue(new ItemStack(ModItems.crossbow(materials[i]).get()).getMaxDamage() == expected[i][1], materials[i] + " crossbow durability");
         }
         ItemStack iron = new ItemStack(ModItems.bow(WeaponMaterials.IRON).get());
-        helper.assertTrue(iron.is(WeaponMaterial.itemTag("c:tools/bow")) && iron.is(ItemTags.BOW_ENCHANTABLE) && iron.is(ItemTags.DURABILITY_ENCHANTABLE), "bow tags should be loaded");
+        helper.assertTrue(iron.is(WeaponMaterial.itemTag("c:tools/bows")), "bow tags should be loaded");
         helper.assertTrue(iron.getItem().isValidRepairItem(iron, new ItemStack(Items.IRON_INGOT)), "an iron bow is repaired with iron");
 
         RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
         for (String vanilla : List.of("bow", "crossbow")) {
-            helper.assertTrue(recipes.byKey(ResourceLocation.withDefaultNamespace(vanilla)).isEmpty(), "the vanilla recipe should be off: " + vanilla);
+            helper.assertTrue(recipes.byKey(new ResourceLocation(vanilla)).isEmpty(), "the vanilla recipe should be off: " + vanilla);
         }
-        helper.assertTrue(recipes.byKey(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "netherite_bow_smithing")).isPresent(), "netherite bows use the smithing table");
+        helper.assertTrue(recipes.byKey(new ResourceLocation(BetterWeaponry.MODID, "netherite_bow_smithing")).isPresent(), "netherite bows use the smithing table");
         expectCrafted(helper, Items.STICK, ModItems.bow(WeaponMaterials.WOODEN).get());
         expectCrafted(helper, Items.IRON_INGOT, ModItems.bow(WeaponMaterials.IRON).get());
         ItemStack cobble = new ItemStack(Items.COBBLESTONE);
-        CraftingInput dispenser = CraftingInput.of(3, 3, List.of(cobble, cobble, cobble, cobble, new ItemStack(ModItems.bow(WeaponMaterials.IRON).get()), cobble, cobble, new ItemStack(Items.REDSTONE), cobble));
+        CraftingContainer dispenser = craftingGrid(3, 3, List.of(cobble, cobble, cobble, cobble, new ItemStack(ModItems.bow(WeaponMaterials.IRON).get()), cobble, cobble, new ItemStack(Items.REDSTONE), cobble));
         helper.assertTrue(recipes.getRecipeFor(RecipeType.CRAFTING, dispenser, helper.getLevel()).isPresent(), "a dispenser should accept a bow of the mod");
 
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        int wooden = CrossbowItem.getChargeDuration(new ItemStack(ModItems.crossbow(WeaponMaterials.WOODEN).get()), player);
-        int golden = CrossbowItem.getChargeDuration(new ItemStack(ModItems.crossbow(WeaponMaterials.GOLDEN).get()), player);
+        Player player = makeMockPlayer(helper, GameType.SURVIVAL);
+        int wooden = CrossbowItem.getChargeDuration(new ItemStack(ModItems.crossbow(WeaponMaterials.WOODEN).get()));
+        int golden = CrossbowItem.getChargeDuration(new ItemStack(ModItems.crossbow(WeaponMaterials.GOLDEN).get()));
         helper.assertTrue(wooden == 25 && golden == 13, "charge time: wooden " + wooden + ", golden " + golden);
         helper.succeed();
     }
@@ -1982,9 +2052,9 @@ public final class CombatGameTests {
     private static void expectCrafted(GameTestHelper helper, Item side, Item result) {
         ItemStack s = new ItemStack(side);
         ItemStack string = new ItemStack(Items.STRING);
-        CraftingInput grid = CraftingInput.of(3, 3, List.of(ItemStack.EMPTY, s, string, s, ItemStack.EMPTY, string, ItemStack.EMPTY, s, string));
+        CraftingContainer grid = craftingGrid(3, 3, List.of(ItemStack.EMPTY, s, string, s, ItemStack.EMPTY, string, ItemStack.EMPTY, s, string));
         var recipe = helper.getLevel().getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, grid, helper.getLevel());
-        helper.assertTrue(recipe.isPresent() && recipe.get().value().getResultItem(helper.getLevel().registryAccess()).is(result), "the bow recipe should give " + result);
+        helper.assertTrue(recipe.isPresent() && recipe.get().getResultItem(helper.getLevel().registryAccess()).is(result), "the bow recipe should give " + result);
     }
 
     private static double averageMobShot(GameTestHelper helper, Skeleton skeleton, LivingEntity target) {
@@ -1994,8 +2064,8 @@ public final class CombatGameTests {
             skeleton.performRangedAttack(target, 1.0F);
             List<AbstractArrow> arrows = helper.getLevel().getEntitiesOfClass(AbstractArrow.class, skeleton.getBoundingBox().inflate(3.0D), arrow -> arrow.getOwner() == skeleton);
             helper.assertTrue(arrows.size() == 1, "one mob arrow expected, found " + arrows.size());
-            total += arrows.getFirst().getDeltaMovement().length();
-            arrows.getFirst().discard();
+            total += arrows.get(0).getDeltaMovement().length();
+            arrows.get(0).discard();
         }
         return total / shots;
     }
@@ -2018,16 +2088,16 @@ public final class CombatGameTests {
 
     private static double firedSpeed(GameTestHelper helper, WeaponMaterial material, int ticksDrawn) {
         ItemStack bow = new ItemStack(ModItems.bow(material).get());
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = makeMockPlayer(helper, GameType.SURVIVAL);
         player.setPos(helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D)));
         player.setItemInHand(InteractionHand.MAIN_HAND, bow);
         player.getInventory().add(new ItemStack(Items.ARROW, 8));
-        bow.releaseUsing(helper.getLevel(), player, bow.getUseDuration(player) - ticksDrawn);
+        bow.releaseUsing(helper.getLevel(), player, bow.getUseDuration() - ticksDrawn);
         AABB around = player.getBoundingBox().inflate(4.0D);
         List<AbstractArrow> arrows = helper.getLevel().getEntitiesOfClass(AbstractArrow.class, around, arrow -> arrow.getOwner() == player);
         helper.assertTrue(arrows.size() == 1, "one arrow should be shot, found " + arrows.size());
-        double speed = arrows.getFirst().getDeltaMovement().length();
-        arrows.getFirst().discard();
+        double speed = arrows.get(0).getDeltaMovement().length();
+        arrows.get(0).discard();
         return speed;
     }
 
@@ -2069,18 +2139,14 @@ public final class CombatGameTests {
         helper.assertTrue(Math.abs(faster.length() - 3.2D) < EPSILON, "the arrow should be twice as fast");
         helper.assertTrue(Math.abs(faster.y / faster.horizontalDistance() - 0.05D) < EPSILON, "the aim should be lowered, slope " + faster.y / faster.horizontalDistance());
 
-        // Une flèche tirée à l'arbalète du mod compte comme tirée à l'arbalète.
-        Arrow bolt = new Arrow(helper.getLevel(), skeleton, new ItemStack(Items.ARROW), new ItemStack(ModItems.crossbow(WeaponMaterials.IRON).get()));
-        helper.assertTrue(bolt.shotFromCrossbow(), "an arrow fired by a crossbow of the mod should count as fired by a crossbow");
-
         // Conversion et prix : un meilleur matériau coûte plus cher.
         ItemStack vanillaBow = new ItemStack(Items.BOW);
         vanillaBow.setDamageValue(192);
         ItemStack converted = VanillaGear.convert(vanillaBow, WeaponMaterials.DIAMOND);
         helper.assertTrue(converted.is(ModItems.bow(WeaponMaterials.DIAMOND).get()) && Math.abs((double) converted.getDamageValue() / converted.getMaxDamage() - 0.5D) < 0.01D, "a converted bow keeps its wear");
-        MerchantOffer offer = new MerchantOffer(new ItemCost(Items.EMERALD, 3), new ItemStack(Items.CROSSBOW), 12, 10, 0.05F);
+        MerchantOffer offer = new MerchantOffer(new ItemStack(Items.EMERALD, 3), new ItemStack(Items.CROSSBOW), 12, 10, 0.05F);
         MerchantOffer diamond = VanillaGearEvents.convertOffer(offer, WeaponMaterials.DIAMOND);
-        helper.assertTrue(diamond.getResult().is(ModItems.crossbow(WeaponMaterials.DIAMOND).get()) && diamond.getItemCostA().count() == 9, "a diamond crossbow should cost 3 times more");
+        helper.assertTrue(diamond.getResult().is(ModItems.crossbow(WeaponMaterials.DIAMOND).get()) && diamond.getBaseCostA().getCount() == 9, "a diamond crossbow should cost 3 times more");
 
         // Vrais échanges : l'armurier et le fléchier montent jusqu'au diamant, jamais à la netherite.
         Villager villager = EntityType.VILLAGER.create(helper.getLevel());
@@ -2160,12 +2226,12 @@ public final class CombatGameTests {
         Player twoHands = player(helper, katana, ItemStack.EMPTY);
         Player dual = player(helper, weapon(WeaponType.DAGGER), weapon(WeaponType.DAGGER));
         Pig target = armoredPig(helper, new BlockPos(2, 1, 2));
-        double reachBefore = twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE);
+        double reachBefore = twoHands.getAttributeValue(Platform.get().entityReachAttribute());
         helper.assertTrue(reachBefore == WeaponData.weapon(WeaponType.KATANA).attackReach(), "the katana's reach should apply at first");
         try {
             WeaponData.install(new WeaponData.Snapshot(original.weapons(), rules(false, true), original.gear()));
             WeaponItem.refreshEquippedModifiers(twoHands);
-            helper.assertTrue(twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE) == 3.0D,
+            helper.assertTrue(twoHands.getAttributeValue(Platform.get().entityReachAttribute()) == 3.0D,
                     "main switch off: the held weapon should fall back to the vanilla reach");
             helper.assertFalse(DualWieldSystem.isDualWielding(dual), "main switch off: no dual wield");
             helper.assertFalse(WeaponItem.isTwoHanded(katana), "main switch off: no two-handed weapon");
@@ -2179,7 +2245,7 @@ public final class CombatGameTests {
             WeaponData.install(original);
             WeaponItem.refreshEquippedModifiers(twoHands);
         }
-        helper.assertTrue(twoHands.getAttributeValue(Attributes.ENTITY_INTERACTION_RANGE) == reachBefore, "the reach should be back");
+        helper.assertTrue(twoHands.getAttributeValue(Platform.get().entityReachAttribute()) == reachBefore, "the reach should be back");
         helper.succeed();
     }
 
@@ -2367,7 +2433,7 @@ public final class CombatGameTests {
         last.setDamageValue(last.getMaxDamage() - 1);
         Player player = thrower(helper, last, GameType.SURVIVAL);
         iron.throwFrom(helper.getLevel(), player, InteractionHand.MAIN_HAND, last);
-        ShurikenEntity shot = thrownBy(helper, player).getFirst();
+        ShurikenEntity shot = thrownBy(helper, player).get(0);
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             player.getInventory().setItem(slot, new ItemStack(Items.DIRT, 64));
         }
@@ -2376,7 +2442,7 @@ public final class CombatGameTests {
         shot.setNoPhysics(true);
         helper.assertTrue(shot.tryRecover(player), "coming back, it should disappear");
         List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(3.0D), item -> item.getItem().is(iron));
-        helper.assertTrue(drops.size() == 1 && drops.getFirst().getItem().getDamageValue() == iron.getDefaultInstance().getMaxDamage() - 1, "the shuriken should be dropped with 1 durability: " + drops);
+        helper.assertTrue(drops.size() == 1 && drops.get(0).getItem().getDamageValue() == iron.getDefaultInstance().getMaxDamage() - 1, "the shuriken should be dropped with 1 durability: " + drops);
         drops.forEach(ItemEntity::discard);
         shot.discard();
         helper.succeed();
@@ -2405,7 +2471,7 @@ public final class CombatGameTests {
     @GameTest(template = ARENA, timeoutTicks = 200)
     public static void bleedingKeepsItsRhythm(GameTestHelper helper) {
         Pig pig = pigAt(helper, new Vec3(2.5D, 1.0D, 2.5D));
-        helper.onEachTick(() -> pig.addEffect(new MobEffectInstance(ModEffects.BLEEDING.holder(), 40)));
+        helper.onEachTick(() -> pig.addEffect(new MobEffectInstance(ModEffects.BLEEDING.get(), 40)));
         helper.runAfterDelay(100L, () -> {
             double lost = TEST_HEALTH - pig.getHealth();
             helper.assertTrue(lost >= 2.0D && lost <= 3.0D, "5 seconds of bleeding should cost about 2.5 health, lost " + lost);
@@ -2463,7 +2529,7 @@ public final class CombatGameTests {
 
     // --- Outils ---
 
-    private static boolean supports(ItemStack stack, Holder<Enchantment> enchantment) {
+    private static boolean supports(ItemStack stack, Enchantment enchantment) {
         return Platform.get().supportsEnchantment(stack, enchantment);
     }
 
@@ -2481,7 +2547,7 @@ public final class CombatGameTests {
     }
 
     private static Player mockPlayerAt(GameTestHelper helper, Vec3 position) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = makeMockPlayer(helper, GameType.SURVIVAL);
         player.setPos(position);
         return player;
     }
@@ -2542,12 +2608,12 @@ public final class CombatGameTests {
 
     /** Joueur factice tenant ces objets, avec leurs bonus d'attributs appliqués (comme quand on les équipe). */
     private static Player player(GameTestHelper helper, ItemStack mainHand, ItemStack offHand) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        Player player = makeMockPlayer(helper, GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, mainHand);
         player.setItemInHand(InteractionHand.OFF_HAND, offHand);
-        mainHand.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+        mainHand.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
             AttributeInstance instance = player.getAttribute(attribute);
-            if (instance != null && !instance.hasModifier(modifier.id())) instance.addTransientModifier(modifier);
+            if (instance != null && instance.getModifier(modifier.getId()) == null) instance.addTransientModifier(modifier);
         });
         return player;
     }

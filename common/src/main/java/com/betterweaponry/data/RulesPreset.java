@@ -50,7 +50,7 @@ public enum RulesPreset {
     /** Écrit ce préréglage dans les valeurs de gear.json (objet modifié sur place). */
     public void applyToGear(JsonObject gear) {
         // Les valeurs égales au défaut ne sont pas encodées : l'éditeur a besoin de l'objet complet.
-        JsonObject encoded = MobGearDefinition.CODEC.encodeStart(JsonOps.INSTANCE, mobs).getOrThrow().getAsJsonObject();
+        JsonObject encoded = DataResults.orThrow(MobGearDefinition.CODEC.encodeStart(JsonOps.INSTANCE, mobs)).getAsJsonObject();
         gear.add(MOBS, JsonTree.expand(MobGearDefinition.FIELDS, encoded));
     }
 

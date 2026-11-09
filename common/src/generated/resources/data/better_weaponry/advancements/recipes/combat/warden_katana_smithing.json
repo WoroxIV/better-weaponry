@@ -1,0 +1,52 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "deeperdarker"
+    },
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:tag_empty",
+        "tag": "better_weaponry:weapon_materials/warden_template"
+      }
+    },
+    {
+      "type": "forge:not",
+      "value": {
+        "type": "forge:tag_empty",
+        "tag": "better_weaponry:weapon_materials/warden_addition"
+      }
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_addition": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "better_weaponry:weapon_materials/warden_addition"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "better_weaponry:warden_katana_smithing"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_addition"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "better_weaponry:warden_katana_smithing"
+    ]
+  }
+}

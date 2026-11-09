@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/vibranium",
+      "required": false
+    },
+    {
+      "id": "allthemodium:vibranium_ingot",
+      "required": false
+    }
+  ]
+}

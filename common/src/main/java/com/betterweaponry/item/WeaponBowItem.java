@@ -1,17 +1,15 @@
 package com.betterweaponry.item;
 
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-/** Arc d'un matériau : l'arc vanilla, avec la vitesse de flèche et la durabilité du matériau. */
+/**
+ * Arc d'un matériau : l'arc vanilla, avec la durabilité du matériau.
+ * La vitesse de flèche se règle dans BowItemMixin (le jeu la calcule au milieu de {@code releaseUsing}).
+ */
 public class WeaponBowItem extends BowItem implements RangedWeapon {
     private static final int VANILLA_DURABILITY = 384;
 
@@ -33,16 +31,10 @@ public class WeaponBowItem extends BowItem implements RangedWeapon {
         return material;
     }
 
-    @Override
-    protected void shoot(ServerLevel level, LivingEntity shooter, InteractionHand hand, ItemStack weapon, List<ItemStack> projectileItems,
-                         float velocity, float inaccuracy, boolean isCrit, @Nullable LivingEntity target) {
-        super.shoot(level, shooter, hand, weapon, projectileItems, velocityFor(shooter, velocity), inaccuracy, isCrit, target);
-    }
-
     /** Un arc plus rapide atteint la pleine puissance plus tôt : le temps de bandage compte davantage. */
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
-        int duration = getUseDuration(stack, entity);
+        int duration = getUseDuration(stack);
         int drawn = duration - timeLeft;
         super.releaseUsing(stack, level, entity, duration - (int) Math.round(drawn * drawSpeed()));
     }

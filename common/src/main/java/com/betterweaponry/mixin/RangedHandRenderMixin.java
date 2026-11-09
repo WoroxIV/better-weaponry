@@ -4,7 +4,7 @@ import com.betterweaponry.item.WeaponBowItem;
 import com.betterweaponry.item.WeaponCrossbowItem;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,11 +26,11 @@ public abstract class RangedHandRenderMixin {
     }
 
     /** Un arc plus rapide (or) doit aussi paraître se bander plus vite : on avance le temps vu par l'animation. */
-    @WrapOperation(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;getUseItemRemainingTicks()I"))
-    private int betterweaponry$fastDrawAnimation(AbstractClientPlayer player, Operation<Integer> original) {
+    @WrapOperation(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getUseItemRemainingTicks()I"))
+    private int betterweaponry$fastDrawAnimation(LocalPlayer player, Operation<Integer> original) {
         int remaining = original.call(player);
         if (!(player.getUseItem().getItem() instanceof WeaponBowItem bow) || bow.drawSpeed() == 1.0D) return remaining;
-        int duration = player.getUseItem().getUseDuration(player);
+        int duration = player.getUseItem().getUseDuration();
         return duration - (int) Math.round((duration - remaining) * bow.drawSpeed());
     }
 }

@@ -25,14 +25,13 @@ import com.betterweaponry.item.RangedWeapon;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModAttributes;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.entity.EquipmentSlot;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -63,9 +62,6 @@ public final class TooltipEventHandler {
     private static final String COMBO_KEY = BetterWeaponry.MODID + ".tooltip.combo";
     private static final String COMBO_STEP_KEY = COMBO_KEY + ".step";
     private static final String COMBO_SEPARATOR_KEY = COMBO_KEY + ".separator";
-    // Morceaux des clés vanilla "attribute.name.player.entity_interaction_range" et "...sweeping_damage_ratio"
-    private static final String VANILLA_REACH_KEY_PART = "entity_interaction_range";
-    private static final String VANILLA_SWEEP_KEY_PART = "sweeping_damage_ratio";
     // Formats vanilla d'une stat de base, nombre puis pourcentage ("%s %s" en anglais, "%s en %s" en français,
     // "%2$s: %1$s" en italien...) : l'ordre des mots suit la langue.
     private static final String VANILLA_STAT_FORMAT_KEY = "attribute.modifier.equals.0";
@@ -94,14 +90,14 @@ public final class TooltipEventHandler {
         // Les stats vanilla sont sorties du tooltip pour être replacées avec les autres.
         lines.put(TooltipCategory.DAMAGE, TooltipLayout.takeLines(tooltip, "attack_damage"));
         lines.put(TooltipCategory.SPEED, TooltipLayout.takeLines(tooltip, "attack_speed"));
-        lines.put(TooltipCategory.ARMOR_PENETRATION, TooltipLayout.takeLines(tooltip, ModAttributes.armorPenetration().value().getDescriptionId()));
+        lines.put(TooltipCategory.ARMOR_PENETRATION, armorPenetrationLines(tooltip, definition));
         // Sans joueur (aperçu au menu principal), le jeu n'ajoute pas les valeurs de base du joueur aux dégâts et à la vitesse.
         if (player == null && stack.getItem() instanceof WeaponItem weapon) {
             lines.put(TooltipCategory.DAMAGE, List.of(statLine(definition.damageFor(weapon.getMaterial()), Attributes.ATTACK_DAMAGE)));
             lines.put(TooltipCategory.SPEED, List.of(statLine(definition.attackSpeed(), Attributes.ATTACK_SPEED)));
         }
-        TooltipLayout.takeLines(tooltip, VANILLA_REACH_KEY_PART);
-        TooltipLayout.takeLines(tooltip, VANILLA_SWEEP_KEY_PART);
+        TooltipLayout.takeLines(tooltip, reachKey());
+        TooltipLayout.takeLines(tooltip, ModAttributes.SWEEPING_DAMAGE_RATIO.get().getDescriptionId());
 
         if (WeaponItem.isTwoHanded(stack)) {
             add(lines, TooltipCategory.HANDS, Component.translatable(TWO_HANDED_KEY));
@@ -137,8 +133,8 @@ public final class TooltipEventHandler {
     }
 
     /** Une stat indentée, au format vanilla de chaque langue. */
-    private static Component statLine(double value, Holder<Attribute> attribute) {
-        return Component.literal(" ").append(Component.translatable(VANILLA_STAT_FORMAT_KEY, number(value), Component.translatable(attribute.value().getDescriptionId())));
+    private static Component statLine(double value, Attribute attribute) {
+        return Component.literal(" ").append(Component.translatable(VANILLA_STAT_FORMAT_KEY, number(value), Component.translatable(attribute.getDescriptionId())));
     }
 
     /** Une ligne indentée d'un espace, comme les stats vanilla. */
@@ -153,30 +149,41 @@ public final class TooltipEventHandler {
         if (placement == TooltipPlacement.HIDDEN) return;
         int header = TooltipLayout.headerIndex(tooltip);
         if (header < 0) return;
-        TooltipLayout.takeLines(tooltip, VANILLA_REACH_KEY_PART);
+        TooltipLayout.takeLines(tooltip, reachKey());
         Component line = Component.literal(" ").append(reachLine(totalReach(stack)));
         tooltip.add(header + 1, TooltipLayout.colored(line, ClientConfig.get(ClientConfig.color(TooltipCategory.REACH))));
     }
 
     private static boolean hasReachModifier(ItemStack stack) {
-        return Platform.get().attributeModifiers(stack).modifiers().stream().anyMatch(TooltipEventHandler::isReachBonus);
+        return !reachBonuses(stack).isEmpty();
     }
 
     private static double totalReach(ItemStack stack) {
         double total = PLAYER_BASE_REACH;
-        for (ItemAttributeModifiers.Entry entry : Platform.get().attributeModifiers(stack).modifiers()) {
-            if (isReachBonus(entry)) total += entry.modifier().amount();
-        }
+        for (AttributeModifier modifier : reachBonuses(stack)) total += modifier.getAmount();
         return total;
     }
 
-    private static boolean isReachBonus(ItemAttributeModifiers.Entry entry) {
-        return entry.attribute().equals(Attributes.ENTITY_INTERACTION_RANGE) && entry.modifier().operation() == AttributeModifier.Operation.ADD_VALUE;
+    private static List<AttributeModifier> reachBonuses(ItemStack stack) {
+        return stack.getAttributeModifiers(EquipmentSlot.MAINHAND).get(Platform.get().entityReachAttribute()).stream()
+                .filter(modifier -> modifier.getOperation() == AttributeModifier.Operation.ADDITION).toList();
+    }
+
+    private static String reachKey() {
+        return Platform.get().entityReachAttribute().getDescriptionId();
+    }
+
+    /** Le jeu affiche "+0.3" : remplacée par une ligne verte en pourcentage, comme les autres stats de l'arme. */
+    private static List<Component> armorPenetrationLines(List<Component> tooltip, WeaponDefinition definition) {
+        Attribute attribute = ModAttributes.armorPenetration();
+        if (TooltipLayout.takeLines(tooltip, attribute.getDescriptionId()).isEmpty()) return List.of();
+        return List.of(Component.literal(" ").append(Component.translatable(VANILLA_PERCENT_STAT_FORMAT_KEY, number(definition.armorPenetration()),
+                Component.translatable(attribute.getDescriptionId()))).withStyle(ChatFormatting.DARK_GREEN));
     }
 
     /** Format vanilla "#.##" : affiche "3.5" ou "4" et évite les "3.6000000000000005" des calculs en double. */
     private static String number(double value) {
-        return ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(value);
+        return ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(value);
     }
 
     private static Component reachLine(double reach) {
@@ -185,14 +192,14 @@ public final class TooltipEventHandler {
 
     /** "50% Sweeping Damage Ratio", avec le nom vanilla de la stat dans chaque langue. */
     private static Component sweepLine(WeaponDefinition definition) {
-        Component name = Component.translatable(Attributes.SWEEPING_DAMAGE_RATIO.value().getDescriptionId());
+        Component name = Component.translatable(ModAttributes.SWEEPING_DAMAGE_RATIO.get().getDescriptionId());
         return Component.translatable(VANILLA_PERCENT_STAT_FORMAT_KEY, number(definition.sweep().damageRatio()), name);
     }
 
     /** Ex : "Coup : Lenteur II 1.5 s", avec le nom de l'effet traduit par le jeu. */
     private static void addEffectLine(OnHitEffect effect, Map<TooltipCategory, List<Component>> lines) {
-        effect.holder().ifPresent(holder -> {
-            MutableComponent name = Component.translatable(holder.value().getDescriptionId());
+        effect.mobEffect().ifPresent(mobEffect -> {
+            MutableComponent name = Component.translatable(mobEffect.getDescriptionId());
             if (effect.level() > 1) {
                 // Même rendu que les potions vanilla : "Lenteur II"
                 name = Component.translatable("potion.withAmplifier", name, Component.translatable("potion.potency." + (effect.level() - 1)));

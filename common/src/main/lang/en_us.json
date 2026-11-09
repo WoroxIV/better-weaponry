@@ -554,5 +554,6 @@
     "better_weaponry.tutorial.combos.hits": "Each hit that lands advances the combo, shown on screen.",
     "better_weaponry.tutorial.combos.finisher": "The last hit strikes a whole area: %s blocks over %s°.",
     "better_weaponry.tutorial.combos.reset": "If you do not hit for %s s, the combo starts over."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "Sweeping Damage Ratio"
 }

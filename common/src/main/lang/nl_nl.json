@@ -639,5 +639,6 @@
     "better_weaponry.tutorial.combos.hits": "Elke treffer brengt de combo verder, die op het scherm staat.",
     "better_weaponry.tutorial.combos.finisher": "De laatste slag raakt een heel gebied: %s blokken over %s°.",
     "better_weaponry.tutorial.combos.reset": "Raak je %s s niets, dan begint de combo opnieuw."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "verscherpingsschaderatio"
 }

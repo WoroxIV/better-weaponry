@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/ignitium",
+      "required": false
+    },
+    {
+      "id": "cataclysm:ignitium_ingot",
+      "required": false
+    }
+  ]
+}

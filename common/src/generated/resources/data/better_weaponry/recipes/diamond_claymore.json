@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "forge:gems/diamond"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "pattern": [
+    " M ",
+    "MMM",
+    " S "
+  ],
+  "result": {
+    "item": "better_weaponry:diamond_claymore"
+  }
+}

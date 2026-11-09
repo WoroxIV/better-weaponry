@@ -1,28 +1,20 @@
 package com.betterweaponry.network;
 
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.editor.EditorHooks;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 
 /** Serveur → client : résultat d'un enregistrement fait dans l'éditeur (message traduit côté client). */
-public record EditorResultPayload(String documentId, boolean success, Component message) implements CustomPacketPayload {
-    public static final Type<EditorResultPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "editor_result"));
-
-    public static final StreamCodec<RegistryFriendlyByteBuf, EditorResultPayload> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, EditorResultPayload::documentId,
-            ByteBufCodecs.BOOL, EditorResultPayload::success,
-            ComponentSerialization.TRUSTED_STREAM_CODEC, EditorResultPayload::message,
-            EditorResultPayload::new);
+public record EditorResultPayload(String documentId, boolean success, Component message) implements Payload {
+    public static EditorResultPayload read(FriendlyByteBuf buffer) {
+        return new EditorResultPayload(buffer.readUtf(), buffer.readBoolean(), buffer.readComponent());
+    }
 
     @Override
-    public Type<EditorResultPayload> type() {
-        return TYPE;
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeUtf(documentId);
+        buffer.writeBoolean(success);
+        buffer.writeComponent(message);
     }
 
     public static void handle(EditorResultPayload payload) {

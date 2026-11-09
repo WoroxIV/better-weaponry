@@ -1,0 +1,75 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.neoforged.moddev.legacyforge'
+}
+
+ext.gameTestAnnotations = '@net.minecraftforge.gametest.GameTestHolder(BetterWeaponry.MODID)\n@net.minecraftforge.gametest.PrefixGameTestTemplate(false)'
+ext.gameTestArena = 'empty'
+
+legacyForge {
+    version = forge_version
+    accessTransformers.from(rootProject.file('common/accesstransformer.cfg'))
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
+
+    runs {
+        configureEach {
+            gameDirectory = rootProject.file("run/${name}")
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            systemProperty 'forge.logging.console.level', 'debug'
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+        }
+        client {
+            client()
+        }
+        server {
+            server()
+            programArgument '--nogui'
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config 'betterweaponry.mixins.json'
+    config 'betterweaponry.forge.mixins.json'
+}
+
+tasks.named('processResources', ProcessResources) {
+    from(rootProject.file('common/accesstransformer.cfg')) { into 'META-INF' }
+    // Forge cherche la table de correspondance des noms indiquée dans chaque configuration de mixins.
+    filesMatching(['betterweaponry.mixins.json', 'betterweaponry.forge.mixins.json']) {
+        filter { String line -> line.contains('"package"') ? "  \"refmap\": \"${mod_id}.refmap.json\",\n" + line : line }
+    }
+}
+
+// Le bloc mixin ci-dessus ne sert qu'au développement : dans le jar publié, Forge lit la liste dans le manifeste.
+tasks.named('jar', Jar) {
+    manifest.attributes('MixinConfigs': 'betterweaponry.mixins.json,betterweaponry.forge.mixins.json')
+}
+
+dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+    annotationProcessor "io.github.llamalad7:mixinextras-common:${mixinextras_version}"
+    implementation "io.github.llamalad7:mixinextras-forge:${mixinextras_version}"
+    jarJar "io.github.llamalad7:mixinextras-forge:${mixinextras_version}"
+
+    // JEI et EMI restent optionnels pour les joueurs. Pour tester : gradlew :forge:runClient -Pbw_compat=jei (ou emi).
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    modCompileOnly "mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"
+    modCompileOnly "dev.emi:emi-forge:${emi_version}:api"
+    if (project.findProperty('bw_compat') == 'jei') modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
+    if (project.findProperty('bw_compat') == 'emi') modRuntimeOnly "dev.emi:emi-forge:${emi_version}"
+}

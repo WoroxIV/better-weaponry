@@ -11,7 +11,7 @@ import net.minecraft.world.entity.MobCategory;
 public final class ModEntities {
     public static final Registered<EntityType<?>, EntityType<ShurikenEntity>> SHURIKEN = Platform.get().register(Registries.ENTITY_TYPE, "shuriken",
             () -> EntityType.Builder.<ShurikenEntity>of(ShurikenEntity::new, MobCategory.MISC)
-                    .sized(0.5F, 0.5F).eyeHeight(0.13F).clientTrackingRange(4).updateInterval(20).build("shuriken"));
+                    .sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(20).build("shuriken"));
 
     private ModEntities() {
     }

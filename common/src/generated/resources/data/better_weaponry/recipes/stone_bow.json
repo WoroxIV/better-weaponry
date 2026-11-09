@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "minecraft:stone_tool_materials"
+    },
+    "X": {
+      "tag": "forge:string"
+    }
+  },
+  "pattern": [
+    " MX",
+    "M X",
+    " MX"
+  ],
+  "result": {
+    "item": "better_weaponry:stone_bow"
+  }
+}

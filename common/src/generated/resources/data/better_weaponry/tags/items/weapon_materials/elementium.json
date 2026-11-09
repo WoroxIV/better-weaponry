@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/elementium",
+      "required": false
+    },
+    {
+      "id": "botania:elementium_ingot",
+      "required": false
+    }
+  ]
+}

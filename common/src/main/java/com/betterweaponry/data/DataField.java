@@ -94,6 +94,11 @@ public final class DataField<T> {
         return new DataField<>(name, Kind.NUMBER_MAP, codec, Map.of(), min, max, null, null, List.of());
     }
 
+    /** Le même codec, qui refuse les valeurs que {@code check} refuse. */
+    private static <V> Codec<V> validated(Codec<V> codec, Function<V, DataResult<V>> check) {
+        return codec.flatXmap(check, check);
+    }
+
     /**
      * Identifiant obligatoire, ex : "minecraft:slowness". Refusé s'il n'est pas dans {@code knownIds}.
      *
@@ -102,7 +107,7 @@ public final class DataField<T> {
      */
     public static DataField<ResourceLocation> id(String name, String what, Supplier<Collection<ResourceLocation>> knownIds,
                                                  String... examples) {
-        Codec<ResourceLocation> codec = ResourceLocation.CODEC.validate(id -> knownIds.get().contains(id)
+        Codec<ResourceLocation> codec = validated(ResourceLocation.CODEC, id -> knownIds.get().contains(id)
                 ? DataResult.success(id)
                 : DataResult.error(() -> "unknown " + what + " \"" + id + "\""));
         return new DataField<>(name, Kind.ID, codec, null, 0, 0, null, knownIds, List.of(examples));
@@ -115,10 +120,10 @@ public final class DataField<T> {
      * @param examples valeurs typiques citées dans la documentation
      */
     public static DataField<List<String>> itemList(String name, int maxSize, String... examples) {
-        Codec<String> entry = Codec.STRING.validate(text -> ResourceLocation.tryParse(text.startsWith("#") ? text.substring(1) : text) != null
+        Codec<String> entry = validated(Codec.STRING, text -> ResourceLocation.tryParse(text.startsWith("#") ? text.substring(1) : text) != null
                 ? DataResult.success(text)
                 : DataResult.error(() -> "invalid item or tag \"" + text + "\""));
-        Codec<List<String>> codec = entry.listOf().validate(list -> list.size() <= maxSize
+        Codec<List<String>> codec = validated(entry.listOf(), list -> list.size() <= maxSize
                 ? DataResult.success(list)
                 : DataResult.error(() -> "at most " + maxSize + " entries (" + list.size() + " given)"));
         return new DataField<>(name, Kind.ITEM_LIST, codec, List.of(), 0, maxSize, null, null, List.of(examples));
@@ -131,7 +136,7 @@ public final class DataField<T> {
 
     /** Liste d'objets (au plus {@code maxSize}), ex : "on_hit_effects": [ { ... }, { ... } ]. Vide par défaut. */
     public static <T> DataField<List<T>> objectList(String name, FieldSet children, Codec<T> elementCodec, int maxSize) {
-        Codec<List<T>> codec = elementCodec.listOf().validate(list -> list.size() <= maxSize
+        Codec<List<T>> codec = validated(elementCodec.listOf(), list -> list.size() <= maxSize
                 ? DataResult.success(list)
                 : DataResult.error(() -> "at most " + maxSize + " entries (" + list.size() + " given)"));
         return new DataField<>(name, Kind.OBJECT_LIST, codec, List.of(), 0, maxSize, children, null, List.of());
@@ -149,7 +154,7 @@ public final class DataField<T> {
     /** Vérifie une valeur JSON. Renvoie le message d'erreur si elle est invalide. */
     public Optional<String> validate(JsonElement value) {
         DataResult<T> result = codec.parse(JsonOps.INSTANCE, value);
-        return result.error().map(DataResult.Error::message);
+        return result.error().map(DataResult.PartialResult::message);
     }
 
     /** Valeur par défaut au format JSON, ou null pour un champ obligatoire (sans valeur par défaut). */

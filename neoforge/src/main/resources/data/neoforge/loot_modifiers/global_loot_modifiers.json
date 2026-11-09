@@ -1,8 +1,0 @@
-{
-  "replace": false,
-  "entries": [
-    "better_weaponry:replace_vanilla_gear",
-    "better_weaponry:nether_enchanted_books",
-    "better_weaponry:end_enchanted_books"
-  ]
-}

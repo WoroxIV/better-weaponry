@@ -609,5 +609,6 @@
     "better_weaponry.tutorial.combos.hits": "Cada golpe que acerta avança o combo, mostrado na tela.",
     "better_weaponry.tutorial.combos.finisher": "O último golpe atinge uma área inteira: %s blocos em %s°.",
     "better_weaponry.tutorial.combos.reset": "Se você não acertar por %s s, o combo recomeça."
-  }
+  },
+  "attribute.name.player.sweeping_damage_ratio": "Taxa de Dano Lateral"
 }

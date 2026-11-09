@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Nahkampfwaffen",
   "tag.item.better_weaponry.shields": "Schilde",
   "tag.item.better_weaponry.shurikens": "Shuriken",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherit-Aufwertungsvorlagen"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherit-Aufwertungsvorlagen",
+  "attribute.name.player.sweeping_damage_ratio": "Schwungschadensverhältnis"
 }

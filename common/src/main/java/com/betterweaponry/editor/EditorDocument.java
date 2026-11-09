@@ -1,5 +1,6 @@
 package com.betterweaponry.editor;
 
+import com.betterweaponry.data.DataResults;
 import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.GearDefinition;
@@ -69,9 +70,9 @@ public record EditorDocument(String id, @Nullable WeaponType type, FieldSet fiel
     /** Valeurs complètes de ce fichier dans ces données (ex : celles en vigueur, ou celles du jar). */
     public JsonObject json(WeaponData.Snapshot snapshot) {
         JsonElement encoded;
-        if (type != null) encoded = WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, snapshot.weapon(type)).getOrThrow();
-        else if (RULES_ID.equals(id)) encoded = RulesDefinition.CODEC.encodeStart(JsonOps.INSTANCE, snapshot.rules()).getOrThrow();
-        else encoded = GearDefinition.CODEC.encodeStart(JsonOps.INSTANCE, snapshot.gear()).getOrThrow();
+        if (type != null) encoded = DataResults.orThrow(WeaponDefinition.CODEC.encodeStart(JsonOps.INSTANCE, snapshot.weapon(type)));
+        else if (RULES_ID.equals(id)) encoded = DataResults.orThrow(RulesDefinition.CODEC.encodeStart(JsonOps.INSTANCE, snapshot.rules()));
+        else encoded = DataResults.orThrow(GearDefinition.CODEC.encodeStart(JsonOps.INSTANCE, snapshot.gear()));
         return JsonTree.expand(fields, encoded.getAsJsonObject());
     }
 

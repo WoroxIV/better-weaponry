@@ -1,12 +1,7 @@
 package com.betterweaponry.network;
 
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.PlayerCombatState;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
@@ -16,15 +11,14 @@ import net.minecraft.world.entity.player.Player;
  *
  * @param entityId identifiant de l'attaquant
  */
-public record DualSwingPayload(int entityId) implements CustomPacketPayload {
-    public static final Type<DualSwingPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "dual_swing"));
-
-    public static final StreamCodec<ByteBuf, DualSwingPayload> STREAM_CODEC =
-            ByteBufCodecs.VAR_INT.map(DualSwingPayload::new, DualSwingPayload::entityId);
+public record DualSwingPayload(int entityId) implements Payload {
+    public static DualSwingPayload read(FriendlyByteBuf buffer) {
+        return new DualSwingPayload(buffer.readVarInt());
+    }
 
     @Override
-    public Type<DualSwingPayload> type() {
-        return TYPE;
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeVarInt(entityId);
     }
 
     public static void handle(DualSwingPayload payload, Player receiver) {

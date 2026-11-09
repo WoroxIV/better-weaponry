@@ -22,17 +22,14 @@ public final class WeaponDataEvents {
 
     /**
      * Après le chargement des données : à la connexion d'un joueur et après chaque /reload.
-     * À la connexion, les données ont déjà été envoyées pendant la configuration.
      *
      * @param afterReload vrai pour un /reload, faux pour un joueur qui se connecte
      * @param players     les joueurs concernés
      */
     public static void onDatapackSync(boolean afterReload, Stream<ServerPlayer> players) {
         players.forEach(player -> {
-            if (afterReload) {
-                Platform.get().sendToPlayer(player, new WeaponDataSyncPayload(WeaponData.current()));
-                WeaponItem.refreshEquippedModifiers(player);
-            }
+            Platform.get().sendToPlayer(player, new WeaponDataSyncPayload(WeaponData.current()));
+            if (afterReload) WeaponItem.refreshEquippedModifiers(player);
             if (canSeeProblems(player)) {
                 sendProblems(player, WeaponDataLoader.lastProblems());
             }

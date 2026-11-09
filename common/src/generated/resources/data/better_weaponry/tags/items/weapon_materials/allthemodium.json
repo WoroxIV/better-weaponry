@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/allthemodium",
+      "required": false
+    },
+    {
+      "id": "allthemodium:allthemodium_ingot",
+      "required": false
+    }
+  ]
+}

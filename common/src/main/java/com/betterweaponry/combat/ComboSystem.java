@@ -1,7 +1,9 @@
 package com.betterweaponry.combat;
 
+import com.betterweaponry.item.GearWear;
+import com.betterweaponry.registry.ModAttributes;
+import java.util.UUID;
 import com.betterweaponry.platform.Platform;
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
@@ -12,9 +14,7 @@ import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.network.ComboSyncPayload;
 import com.betterweaponry.network.DualSwingPayload;
 import com.betterweaponry.registry.ModSounds;
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -62,9 +62,9 @@ public final class ComboSystem {
     /** Particules de balayage : une tous les 30° de la zone. */
     private static final double DEGREES_PER_PARTICLE = 30.0D;
 
-    private static final ResourceLocation DAMAGE_BONUS_ID = id("combo_damage_bonus");
-    private static final ResourceLocation DAMAGE_MULTIPLIER_ID = id("combo_damage_multiplier");
-    private static final ResourceLocation KNOCKBACK_ID = id("combo_knockback");
+    private static final UUID DAMAGE_BONUS_ID = ModAttributes.uuid("combo_damage_bonus");
+    private static final UUID DAMAGE_MULTIPLIER_ID = ModAttributes.uuid("combo_damage_multiplier");
+    private static final UUID KNOCKBACK_ID = ModAttributes.uuid("combo_knockback");
 
     private ComboSystem() {
     }
@@ -148,11 +148,11 @@ public final class ComboSystem {
                 ? (mainDamage + HandSwap.attributeWithHandsSwapped(player, Attributes.ATTACK_DAMAGE)) / 2.0D
                 : mainDamage;
         addTemporaryModifier(player, Attributes.ATTACK_DAMAGE, DAMAGE_BONUS_ID,
-                damage - mainDamage, AttributeModifier.Operation.ADD_VALUE, undo);
+                damage - mainDamage, AttributeModifier.Operation.ADDITION, undo);
         addTemporaryModifier(player, Attributes.ATTACK_DAMAGE, DAMAGE_MULTIPLIER_ID,
-                step.damageMultiplier() - 1.0D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, undo);
+                step.damageMultiplier() - 1.0D, AttributeModifier.Operation.MULTIPLY_TOTAL, undo);
         addTemporaryModifier(player, Attributes.ATTACK_KNOCKBACK, KNOCKBACK_ID,
-                step.knockback(), AttributeModifier.Operation.ADD_VALUE, undo);
+                step.knockback(), AttributeModifier.Operation.ADDITION, undo);
 
         state.activeStep = step;
         try {
@@ -161,7 +161,7 @@ public final class ComboSystem {
                 DamageSource source = player.damageSources().playerAttack(player);
                 if (hit.bothHands() && target instanceof LivingEntity living) applyOffhandWeapon(level, player, living, source);
                 if (step.hasArea()) hitArea(level, player, target, hit, source);
-                if (hit.bothHands()) player.getOffhandItem().hurtAndBreak(1, player, EquipmentSlot.OFFHAND);
+                if (hit.bothHands()) GearWear.hurt(player.getOffhandItem(), 1, player, EquipmentSlot.OFFHAND);
             }
         } finally {
             state.activeStep = null;
@@ -251,13 +251,14 @@ public final class ComboSystem {
         ItemStack weapon = player.getMainHandItem();
 
         for (LivingEntity victim : areaTargets(player, primary, step)) {
-            float enchanted = EnchantmentHelper.modifyDamage(level, weapon, victim, source, base);
+            float enchanted = base + EnchantmentHelper.getDamageBonus(weapon, victim.getMobType());
             float amount = base * charge + (enchanted - base) * strength;
             if (step.knockback() > 0.0D) {
                 victim.knockback(step.knockback() * KNOCKBACK_PER_LEVEL, player.getX() - victim.getX(), player.getZ() - victim.getZ());
             }
             if (victim.hurt(source, amount)) {
-                EnchantmentHelper.doPostAttackEffects(level, victim, source);
+                EnchantmentHelper.doPostHurtEffects(victim, player);
+                GearWear.applyPostAttackEnchantments(player, victim, weapon);
                 WeaponItem.applyOnHitEffects(weapon, victim, player);
                 if (hit.bothHands()) applyOffhandWeapon(level, player, victim, source);
             }
@@ -316,7 +317,7 @@ public final class ComboSystem {
     private static void applyOffhandWeapon(ServerLevel level, Player player, LivingEntity victim, DamageSource source) {
         ItemStack offhand = player.getOffhandItem();
         WeaponItem.applyOnHitEffects(offhand, victim, player);
-        EnchantmentHelper.doPostAttackEffectsWithItemSource(level, victim, source, offhand);
+        GearWear.applyPostAttackEnchantments(player, victim, offhand);
     }
 
     /**
@@ -357,16 +358,12 @@ public final class ComboSystem {
     }
 
     /** Ajoute un bonus d'attribut pour la durée du coup, et note comment le retirer. Rien si la valeur est nulle. */
-    private static void addTemporaryModifier(Player player, Holder<Attribute> attribute, ResourceLocation id, double amount,
+    private static void addTemporaryModifier(Player player, Attribute attribute, UUID id, double amount,
                                              AttributeModifier.Operation operation, List<Runnable> undo) {
         AttributeInstance instance = player.getAttribute(attribute);
         if (instance == null || amount == 0.0D) return;
         instance.removeModifier(id);
-        instance.addTransientModifier(new AttributeModifier(id, amount, operation));
+        instance.addTransientModifier(new AttributeModifier(id, "Combo bonus", amount, operation));
         undo.add(() -> instance.removeModifier(id));
-    }
-
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, path);
     }
 }

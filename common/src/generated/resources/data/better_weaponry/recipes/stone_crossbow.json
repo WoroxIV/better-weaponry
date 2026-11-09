@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": {
+      "item": "minecraft:tripwire_hook"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "M": {
+      "tag": "minecraft:stone_tool_materials"
+    },
+    "X": {
+      "tag": "forge:string"
+    }
+  },
+  "pattern": [
+    "MIM",
+    "XHX",
+    " M "
+  ],
+  "result": {
+    "item": "better_weaponry:stone_crossbow"
+  }
+}

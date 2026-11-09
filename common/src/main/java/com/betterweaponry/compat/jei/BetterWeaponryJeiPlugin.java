@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 /** Lu seulement si JEI est installé. */
 @JeiPlugin
 public final class BetterWeaponryJeiPlugin implements IModPlugin {
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "jei");
+    private static final ResourceLocation ID = new ResourceLocation(BetterWeaponry.MODID, "jei");
 
     @Override
     public ResourceLocation getPluginUid() {

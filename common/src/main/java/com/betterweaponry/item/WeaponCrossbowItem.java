@@ -1,20 +1,12 @@
 package com.betterweaponry.item;
 
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ChargedProjectiles;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 /**
- * Arbalète d'un matériau : l'arbalète vanilla, avec la vitesse de carreau et la durabilité du matériau.
- * Le temps de chargement de l'or est réglé dans CrossbowItemMixin (méthode statique du jeu).
+ * Arbalète d'un matériau : l'arbalète vanilla, avec la durabilité du matériau.
+ * La vitesse de carreau et le temps de chargement de l'or se règlent dans CrossbowItemMixin (méthodes statiques du jeu).
  */
 public class WeaponCrossbowItem extends CrossbowItem implements RangedWeapon {
     private static final int VANILLA_DURABILITY = 465;
@@ -27,7 +19,7 @@ public class WeaponCrossbowItem extends CrossbowItem implements RangedWeapon {
     }
 
     private static Item.Properties configure(WeaponMaterial material, Item.Properties properties) {
-        properties.durability(RangedWeapon.durabilityOf(material, VANILLA_DURABILITY)).component(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
+        properties.durability(RangedWeapon.durabilityOf(material, VANILLA_DURABILITY));
         if (material.isFireResistant()) properties.fireResistant();
         return properties;
     }
@@ -35,12 +27,6 @@ public class WeaponCrossbowItem extends CrossbowItem implements RangedWeapon {
     @Override
     public WeaponMaterial getMaterial() {
         return material;
-    }
-
-    @Override
-    protected void shoot(ServerLevel level, LivingEntity shooter, InteractionHand hand, ItemStack weapon, List<ItemStack> projectileItems,
-                         float velocity, float inaccuracy, boolean isCrit, @Nullable LivingEntity target) {
-        super.shoot(level, shooter, hand, weapon, projectileItems, velocityFor(shooter, velocity), inaccuracy, isCrit, target);
     }
 
     @Override

@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#forge:ingots/manasteel",
+      "required": false
+    },
+    {
+      "id": "botania:manasteel_ingot",
+      "required": false
+    }
+  ]
+}

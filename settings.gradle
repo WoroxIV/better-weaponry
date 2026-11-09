@@ -14,6 +14,5 @@ rootProject.name = 'better-weaponry'
 
 // common : code et ressources partagés (compilés contre le jeu vanilla). Un dossier par chargeur pour le reste.
 include 'common'
-include 'neoforge'
-include 'fabric'
+include 'forge'
 

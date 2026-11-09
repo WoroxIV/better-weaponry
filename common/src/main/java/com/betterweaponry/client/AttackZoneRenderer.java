@@ -1,5 +1,6 @@
 package com.betterweaponry.client;
 
+import com.betterweaponry.platform.Platform;
 import com.betterweaponry.combat.ComboSystem;
 import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.combat.WeaponProfiles;
@@ -57,7 +58,7 @@ public final class AttackZoneRenderer {
 
         pose.pushPose();
         pose.translate(feet.x - camera.x, feet.y - camera.y + GROUND_OFFSET, feet.z - camera.z);
-        drawArc(pose, lines, player.entityInteractionRange(), FULL_CIRCLE, yaw, WHITE);
+        drawArc(pose, lines, Platform.get().entityReach(player), FULL_CIRCLE, yaw, WHITE);
         Optional<ComboDefinition> combo = ComboSystem.activeCombo(player);
         if (combo.isPresent()) {
             List<ComboStep> steps = combo.get().steps();
@@ -109,7 +110,7 @@ public final class AttackZoneRenderer {
     private static void drawLine(PoseStack pose, VertexConsumer lines, Vec3 from, Vec3 to, int color) {
         Vec3 normal = to.subtract(from).normalize();
         PoseStack.Pose last = pose.last();
-        lines.addVertex(last, (float) from.x, (float) from.y, (float) from.z).setColor(color).setNormal(last, (float) normal.x, (float) normal.y, (float) normal.z);
-        lines.addVertex(last, (float) to.x, (float) to.y, (float) to.z).setColor(color).setNormal(last, (float) normal.x, (float) normal.y, (float) normal.z);
+        lines.vertex(last.pose(), (float) from.x, (float) from.y, (float) from.z).color(color).normal(last.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
+        lines.vertex(last.pose(), (float) to.x, (float) to.y, (float) to.z).color(color).normal(last.normal(), (float) normal.x, (float) normal.y, (float) normal.z).endVertex();
     }
 }

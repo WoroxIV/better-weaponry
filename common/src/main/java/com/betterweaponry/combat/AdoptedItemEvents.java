@@ -1,16 +1,16 @@
 package com.betterweaponry.combat;
 
+import net.minecraft.world.entity.LivingEntity;
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.registry.ModAttributes;
-import net.minecraft.core.Holder;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -47,19 +47,25 @@ public final class AdoptedItemEvents {
     }
 
     /** Pénétration d'armure et balayage de l'arme, dans la main principale ; les dégâts, la vitesse et la portée restent ceux de l'objet. */
-    public static void collectModifiers(ItemStack stack, BiConsumer<Holder<Attribute>, AttributeModifier> output) {
+    public static void collectModifiers(ItemStack stack, BiConsumer<Attribute, AttributeModifier> output) {
         Optional<WeaponProfiles.Profile> profile = WeaponProfiles.of(stack).filter(WeaponProfiles.Profile::adopted);
         if (profile.isEmpty()) return;
 
         RulesDefinition rules = WeaponData.rules();
         WeaponDefinition definition = profile.get().definition();
         if (rules.armorPenetrationActive() && definition.armorPenetration() > 0.0D) {
-            output.accept(ModAttributes.armorPenetration(), new AttributeModifier(ModAttributes.BASE_ARMOR_PENETRATION_ID,
-                    definition.armorPenetration() / PERCENT, AttributeModifier.Operation.ADD_VALUE));
+            output.accept(ModAttributes.armorPenetration(), new AttributeModifier(ModAttributes.BASE_ARMOR_PENETRATION_ID, "Weapon modifier",
+                    definition.armorPenetration() / PERCENT, AttributeModifier.Operation.ADDITION));
         }
         if (rules.sweepActive() && definition.sweep().enabled() && definition.sweep().damageRatio() > 0.0D) {
-            output.accept(Attributes.SWEEPING_DAMAGE_RATIO, new AttributeModifier(WeaponItem.BASE_SWEEPING_RATIO_ID,
-                    definition.sweep().damageRatio() / PERCENT, AttributeModifier.Operation.ADD_VALUE));
+            output.accept(ModAttributes.SWEEPING_DAMAGE_RATIO.get(), new AttributeModifier(WeaponItem.BASE_SWEEPING_RATIO_ID, "Weapon modifier",
+                    definition.sweep().damageRatio() / PERCENT, AttributeModifier.Operation.ADDITION));
         }
+    }
+
+    /** Objet adopté par une arme qui désactive les boucliers (champ "items"). */
+    public static boolean disablesShield(ItemStack weapon, LivingEntity attacker) {
+        return WeaponData.rules().shieldDisablingActive() && WeaponProfiles.isAdopted(weapon) && !CombatCompat.isFakePlayer(attacker)
+                && WeaponProfiles.definition(weapon).orElseThrow().disablesShield();
     }
 }

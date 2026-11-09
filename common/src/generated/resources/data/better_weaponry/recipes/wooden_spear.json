@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "M": {
+      "tag": "minecraft:planks"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "pattern": [
+    "  M",
+    " S ",
+    "S  "
+  ],
+  "result": {
+    "item": "better_weaponry:wooden_spear"
+  }
+}

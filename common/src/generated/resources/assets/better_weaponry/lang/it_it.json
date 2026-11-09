@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Armi da mischia",
   "tag.item.better_weaponry.shields": "Scudi",
   "tag.item.better_weaponry.shurikens": "Shuriken",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Modelli di potenziamento in netherite"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Modelli di potenziamento in netherite",
+  "attribute.name.player.sweeping_damage_ratio": "Rapporto del danno sferzante"
 }

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(SkeletonModel.class)
 public abstract class SkeletonModelMixin {
 
-    @WrapOperation(method = {"prepareMobModel", "setupAnim"},
+    @WrapOperation(method = {"prepareMobModel(Lnet/minecraft/world/entity/Mob;FFF)V", "setupAnim(Lnet/minecraft/world/entity/Mob;FFFFF)V"},
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
     private boolean betterweaponry$modBows(ItemStack stack, Item item, Operation<Boolean> original) {
         return original.call(stack, item) || stack.getItem() instanceof WeaponBowItem;

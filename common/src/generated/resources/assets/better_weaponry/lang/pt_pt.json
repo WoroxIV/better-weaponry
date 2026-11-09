@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Armas corpo a corpo",
   "tag.item.better_weaponry.shields": "Escudos",
   "tag.item.better_weaponry.shurikens": "Shurikens",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Moldes de melhoria de netherite"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Moldes de melhoria de netherite",
+  "attribute.name.player.sweeping_damage_ratio": "Taxa de dano em área"
 }

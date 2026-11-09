@@ -38,11 +38,18 @@ public final class VanillaGear {
 
     /** Version du mod dans ce matériau : enchantements et bannière conservés, usure proportionnelle à la durabilité. */
     public static ItemStack convert(ItemStack stack, WeaponMaterial material) {
-        ItemStack result = stack.transmuteCopy(replacement(stack, material), stack.getCount());
+        ItemStack result = transmute(stack, replacement(stack, material), stack.getCount());
         if (stack.isDamaged()) {
             double worn = (double) stack.getDamageValue() / stack.getMaxDamage();
             result.setDamageValue(Math.min(result.getMaxDamage() - 1, (int) Math.round(worn * result.getMaxDamage())));
         }
+        return result;
+    }
+
+    /** Un autre objet avec les mêmes données (enchantements, bannière, nom...). */
+    public static ItemStack transmute(ItemStack stack, Item item, int count) {
+        ItemStack result = new ItemStack(item, count);
+        if (stack.getTag() != null) result.setTag(stack.getTag().copy());
         return result;
     }
 

@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Armes de mêlée",
   "tag.item.better_weaponry.shields": "Boucliers",
   "tag.item.better_weaponry.shurikens": "Shurikens",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Modèles d'amélioration en netherite"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Modèles d'amélioration en netherite",
+  "attribute.name.player.sweeping_damage_ratio": "ratio de dégâts par balayage"
 }

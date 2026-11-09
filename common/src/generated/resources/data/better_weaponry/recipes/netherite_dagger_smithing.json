@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "forge:ingots/netherite"
+  },
+  "base": {
+    "item": "better_weaponry:diamond_dagger"
+  },
+  "result": {
+    "item": "better_weaponry:netherite_dagger"
+  },
+  "template": {
+    "tag": "better_weaponry:weapon_materials/netherite_template"
+  }
+}

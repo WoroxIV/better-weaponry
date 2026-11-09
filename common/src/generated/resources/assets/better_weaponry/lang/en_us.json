@@ -1326,5 +1326,6 @@
   "tag.item.better_weaponry.melee_weapons": "Melee Weapons",
   "tag.item.better_weaponry.shields": "Shields",
   "tag.item.better_weaponry.shurikens": "Shurikens",
-  "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherite Upgrade Templates"
+  "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherite Upgrade Templates",
+  "attribute.name.player.sweeping_damage_ratio": "Sweeping Damage Ratio"
 }

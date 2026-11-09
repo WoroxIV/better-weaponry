@@ -1,7 +1,6 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.mixin.MobAccessor;
-import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -75,10 +74,10 @@ public final class HandSwap {
      */
     public void restore() {
         for (AppliedModifier change : added) {
-            change.instance().removeModifier(change.modifier().id());
+            change.instance().removeModifier(change.modifier().getId());
         }
         for (AppliedModifier change : removed) {
-            if (!change.instance().hasModifier(change.modifier().id())) {
+            if (change.instance().getModifier(change.modifier().getId()) == null) {
                 change.instance().addTransientModifier(change.modifier());
             }
         }
@@ -99,9 +98,9 @@ public final class HandSwap {
      * Valeur qu'aurait un attribut avec les mains échangées (ex : dégâts de l'arme secondaire), sans rien modifier :
      * le calcul se fait sur une copie de l'attribut.
      */
-    public static double attributeWithHandsSwapped(Player player, Holder<Attribute> attribute) {
+    public static double attributeWithHandsSwapped(Player player, Attribute attribute) {
         AttributeInstance real = player.getAttribute(attribute);
-        if (real == null) return attribute.value().getDefaultValue();
+        if (real == null) return attribute.getDefaultValue();
 
         AttributeInstance copy = new AttributeInstance(attribute, ignored -> {});
         copy.replaceFrom(real);
@@ -117,7 +116,7 @@ public final class HandSwap {
      * @param journal si non null, note chaque changement pour pouvoir l'annuler
      */
     private static void swapModifiers(ItemStack main, ItemStack off,
-                                      Function<Holder<Attribute>, AttributeInstance> lookup,
+                                      Function<Attribute, AttributeInstance> lookup,
                                       @Nullable HandSwap journal) {
         removeModifiers(main, EquipmentSlot.MAINHAND, lookup, journal);
         removeModifiers(off, EquipmentSlot.OFFHAND, lookup, journal);
@@ -126,27 +125,27 @@ public final class HandSwap {
     }
 
     private static void removeModifiers(ItemStack stack, EquipmentSlot slot,
-                                        Function<Holder<Attribute>, AttributeInstance> lookup,
+                                        Function<Attribute, AttributeInstance> lookup,
                                         @Nullable HandSwap journal) {
-        stack.forEachModifier(slot, (attribute, modifier) -> {
+        stack.getAttributeModifiers(slot).forEach((attribute, modifier) -> {
             AttributeInstance instance = lookup.apply(attribute);
             if (instance == null) return;
             // On garde le modificateur réellement appliqué (c'est lui qu'on remettra)
-            AttributeModifier applied = instance.getModifier(modifier.id());
+            AttributeModifier applied = instance.getModifier(modifier.getId());
             if (applied != null) {
-                instance.removeModifier(applied.id());
+                instance.removeModifier(applied.getId());
                 if (journal != null) journal.removed.add(new AppliedModifier(instance, applied));
             }
         });
     }
 
     private static void addModifiers(ItemStack stack, EquipmentSlot slot,
-                                     Function<Holder<Attribute>, AttributeInstance> lookup,
+                                     Function<Attribute, AttributeInstance> lookup,
                                      @Nullable HandSwap journal) {
-        stack.forEachModifier(slot, (attribute, modifier) -> {
+        stack.getAttributeModifiers(slot).forEach((attribute, modifier) -> {
             AttributeInstance instance = lookup.apply(attribute);
             // Déjà présent (même ID appliqué par l'autre main) : on n'y touche pas pour ne pas planter.
-            if (instance == null || instance.hasModifier(modifier.id())) return;
+            if (instance == null || instance.getModifier(modifier.getId()) != null) return;
             instance.addTransientModifier(modifier);
             if (journal != null) journal.added.add(new AppliedModifier(instance, modifier));
         });

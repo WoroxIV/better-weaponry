@@ -171,7 +171,7 @@ public final class WeaponEditorScreen extends Screen {
         int listHeight = height - TOP - BOTTOM_SPACE;
         DocumentList documentList = new DocumentList(minecraft, DOCUMENT_LIST_WIDTH, listHeight, TOP, this::select,
                 id -> !isLocalPage(id) && model.isDirty(id), id -> !isLocalPage(id) && model.hasInvalid(id));
-        documentList.setX(MARGIN);
+        documentList.setLeftPos(MARGIN);
         documentList.add(EditorDocument.RULES_ID, Component.translatable(KEY + "rules"));
         documentList.add(EditorDocument.GEAR_ID, Component.translatable(KEY + "gear"));
         documentList.add(COMPARISON_PAGE, Component.translatable(KEY + "comparison"));
@@ -188,7 +188,7 @@ public final class WeaponEditorScreen extends Screen {
 
         int fieldLeft = MARGIN + DOCUMENT_LIST_WIDTH + MARGIN;
         fieldList = new FieldList(minecraft, this, width - fieldLeft - MARGIN, listHeight, TOP);
-        fieldList.setX(fieldLeft);
+        fieldList.setLeftPos(fieldLeft);
         addRenderableWidget(fieldList);
 
         addButtons();
@@ -218,7 +218,8 @@ public final class WeaponEditorScreen extends Screen {
         int x = (width - (count * buttonWidth + (count - 1) * BUTTON_GAP)) / 2;
         int y = height - BUTTON_HEIGHT - 6;
         for (Button button : buttons) {
-            button.setRectangle(buttonWidth, BUTTON_HEIGHT, x, y);
+            button.setPosition(x, y);
+            button.setWidth(buttonWidth);
             addRenderableWidget(button);
             x += buttonWidth + BUTTON_GAP;
         }
@@ -236,10 +237,11 @@ public final class WeaponEditorScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(font, title, width / 2, 8, 0xFFFFFF);
-        graphics.drawString(font, font.plainSubstrByWidth(infoLine().getString(), fieldList.getWidth()),
-                fieldList.getX(), TOP - 12, INFO_COLOR);
+        graphics.drawString(font, font.plainSubstrByWidth(infoLine().getString(), fieldList.listWidth()),
+                fieldList.left(), TOP - 12, INFO_COLOR);
         graphics.drawCenteredString(font, font.plainSubstrByWidth(status.getString(), width - 2 * MARGIN),
                 width / 2, height - BOTTOM_SPACE + 10, statusColor);
     }
@@ -353,7 +355,7 @@ public final class WeaponEditorScreen extends Screen {
     private static JsonObject newElement(FieldSet children) {
         JsonObject element = JsonTree.expand(children, new JsonObject());
         for (DataField<?> child : children.fields()) {
-            if (child.isRequired() && !child.examples().isEmpty()) element.addProperty(child.name(), child.examples().getFirst());
+            if (child.isRequired() && !child.examples().isEmpty()) element.addProperty(child.name(), child.examples().get(0));
         }
         return element;
     }
@@ -648,7 +650,7 @@ public final class WeaponEditorScreen extends Screen {
         if (problems.isEmpty()) {
             status(Component.translatable(KEY + "status.pasted"), SUCCESS_COLOR);
         } else {
-            status(Component.translatable(KEY + "status.pasted_with_problems", problems.size(), problems.getFirst().toComponent()), WARNING_COLOR);
+            status(Component.translatable(KEY + "status.pasted_with_problems", problems.size(), problems.get(0).toComponent()), WARNING_COLOR);
         }
     }
 

@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 /** Effets de potion du mod. */
 public final class ModEffects {
     public static final ResourceKey<DamageType> BLEEDING_DAMAGE =
-            ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "bleeding"));
+            ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(BetterWeaponry.MODID, "bleeding"));
 
     public static final Registered<MobEffect, BleedingEffect> BLEEDING = Platform.get().register(Registries.MOB_EFFECT, "bleeding", BleedingEffect::new);
 
@@ -43,12 +43,12 @@ public final class ModEffects {
 
         /** Chaque tick : le rythme suit l'âge de la cible ({@code applyEffectTick}), car chaque coup remet la durée à zéro. */
         @Override
-        public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+        public boolean isDurationEffectTick(int duration, int amplifier) {
             return true;
         }
 
         @Override
-        public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+        public void applyEffectTick(LivingEntity entity, int amplifier) {
             if (entity.tickCount % INTERVAL_TICKS == 0 && entity.level() instanceof ServerLevel level) {
                 // Le saignement ne doit pas protéger la cible contre le coup suivant.
                 int invulnerability = entity.invulnerableTime;
@@ -56,7 +56,6 @@ public final class ModEffects {
                 entity.invulnerableTime = invulnerability;
                 level.sendParticles(DROPLET, entity.getX(), entity.getY(0.6D), entity.getZ(), PARTICLES, 0.25D, 0.3D, 0.25D, 0.0D);
             }
-            return true;
         }
     }
 }
