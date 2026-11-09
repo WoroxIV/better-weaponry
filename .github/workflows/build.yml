@@ -23,3 +23,12 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Run the GameTests
+        run: ./gradlew runGameTestServer
+
+      - name: Upload the mod jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: better-weaponry
+          path: build/libs/*.jar

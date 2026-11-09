@@ -1,13 +1,13 @@
 # Better Weaponry
 
-A NeoForge mod for Minecraft **1.21.1** that adds 13 new weapon types in every vanilla material tier, plus two-handed weapon handling and dual wielding. Every weapon's damage, attack speed, reach and two-handed behaviour can be changed in JSON files, for all worlds or per world.
+A NeoForge mod for Minecraft **1.21.1** that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
 
 - **Mod ID:** `better_weaponry`
-- **Version:** 2.0.0 (in development: the 2.0 rework is being done in phases)
+- **Version:** 2.0.0
 - **Author:** WoroxIV
-- **Loader:** NeoForge 21.1.x (built against 21.1.220)
+- **Loader:** NeoForge 21.1.220 or newer
 - **Java:** 21
-- **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) compatibility
+- **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) and Epic Fight compatibility, JEI and EMI information pages
 
 ---
 
@@ -15,7 +15,7 @@ A NeoForge mod for Minecraft **1.21.1** that adds 13 new weapon types in every v
 
 ### Weapons
 
-Each weapon type comes in six vanilla tiers: **wooden, stone, iron, golden, diamond, netherite**. That makes 78 items. Up to 44 more materials come from other mods (see [Mod compatibility](#mod-compatibility)).
+Each weapon type comes in six vanilla tiers: **wooden, stone, iron, golden, diamond, netherite**. With the shield, bow, crossbow and shuriken, that makes 17 item types and 102 items. Up to 44 more materials come from other mods (see [Mod compatibility](#mod-compatibility)).
 
 | Weapon     | Item ID pattern            |
 |------------|----------------------------|
@@ -37,7 +37,7 @@ Example: `/give @s better_weaponry:netherite_katana`
 
 - All weapons extend `SwordItem`. They use their tier's durability, enchantability and repair material.
 - They are added to the `minecraft:swords` item tag, so sword enchantments (Sharpness, Looting, etc.) work on them.
-- In the **Combat** creative tab they appear just before the Trident.
+- They have their own **Better Weaponry** creative tab, from the shortest reach to the longest.
 - Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute.
 - The sweep-attack particle appears at `reach / 3` blocks in front of the player (vanilla: always 1 block, which matches reach 3). A dagger sweeps close, a spear or scythe sweeps far away.
 - Each weapon can have **armor penetration**, **on-hit effects** (slowness...), its own **sweep attack** (none for thrusting weapons, wider for the scythe) and can **disable shields** like an axe (see [Combat properties](#combat-properties)).
@@ -137,7 +137,9 @@ Shields exist in every material (`wooden_shield`, `iron_shield`, `netherite_shie
 - Texture: generated from the template `textures/templates/entity/shield/shield.png` and the material's palette (see [Weapon textures](#weapon-textures)). A file `textures/entity/shield/<material>_shield.png` (64×64) takes priority.
 - **Perfect parry**: a hit taken just after the shield is up does not wear it and cannot disable it. It pushes melee attackers back and sends arrows back to their shooter, and your next hit deals 20% more damage. See `gear.json`.
 
-The vanilla shield is replaced everywhere it can be: its recipe is off, it is gone from the creative tab, loot and villagers give the mod's shields (better materials are rarer), armorers sell better ones as they level up, and vanilla shields in a player's inventory or ender chest become wooden shields at login. Turn off `replace_vanilla_gear` in `gear.json` for loot, trades and the login conversion.
+The vanilla shield is replaced everywhere it can be: its recipe is off, it is gone from the creative tab, loot and villagers give the mod's shields (better materials are rarer), armorers sell better ones as they level up, and vanilla shields in a player's inventory or ender chest become wooden shields at login. Turn off `replace_vanilla_gear` in `gear.json` for loot, trades and the login conversion; the vanilla recipes stay off either way, because the mod's wooden versions use the same shapes.
+
+A recipe from the game or from another mod that asks for a vanilla shield, bow or crossbow accepts the mod's versions, in any material.
 
 ### Bows and crossbows
 
@@ -149,7 +151,7 @@ Bows and crossbows exist in every material (`iron_bow`, `iron_crossbow`...), wit
 - Recipes: the vanilla shapes with the material instead of sticks (the wooden versions keep the sticks), netherite at the smithing table.
 - Textures: generated from the templates `textures/templates/item/bow.png`, `bow_pulling_0` to `2`, `crossbow.png`, `crossbow_pulling_0` to `2`, `crossbow_arrow` and `crossbow_firework` (see [Weapon textures](#weapon-textures)). The same names prefixed by `<material>_` in `textures/item/` take priority.
 
-The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, strays, bogged, illusioners, pillagers and piglins get the mod's versions when they spawn (stone by default, which shoots like the vanilla weapon, with a 9.5% chance per step to move up a material, more on Hard). Their aim adapts to the speed of the arrow. Fletchers and armorers sell better materials as they level up, up to diamond: villagers never sell netherite. The dispenser recipe accepts any bow, and the Ol' Betsy advancement accepts any crossbow.
+The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, strays, bogged, illusioners, pillagers and piglins get the mod's versions when they spawn (stone by default, which shoots like the vanilla weapon, with a 9.5% chance per step to move up a material, more on Hard). Their aim adapts to the speed of the arrow. Fletchers and armorers sell better materials as they level up, up to diamond: villagers never sell netherite. Recipes that ask for a bow accept any bow of the mod, like the dispenser, and the Ol' Betsy advancement accepts any crossbow.
 
 ### Shurikens
 
@@ -181,7 +183,7 @@ The editor and the Codex have a **Tutorials** page, and a **?** button next to t
 
 In a tutorial, **Space** pauses, the **left and right arrows** move between steps and **R** replays. The top left shows the position (3/10), and the list button opens every tutorial, with a check mark on those you have seen.
 
-The first time you get a weapon type, a small notification suggests the tutorial that goes with it, one per weapon type and never the same tutorial twice. Press **K** (changeable in the game's controls) to open it; at any other time, the same key opens the list. The **Interface** page of the editor turns these suggestions off.
+The first time you get a weapon type, a small notification suggests the tutorial that goes with it, one per weapon type and never the same tutorial twice. Press **H** (changeable in the game's controls) to open it; at any other time, the same key opens the list. The **Interface** page of the editor turns these suggestions off.
 
 Resource packs can replace the button icons: `assets/better_weaponry/textures/gui/sprites/tutorial/` holds `pause.png`, `replay.png`, `close.png`, `list.png` and `seen.png`. They are drawn at 10×10 on screen, and the default files include a 1-pixel shadow. The previous, play and next buttons use text characters.
 

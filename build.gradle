@@ -25,6 +25,12 @@ sourceSets.main.resources {
     exclude("**/.cache/**") // datagen cache files (the path is relative to the resource folder)
 }
 
+// Les GameTests servent seulement au développement : ils ne partent pas dans le jar publié.
+tasks.named('jar', Jar).configure {
+    exclude 'com/betterweaponry/gametest/**'
+    exclude 'data/better_weaponry/structure/empty.nbt'
+}
+
 repositories {
     // JEI et EMI : mods optionnels, seulement pour compiler nos plugins.
     maven { url = "https://maven.blamejared.com/" }
