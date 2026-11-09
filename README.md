@@ -8,6 +8,8 @@ A NeoForge mod for Minecraft **1.21.1** that adds 13 new weapon types, shields, 
 - **Loader:** NeoForge 21.1.220 or newer
 - **Java:** 21
 - **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) and Epic Fight compatibility, JEI and EMI information pages
+- **Download:** [Modrinth](https://modrinth.com/mod/better-weaponry), [CurseForge](https://www.curseforge.com/minecraft/mc-mods/better-weaponry-system)
+- **Bug reports:** [GitHub issues](https://github.com/WoroxIV/better-weaponry/issues)
 
 ---
 

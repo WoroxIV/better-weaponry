@@ -1,0 +1,49 @@
+name: Bug report
+description: Something in Better Weaponry does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting a bug. Please check that it has not already been reported. You can write in English or in French.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Hold a pair of daggers
+        2. Hit a zombie three times
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: mod-version
+    attributes:
+      label: Better Weaponry version
+      placeholder: 2.0.0
+    validations:
+      required: true
+  - type: input
+    id: game-version
+    attributes:
+      label: Minecraft version and mod loader
+      placeholder: 1.21.1, NeoForge 21.1.220
+    validations:
+      required: true
+  - type: textarea
+    id: other-mods
+    attributes:
+      label: Other mods
+      description: The modpack name or the list of mods, especially combat mods.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Crash report or log
+      description: Paste the file, or a link to it on https://mclo.gs
+      render: text
