@@ -5,6 +5,7 @@ plugins {
 
 neoForge {
     neoFormVersion = neo_form_version
+    accessTransformers.from(file('accesstransformer.cfg'))
     parchment {
         minecraftVersion = parchment_minecraft
         mappingsVersion = parchment_version

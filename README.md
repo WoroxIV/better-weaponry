@@ -177,7 +177,7 @@ Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, 
 - **Comparison page**: compares damage, speed, DPS of one weapon, DPS of a pair, reach and armor penetration for the material of your choice, and shows the projectile speed of that material. DPS follows the real rhythm of the game, in whole ticks. Click a column to sort. It is also available in the Codex.
 - **Presets**, on the Rules page: "Close to vanilla", "PvP 1.8" and "Hard". Each one sets every switch of `rules.json` and the mobs of `gear.json`. Nothing is applied until you save.
 - **Statistics**, in the vanilla screen: perfect parries, shurikens thrown, health stolen.
-- **JEI and EMI** (optional): info pages for every enchantment and for the abilities of each item. To try them in a dev client: `gradlew runClient -Pbw_compat=jei` or `-Pbw_compat=emi`.
+- **JEI and EMI** (optional): info pages for every enchantment and for the abilities of each item. To try them in a dev client: `gradlew :neoforge:runClient -Pbw_compat=jei` or `-Pbw_compat=emi`.
 
 ### Tutorials
 
@@ -282,7 +282,7 @@ config/better_weaponry/             ← created at first launch, applies to ever
 └── defaults/                       ← the mod's default values, rewritten at every launch (read only)
 
 config/better_weaponry/gear.json    ← your shield and loot settings (only what you change)
-config/better_weaponry-client.toml  ← display preferences (tooltips, on-screen elements)
+config/better_weaponry-client.json  ← display preferences (tooltips, on-screen elements)
 ```
 
 Layers, from lowest to highest priority (the last one wins):
@@ -481,7 +481,7 @@ Set `balance_abilities` to `true` in `rules.json` to also count these properties
 
 The mod checks at runtime whether `bettercombat` or `epicfight` is loaded. These mods have their own combos, reach, dual wield and two-handed systems, so **all of the mod's combat systems turn off** (everything `rules.json` can switch), and the editor says so. The weapons themselves and their enchantments stay available.
 
-`./gradlew runData` writes one Better Combat weapon attribute file per weapon (`data/better_weaponry/weapon_attributes/<item>.json`, 650 files). Each one uses a Better Combat preset and forces the number of hands of Better Weaponry's defaults:
+`./gradlew :neoforge:runData` writes one Better Combat weapon attribute file per weapon (`data/better_weaponry/weapon_attributes/<item>.json`, 650 files). Each one uses a Better Combat preset and forces the number of hands of Better Weaponry's defaults:
 
 | Weapon | Preset | Weapon | Preset |
 |---|---|---|---|
@@ -509,21 +509,23 @@ The mapping is in `datagen/BetterCombatAttributesProvider.java`. Better Combat i
 ### Common tasks
 
 ```powershell
-./gradlew runClient     # launch a dev client
-./gradlew runServer     # launch a dev dedicated server (nogui)
-./gradlew runGameTestServer  # run the automated combat tests, then exit (fails if a test fails)
-./gradlew runData       # regenerate item models, translations, tags and recipes into src/generated/resources
-./gradlew build         # build the mod jar -> build/libs/better_weaponry-<version>.jar
+./gradlew :neoforge:runClient     # launch a dev client
+./gradlew :neoforge:runServer     # launch a dev dedicated server (nogui)
+./gradlew :neoforge:runGameTestServer  # run the automated combat tests, then exit (fails if a test fails)
+./gradlew :neoforge:runData       # regenerate item models, translations, tags and recipes into common/src/generated/resources
+./gradlew build         # build the mod jar -> neoforge/build/libs/better_weaponry-<version>+1.21.1-neoforge.jar
 ```
 
 If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradlew clean`, then build again.
 
 ### Project layout
 
+The project has one Gradle module per mod loader. `common/` holds everything that does not depend on a loader and only talks to it through `platform/Platform.java`. `neoforge/` holds the entry points, the event bridges (`neoforge/.../neoforge/`), data generation, loot modifiers, the JEI and EMI plugins and the GameTests.
+
 ```
-src/main/java/com/betterweaponry/
-├── BetterWeaponry.java          # Mod entry point: items, creative tab, datagen, config folder
-├── BetterWeaponryClient.java    # Client-only entry point (client config, editor as config screen, render extensions)
+common/src/main/java/com/betterweaponry/
+├── BetterWeaponry.java          # Shared core: declares the content, config folder
+├── platform/                    # What differs between loaders (Platform, Registered, IncomingDamage)
 ├── client/                     # 1.8 parry pose, on-screen elements (CombatHud), tooltip layout, attack zones debug view, key bindings
 │   └── editor/                 # Editor / Codex screen: document list, field rows built from the FieldSets, model, HUD placement screen
 ├── command/BetterWeaponryCommand.java  # /betterweaponry (editor, codex, dps, reload)
@@ -566,7 +568,7 @@ src/main/java/com/betterweaponry/
 │   ├── ModAttributes.java       # Armor penetration attribute (on every living entity)
 │   ├── ModSounds.java           # Parry, dash and combo-ready sounds (files and subtitles in assets/better_weaponry/sounds.json)
 │   └── ModTags.java             # better_weaponry:dual_wieldable and better_weaponry:melee_weapons
-├── gametest/CombatGameTests.java  # Automated tests (gradlew runGameTestServer)
+├── gametest/CombatGameTests.java  # Automated tests (gradlew :neoforge:runGameTestServer)
 ├── item/
 │   ├── WeaponType.java          # The 13 weapon types (+ base model and crafting pattern)
 │   ├── WeaponMaterial.java      # One material: Tier, default stats, how it is crafted, required mod
@@ -580,26 +582,29 @@ src/main/java/com/betterweaponry/
 ├── event/                       # Two-handed restrictions, tooltips, first-person hand hiding
 ├── mixin/                       # Dual-wield and combo attacks, two-arm swing (first and third person), rendering hooks
 └── datagen/                     # Item model, item tag, recipe and Better Combat providers
-    └── lang/                    # Builds the lang files from src/main/lang/ and checks they are complete
+    └── lang/                    # Builds the lang files from common/src/main/lang/ and checks they are complete
 
-src/main/lang/                   # Translation sources, one per language (not packaged, read by runData)
+common/src/main/lang/                   # Translation sources, one per language (not packaged, read by runData)
 
-src/main/resources/
+common/src/main/resources/
 ├── assets/better_weaponry/      # Textures, palettes and templates, hand-written models, sounds.json
 ├── assets/minecraft/atlases/    # Adds the weapon palette source to the vanilla atlases
 ├── data/better_weaponry/        # Default weapon stats and rules (better_weaponry/), empty GameTest structure
-├── META-INF/neoforge.mods.toml  # Mod metadata (filled in from gradle.properties)
 └── betterweaponry.mixins.json   # Mixin config
 
-src/generated/resources/         # Output of runData (do not edit by hand)
+common/src/generated/resources/         # Output of runData (do not edit by hand)
+
+neoforge/src/main/
+├── java/com/betterweaponry/neoforge/  # NeoForge entry points and event bridges
+└── resources/META-INF/neoforge.mods.toml  # Mod metadata (filled in from gradle.properties)
 ```
 
 ### Adding a new weapon type
 
 1. Add one line to `item/WeaponType.java`, for example `CUTLASS("cutlass", null)`. The second argument is the crafting pattern (`null` = no recipe). The items, models, tags and recipes all come from this enum. Then add its stats file `data/better_weaponry/better_weaponry/weapons/cutlass.json` (copy an existing one).
 2. Optional, to set its size and how it is held: add `assets/better_weaponry/models/item/cutlass_base.json`. Without it, the weapon uses vanilla `item/handheld`.
-3. Add its template `assets/better_weaponry/textures/templates/item/cutlass.png` (see [Weapon textures](#weapon-textures)). In each translation source `src/main/lang/<language>.json`, add the weapon's name in `names.types` (with its grammatical gender for German, Dutch, Portuguese and Russian) and its plural in `strings` (`better_weaponry.configuration.<type>`). The 50 item names per language are built automatically (see [Translations](#translations)).
-4. Run `./gradlew runData` to generate the models, translations, tags and recipes.
+3. Add its template `assets/better_weaponry/textures/templates/item/cutlass.png` (see [Weapon textures](#weapon-textures)). In each translation source `common/src/main/lang/<language>.json`, add the weapon's name in `names.types` (with its grammatical gender for German, Dutch, Portuguese and Russian) and its plural in `strings` (`better_weaponry.configuration.<type>`). The 50 item names per language are built automatically (see [Translations](#translations)).
+4. Run `./gradlew :neoforge:runData` to generate the models, translations, tags and recipes.
 5. Add the weapon's Better Combat preset in `datagen/BetterCombatAttributesProvider.java` (`runData` fails without one).
 
 ### Weapon textures
@@ -628,7 +633,7 @@ A base model can be 3D (Blockbench) and still follow the palettes: name its text
 
 ### Translations
 
-The lang files in `src/generated/resources/assets/better_weaponry/lang/` are **generated**: edit the sources in `src/main/lang/<language>.json`, then run `./gradlew runData`.
+The lang files in `common/src/generated/resources/assets/better_weaponry/lang/` are **generated**: edit the sources in `common/src/main/lang/<language>.json`, then run `./gradlew :neoforge:runData`.
 
 A source has two parts:
 
@@ -656,7 +661,7 @@ A source has two parts:
 
 ### Crafting recipes
 
-Each weapon type has a pattern in `WeaponType.java`. `M` is the weapon's material and `S` is a stick (`c:rods/wooden`). `./gradlew runData` writes one recipe per material: `M` becomes planks for the wooden version, `c:ingots/gold` for the golden one, the material's tag for modded materials, and so on. Netherite and Warden do not use the pattern. They are smithing-table upgrades (diamond → netherite → warden).
+Each weapon type has a pattern in `WeaponType.java`. `M` is the weapon's material and `S` is a stick (`c:rods/wooden`). `./gradlew :neoforge:runData` writes one recipe per material: `M` becomes planks for the wooden version, `c:ingots/gold` for the golden one, the material's tag for modded materials, and so on. Netherite and Warden do not use the pattern. They are smithing-table upgrades (diamond → netherite → warden).
 
 | Weapon | Pattern | Weapon | Pattern |
 |---|---|---|---|
@@ -710,7 +715,7 @@ public static final WeaponMaterial STEEL = register(WeaponMaterial.builder("stee
 - `craftedFrom` with several entries generates a tag `better_weaponry:weapon_materials/<id>` whose entries are all **optional**. Put the common `c:` tag first and the mod's exact item as a fallback. A wrong or missing ID breaks nothing.
 - Generated recipes only load if one of the mods is installed **and** the ingredient tag is not empty, so you never get load errors or uncraftable recipes.
 - For upgrade-style materials, use `.smithingUpgrade(baseMaterial, "template", "addition")` instead of `.craftedFrom(...)`.
-- Add the material's name to `names.materials` in each translation source `src/main/lang/<language>.json` (one entry per language, not 13 item names; see [Translations](#translations)), and its palette `textures/palettes/<material>.png` (see [Weapon textures](#weapon-textures)). A texture that is neither drawn nor generated does not stop `runData`: the model is still generated and the console lists the missing textures.
+- Add the material's name to `names.materials` in each translation source `common/src/main/lang/<language>.json` (one entry per language, not 13 item names; see [Translations](#translations)), and its palette `textures/palettes/<material>.png` (see [Weapon textures](#weapon-textures)). A texture that is neither drawn nor generated does not stop `runData`: the model is still generated and the console lists the missing textures.
 - Modded weapons are added to `minecraft:swords` as optional entries, so the tag keeps working when the mod is absent.
 
 ---

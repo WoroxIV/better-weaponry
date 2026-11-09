@@ -9,10 +9,13 @@ import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.toml.TomlParser;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import net.neoforged.fml.loading.FMLPaths;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +42,7 @@ import java.util.Optional;
 public final class LegacyConfigMigration {
     public static final String LEGACY_FILE_NAME = "better_weaponry-server.toml";
     private static final String SERVER_CONFIG_FOLDER = "serverconfig";
+    private static final String LEGACY_CLIENT_FILE_NAME = "better_weaponry-client.toml";
     private static final String OLD_SUFFIX = ".old";
 
     private record LegacyStats(double attackSpeed, double attackReach, boolean twoHanded, double baseDamage) {
@@ -66,7 +70,52 @@ public final class LegacyConfigMigration {
     private LegacyConfigMigration() {
     }
 
-    static void migrateIfPresent() {
+    /** Les préférences d'affichage étaient dans un fichier TOML : elles passent telles quelles dans le fichier JSON. */
+    public static void migrateClientConfig() {
+        Path legacy = FMLPaths.CONFIGDIR.get().resolve(LEGACY_CLIENT_FILE_NAME);
+        Path converted = FMLPaths.CONFIGDIR.get().resolve(ClientConfig.FILE_NAME);
+        if (!Files.isRegularFile(legacy) || Files.exists(converted)) return;
+        try (Reader reader = Files.newBufferedReader(legacy, StandardCharsets.UTF_8)) {
+            ConfigFolder.writeJson(converted, toJson(new TomlParser().parse(reader)));
+        } catch (Exception e) {
+            BetterWeaponry.LOGGER.warn("[Better Weaponry] Could not convert {}, the default preferences are used", legacy, e);
+            return;
+        }
+        try {
+            Files.move(legacy, legacy.resolveSibling(LEGACY_CLIENT_FILE_NAME + OLD_SUFFIX), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            BetterWeaponry.LOGGER.warn("[Better Weaponry] Could not rename {}", legacy, e);
+        }
+    }
+
+    /** Les noms et les sections du fichier TOML sont ceux du fichier JSON. */
+    private static JsonObject toJson(UnmodifiableConfig config) {
+        JsonObject json = new JsonObject();
+        config.valueMap().forEach((key, value) -> {
+            JsonElement element = toJson(value);
+            if (element != null) json.add(key, element);
+        });
+        return json;
+    }
+
+    private static JsonElement toJson(Object value) {
+        if (value instanceof UnmodifiableConfig section) return toJson(section);
+        if (value instanceof Boolean flag) return new JsonPrimitive(flag);
+        if (value instanceof Number number) return new JsonPrimitive(number);
+        if (value instanceof Enum<?> constant) return new JsonPrimitive(constant.name());
+        if (value instanceof String text) return new JsonPrimitive(text);
+        if (value instanceof List<?> list) {
+            JsonArray array = new JsonArray();
+            for (Object entry : list) {
+                JsonElement element = toJson(entry);
+                if (element != null) array.add(element);
+            }
+            return array;
+        }
+        return null;
+    }
+
+    public static void migrateIfPresent() {
         warnAboutDefaultConfigs();
         Path legacy = FMLPaths.CONFIGDIR.get().resolve(LEGACY_FILE_NAME);
         if (!Files.isRegularFile(legacy)) return;
@@ -86,7 +135,7 @@ public final class LegacyConfigMigration {
             Files.move(legacy, renamed, StandardCopyOption.REPLACE_EXISTING);
             BetterWeaponry.LOGGER.info("[Better Weaponry] Converted the 1.x config: {} weapon type(s) and {} global setting(s) "
                             + "different from the defaults were copied to {}. The old file was renamed to {}. "
-                            + "Tooltip options are now in better_weaponry-client.toml.",
+                            + "Tooltip options are now in better_weaponry-client.json.",
                     converted.get().weapons().size(), converted.get().rules() != null ? 1 : 0, ConfigFolder.displayPath(ConfigFolder.root()), renamed.getFileName());
         } catch (IOException e) {
             BetterWeaponry.LOGGER.error("[Better Weaponry] Could not convert the 1.x config {}", legacy, e);

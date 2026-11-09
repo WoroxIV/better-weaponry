@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "ItemInHandLayerMixin",
+    "KeyMappingAccessor",
     "PlayerRendererMixin",
     "ItemInHandRendererMixin",
     "DualSwingFirstPersonMixin",
@@ -16,6 +17,7 @@
   ],
   "mixins": [
     "PlayerCombatMixin",
+    "ServerPlayerMixin",
     "IngredientMixin",
     "ItemStackMixin",
     "AxeItemMixin",

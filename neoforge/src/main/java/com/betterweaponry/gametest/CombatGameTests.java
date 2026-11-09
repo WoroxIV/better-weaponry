@@ -146,7 +146,7 @@ import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
+import com.betterweaponry.platform.Registered;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.nio.file.Files;
@@ -220,7 +220,7 @@ public final class CombatGameTests {
         double reducedArmorReduction = RAW_DAMAGE - (TEST_HEALTH - withPenetration.getHealth());
         helper.assertTrue(armorReduction > 1.0D, "the armor should absorb damage, absorbed " + armorReduction);
         boolean apothic = ModList.get().isLoaded("apothic_attributes");
-        helper.assertTrue(ModAttributes.armorPenetration().equals(ModAttributes.ARMOR_PENETRATION) != apothic, "the penetration attribute should depend on Apothic Attributes");
+        helper.assertTrue(ModAttributes.armorPenetration().equals(ModAttributes.ARMOR_PENETRATION.holder()) != apothic, "the penetration attribute should depend on Apothic Attributes");
         double expected = armorReduction * (1.0D - penetration);
         // Avec Apothic Attributes, c'est son calcul de l'armure qui s'applique : l'armure protège seulement moins.
         helper.assertTrue(apothic ? reducedArmorReduction < armorReduction : Math.abs(reducedArmorReduction - expected) < EPSILON,
@@ -422,9 +422,9 @@ public final class CombatGameTests {
             ItemStack stack = weapon(type);
             Player player = dasher(helper, stack, ItemStack.EMPTY, true);
             helper.assertTrue(useMainHand(helper, player, stack), type.id() + ": a right click on the ground should dash");
-            for (DeferredItem<WeaponItem> item : ModItems.allOfType(type)) {
+            for (Registered<Item, WeaponItem> item : ModItems.allOfType(type)) {
                 helper.assertTrue(player.getCooldowns().isOnCooldown(item.get()),
-                        type.id() + ": " + item.getId() + " should be on cooldown too");
+                        type.id() + ": " + item.get() + " should be on cooldown too");
             }
             float expectedExhaustion = (float) dash.hungerCost() * 4.0F;
             helper.assertTrue(Math.abs(player.getFoodData().getExhaustionLevel() - expectedExhaustion) < EPSILON,
@@ -923,8 +923,8 @@ public final class CombatGameTests {
             double expected = RAW_DAMAGE * (1.0D - parry.damageReduction() / 100.0D);
             helper.assertTrue(Math.abs(TEST_HEALTH - defender.getHealth() - expected) < EPSILON, breaker + ": the hit that breaks the guard should stay reduced");
             helper.assertFalse(ParrySystem.isParrying(defender), breaker + ": the parry should stop");
-            for (DeferredItem<WeaponItem> item : ModItems.allOfType(WeaponType.KATANA)) {
-                helper.assertTrue(defender.getCooldowns().isOnCooldown(item.get()), breaker + ": " + item.getId() + " should be on cooldown");
+            for (Registered<Item, WeaponItem> item : ModItems.allOfType(WeaponType.KATANA)) {
+                helper.assertTrue(defender.getCooldowns().isOnCooldown(item.get()), breaker + ": " + item.get() + " should be on cooldown");
             }
             helper.assertFalse(stack.use(helper.getLevel(), defender, InteractionHand.MAIN_HAND).getResult().consumesAction(),
                     breaker + ": no parry during the guard break");
@@ -1304,14 +1304,14 @@ public final class CombatGameTests {
         Pig weak = pigAt(helper, new Vec3(1.5D, 1.0D, 3.5D));
         butcherState.lastAttackStrength = 0.2F;
         weak.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
-        helper.assertFalse(weak.hasEffect(ModEffects.BLEEDING), "a weak hit should not cause bleeding");
+        helper.assertFalse(weak.hasEffect(ModEffects.BLEEDING.holder()), "a weak hit should not cause bleeding");
         butcherState.lastAttackStrength = 1.0F;
         heal(weak);
         weak.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
-        helper.assertTrue(weak.hasEffect(ModEffects.BLEEDING), "a charged hit should cause bleeding");
+        helper.assertTrue(weak.hasEffect(ModEffects.BLEEDING.holder()), "a charged hit should cause bleeding");
         Skeleton skeleton = helper.spawnWithNoFreeWill(EntityType.SKELETON, new BlockPos(3, 1, 3));
         skeleton.hurt(butcher.damageSources().playerAttack(butcher), 2.0F);
-        helper.assertFalse(skeleton.hasEffect(ModEffects.BLEEDING), "skeletons should not bleed");
+        helper.assertFalse(skeleton.hasEffect(ModEffects.BLEEDING.holder()), "skeletons should not bleed");
         Holder<Enchantment> bleeding = enchantment(helper, ModEnchantments.BLEEDING);
         helper.assertFalse(Enchantment.areCompatible(bleeding, enchantment(helper, Enchantments.FIRE_ASPECT)), "bleeding is incompatible with fire aspect");
         helper.assertFalse(weapon(WeaponType.DAGGER).supportsEnchantment(bleeding), "a dagger cannot bleed");
@@ -1373,7 +1373,7 @@ public final class CombatGameTests {
                     .map(stack -> ((WeaponItem) stack.getItem()).getMaterial()).toList();
             helper.assertTrue(materials.subList(0, vanillaOrder.size()).equals(vanillaOrder), type + " materials should follow the vanilla order, found " + materials);
         }
-        helper.assertTrue(order.size() == ModItems.ITEMS.getEntries().size(), "every item of the mod should be in the tab: " + order.size() + " of " + ModItems.ITEMS.getEntries().size());
+        helper.assertTrue(order.size() == modItemCount(), "every item of the mod should be in the tab: " + order.size() + " of " + modItemCount());
         helper.succeed();
     }
 
@@ -2406,7 +2406,7 @@ public final class CombatGameTests {
     @GameTest(template = ARENA, timeoutTicks = 200)
     public static void bleedingKeepsItsRhythm(GameTestHelper helper) {
         Pig pig = pigAt(helper, new Vec3(2.5D, 1.0D, 2.5D));
-        helper.onEachTick(() -> pig.addEffect(new MobEffectInstance(ModEffects.BLEEDING, 40)));
+        helper.onEachTick(() -> pig.addEffect(new MobEffectInstance(ModEffects.BLEEDING.holder(), 40)));
         helper.runAfterDelay(100L, () -> {
             double lost = TEST_HEALTH - pig.getHealth();
             helper.assertTrue(lost >= 2.0D && lost <= 3.0D, "5 seconds of bleeding should cost about 2.5 health, lost " + lost);
@@ -2478,7 +2478,24 @@ public final class CombatGameTests {
         helper.succeed();
     }
 
+    /** Les shurikens cassés en attente sont sauvegardés avec le joueur. */
+    @GameTest(template = ARENA)
+    public static void brokenShurikensAreSaved(GameTestHelper helper) {
+        java.util.UUID batch = java.util.UUID.randomUUID();
+        Player player = thrower(helper, ItemStack.EMPTY, GameType.SURVIVAL);
+        PlayerCombatState.of(player).brokenShurikens = List.of(batch);
+        net.minecraft.nbt.CompoundTag tag = player.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+        Player loaded = thrower(helper, ItemStack.EMPTY, GameType.SURVIVAL);
+        loaded.load(tag);
+        helper.assertTrue(PlayerCombatState.of(loaded).brokenShurikens.equals(List.of(batch)), "the list should survive a save: " + PlayerCombatState.of(loaded).brokenShurikens);
+        helper.succeed();
+    }
+
     // --- Outils ---
+
+    private static long modItemCount() {
+        return net.minecraft.core.registries.BuiltInRegistries.ITEM.keySet().stream().filter(id -> id.getNamespace().equals(BetterWeaponry.MODID)).count();
+    }
 
     /**
      * Les tags du mod (générés par runData) doivent être chargés. S'ils manquent, le dossier build/resources/main
