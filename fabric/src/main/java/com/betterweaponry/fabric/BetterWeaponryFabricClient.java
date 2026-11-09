@@ -9,6 +9,7 @@ import com.betterweaponry.client.ShieldItemRenderer;
 import com.betterweaponry.client.ShurikenRenderer;
 import com.betterweaponry.client.WeaponPaletteSource;
 import com.betterweaponry.client.editor.ClientEditorHooks;
+import com.betterweaponry.client.editor.WeaponEditorScreen;
 import com.betterweaponry.client.tutorial.TutorialHintTracker;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.editor.EditorHooks;
@@ -33,14 +34,25 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 /** Point d'entrée client Fabric (jamais chargé sur un serveur dédié). */
 public final class BetterWeaponryFabricClient implements ClientModInitializer {
+    /** Largeur et écart des boutons du menu Échap du jeu. */
+    private static final int PAUSE_BUTTON_WIDTH = 204;
+    private static final int BUTTON_GAP = 4;
+
     private ShieldItemRenderer shieldRenderer;
 
     @Override
@@ -96,6 +108,16 @@ public final class BetterWeaponryFabricClient implements ClientModInitializer {
         // Une connexion qui échoue pendant le chargement ne passe pas par DISCONNECT, alors que les stats du serveur sont déjà reçues.
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof TitleScreen && client.level == null) WeaponData.resetToBuiltin();
+            if (screen instanceof PauseScreen pause && pause.showsPauseMenu() && WeaponEditorScreen.playerCanEdit()) addEditorButton(pause, width, height);
         });
+    }
+
+    /** Menu Échap : ouvre l'éditeur sans passer par la commande. Sous les boutons du jeu, pour ne pas les recouvrir. */
+    private static void addEditorButton(Screen pauseScreen, int width, int height) {
+        List<AbstractWidget> buttons = Screens.getButtons(pauseScreen);
+        int bottom = buttons.stream().mapToInt(button -> button.getY() + button.getHeight()).max().orElse(height / 2);
+        int y = Math.min(bottom + BUTTON_GAP, height - Button.DEFAULT_HEIGHT - BUTTON_GAP);
+        buttons.add(Button.builder(WeaponEditorScreen.editorTitle(), pressed -> Minecraft.getInstance().setScreen(WeaponEditorScreen.fromModList(pauseScreen)))
+                .bounds((width - PAUSE_BUTTON_WIDTH) / 2, y, PAUSE_BUTTON_WIDTH, Button.DEFAULT_HEIGHT).build());
     }
 }

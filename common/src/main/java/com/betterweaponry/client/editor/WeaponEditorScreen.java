@@ -144,8 +144,18 @@ public final class WeaponEditorScreen extends Screen {
     public static Screen fromModList(Screen parent) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null || minecraft.player == null) return new WeaponEditorScreen(parent, Mode.MAIN_MENU, true);
-        boolean canEdit = minecraft.hasSingleplayerServer() || minecraft.player.hasPermissions(OPERATOR_LEVEL);
-        return new WeaponEditorScreen(parent, Mode.IN_GAME, canEdit);
+        return new WeaponEditorScreen(parent, Mode.IN_GAME, playerCanEdit());
+    }
+
+    /** Le joueur peut modifier les réglages de ce monde : mêmes règles que le serveur (opérateur, ou hôte d'une partie solo). */
+    public static boolean playerCanEdit() {
+        Minecraft minecraft = Minecraft.getInstance();
+        return minecraft.player != null && (minecraft.hasSingleplayerServer() || minecraft.player.hasPermissions(OPERATOR_LEVEL));
+    }
+
+    /** Nom de l'éditeur, pour un bouton qui l'ouvre. */
+    public static Component editorTitle() {
+        return Component.translatable(KEY + "title");
     }
 
     /** Menu principal : valeurs du jar + fichiers de config/better_weaponry (pas de monde, donc pas de datapack). */
