@@ -1,15 +1,9 @@
 package com.betterweaponry.client;
 
-import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.combat.AbilityCooldowns;
 import com.betterweaponry.combat.ComboSystem;
-import com.betterweaponry.combat.DashAbility;
-import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.config.ComboHudStyle;
 import com.betterweaponry.config.HudElement;
-import com.betterweaponry.data.DashDefinition;
-import com.betterweaponry.data.ParryDefinition;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -17,24 +11,16 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-
-import java.util.Locale;
-import java.util.Optional;
 
 /**
- * Éléments de combat à l'écran : avancement du combo, garde brisée, recharge de capacité.
- * Chacun se désactive et se déplace (page Interface de l'éditeur). Le dessin est séparé des conditions pour que
+ * Élément de combat à l'écran : l'avancement du combo.
+ * Il se désactive et se déplace (page Interface de l'éditeur). Le dessin est séparé des conditions pour que
  * l'écran de placement montre exactement la même chose qu'en jeu.
  */
 public final class CombatHud {
-    private static final String KEY = BetterWeaponry.MODID + ".hud.";
     private static final int DONE_COLOR = 0xFFFFFFFF;
     private static final int SPECIAL_COLOR = 0xFFFFAA00;
     private static final int REMAINING_COLOR = 0x80FFFFFF;
-    private static final int GUARD_BREAK_TEXT_COLOR = 0xFFFF7766;
-    private static final int COOLDOWN_TEXT_COLOR = 0xFFE0E0E0;
 
     private static final int DOT_SIZE = 2;
     private static final int DOT_SPACING = 4;
@@ -47,9 +33,6 @@ public final class CombatHud {
     /** Blanc entre deux arcs de l'anneau, en degrés. */
     private static final double RING_GAP = 14.0D;
     private static final double RING_DEGREES_PER_POINT = 5.0D;
-    private static final int ICON_SIZE = 16;
-    private static final float ICON_SCALE = 0.75F;
-    private static final int ICON_TEXT_GAP = 3;
     private static final int SCREEN_MARGIN = 2;
 
     private CombatHud() {
@@ -64,25 +47,10 @@ public final class CombatHud {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null || minecraft.options.hideGui || minecraft.screen != null) return;
-        float partialTick = deltaTracker.getGameTimeDeltaPartialTick(false);
 
         if (isShown(HudElement.COMBO)) {
             ComboSystem.Progress progress = ComboSystem.progress(player);
             if (progress != null) drawAtConfiguredPosition(graphics, HudElement.COMBO, comboSize(progress), (x, y) -> drawCombo(graphics, progress, x, y));
-        }
-
-        ItemStack stack = player.getMainHandItem();
-        float cooldown = player.getCooldowns().getCooldownPercent(stack.getItem(), partialTick);
-        if (cooldown <= 0.0F) return;
-        Optional<ParryDefinition> parry = ParrySystem.parryOf(stack);
-        if (parry.isPresent() && isShown(HudElement.GUARD_BREAK)) {
-            String seconds = seconds(AbilityCooldowns.remainingSeconds(player, stack.getItem(), cooldown));
-            drawAtConfiguredPosition(graphics, HudElement.GUARD_BREAK, guardBreakSize(seconds), (x, y) -> drawGuardBreak(graphics, stack, seconds, x, y));
-        }
-        Optional<DashDefinition> dash = DashAbility.dashOf(stack);
-        if (dash.isPresent() && isShown(HudElement.ABILITY_COOLDOWN)) {
-            Component text = cooldownText(minecraft, Component.translatable(KEY + "ability.dash"), seconds(AbilityCooldowns.remainingSeconds(player, stack.getItem(), cooldown)));
-            drawAtConfiguredPosition(graphics, HudElement.ABILITY_COOLDOWN, textSize(text), (x, y) -> drawText(graphics, text, COOLDOWN_TEXT_COLOR, x, y));
         }
     }
 
@@ -125,14 +93,6 @@ public final class CombatHud {
         return Minecraft.getInstance().font;
     }
 
-    private static String seconds(double value) {
-        return String.format(Locale.ROOT, "%.1f", value);
-    }
-
-    private static Component cooldownText(Minecraft minecraft, Component ability, String seconds) {
-        return Component.translatable(KEY + "ability_cooldown", minecraft.options.keyUse.getTranslatedKeyMessage(), ability, seconds);
-    }
-
     // --- Dessin ---
 
     public static Size textSize(Component text) {
@@ -141,28 +101,6 @@ public final class CombatHud {
 
     public static void drawText(GuiGraphics graphics, Component text, int color, int centerX, int centerY) {
         graphics.drawString(font(), text, centerX - font().width(text) / 2, centerY - font().lineHeight / 2, color);
-    }
-
-    public static Size guardBreakSize(String seconds) {
-        int icon = Math.round(ICON_SIZE * ICON_SCALE);
-        return new Size(icon + ICON_TEXT_GAP + font().width(guardBreakText(seconds)), icon);
-    }
-
-    private static Component guardBreakText(String seconds) {
-        return Component.translatable(KEY + "seconds", seconds);
-    }
-
-    /** Petit et discret : l'arme concernée et le temps restant. */
-    public static void drawGuardBreak(GuiGraphics graphics, ItemStack stack, String seconds, int centerX, int centerY) {
-        Size size = guardBreakSize(seconds);
-        int left = centerX - size.width() / 2;
-        int top = centerY - size.height() / 2;
-        graphics.pose().pushPose();
-        graphics.pose().translate(left, top, 0.0F);
-        graphics.pose().scale(ICON_SCALE, ICON_SCALE, 1.0F);
-        graphics.renderItem(stack, 0, 0);
-        graphics.pose().popPose();
-        graphics.drawString(font(), guardBreakText(seconds), left + size.height() + ICON_TEXT_GAP, centerY - font().lineHeight / 2, GUARD_BREAK_TEXT_COLOR);
     }
 
     public static Size comboSize(ComboSystem.Progress progress) {
@@ -224,25 +162,16 @@ public final class CombatHud {
     // --- Exemples, pour l'écran de placement et l'aperçu des styles ---
 
     private static final ComboSystem.Progress SAMPLE_PROGRESS = new ComboSystem.Progress(3, 2, true);
-    private static final String SAMPLE_SECONDS = "1.5";
 
     public static Size sampleSize(HudElement element) {
         return switch (element) {
             case COMBO -> comboSize(SAMPLE_PROGRESS);
-            case GUARD_BREAK -> guardBreakSize(SAMPLE_SECONDS);
-            case ABILITY_COOLDOWN -> textSize(sampleCooldownText());
         };
     }
 
     public static void drawSample(GuiGraphics graphics, HudElement element, int centerX, int centerY) {
         switch (element) {
             case COMBO -> drawCombo(graphics, SAMPLE_PROGRESS, centerX, centerY);
-            case GUARD_BREAK -> drawGuardBreak(graphics, new ItemStack(Items.IRON_SWORD), SAMPLE_SECONDS, centerX, centerY);
-            case ABILITY_COOLDOWN -> drawText(graphics, sampleCooldownText(), COOLDOWN_TEXT_COLOR, centerX, centerY);
         }
-    }
-
-    private static Component sampleCooldownText() {
-        return cooldownText(Minecraft.getInstance(), Component.translatable(KEY + "ability.dash"), SAMPLE_SECONDS);
     }
 }

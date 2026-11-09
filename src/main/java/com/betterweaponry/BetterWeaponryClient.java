@@ -82,6 +82,7 @@ public final class BetterWeaponryClient {
 
     private static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(ModKeyMappings.WEAPON_DETAILS);
+        event.register(ModKeyMappings.OPEN_TUTORIAL);
     }
 
     /** Éléments de combat à l'écran, dessinés juste au-dessus du viseur vanilla. */

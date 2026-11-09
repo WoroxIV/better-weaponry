@@ -22,6 +22,7 @@ public final class WeaponComparison {
         DAMAGE("damage", Row::damage),
         SPEED("speed", Row::speed),
         DPS("dps", Row::dps),
+        PAIR_DPS("pair_dps", Row::pairDps),
         REACH("reach", Row::reach),
         PENETRATION("penetration", Row::penetration);
 
@@ -38,14 +39,15 @@ public final class WeaponComparison {
         }
     }
 
-    public record Row(WeaponType type, double damage, double speed, double dps, double reach, double penetration) {
+    /** @param pairDps DPS avec une de ces armes dans chaque main, 0 si l'arme ne se manie pas ainsi */
+    public record Row(WeaponType type, double damage, double speed, double dps, double pairDps, double reach, double penetration) {
     }
 
     /** Lignes triées. Les armes à égalité gardent l'ordre de déclaration, pour un affichage stable. */
     public static List<Row> rows(Map<WeaponType, WeaponDefinition> weapons, WeaponMaterial material, Column column, boolean descending) {
         List<Row> rows = new ArrayList<>();
         weapons.forEach((type, definition) -> rows.add(new Row(type, definition.damageFor(material), definition.attackSpeed(),
-                definition.dps(material), definition.attackReach(), Math.max(PERCENT_UNSET, definition.armorPenetration()))));
+                definition.dps(material), definition.pairDps(material), definition.attackReach(), Math.max(PERCENT_UNSET, definition.armorPenetration()))));
         Comparator<Row> order = Comparator.comparingDouble(column.value);
         rows.sort((descending ? order.reversed() : order).thenComparingInt(row -> row.type().ordinal()));
         return rows;

@@ -68,6 +68,18 @@ public final class TutorialScenes {
             "dash", TutorialScenes::dash,
             "combos", TutorialScenes::combos);
 
+    private static final Map<String, TutorialTheme> THEMES = Map.of(
+            "two_handed", TutorialTheme.WORKSHOP,
+            "dual_wield", TutorialTheme.DOJO,
+            "parry", TutorialTheme.FORTRESS,
+            "perfect_parry", TutorialTheme.FORTRESS,
+            "guard_break", TutorialTheme.FORTRESS,
+            "reach", TutorialTheme.ARENA,
+            "attack_zone", TutorialTheme.ARENA,
+            "armor_penetration", TutorialTheme.FORGE,
+            "dash", TutorialTheme.MEADOW,
+            "combos", TutorialTheme.DOJO);
+
     /** Ordre d'affichage dans la page Tutoriels. */
     public static final List<String> IDS = List.of("two_handed", "dual_wield", "parry", "perfect_parry", "guard_break", "reach",
             "attack_zone", "armor_penetration", "dash", "combos");
@@ -107,6 +119,10 @@ public final class TutorialScenes {
 
     public static Component title(String id) {
         return Component.translatable(key(id, "title"));
+    }
+
+    public static TutorialTheme theme(String id) {
+        return THEMES.get(id);
     }
 
     private static String key(String scene, String part) {
@@ -224,7 +240,7 @@ public final class TutorialScenes {
                 .step(0, caption(id, "intro"))
                 .step(50, caption(id, "timing", Docs.number(parry.perfectWindowSeconds())))
                 .step(150, caption(id, "late"))
-                .step(250, caption(id, "bonus", Docs.number(parry.perfectDamageBonus())))
+                .step(250, caption(id, "bonus", Docs.number(parry.perfectDamageBonus()), Docs.number(parry.perfectBonusSeconds())))
                 .guard(PLAYER, firstGuard, firstHit + 30, Hand.MAIN)
                 .swing(TARGET, firstHit - HIT_DELAY, Hand.BOTH)
                 .spark(PLAYER, firstHit, GOLD)

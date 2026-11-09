@@ -1,5 +1,6 @@
 package com.betterweaponry.combat;
 
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponItem;
@@ -43,6 +44,7 @@ public final class DualWieldSystem {
     /** Une arme ambidextre dans chaque main. Toujours faux si le dual wield est coupé (rules.json, Better Combat, Epic Fight). */
     public static boolean isDualWielding(LivingEntity player) {
         return WeaponData.rules().dualWieldActive()
+                && !CombatCompat.isFakePlayer(player)
                 && canDualWield(player.getMainHandItem())
                 && canDualWield(player.getOffhandItem());
     }

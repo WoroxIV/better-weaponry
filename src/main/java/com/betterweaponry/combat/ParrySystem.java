@@ -1,6 +1,7 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -64,18 +66,18 @@ public final class ParrySystem {
      * <ul>
      *   <li>l'arme en main principale (seule la capacité de l'arme principale compte) ;</li>
      *   <li>la main secondaire vide, une arme à deux mains (la main secondaire est alors bloquée),
-     *       ou une arme en main secondaire si l'option while_dual_wielding est active.</li>
+     *       ou une arme ambidextre dans chaque main.</li>
      * </ul>
      * Un bouclier en main secondaire se lève donc à la place, et une torche ou de la nourriture gardent leur action.
      */
     public static boolean canParry(Player player, InteractionHand hand, ItemStack stack) {
-        if (hand != InteractionHand.MAIN_HAND) return false;
+        if (hand != InteractionHand.MAIN_HAND || CombatCompat.isFakePlayer(player)) return false;
         Optional<ParryDefinition> parry = parryOf(stack);
         // La recharge vient d'une garde brisée.
         if (parry.isEmpty() || player.getCooldowns().isOnCooldown(stack.getItem())) return false;
         if (WeaponItem.isTwoHanded(stack)) return true;
 
-        return player.getOffhandItem().isEmpty() || (parry.get().whileDualWielding() && DualWieldSystem.isDualWielding(player));
+        return player.getOffhandItem().isEmpty() || DualWieldSystem.isDualWielding(player);
     }
 
     /** Vrai si le joueur pare en ce moment. Les conditions sont revérifiées (main secondaire changée entre-temps...). */
@@ -86,7 +88,7 @@ public final class ParrySystem {
     }
 
     /**
-     * Vrai si le joueur pare avec une arme dans chaque main (option while_dual_wielding, ex : deux saïs) :
+     * Vrai si le joueur pare avec une arme ambidextre dans chaque main (ex : deux saïs) :
      * les deux armes prennent alors la pose de parade (première et troisième personne).
      */
     public static boolean isParryingWithBothHands(Player player) {
@@ -110,10 +112,9 @@ public final class ParrySystem {
         return towardTarget.dot(facing) < 0.0D;
     }
 
-    /** Durabilité perdue pour un coup paré : au moins 1, sauf si durability_per_damage vaut 0. */
-    public static int durabilityCost(float blockedDamage, ParryDefinition parry) {
-        if (parry.durabilityPerDamage() <= 0.0D || blockedDamage <= 0.0F) return 0;
-        return Math.max(1, Math.round((float) (blockedDamage * parry.durabilityPerDamage())));
+    /** Durabilité perdue pour un coup paré, proportionnelle à ses dégâts avant la parade et arrondie à l'inférieur. */
+    public static int durabilityCost(float hitDamage, ParryDefinition parry) {
+        return Mth.floor(hitDamage * parry.durabilityPerDamage());
     }
 
     /**
@@ -164,13 +165,20 @@ public final class ParrySystem {
         event.setAmount(damage - blocked);
         if (ignoredAnyway) return;
 
-        int cost = durabilityCost(blocked, parry);
-        if (cost > 0) weapon.hurtAndBreak(cost, player, EquipmentSlot.MAINHAND);
+        wearGuard(player, weapon, durabilityCost(damage, parry));
         float pitch = 0.9F + player.getRandom().nextFloat() * 0.2F;
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 ModSounds.PARRY.get(), SoundSource.PLAYERS, 1.0F, pitch);
 
         if (breaksGuard(source, parry)) breakGuard(player, weapon, parry);
+    }
+
+    /** Use l'arme qui pare. Avec une arme dans chaque main, l'usure est partagée : l'arme principale prend le point impair. */
+    private static void wearGuard(Player player, ItemStack weapon, int cost) {
+        if (cost <= 0) return;
+        int offhandCost = DualWieldSystem.isDualWielding(player) ? cost / 2 : 0;
+        weapon.hurtAndBreak(cost - offhandCost, player, EquipmentSlot.MAINHAND);
+        if (offhandCost > 0) player.getOffhandItem().hurtAndBreak(offhandCost, player, EquipmentSlot.OFFHAND);
     }
 
     /**

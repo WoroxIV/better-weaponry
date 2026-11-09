@@ -18,7 +18,6 @@
     "PlayerCombatMixin",
     "ItemStackMixin",
     "AxeItemMixin",
-    "ItemCooldownsMixin",
     "CrossbowItemMixin",
     "MobRangedWeaponMixin",
     "PiglinMixin",

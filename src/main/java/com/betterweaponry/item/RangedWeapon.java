@@ -1,15 +1,9 @@
 package com.betterweaponry.item;
 
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.WeaponData;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.List;
 
 /**
  * Ce que les arcs et arbalètes du mod ont en commun. Le matériau ne change que la vitesse du projectile
@@ -36,12 +30,6 @@ public interface RangedWeapon {
     /** Seuls les joueurs passent par ici : les tirs des mobs sont corrigés séparément pour qu'ils visent juste. */
     default float velocityFor(LivingEntity shooter, float velocity) {
         return shooter instanceof Player ? (float) (velocity * speedMultiplier()) : velocity;
-    }
-
-    /** Ex : "Vitesse des flèches : ×1.5". */
-    default void addSpeedLine(List<Component> tooltip) {
-        String multiplier = ItemAttributeModifiers.ATTRIBUTE_MODIFIER_FORMAT.format(speedMultiplier());
-        tooltip.add(Component.translatable(BetterWeaponry.MODID + ".tooltip.projectile_speed", multiplier).withStyle(ChatFormatting.DARK_GREEN));
     }
 
     /**

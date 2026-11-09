@@ -6,7 +6,10 @@ import com.betterweaponry.data.WeaponAbility;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.ShurikenItem;
+import com.betterweaponry.item.WeaponItem;
+import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.registry.ModSounds;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +17,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -22,6 +28,7 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 /**
  * Règles de combat des mobs. Ils ignorent le maniement à deux mains et les combos, mais respectent la portée de leur arme,
@@ -31,6 +38,7 @@ import java.util.Optional;
 public final class MobCombat {
     private static final String OFFHAND_TURN = BetterWeaponry.MODID + ":offhand_turn";
     private static final String GUARD_BROKEN_UNTIL = BetterWeaponry.MODID + ":guard_broken_until";
+    private static final ResourceLocation SWORD_DAMAGE_ID = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "mob_sword_damage");
     private static final double PLAYER_BASE_REACH = 3.0D;
     /** Une arme plus courte que le vanilla réduit la zone du mob, sans jamais l'annuler. */
     private static final double SMALLEST_REACH_CHANGE = -0.5D;
@@ -45,6 +53,24 @@ public final class MobCombat {
     public static double extraReach(Mob mob) {
         if (!WeaponData.rules().reachActive()) return 0.0D;
         return WeaponProfiles.definition(mob.getMainHandItem()).map(definition -> Math.max(SMALLEST_REACH_CHANGE, definition.attackReach() - PLAYER_BASE_REACH)).orElse(0.0D);
+    }
+
+    /**
+     * Fait porter un coup à un mob avec les dégâts d'une épée du matériau de son arme : il frappe au rythme de son espèce,
+     * quelle que soit la vitesse de l'arme, et une arme lente mais puissante serait bien plus dangereuse entre ses mains.
+     * À appeler après l'éventuel échange de mains : l'arme en main principale est celle qui frappe.
+     */
+    public static boolean hitLikeSword(Mob mob, BooleanSupplier attack) {
+        AttributeInstance damage = mob.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (damage == null || !(mob.getMainHandItem().getItem() instanceof WeaponItem weapon)) return attack.getAsBoolean();
+        WeaponMaterial material = weapon.getMaterial();
+        double correction = material.swordDamage() - weapon.definition().damageFor(material);
+        damage.addTransientModifier(new AttributeModifier(SWORD_DAMAGE_ID, correction, AttributeModifier.Operation.ADD_VALUE));
+        try {
+            return attack.getAsBoolean();
+        } finally {
+            damage.removeModifier(SWORD_DAMAGE_ID);
+        }
     }
 
     public static boolean isOffhandTurn(Mob mob) {

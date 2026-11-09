@@ -1,19 +1,23 @@
 package com.betterweaponry.client.tutorial;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.config.ClientConfig;
 import com.betterweaponry.tutorial.TutorialScene;
 import com.betterweaponry.tutorial.TutorialScenes;
 import com.mojang.blaze3d.platform.GlConst;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -54,7 +58,14 @@ public final class TutorialScreen extends Screen {
     private static final int LATE_COLOR = 0xFFFFAA00;
     private static final int HIT_COLOR = 0xFFFF5555;
     private static final int TEXT_COLOR = 0xFFFFFFFF;
-    private static final int MUTED_COLOR = 0xFFA0A0A0;
+    private static final int COUNTER_COLOR = 0xFFA0A0A0;
+    private static final int COUNTER_GAP = 6;
+    /** Taille des icônes des boutons, ombre comprise. */
+    private static final int SPRITE_SIZE = 10;
+    private static final ResourceLocation LIST_SPRITE = sprite("list");
+    private static final ResourceLocation PAUSE_SPRITE = sprite("pause");
+    private static final ResourceLocation REPLAY_SPRITE = sprite("replay");
+    private static final ResourceLocation CLOSE_SPRITE = sprite("close");
 
     @Nullable private final Screen parent;
     private TutorialRenderer renderer;
@@ -66,13 +77,36 @@ public final class TutorialScreen extends Screen {
     private float pitch = DEFAULT_PITCH;
     private float zoom = 1.0F;
     private boolean draggingCamera;
-    private Button playButton;
+    private ControlButton playButton;
+
+    private static ResourceLocation sprite(String name) {
+        return ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "tutorial/" + name);
+    }
+
+    /** Bouton carré des commandes du tutoriel : son texte, ou une icône (textures/gui/sprites/tutorial/) s'il en a une. */
+    private static final class ControlButton extends Button {
+        @Nullable private ResourceLocation sprite;
+
+        private ControlButton(int x, int y, Component message, Runnable action) {
+            super(x, y, BUTTON_SIZE, BUTTON_SIZE, message, pressed -> action.run(), DEFAULT_NARRATION);
+        }
+
+        @Override
+        public void renderString(GuiGraphics graphics, Font font, int color) {
+            if (sprite == null) {
+                super.renderString(graphics, font, color);
+                return;
+            }
+            graphics.blitSprite(sprite, getX() + (width - SPRITE_SIZE) / 2, getY() + (height - SPRITE_SIZE) / 2, SPRITE_SIZE, SPRITE_SIZE);
+        }
+    }
 
     public TutorialScreen(@Nullable Screen parent, String sceneId) {
         super(TutorialScenes.title(sceneId));
         this.parent = parent;
         this.sceneId = sceneId;
         this.scene = TutorialScenes.create(sceneId);
+        ClientConfig.markTutorialSeen(sceneId);
     }
 
     @Override
@@ -81,29 +115,38 @@ public final class TutorialScreen extends Screen {
         int y = height - BUTTON_SIZE - 6;
         int count = 5;
         int x = (width - (count * BUTTON_SIZE + (count - 1) * BUTTON_GAP)) / 2;
-        addIconButton("«", "previous_step", x, y, this::previousStep);
+        addControl("«", "previous_step", x, y, this::previousStep);
         x += BUTTON_SIZE + BUTTON_GAP;
-        playButton = addIconButton(playLabel(), "play_pause", x, y, this::togglePlaying);
+        playButton = addControl("▶", "play_pause", x, y, this::togglePlaying);
+        updatePlayButton();
         x += BUTTON_SIZE + BUTTON_GAP;
-        addIconButton("↺", "replay", x, y, this::replay);
+        addControl("", "replay", x, y, this::replay).sprite = REPLAY_SPRITE;
         x += BUTTON_SIZE + BUTTON_GAP;
-        addIconButton("»", "next_step", x, y, this::nextStep);
+        addControl("»", "next_step", x, y, this::nextStep);
         x += BUTTON_SIZE + BUTTON_GAP;
-        addIconButton("✕", "close", x, y, this::onClose);
+        addControl("", "close", x, y, this::onClose).sprite = CLOSE_SPRITE;
 
-        addIconButton("<", "previous_tutorial", width - 2 * BUTTON_SIZE - BUTTON_GAP - 6, 6, () -> changeScene(-1));
-        addIconButton(">", "next_tutorial", width - BUTTON_SIZE - 6, 6, () -> changeScene(1));
+        addControl("", "list", width - 3 * BUTTON_SIZE - 2 * BUTTON_GAP - 6, 6, () -> minecraft.setScreen(new TutorialListScreen(parent, this))).sprite = LIST_SPRITE;
+        addControl("<", "previous_tutorial", width - 2 * BUTTON_SIZE - BUTTON_GAP - 6, 6, () -> changeScene(-1));
+        addControl(">", "next_tutorial", width - BUTTON_SIZE - 6, 6, () -> changeScene(1));
     }
 
-    private Button addIconButton(String label, String tooltipKey, int x, int y, Runnable action) {
-        return addRenderableWidget(Button.builder(Component.literal(label), pressed -> action.run())
-                .bounds(x, y, BUTTON_SIZE, BUTTON_SIZE)
-                .tooltip(Tooltip.create(Component.translatable(KEY + tooltipKey)))
-                .build());
+    private ControlButton addControl(String label, String tooltipKey, int x, int y, Runnable action) {
+        Component description = Component.translatable(KEY + tooltipKey);
+        ControlButton button = new ControlButton(x, y, label.isEmpty() ? description : Component.literal(label), action);
+        button.setTooltip(Tooltip.create(description));
+        return addRenderableWidget(button);
     }
 
-    private String playLabel() {
-        return playing && tick < scene.duration() ? "‖" : "▶";
+    /** Pause pendant la lecture, sinon le triangle de lecture. */
+    private void updatePlayButton() {
+        playButton.sprite = playing && tick < scene.duration() ? PAUSE_SPRITE : null;
+    }
+
+    /** Le titre change avec le tutoriel affiché. */
+    @Override
+    public Component getTitle() {
+        return TutorialScenes.title(sceneId);
     }
 
     // --- Lecture ---
@@ -111,7 +154,7 @@ public final class TutorialScreen extends Screen {
     @Override
     public void tick() {
         if (playing && tick < scene.duration()) tick++;
-        if (playButton != null) playButton.setMessage(Component.literal(playLabel()));
+        if (playButton != null) updatePlayButton();
     }
 
     private void togglePlaying() {
@@ -148,6 +191,7 @@ public final class TutorialScreen extends Screen {
         List<String> ids = TutorialScenes.IDS;
         sceneId = ids.get(Math.floorMod(ids.indexOf(sceneId) + direction, ids.size()));
         scene = TutorialScenes.create(sceneId);
+        ClientConfig.markTutorialSeen(sceneId);
         replay();
     }
 
@@ -171,7 +215,9 @@ public final class TutorialScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTick);
         float time = playhead(partialTick);
         drawOverlays(graphics);
-        graphics.drawString(font, title, 8, 8, TEXT_COLOR);
+        graphics.drawString(font, getTitle(), 8, 8, TEXT_COLOR);
+        String position = (TutorialScenes.IDS.indexOf(sceneId) + 1) + "/" + TutorialScenes.IDS.size();
+        graphics.drawString(font, position, 8 + font.width(getTitle()) + COUNTER_GAP, 8, COUNTER_COLOR);
         drawTimingBars(graphics, time);
         drawStepBar(graphics, time);
         drawCaption(graphics, time);
@@ -248,9 +294,25 @@ public final class TutorialScreen extends Screen {
             int playX = left + (int) ((time - bar.from()) * TIMING_BAR_WIDTH / length);
             graphics.fill(playX, y - 2, playX + 1, y + TIMING_BAR_HEIGHT + 2, TEXT_COLOR);
             graphics.drawCenteredString(font, Component.translatable(KEY + "perfect_window"), (windowLeft + windowRight) / 2, y + TIMING_BAR_HEIGHT + 4, WINDOW_COLOR);
-            graphics.drawString(font, Component.translatable(KEY + "slow_motion", TutorialScenes.SLOW_MOTION), left, y - 11, MUTED_COLOR);
             graphics.drawCenteredString(font, Component.translatable(KEY + "hit"), hitX, y - 13, bar.perfect() ? LATE_COLOR : HIT_COLOR);
         }
+    }
+
+    // --- Clavier ---
+
+    /** Avant le traitement des boutons : espace ne doit pas réappuyer sur le dernier bouton cliqué. */
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        switch (keyCode) {
+            case GLFW.GLFW_KEY_SPACE -> togglePlaying();
+            case GLFW.GLFW_KEY_LEFT -> previousStep();
+            case GLFW.GLFW_KEY_RIGHT -> nextStep();
+            case GLFW.GLFW_KEY_R -> replay();
+            default -> {
+                return super.keyPressed(keyCode, scanCode, modifiers);
+            }
+        }
+        return true;
     }
 
     // --- Souris ---

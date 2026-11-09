@@ -4,6 +4,7 @@ import com.betterweaponry.combat.DualWieldSystem;
 import com.betterweaponry.combat.MobCombat;
 import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.combat.WeaponProfiles;
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.WeaponData;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -83,7 +84,7 @@ public abstract class LivingEntityMixin {
     @Inject(method = "canDisableShield", at = @At("HEAD"), cancellable = true)
     private void betterweaponry$adoptedDisablesShield(CallbackInfoReturnable<Boolean> cir) {
         ItemStack weapon = ((LivingEntity) (Object) this).getMainHandItem();
-        if (WeaponData.rules().shieldDisablingActive() && WeaponProfiles.isAdopted(weapon)
+        if (WeaponData.rules().shieldDisablingActive() && WeaponProfiles.isAdopted(weapon) && !CombatCompat.isFakePlayer((LivingEntity) (Object) this)
                 && WeaponProfiles.definition(weapon).orElseThrow().disablesShield()) {
             cir.setReturnValue(true);
         }

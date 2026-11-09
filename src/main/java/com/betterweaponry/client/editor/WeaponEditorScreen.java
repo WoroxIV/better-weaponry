@@ -17,6 +17,7 @@ import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.DataField;
 import com.betterweaponry.data.DataProblem;
 import com.betterweaponry.data.FieldSet;
+import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.data.JsonTree;
 import com.betterweaponry.data.JsonUtil;
 import com.betterweaponry.data.RulesPreset;
@@ -419,6 +420,8 @@ public final class WeaponEditorScreen extends Screen {
                     comparisonMaterial = materials.get((materials.indexOf(comparisonMaterial) + 1) % materials.size());
                     rebuildFields(false);
                 }).size(PREVIEW_BUTTON_WIDTH, BUTTON_HEIGHT).build()));
+        GearDefinition gear = GearDefinition.CODEC.parse(JsonOps.INSTANCE, model.working(EditorDocument.GEAR_ID)).result().orElse(WeaponData.gear());
+        fieldList.add(fieldList.new NoteRow(Component.translatable(KEY + "comparison.projectile_speed", Docs.number(gear.projectileSpeedMultiplier(comparisonMaterial))), 0));
 
         List<Button> header = new ArrayList<>();
         for (WeaponComparison.Column column : WeaponComparison.Column.values()) {
@@ -438,7 +441,8 @@ public final class WeaponEditorScreen extends Screen {
         for (WeaponComparison.Row row : WeaponComparison.rows(weapons, comparisonMaterial, comparisonColumn, comparisonDescending)) {
             fieldList.add(fieldList.new TableRow(new ItemStack(ModItems.get(row.type(), comparisonMaterial).get()),
                     Component.translatable(BetterWeaponry.MODID + ".configuration." + row.type().id()),
-                    List.of(Docs.number(row.damage()), Docs.number(row.speed()), Docs.number(row.dps()), Docs.number(row.reach()), Docs.number(row.penetration())), highlighted));
+                    List.of(Docs.number(row.damage()), Docs.number(row.speed()), Docs.number(row.dps()), row.pairDps() > 0.0D ? Docs.number(row.pairDps()) : "—",
+                            Docs.number(row.reach()), Docs.number(row.penetration())), highlighted));
         }
     }
 
@@ -460,6 +464,7 @@ public final class WeaponEditorScreen extends Screen {
                         value -> Component.translatable(KEY + "hud.style." + value.id()), STYLE_BUTTON_WIDTH)),
                 (graphics, x, y) -> CombatHud.drawSample(graphics, HudElement.COMBO, x, y)));
         addToggle(Component.translatable(KEY + "hud.attack_zones"), Component.translatable(KEY + "hud.attack_zones.tooltip"), ClientConfig.SHOW_ATTACK_ZONES);
+        addToggle(Component.translatable(KEY + "hud.tutorial_hints"), Component.translatable(KEY + "hud.tutorial_hints.tooltip"), ClientConfig.TUTORIAL_HINTS);
         fieldList.add(fieldList.new WideButtonsRow(List.of(Button.builder(Component.translatable(KEY + "hud.open_layout"),
                 pressed -> minecraft.setScreen(new HudLayoutScreen(this))).build())));
     }

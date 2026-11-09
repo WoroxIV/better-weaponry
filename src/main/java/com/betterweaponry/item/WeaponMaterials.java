@@ -50,7 +50,7 @@ public final class WeaponMaterials {
 
     // =====================================================================
     // Vanilla
-    // Dégâts par défaut calculés à partir du Tier : 8.5 + 2 × bonus de dégâts.
+    // Les dégâts suivent ceux de l'épée vanilla du Tier : base_damage × (4 + bonus de dégâts) / 4.
     // =====================================================================
 
     public static final WeaponMaterial WOODEN = register(WeaponMaterial.builder("wooden", Tiers.WOOD)

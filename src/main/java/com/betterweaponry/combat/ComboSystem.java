@@ -1,6 +1,7 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.WeaponData;
@@ -96,9 +97,11 @@ public final class ComboSystem {
         return WeaponProfiles.definition(stack).map(WeaponDefinition::combo).filter(combo -> combo.enabled() && !combo.steps().isEmpty());
     }
 
-    /** Combo en vigueur pour ce joueur : celui de l'arme principale, si l'autre main tient la même arme quand il le faut. */
+    /** Combo en vigueur pour ce joueur : celui de l'arme principale. Une arme ambidextre doit être tenue en paire. */
     public static Optional<ComboDefinition> activeCombo(Player player) {
-        return comboOf(player.getMainHandItem()).filter(combo -> !combo.requiresDualWield() || holdsPair(player));
+        if (CombatCompat.isFakePlayer(player)) return Optional.empty();
+        ItemStack main = player.getMainHandItem();
+        return comboOf(main).filter(combo -> !DualWieldSystem.canDualWield(main) || holdsPair(player));
     }
 
     /** Le joueur tient le même type d'arme dans chaque main, en dual wield (pas d'arme à deux mains). */

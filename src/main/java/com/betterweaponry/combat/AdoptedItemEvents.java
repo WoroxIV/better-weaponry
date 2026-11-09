@@ -59,7 +59,7 @@ public final class AdoptedItemEvents {
         RulesDefinition rules = WeaponData.rules();
         WeaponDefinition definition = profile.get().definition();
         if (rules.armorPenetrationActive() && definition.armorPenetration() > 0.0D) {
-            event.addModifier(ModAttributes.ARMOR_PENETRATION, new AttributeModifier(ModAttributes.BASE_ARMOR_PENETRATION_ID,
+            event.addModifier(ModAttributes.armorPenetration(), new AttributeModifier(ModAttributes.BASE_ARMOR_PENETRATION_ID,
                     definition.armorPenetration() / PERCENT, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND);
         }
         if (rules.sweepActive() && definition.sweep().enabled() && definition.sweep().damageRatio() > 0.0D) {

@@ -5,6 +5,7 @@ import com.betterweaponry.combat.DashAbility;
 import com.betterweaponry.combat.ModEnchantments;
 import com.betterweaponry.combat.ParrySystem;
 import com.betterweaponry.combat.WeaponProfiles;
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.OnHitEffect;
 import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
@@ -91,7 +92,7 @@ public class WeaponItem extends SwordItem {
         ItemStack stack = entity.getMainHandItem();
         if (WeaponProfiles.of(stack).isEmpty()) return;
         if (stack.getItem() instanceof WeaponItem weapon) removeModifier(entity, Attributes.ENTITY_INTERACTION_RANGE, weapon.reachModifierId);
-        removeModifier(entity, ModAttributes.ARMOR_PENETRATION, ModAttributes.BASE_ARMOR_PENETRATION_ID);
+        removeModifier(entity, ModAttributes.armorPenetration(), ModAttributes.BASE_ARMOR_PENETRATION_ID);
         removeModifier(entity, Attributes.SWEEPING_DAMAGE_RATIO, BASE_SWEEPING_RATIO_ID);
         stack.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
             AttributeInstance instance = entity.getAttribute(attribute);
@@ -134,7 +135,7 @@ public class WeaponItem extends SwordItem {
         }
         // Absents à 0 : la ligne du tooltip n'apparaît que si la stat sert à quelque chose.
         if (rules.armorPenetrationActive() && definition.armorPenetration() > 0.0D) {
-            builder.add(ModAttributes.ARMOR_PENETRATION,
+            builder.add(ModAttributes.armorPenetration(),
                     addValue(ModAttributes.BASE_ARMOR_PENETRATION_ID, definition.armorPenetration() / PERCENT), EquipmentSlotGroup.MAINHAND);
         }
         if (rules.sweepActive() && definition.sweep().enabled() && definition.sweep().damageRatio() > 0.0D) {
@@ -163,7 +164,7 @@ public class WeaponItem extends SwordItem {
 
     /** Donne à la cible les effets à l'impact de cet objet, s'il a un profil d'arme (côté serveur), chacun selon sa chance. */
     public static void applyOnHitEffects(ItemStack weapon, LivingEntity target, LivingEntity attacker) {
-        if (attacker.level().isClientSide || !WeaponData.rules().onHitEffectsActive()) return;
+        if (attacker.level().isClientSide || !WeaponData.rules().onHitEffectsActive() || CombatCompat.isFakePlayer(attacker)) return;
         for (OnHitEffect effect : WeaponProfiles.definition(weapon).map(WeaponDefinition::onHitEffects).orElse(List.of())) {
             if (attacker.getRandom().nextDouble() * PERCENT < effect.chance()) {
                 effect.createInstance().ifPresent(instance -> target.addEffect(instance, attacker));
@@ -186,7 +187,7 @@ public class WeaponItem extends SwordItem {
     /** Comme une hache vanilla : un coup sur un bouclier levé le désactive. */
     @Override
     public boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
-        return WeaponData.rules().shieldDisablingActive() && definition().disablesShield();
+        return WeaponData.rules().shieldDisablingActive() && definition().disablesShield() && !CombatCompat.isFakePlayer(attacker);
     }
 
     // --- Capacité du clic droit ---

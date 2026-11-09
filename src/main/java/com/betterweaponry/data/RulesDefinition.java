@@ -1,7 +1,9 @@
 package com.betterweaponry.data;
 
 import com.betterweaponry.compat.CombatCompat;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import java.util.List;
@@ -15,7 +17,8 @@ import java.util.Map;
  * jamais les interrupteurs directement mais les méthodes {@code ...Active()} : elles tiennent compte de l'interrupteur
  * général et de la présence de Better Combat ou d'Epic Fight, qui remplacent nos systèmes.
  * <p>
- * Ce record a atteint les 16 champs maximum d'un codec Minecraft : un nouveau réglage devra aller dans un sous-objet.
+ * Un codec Minecraft accepte 16 champs au maximum : certains sont lus par paires ({@link #PARRY_EXTRAS},
+ * {@link #BALANCE_EXTRAS}), au même niveau du fichier. Un nouveau réglage peut être regroupé de la même façon.
  *
  * @param formatVersion                   version du format de fichier (1)
  * @param combatChangesEnabled            false = combat vanilla : tous les interrupteurs ci-dessous sont coupés
@@ -34,21 +37,24 @@ import java.util.Map;
  * @param guardBreakEnabled               garde brisée
  * @param dashEnabled                     dash
  * @param combosEnabled                   combos
+ * @param balanceAbilities                équilibrage global : les armes à capacités font un peu moins de dégâts
+ * @param pvpMaxHitPercent                dégâts maximum d'un coup au corps à corps entre joueurs, après l'armure, en %
+ *                                        de la vie maximale de la cible (100 = pas de limite)
  */
 public record RulesDefinition(int formatVersion, boolean combatChangesEnabled,
                               double dualWieldSpeedMultiplier, double dualWieldInvulnerabilitySeconds,
                               boolean reachEnabled, boolean sweepEnabled, boolean armorPenetrationEnabled, boolean onHitEffectsEnabled,
                               boolean shieldDisablingEnabled, boolean twoHandedEnabled, boolean dualWieldEnabled,
                               boolean parryEnabled, boolean perfectParryEnabled, boolean guardBreakEnabled,
-                              boolean dashEnabled, boolean combosEnabled) {
+                              boolean dashEnabled, boolean combosEnabled, boolean balanceAbilities, double pvpMaxHitPercent) {
 
     public static final int FORMAT_VERSION = 1;
 
     public static final DataField<Integer> FORMAT = DataField.integer("format_version", 1, FORMAT_VERSION, FORMAT_VERSION);
     public static final DataField<Boolean> COMBAT_CHANGES_ENABLED = DataField.bool("combat_changes_enabled", true);
-    // 1.5 : le dual wield vaut alors le bonus d'environ 1.5× des armes à deux mains.
+    // 1.5 : une arme ambidextre seule vaut environ ×0.8 d'une épée, et sa paire environ ×1.2.
     public static final DataField<Double> DUAL_WIELD_SPEED_MULTIPLIER = DataField.number("dual_wield_speed_multiplier", 1.0D, 5.0D, 1.5D);
-    // 0.25 s : une dague en dual wield (3 coups/s, un coup toutes les 0.33 s) ne perd plus aucun coup.
+    // 0.25 s : une dague en dual wield (un coup toutes les 0.35 s) ne perd plus aucun coup.
     public static final DataField<Double> DUAL_WIELD_INVULNERABILITY = DataField.number("dual_wield_invulnerability_seconds", 0.0D, 1.0D, 0.25D);
     public static final DataField<Boolean> REACH_ENABLED = DataField.bool("reach_enabled", true);
     public static final DataField<Boolean> SWEEP_ENABLED = DataField.bool("sweep_enabled", true);
@@ -62,12 +68,25 @@ public record RulesDefinition(int formatVersion, boolean combatChangesEnabled,
     public static final DataField<Boolean> GUARD_BREAK_ENABLED = DataField.bool("guard_break_enabled", true);
     public static final DataField<Boolean> DASH_ENABLED = DataField.bool("dash_enabled", true);
     public static final DataField<Boolean> COMBOS_ENABLED = DataField.bool("combos_enabled", true);
+    public static final DataField<Boolean> BALANCE_ABILITIES = DataField.bool("balance_abilities", false);
+    // 60 % : à pleine vie, il faut toujours au moins deux coups pour tuer un autre joueur.
+    public static final DataField<Double> PVP_MAX_HIT_PERCENT = DataField.number("pvp_max_hit_percent", 1.0D, 100.0D, 60.0D);
+
+    /** Deux champs lus ensemble pour tenir dans les 16 du codec ; dans le fichier, ils restent au même niveau que les autres. */
+    private static final MapCodec<Pair<Boolean, Boolean>> PARRY_EXTRAS = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            PERFECT_PARRY_ENABLED.<Pair<Boolean, Boolean>>forGetter(Pair::getFirst),
+            GUARD_BREAK_ENABLED.<Pair<Boolean, Boolean>>forGetter(Pair::getSecond)
+    ).apply(instance, Pair::of));
+    private static final MapCodec<Pair<Boolean, Double>> BALANCE_EXTRAS = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            BALANCE_ABILITIES.<Pair<Boolean, Double>>forGetter(Pair::getFirst),
+            PVP_MAX_HIT_PERCENT.<Pair<Boolean, Double>>forGetter(Pair::getSecond)
+    ).apply(instance, Pair::of));
 
     public static final FieldSet FIELDS = new FieldSet("rules",
             List.of(FORMAT, COMBAT_CHANGES_ENABLED, DUAL_WIELD_SPEED_MULTIPLIER, DUAL_WIELD_INVULNERABILITY,
                     REACH_ENABLED, SWEEP_ENABLED, ARMOR_PENETRATION_ENABLED, ON_HIT_EFFECTS_ENABLED,
                     SHIELD_DISABLING_ENABLED, TWO_HANDED_ENABLED, DUAL_WIELD_ENABLED,
-                    PARRY_ENABLED, PERFECT_PARRY_ENABLED, GUARD_BREAK_ENABLED, DASH_ENABLED, COMBOS_ENABLED),
+                    PARRY_ENABLED, PERFECT_PARRY_ENABLED, GUARD_BREAK_ENABLED, DASH_ENABLED, COMBOS_ENABLED, BALANCE_ABILITIES, PVP_MAX_HIT_PERCENT),
             Map.ofEntries(
                     Map.entry("dual_wield_multiplier", "dual_wield_speed_multiplier"),
                     Map.entry("dual_wield_invulnerability", "dual_wield_invulnerability_seconds"),
@@ -103,15 +122,26 @@ public record RulesDefinition(int formatVersion, boolean combatChangesEnabled,
             TWO_HANDED_ENABLED.forGetter(RulesDefinition::twoHandedEnabled),
             DUAL_WIELD_ENABLED.forGetter(RulesDefinition::dualWieldEnabled),
             PARRY_ENABLED.forGetter(RulesDefinition::parryEnabled),
-            PERFECT_PARRY_ENABLED.forGetter(RulesDefinition::perfectParryEnabled),
-            GUARD_BREAK_ENABLED.forGetter(RulesDefinition::guardBreakEnabled),
+            PARRY_EXTRAS.forGetter(RulesDefinition::parryExtras),
             DASH_ENABLED.forGetter(RulesDefinition::dashEnabled),
-            COMBOS_ENABLED.forGetter(RulesDefinition::combosEnabled)
-    ).apply(instance, RulesDefinition::new));
+            COMBOS_ENABLED.forGetter(RulesDefinition::combosEnabled),
+            BALANCE_EXTRAS.forGetter(RulesDefinition::balanceExtras)
+    ).apply(instance, (format, combat, speed, invulnerability, reach, sweep, penetration, effects, shields, twoHanded, dualWield,
+                       parry, parryExtras, dash, combos, balanceExtras) -> new RulesDefinition(format, combat, speed, invulnerability,
+            reach, sweep, penetration, effects, shields, twoHanded, dualWield,
+            parry, parryExtras.getFirst(), parryExtras.getSecond(), dash, combos, balanceExtras.getFirst(), balanceExtras.getSecond())));
 
     public static final RulesDefinition FALLBACK = new RulesDefinition(FORMAT_VERSION, true,
             DUAL_WIELD_SPEED_MULTIPLIER.defaultValue(), DUAL_WIELD_INVULNERABILITY.defaultValue(),
-            true, true, true, true, true, true, true, true, true, true, true, true);
+            true, true, true, true, true, true, true, true, true, true, true, true, BALANCE_ABILITIES.defaultValue(), PVP_MAX_HIT_PERCENT.defaultValue());
+
+    private Pair<Boolean, Boolean> parryExtras() {
+        return Pair.of(perfectParryEnabled, guardBreakEnabled);
+    }
+
+    private Pair<Boolean, Double> balanceExtras() {
+        return Pair.of(balanceAbilities, pvpMaxHitPercent);
+    }
 
     // --- Ce qui est réellement actif (interrupteur général + interrupteur du système + mods de combat) ---
 
@@ -171,5 +201,10 @@ public record RulesDefinition(int formatVersion, boolean combatChangesEnabled,
 
     public boolean combosActive() {
         return active(combosEnabled);
+    }
+
+    /** 100 % revient à ne pas limiter les coups. */
+    public boolean pvpHitCapActive() {
+        return active(pvpMaxHitPercent < 100.0D);
     }
 }

@@ -3,6 +3,7 @@ package com.betterweaponry.config;
 import net.minecraft.ChatFormatting;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
@@ -19,6 +20,9 @@ public final class ClientConfig {
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec.EnumValue<ComboHudStyle> COMBO_HUD_STYLE;
     public static final ModConfigSpec.BooleanValue SHOW_ATTACK_ZONES;
+    public static final ModConfigSpec.BooleanValue TUTORIAL_HINTS;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> TUTORIALS_SEEN;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> HINTS_SHOWN;
     private static final Map<TooltipCategory, ModConfigSpec.EnumValue<TooltipPlacement>> TOOLTIP_PLACEMENTS = new EnumMap<>(TooltipCategory.class);
     private static final Map<TooltipCategory, ModConfigSpec.EnumValue<ChatFormatting>> TOOLTIP_COLOR_VALUES = new EnumMap<>(TooltipCategory.class);
     private static final Map<HudElement, HudSettings> HUD = new EnumMap<>(HudElement.class);
@@ -49,6 +53,12 @@ public final class ClientConfig {
             TOOLTIP_COLOR_VALUES.put(category, builder.defineEnum("color", category.defaultColor(), TOOLTIP_COLORS));
             builder.pop();
         }
+        builder.pop();
+
+        builder.comment("Tutorials: suggestions, and what this player has already seen.").push("tutorials");
+        TUTORIAL_HINTS = builder.comment("Suggest a tutorial the first time you get a weapon.").define("hints", true);
+        TUTORIALS_SEEN = builder.comment("Tutorials already opened.").defineListAllowEmpty("seen", List.of(), () -> "", value -> value instanceof String);
+        HINTS_SHOWN = builder.comment("Weapon types and tutorials already suggested.").defineListAllowEmpty("hints_shown", List.of(), () -> "", value -> value instanceof String);
         builder.pop();
         SPEC = builder.build();
     }
@@ -112,6 +122,31 @@ public final class ClientConfig {
             placement(category).set(preset.placementOf(category));
             color(category).set(category.defaultColor());
         }
+        SPEC.save();
+    }
+
+    public static boolean isTutorialSeen(String scene) {
+        return get(TUTORIALS_SEEN).contains(scene);
+    }
+
+    public static void markTutorialSeen(String scene) {
+        addOnce(TUTORIALS_SEEN, scene);
+    }
+
+    /** @param id type d'arme ou tutoriel déjà proposé (les deux listes d'identifiants ne se recoupent pas) */
+    public static boolean isHintShown(String id) {
+        return get(HINTS_SHOWN).contains(id);
+    }
+
+    public static void markHintShown(String id) {
+        addOnce(HINTS_SHOWN, id);
+    }
+
+    private static void addOnce(ModConfigSpec.ConfigValue<List<? extends String>> list, String id) {
+        if (!SPEC.isLoaded() || list.get().contains(id)) return;
+        List<String> updated = new ArrayList<>(list.get());
+        updated.add(id);
+        list.set(updated);
         SPEC.save();
     }
 

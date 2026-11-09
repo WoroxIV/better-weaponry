@@ -70,6 +70,7 @@ public final class RecipeViewerInfo {
         if (rules.dualWieldActive() && weapon.dualWielded()) lines.add(Component.translatable(KEY + "dual_wielded"));
         if (rules.parryActive() && weapon.ability() == WeaponAbility.PARRY) lines.add(Component.translatable(KEY + "parry"));
         if (rules.dashActive() && weapon.ability() == WeaponAbility.DASH) lines.add(Component.translatable(KEY + "dash"));
+        if (rules.shieldDisablingActive() && weapon.disablesShield()) lines.add(Component.translatable(KEY + "disables_shield"));
         if (rules.combosActive() && weapon.combo().enabled()) lines.add(Component.translatable(KEY + "combo"));
         return lines;
     }

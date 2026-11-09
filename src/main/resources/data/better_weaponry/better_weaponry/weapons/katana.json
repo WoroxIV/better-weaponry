@@ -3,8 +3,8 @@
   "two_handed": true,
   "dual_wielded": false,
   "attack_speed": 1.6,
-  "attack_reach": 3.0,
-  "base_damage": 6.0,
+  "attack_reach": 3.5,
+  "base_damage": 5.25,
   "material_damage": {},
   "armor_penetration": 10,
   "disables_shield": false,
@@ -17,8 +17,7 @@
   "ability": "parry",
   "parry": {
     "damage_reduction": 50,
-    "durability_per_damage": 1.0,
-    "while_dual_wielding": false
+    "durability_per_damage": 0.5
   },
   "dash": {
     "distance": 4.0,
@@ -29,16 +28,16 @@
   },
   "combo": {
     "enabled": true,
-    "requires_dual_wield": false,
     "reset_after_seconds": 2.5,
     "min_charge": 90,
     "steps": [
       {},
       {},
       {
-        "radius": 3.5,
-        "angle": 180,
-        "cooldown_multiplier": 1.3
+        "radius": 4.0,
+        "angle": 90,
+        "damage_multiplier": 1.4,
+        "cooldown_multiplier": 1.4
       }
     ]
   }

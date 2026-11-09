@@ -50,8 +50,20 @@ public record WeaponDefinition(int formatVersion,
                                List<String> items) {
 
     public static final int FORMAT_VERSION = 1;
-    /** Les dégâts calculés sont arrondis au demi-point pour des tooltips lisibles. */
-    private static final double DAMAGE_ROUNDING = 0.5D;
+    /** Les dégâts calculés sont arrondis au demi-point, pour des valeurs lisibles. */
+    private static final double DAMAGE_STEPS_PER_POINT = 2.0D;
+    /** Le mode "équilibrage global" retire de petites parts des dégâts : elles sont arrondies au dixième pour rester visibles. */
+    private static final double PENALIZED_STEPS_PER_POINT = 10.0D;
+    // Réduction des dégâts du mode "équilibrage global" (balance_abilities), en fraction des dégâts.
+    private static final double PARRY_PENALTY = 0.04D;
+    private static final double DASH_PENALTY = 0.04D;
+    private static final double AREA_COMBO_PENALTY = 0.03D;
+    private static final double ON_HIT_EFFECTS_PENALTY = 0.02D;
+    private static final double SHIELD_DISABLING_PENALTY = 0.02D;
+    /** 1 % de dégâts en moins par tranche de 10 % de pénétration d'armure. */
+    private static final double PENALTY_PER_PENETRATION_PERCENT = 0.001D;
+    /** Les capacités comptent moins que les dégâts bruts : jamais plus de 12 % en moins. */
+    private static final double MAX_ABILITY_PENALTY = 0.12D;
     private static final int MAX_ON_HIT_EFFECTS = 8;
     private static final int MAX_ITEMS = 64;
 
@@ -138,22 +150,59 @@ public record WeaponDefinition(int formatVersion,
         items = List.copyOf(items);
     }
 
-    /** Dégâts par seconde de l'épée en fer vanilla (6 × 1.6), la référence de l'équilibrage. */
-    public static final double VANILLA_IRON_SWORD_DPS = 9.6D;
+    /** Dégâts par seconde réels de l'épée en fer vanilla (6 dégâts toutes les 12 ticks), la référence des comparaisons. */
+    public static final double VANILLA_IRON_SWORD_DPS = 10.0D;
+    private static final double TICKS_PER_SECOND = 20.0D;
+    /** Une cible ignore les coups qui se suivent en moins de 10 ticks, sauf si l'attaquant tient une arme dans chaque main. */
+    private static final int MIN_TICKS_BETWEEN_HITS = 10;
 
-    /** Dégâts par seconde pour ce matériau, en frappant chargé à fond (sans armure, critiques ni combos). */
+    /** Dégâts par seconde d'une seule arme de ce matériau, chargée à fond (sans armure, critiques ni combos). */
     public double dps(WeaponMaterial material) {
-        return damageFor(material) * attackSpeed;
+        return damageFor(material) * TICKS_PER_SECOND / attackTicks(attackSpeed, MIN_TICKS_BETWEEN_HITS);
+    }
+
+    /** Dégâts par seconde avec une de ces armes dans chaque main, ou 0 si elle ne se manie pas ainsi. */
+    public double pairDps(WeaponMaterial material) {
+        RulesDefinition rules = WeaponData.rules();
+        if (!dualWielded || (twoHanded && rules.twoHandedActive()) || !rules.dualWieldActive()) return 0.0D;
+        int protection = (int) Math.round(rules.dualWieldInvulnerabilitySeconds() * TICKS_PER_SECOND);
+        return damageFor(material) * TICKS_PER_SECOND / attackTicks(attackSpeed * rules.dualWieldSpeedMultiplier(), protection);
+    }
+
+    /**
+     * Temps réel entre deux coups : le jeu compte en ticks entiers, et un coup est à pleine force dès que le compteur
+     * + 0.5 atteint la recharge. Frapper plus vite que la protection de la cible ne sert à rien.
+     */
+    private static int attackTicks(double attacksPerSecond, int minTicks) {
+        return Math.max(Math.max(1, minTicks), (int) Math.ceil(TICKS_PER_SECOND / attacksPerSecond - 0.5D));
     }
 
     /**
      * Dégâts affichés pour ce matériau : la valeur imposée dans {@code material_damage} s'il y en a une,
-     * sinon {@code base_damage × facteur du matériau}, arrondi au demi-point.
+     * sinon {@code base_damage × facteur du matériau}, arrondi au demi-point. Le mode "équilibrage global" retire
+     * ensuite une petite part de ces dégâts selon les capacités de l'arme ({@link #abilityPenalty}).
      */
     public double damageFor(WeaponMaterial material) {
         Double forced = materialDamage.get(material.id());
         if (forced != null) return forced;
-        double raw = baseDamage * material.damageMultiplier();
-        return Math.round(raw / DAMAGE_ROUNDING) * DAMAGE_ROUNDING;
+        double damage = Math.round(baseDamage * material.damageMultiplier() * DAMAGE_STEPS_PER_POINT) / DAMAGE_STEPS_PER_POINT;
+        double penalty = abilityPenalty(WeaponData.rules());
+        return penalty <= 0.0D ? damage : Math.round(damage * (1.0D - penalty) * PENALIZED_STEPS_PER_POINT) / PENALIZED_STEPS_PER_POINT;
+    }
+
+    /**
+     * Part des dégâts retirée par le mode "équilibrage global" ({@code balance_abilities} de rules.json) : 0 si le
+     * mode est coupé. Seuls les systèmes actifs comptent, et le total reste plafonné.
+     */
+    public double abilityPenalty(RulesDefinition rules) {
+        if (!rules.balanceAbilities()) return 0.0D;
+        double penalty = 0.0D;
+        if (ability == WeaponAbility.PARRY && rules.parryActive()) penalty += PARRY_PENALTY;
+        if (ability == WeaponAbility.DASH && rules.dashActive()) penalty += DASH_PENALTY;
+        if (rules.combosActive() && combo.enabled() && combo.steps().stream().anyMatch(ComboStep::hasArea)) penalty += AREA_COMBO_PENALTY;
+        if (rules.onHitEffectsActive() && !onHitEffects.isEmpty()) penalty += ON_HIT_EFFECTS_PENALTY;
+        if (rules.shieldDisablingActive() && disablesShield) penalty += SHIELD_DISABLING_PENALTY;
+        if (rules.armorPenetrationActive()) penalty += armorPenetration * PENALTY_PER_PENETRATION_PERCENT;
+        return Math.min(penalty, MAX_ABILITY_PENALTY);
     }
 }

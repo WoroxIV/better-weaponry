@@ -1,14 +1,12 @@
 package com.betterweaponry.item;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,11 +51,5 @@ public class WeaponCrossbowItem extends CrossbowItem implements RangedWeapon {
     @Override
     public boolean isValidRepairItem(ItemStack toRepair, ItemStack repair) {
         return material.tier().getRepairIngredient().test(repair);
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        super.appendHoverText(stack, context, tooltip, flag);
-        addSpeedLine(tooltip);
     }
 }

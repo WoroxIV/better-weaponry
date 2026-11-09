@@ -1,6 +1,8 @@
 package com.betterweaponry.combat;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.compat.CombatCompat;
+import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.registry.ModAttributes;
 import net.minecraft.tags.DamageTypeTags;
@@ -11,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.SweepAttackEvent;
 
@@ -24,6 +27,7 @@ public final class CombatEvents {
     /** En vanilla, une cible ignore les coups tant que son compteur d'invulnérabilité dépasse 10 ticks. */
     private static final int VANILLA_INVULNERABILITY_THRESHOLD = 10;
     private static final double TICKS_PER_SECOND = 20.0D;
+    private static final double PERCENT = 100.0D;
 
     private CombatEvents() {
     }
@@ -48,7 +52,7 @@ public final class CombatEvents {
      * Pendant un coup de la main secondaire, l'attribut est déjà celui de l'arme secondaire ({@link HandSwap}).
      */
     private static void applyArmorPenetration(LivingIncomingDamageEvent event, LivingEntity attacker) {
-        if (!WeaponData.rules().armorPenetrationActive() || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) return;
+        if (!WeaponData.rules().armorPenetrationActive() || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR) || CombatCompat.isFakePlayer(attacker)) return;
         AttributeInstance attribute = attacker.getAttribute(ModAttributes.ARMOR_PENETRATION);
         double penetration = attribute == null ? 0.0D : attribute.getValue();
         if (penetration <= 0.0D) return;
@@ -64,10 +68,21 @@ public final class CombatEvents {
     @SubscribeEvent
     public static void onSweepAttack(SweepAttackEvent event) {
         Player player = event.getEntity();
+        boolean weaponProfile = WeaponProfiles.definition(player.getMainHandItem()).isPresent();
         boolean noSweep = WeaponData.rules().sweepActive()
                 && WeaponProfiles.definition(player.getMainHandItem()).map(definition -> !definition.sweep().enabled()).orElse(false);
-        if (noSweep || ComboSystem.isAreaAttackInProgress(player)) {
+        if (noSweep || ComboSystem.isAreaAttackInProgress(player) || (weaponProfile && CombatCompat.isFakePlayer(player))) {
             event.setSweeping(false);
         }
+    }
+
+    /** Après l'armure : un coup au corps à corps entre joueurs ne retire jamais plus que pvp_max_hit_percent de la vie maximale. */
+    @SubscribeEvent
+    public static void onDamageAfterArmor(LivingDamageEvent.Pre event) {
+        RulesDefinition rules = WeaponData.rules();
+        if (!rules.pvpHitCapActive() || !(event.getEntity() instanceof Player target)) return;
+        if (!(ModEnchantments.meleeAttacker(event.getSource()) instanceof Player attacker) || attacker == target || CombatCompat.isFakePlayer(attacker)) return;
+        float cap = (float) (target.getMaxHealth() * rules.pvpMaxHitPercent() / PERCENT);
+        if (event.getNewDamage() > cap) event.setNewDamage(cap);
     }
 }

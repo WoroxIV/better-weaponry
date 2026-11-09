@@ -1,5 +1,5 @@
 {
-  "parent": "better_weaponry:item/dagger_base",
+  "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "better_weaponry:item/constantan_dagger"
   }

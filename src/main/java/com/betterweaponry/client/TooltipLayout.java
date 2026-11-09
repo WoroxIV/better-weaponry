@@ -89,11 +89,11 @@ public final class TooltipLayout {
         boolean emptyHeader = stats.isEmpty() && details.isEmpty() && endOfStats(tooltip, header) == header + 1;
         if (emptyHeader) tooltip.remove(header);
 
-        // La ligne vide qui précède le titre sépare les stats du reste : les lignes "au-dessus" se placent avant elle.
+        // Les lignes "au-dessus" se placent juste avant le titre, après la ligne vide qui le sépare du nom.
         int blank = header - 1;
         boolean hasBlank = blank > 0 && tooltip.get(blank).getString().isEmpty();
         if (emptyHeader && hasBlank) tooltip.remove(blank);
-        tooltip.addAll(hasBlank ? blank : header, above);
+        tooltip.addAll(emptyHeader && hasBlank ? blank : header, above);
     }
 
     /** Index du titre "En main principale :", ou -1. */

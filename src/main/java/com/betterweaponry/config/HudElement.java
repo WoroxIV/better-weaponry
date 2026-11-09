@@ -6,11 +6,7 @@ package com.betterweaponry.config;
  */
 public enum HudElement {
     /** Juste sous le viseur. */
-    COMBO("combo", 0.5D, 0.57D),
-    /** En bas à gauche, loin du centre de l'écran pour ne pas gêner la vue. */
-    GUARD_BREAK("guard_break", 0.1D, 0.85D),
-    /** En bas à droite. */
-    ABILITY_COOLDOWN("ability_cooldown", 0.9D, 0.85D);
+    COMBO("combo", 0.5D, 0.57D);
 
     private final String id;
     private final double defaultX;

@@ -1,5 +1,6 @@
 package com.betterweaponry.combat;
 
+import com.betterweaponry.compat.CombatCompat;
 import com.betterweaponry.data.DashDefinition;
 import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.WeaponAbility;
@@ -63,7 +64,7 @@ public final class DashAbility {
      * </ul>
      */
     public static boolean canDash(Player player, InteractionHand hand, ItemStack stack) {
-        if (hand != InteractionHand.MAIN_HAND) return false;
+        if (hand != InteractionHand.MAIN_HAND || CombatCompat.isFakePlayer(player)) return false;
         Optional<DashDefinition> settings = dashOf(stack);
         if (settings.isEmpty() || player.getCooldowns().isOnCooldown(stack.getItem())) return false;
         DashDefinition dash = settings.get();

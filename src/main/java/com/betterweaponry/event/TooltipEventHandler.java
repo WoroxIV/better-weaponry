@@ -14,17 +14,18 @@ import com.betterweaponry.config.TooltipPlacement;
 import com.betterweaponry.data.ComboDefinition;
 import com.betterweaponry.data.ComboStep;
 import com.betterweaponry.data.DashDefinition;
-import com.betterweaponry.data.DashDirection;
 import com.betterweaponry.data.OnHitEffect;
-import com.betterweaponry.data.ParryDefinition;
 import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
+import com.betterweaponry.item.RangedWeapon;
 import com.betterweaponry.item.WeaponItem;
+import com.betterweaponry.registry.ModAttributes;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
@@ -54,18 +55,16 @@ public final class TooltipEventHandler {
     private static final String DUAL_WIELDED_KEY = "attribute.betterweaponry.dual_wielded";
     private static final String DISABLES_SHIELD_KEY = "attribute.betterweaponry.disables_shield";
     private static final String HOLD_FOR_DETAILS_KEY = BetterWeaponry.MODID + ".tooltip.hold_for_details";
+    private static final String PROJECTILE_SPEED_KEY = BetterWeaponry.MODID + ".tooltip.projectile_speed";
     private static final String ON_HIT_KEY = BetterWeaponry.MODID + ".tooltip.on_hit_effect";
     private static final String ON_HIT_CHANCE_KEY = ON_HIT_KEY + ".chance";
     private static final String ABILITY_KEY = BetterWeaponry.MODID + ".tooltip.ability";
     private static final String PARRY_KEY = ABILITY_KEY + ".parry";
-    private static final String PARRY_DUAL_WIELD_KEY = PARRY_KEY + ".dual_wield";
     private static final String DASH_KEY = ABILITY_KEY + ".dash";
-    private static final String DASH_INPUT_KEY = DASH_KEY + ".input";
     private static final String DASH_AIRBORNE_KEY = DASH_KEY + ".airborne";
     private static final String COMBO_KEY = BetterWeaponry.MODID + ".tooltip.combo";
     private static final String COMBO_STEP_KEY = COMBO_KEY + ".step";
     private static final String COMBO_SEPARATOR_KEY = COMBO_KEY + ".separator";
-    private static final String COMBO_REQUIRES_DUAL_WIELD_KEY = COMBO_KEY + ".requires_dual_wield";
     // Morceaux des clés vanilla "attribute.name.player.entity_interaction_range" et "...sweeping_damage_ratio"
     private static final String VANILLA_REACH_KEY_PART = "entity_interaction_range";
     private static final String VANILLA_SWEEP_KEY_PART = "sweeping_damage_ratio";
@@ -81,6 +80,12 @@ public final class TooltipEventHandler {
     public static void onTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
         List<Component> tooltip = event.getToolTip();
+        if (stack.getItem() instanceof RangedWeapon ranged) {
+            Map<TooltipCategory, List<Component>> speed = new EnumMap<>(TooltipCategory.class);
+            add(speed, TooltipCategory.PROJECTILE_SPEED, Component.translatable(PROJECTILE_SPEED_KEY, number(ranged.speedMultiplier())));
+            arrange(tooltip, speed);
+            return;
+        }
         Optional<WeaponDefinition> profile = WeaponProfiles.definition(stack);
         if (profile.isEmpty()) {
             addReachToOtherItem(stack, tooltip);
@@ -93,11 +98,11 @@ public final class TooltipEventHandler {
         // Les stats vanilla sont sorties du tooltip pour être replacées avec les autres.
         lines.put(TooltipCategory.DAMAGE, TooltipLayout.takeLines(tooltip, "attack_damage"));
         lines.put(TooltipCategory.SPEED, TooltipLayout.takeLines(tooltip, "attack_speed"));
-        lines.put(TooltipCategory.ARMOR_PENETRATION, TooltipLayout.takeLines(tooltip, "armor_penetration"));
-        // Sans joueur (aperçu au menu principal), le jeu affiche l'écart avec la vitesse de base au lieu de la vitesse réelle.
-        if (event.getEntity() == null && stack.getItem() instanceof WeaponItem) {
-            lines.put(TooltipCategory.SPEED, List.of(Component.literal(" ").append(Component.translatable(VANILLA_STAT_FORMAT_KEY,
-                    number(definition.attackSpeed()), Component.translatable(Attributes.ATTACK_SPEED.value().getDescriptionId())))));
+        lines.put(TooltipCategory.ARMOR_PENETRATION, TooltipLayout.takeLines(tooltip, ModAttributes.armorPenetration().value().getDescriptionId()));
+        // Sans joueur (aperçu au menu principal), le jeu n'ajoute pas les valeurs de base du joueur aux dégâts et à la vitesse.
+        if (event.getEntity() == null && stack.getItem() instanceof WeaponItem weapon) {
+            lines.put(TooltipCategory.DAMAGE, List.of(statLine(definition.damageFor(weapon.getMaterial()), Attributes.ATTACK_DAMAGE)));
+            lines.put(TooltipCategory.SPEED, List.of(statLine(definition.attackSpeed(), Attributes.ATTACK_SPEED)));
         }
         TooltipLayout.takeLines(tooltip, VANILLA_REACH_KEY_PART);
         TooltipLayout.takeLines(tooltip, VANILLA_SWEEP_KEY_PART);
@@ -117,14 +122,27 @@ public final class TooltipEventHandler {
         if (rules.onHitEffectsActive()) {
             definition.onHitEffects().forEach(effect -> addEffectLine(effect, lines));
         }
-        ParrySystem.parryOf(stack).ifPresent(parry -> addParryLines(parry, lines));
+        ParrySystem.parryOf(stack).ifPresent(parry -> add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_KEY)));
         DashAbility.dashOf(stack).ifPresent(dash -> addDashLines(dash, lines));
-        ComboSystem.comboOf(stack).ifPresent(combo -> addComboLines(combo, lines));
+        // Sans dual wield, le combo d'une arme ambidextre n'existe pas : rien à annoncer.
+        if (rules.dualWieldActive() || !DualWieldSystem.canDualWield(stack)) {
+            ComboSystem.comboOf(stack).ifPresent(combo -> addComboLines(combo, definition, lines));
+        }
 
+        arrange(tooltip, lines);
+    }
+
+    /** Range les lignes selon les préférences du joueur. */
+    private static void arrange(List<Component> tooltip, Map<TooltipCategory, List<Component>> lines) {
         Component hint = Component.translatable(HOLD_FOR_DETAILS_KEY, ModKeyMappings.weaponDetailsKeyName()).withStyle(ChatFormatting.DARK_GRAY);
         TooltipLayout.arrange(tooltip, lines, new TooltipLayout.Settings(
                 category -> ClientConfig.get(ClientConfig.placement(category)),
                 category -> ClientConfig.get(ClientConfig.color(category))), ModKeyMappings.weaponDetailsHeld(), hint);
+    }
+
+    /** Une stat indentée, au format vanilla de chaque langue. */
+    private static Component statLine(double value, Holder<Attribute> attribute) {
+        return Component.literal(" ").append(Component.translatable(VANILLA_STAT_FORMAT_KEY, number(value), Component.translatable(attribute.value().getDescriptionId())));
     }
 
     /** Une ligne indentée d'un espace, comme les stats vanilla. */
@@ -175,7 +193,7 @@ public final class TooltipEventHandler {
         return Component.translatable(VANILLA_PERCENT_STAT_FORMAT_KEY, number(definition.sweep().damageRatio()), name);
     }
 
-    /** Ex : "Au coup : Lenteur II (1.5 s)", avec le nom de l'effet traduit par le jeu. */
+    /** Ex : "Coup : Lenteur II 1.5 s", avec le nom de l'effet traduit par le jeu. */
     private static void addEffectLine(OnHitEffect effect, Map<TooltipCategory, List<Component>> lines) {
         effect.holder().ifPresent(holder -> {
             MutableComponent name = Component.translatable(holder.value().getDescriptionId());
@@ -190,45 +208,20 @@ public final class TooltipEventHandler {
         });
     }
 
-    /**
-     * Ex : "Clic droit : Parade (-50 % de dégâts de face)". La touche affichée est celle des contrôles du joueur
-     * ("Utiliser l'objet/placer un bloc"), même s'il l'a changée.
-     */
-    private static void addParryLines(ParryDefinition parry, Map<TooltipCategory, List<Component>> lines) {
-        Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
-        add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_KEY, useKey, number(parry.damageReduction())));
-        if (WeaponData.rules().perfectParryActive() && parry.perfectWindowSeconds() > 0.0D) {
-            add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_KEY + ".perfect", number(parry.perfectWindowSeconds())));
-            if (parry.perfectDamageBonus() > 0.0D) {
-                add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_KEY + ".perfect_bonus", number(parry.perfectDamageBonus())));
-            }
-        }
-        if (parry.whileDualWielding()) add(lines, TooltipCategory.ABILITY, Component.translatable(PARRY_DUAL_WIELD_KEY));
-    }
-
-    /** Ex : "Clic droit : Dash (~3.5 blocs, recharge 1.5 s)", puis la direction et le dash en l'air si besoin. */
+    /** Ex : "Dash : ~3.5 blocs, 1.5 s", avec "(air)" à la fin s'il marche aussi en l'air. */
     private static void addDashLines(DashDefinition dash, Map<TooltipCategory, List<Component>> lines) {
-        Component useKey = Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage();
-        add(lines, TooltipCategory.ABILITY, Component.translatable(DASH_KEY, useKey, number(dash.distance()), number(dash.cooldownSeconds())));
-        if (dash.direction() == DashDirection.INPUT) add(lines, TooltipCategory.ABILITY, Component.translatable(DASH_INPUT_KEY));
-        if (dash.allowAirborne()) add(lines, TooltipCategory.ABILITY, Component.translatable(DASH_AIRBORNE_KEY));
+        add(lines, TooltipCategory.ABILITY, Component.translatable(dash.allowAirborne() ? DASH_AIRBORNE_KEY : DASH_KEY, number(dash.distance()), number(dash.cooldownSeconds())));
     }
 
-    /**
-     * Une ligne par coup spécial du combo, ex : "Combo, coup 3 : zone 360°, 3.5 blocs, recharge ×1.6",
-     * puis "Combo avec la même arme dans chaque main" si besoin.
-     */
-    private static void addComboLines(ComboDefinition combo, Map<TooltipCategory, List<Component>> lines) {
+    /** Une ligne par coup spécial du combo, réduite à l'essentiel, ex : "Combo 3 : 360°, dégâts ×1.6". */
+    private static void addComboLines(ComboDefinition combo, WeaponDefinition definition, Map<TooltipCategory, List<Component>> lines) {
         List<ComboStep> steps = combo.steps();
         for (int i = 0; i < steps.size(); i++) {
             ComboStep step = steps.get(i);
-            if (!step.isSpecial()) continue;
             List<Component> parts = new ArrayList<>();
-            if (step.bothHands()) parts.add(Component.translatable(COMBO_KEY + ".both_hands"));
-            if (step.hasArea()) parts.add(Component.translatable(COMBO_KEY + ".area", number(step.angle()), number(step.radius())));
+            if (widensAttack(step, definition)) parts.add(Component.translatable(COMBO_KEY + ".area", number(step.angle())));
             if (step.damageMultiplier() != 1.0D) parts.add(Component.translatable(COMBO_KEY + ".damage", number(step.damageMultiplier())));
-            if (step.knockback() > 0.0D) parts.add(Component.translatable(COMBO_KEY + ".knockback", number(step.knockback())));
-            if (step.cooldownMultiplier() != 1.0D) parts.add(Component.translatable(COMBO_KEY + ".cooldown", number(step.cooldownMultiplier())));
+            if (parts.isEmpty()) continue;
 
             MutableComponent description = Component.empty();
             for (int part = 0; part < parts.size(); part++) {
@@ -237,6 +230,11 @@ public final class TooltipEventHandler {
             }
             add(lines, TooltipCategory.COMBO, Component.translatable(COMBO_STEP_KEY, i + 1, description));
         }
-        if (combo.requiresDualWield()) add(lines, TooltipCategory.COMBO, Component.translatable(COMBO_REQUIRES_DUAL_WIELD_KEY));
+    }
+
+    /** Le coup touche une zone plus grande que le coup normal de l'arme (son coup balayé, s'il en a un). */
+    private static boolean widensAttack(ComboStep step, WeaponDefinition definition) {
+        boolean sweeps = WeaponData.rules().sweepActive() && definition.sweep().enabled();
+        return step.hasArea() && (!sweeps || step.radius() > definition.sweep().radius());
     }
 }

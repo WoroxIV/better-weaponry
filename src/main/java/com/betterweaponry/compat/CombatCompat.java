@@ -1,6 +1,8 @@
 package com.betterweaponry.compat;
 
+import net.minecraft.world.entity.Entity;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.util.FakePlayer;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +34,14 @@ public final class CombatCompat {
     public static Optional<String> externalCombatModName() {
         if (LOADED.isEmpty()) return simulated ? Optional.of("Better Combat") : Optional.empty();
         return Optional.of(LOADED.getFirst().equals(BETTER_COMBAT) ? "Better Combat" : "Epic Fight");
+    }
+
+    /**
+     * Joueur simulé par un mod (déployeur de Create...) : il tient une arme simple, qui applique ses dégâts et rien d'autre.
+     * Dual wield, combos, parade, dash et effets des armes ne servent qu'aux vrais joueurs et aux mobs.
+     */
+    public static boolean isFakePlayer(Entity entity) {
+        return entity instanceof FakePlayer;
     }
 
     public static void simulateForTests(boolean value) {

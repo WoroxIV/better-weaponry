@@ -12,8 +12,9 @@ public enum TooltipCategory {
     DAMAGE("damage", TooltipPlacement.STATS, ChatFormatting.DARK_GREEN),
     SPEED("speed", TooltipPlacement.STATS, ChatFormatting.DARK_GREEN),
     ARMOR_PENETRATION("armor_penetration", TooltipPlacement.STATS, ChatFormatting.DARK_GREEN),
-    SWEEP("sweep", TooltipPlacement.DETAILS, ChatFormatting.DARK_GREEN),
-    SHIELD_DISABLING("shield_disabling", TooltipPlacement.DETAILS, ChatFormatting.DARK_GREEN),
+    SWEEP("sweep", TooltipPlacement.HIDDEN, ChatFormatting.DARK_GREEN),
+    PROJECTILE_SPEED("projectile_speed", TooltipPlacement.HIDDEN, ChatFormatting.DARK_GREEN),
+    SHIELD_DISABLING("shield_disabling", TooltipPlacement.HIDDEN, ChatFormatting.DARK_GREEN),
     EFFECTS("effects", TooltipPlacement.DETAILS, ChatFormatting.BLUE),
     ABILITY("ability", TooltipPlacement.DETAILS, ChatFormatting.GOLD),
     COMBO("combo", TooltipPlacement.DETAILS, ChatFormatting.YELLOW);

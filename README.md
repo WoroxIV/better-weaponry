@@ -63,28 +63,29 @@ Only weapons with the `dual_wielded` option can be used in pairs: by default the
 - A target is protected for only `dual_wield_invulnerability_seconds` (0.25 s by default, vanilla 0.5 s) after a dual-wield hit, so fast weapons such as daggers never lose a hit.
 - Vanilla swords and axes no longer dual wield. A data pack can add items of other mods to the `better_weaponry:dual_wieldable` tag (empty by default), or a weapon file can adopt them with its `items` field.
 
-> With the default multiplier of 1.5, dual wielding is worth about as much as the two-handed bonus.
+> With the default multiplier of 1.5, a pair deals about 1.2 times the damage per second of a sword.
 
 `dual_wield_enabled: false` in `rules.json` turns dual wielding off.
 
 ### Combos
 
-Each weapon can have a **combo**: a series of hits that repeats, set by the `combo` object of its JSON file. By default, every combo is "two normal hits, then a special third hit":
+Each weapon can have a **combo**: a series of hits that repeats, set by the `combo` object of its JSON file. By default, a combo ends with one special hit:
 
-| Weapon | Needs | Third hit |
-|---|---|---|
-| Dagger | two daggers | both daggers at once, 90° cone, 2.5 blocks |
-| Sickle | two sickles | both sickles at once, 120° cone, 3 blocks |
-| Chakram | two chakrams | both chakrams at once, all around, 3 blocks |
-| Scythe | — | all around, 4 blocks |
-| Katana | — | half circle, 3.5 blocks |
-| Battleaxe | — | all around, 3.5 blocks |
-| Hammer | — | shockwave all around, 2.5 blocks, strong knockback |
-| Claymore | — | half circle, 4 blocks |
+| Weapon | Needs | Hits | Last hit |
+|---|---|---|---|
+| Dagger | two daggers | 4 | both daggers at once, 90° cone, 2.5 blocks |
+| Sickle | two sickles | 3 | both sickles at once, 120° cone, 3 blocks |
+| Chakram | two chakrams | 3 | both chakrams at once, all around, 3 blocks |
+| Spear | — | 3 | narrow thrust, 30° cone, 5 blocks |
+| Katana | — | 3 | focused cut, 90° cone, 4 blocks |
+| Claymore | — | 3 | half circle, 4 blocks |
+| Battleaxe | — | 2 | half circle, 3.5 blocks |
+| Hammer | — | 2 | shockwave all around, 2.5 blocks, strong knockback |
+| Scythe | — | 3 | all around, 4 blocks |
 
 - Only hits that land count: a swing in the air does not move the combo forward.
 - A hit charged below `min_charge` (90% by default, see the attack indicator under the crosshair) resets the combo, so spamming clicks does not work. The combo also starts over after `reset_after_seconds` without landing a hit, or when you switch weapons.
-- `requires_dual_wield: true`: the combo only exists with the **same weapon type** in the other hand. `false`: the weapon alone has its combo.
+- A dual-wielded weapon's combo only exists with the **same weapon type** in the other hand. Any other weapon has its combo on its own.
 - A special hit is always made with the main-hand weapon, and the next combo starts again from the main hand.
 - **Area hit** (`radius`, `angle`): hits every enemy within `radius` blocks in front of you (`angle` 360 = all around), with the vanilla sweep rules (charge, enchantments, Fire Aspect...) and the weapon's on-hit effects. It replaces the vanilla sweep for that hit. It never hits your allies, your tamed animals, marker armor stands, your mount, or players when PvP is off.
 - **Both weapons** (`both_hands`, with the same weapon type in each hand): **both arms swing at the same time** (first and third person, also seen by other players), damage = **average** of the two weapons, the effects of both weapons apply and both lose durability.
@@ -103,15 +104,14 @@ By default the broadsword, katana, glaive, claymore and sai can **parry**, like 
 
 - Hold right click with the weapon in the **main hand**: the weapon tilts in front of you (1.8 pose in first person, arm raised in third person) and you move slowly.
 - Hits from the **front** are reduced by `parry.damage_reduction` (50% by default, like 1.8). Hits from behind, falls, fire, poison and other damage that a shield cannot block go through.
-- Each parried hit costs durability (`parry.durability_per_damage`, at least 1) and makes a metallic sound (`better_weaponry:item.weapon.parry`, with a subtitle; a resource pack can replace it).
+- Each parried hit costs durability: half of the hit's damage, rounded down (`parry.durability_per_damage`). With a weapon in each hand, the wear is shared between both. It also makes a metallic sound (`better_weaponry:item.weapon.parry`, with a subtitle; a resource pack can replace it).
 - It works with one-handed and two-handed weapons. A one-handed weapon only parries with an **empty off hand**:
   - a **shield** in the off hand is raised instead;
   - a torch, food or a block in the off hand keeps its normal right-click action;
-  - with a dual-wielded weapon in the off hand, only weapons with `parry.while_dual_wielding` parry (the sai, by default).
-    Both weapons then take the parry pose, in first and third person.
+  - a dual-wielded weapon also parries with another dual-wielded weapon in the off hand. Both weapons then take the parry pose, in first and third person.
 - A two-handed weapon always parries, since the off hand is locked.
 - **Perfect parry**: a hit taken during the first `parry.perfect_window_seconds` of the parry (0.25 s by default) is blocked entirely, without wear, with a sound and particles that depend on the weapon's material. Raising the guard again right after does not open a new window (`parry.perfect_cooldown_seconds`).
-- After a perfect parry, your next melee hit within `parry.perfect_bonus_seconds` (3 s) deals `parry.perfect_damage_bonus` % more damage (20% by default).
+- After a perfect parry, your next melee hit within `parry.perfect_bonus_seconds` (3 s, then the bonus is lost) deals `parry.perfect_damage_bonus` % more damage (20% by default).
 - **Guard break**: a hit from an axe or a weapon with `disables_shield` is still reduced, but it stops the parry and the weapon cannot parry for `parry.guard_break_seconds` (1.5 s by default, shared by every material). A perfect parry is never broken.
 - `parry_enabled: false` in `rules.json` turns the parry off for every weapon; `perfect_parry_enabled` and `guard_break_enabled` turn off only those two.
 
@@ -163,14 +163,14 @@ The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, st
 
 ### Mobs
 
-The number of armed mobs does not change. A hostile mob that gets a vanilla weapon or tool at spawn has a 50% chance to get a random weapon of the mod instead, in the same material or better, and 5% of those hold one weapon in each hand. The off-hand weapon is never dropped. The best material is iron in the Overworld, diamond in the Nether and the End, and one step more on Hard (not in the End).
+A mob holding one of the mod's weapons hits as hard as with a vanilla sword of the same material, whatever the weapon, because mobs attack at their own pace. The number of armed mobs does not change. A hostile mob that gets a vanilla weapon or tool at spawn has a 50% chance to get a random weapon of the mod instead, in the same material or better, and 5% of those hold one weapon in each hand. The off-hand weapon is never dropped. The best material is iron in the Overworld, diamond in the Nether and the End, and one step more on Hard (not in the End).
 
 Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, alternate hands when dual wielding, and can raise a guard with a shield or a parrying weapon; a guard reduces hits like a player's parry and an axe breaks it. 5% of skeletons throw shurikens, and patrol and raid captains carry a shield. All of this is off with `combat_changes_enabled: false`, Better Combat or Epic Fight, except for the weapons themselves.
 
 ### Editor extras
 
 - **Creative tab**: the mod has its own tab: shields, melee weapons from the shortest to the longest reach, bows, crossbows, then shurikens.
-- **Comparison page**: compares damage, speed, DPS, reach and armor penetration for the material of your choice. Click a column to sort. It is also available in the Codex.
+- **Comparison page**: compares damage, speed, DPS of one weapon, DPS of a pair, reach and armor penetration for the material of your choice, and shows the projectile speed of that material. DPS follows the real rhythm of the game, in whole ticks. Click a column to sort. It is also available in the Codex.
 - **Presets**, on the Rules page: "Close to vanilla", "PvP 1.8" and "Hard". Each one sets every switch of `rules.json` and the mobs of `gear.json`. Nothing is applied until you save.
 - **Statistics**, in the vanilla screen: perfect parries, shurikens thrown, health stolen.
 - **JEI and EMI** (optional): info pages for every enchantment and for the abilities of each item. To try them in a dev client: `gradlew runClient -Pbw_compat=jei` or `-Pbw_compat=emi`.
@@ -178,6 +178,12 @@ Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, 
 ### Tutorials
 
 The editor and the Codex have a **Tutorials** page, and a **?** button next to the related options. Each tutorial is a short animated scene with captions: two-handed weapons, dual wielding, parrying, perfect parry (with a timeline of the window), guard break, reach, attack area, armor penetration, dash and combos. Drag the mouse to turn the camera and scroll to zoom. The scenes use the current settings and also work from the main menu.
+
+In a tutorial, **Space** pauses, the **left and right arrows** move between steps and **R** replays. The top left shows the position (3/10), and the list button opens every tutorial, with a check mark on those you have seen.
+
+The first time you get a weapon type, a small notification suggests the tutorial that goes with it, one per weapon type and never the same tutorial twice. Press **K** (changeable in the game's controls) to open it; at any other time, the same key opens the list. The **Interface** page of the editor turns these suggestions off.
+
+Resource packs can replace the button icons: `assets/better_weaponry/textures/gui/sprites/tutorial/` holds `pause.png`, `replay.png`, `close.png`, `list.png` and `seen.png`. They are drawn at 10×10 on screen, and the default files include a 1-pixel shadow. The previous, play and next buttons use text characters.
 
 ### Enchantments
 
@@ -196,15 +202,16 @@ Reflective, Riposte and Momentum follow the weapon's configured `ability`: givin
 
 Each player chooses how weapon tooltips look on the **Tooltips** page of the editor: for each kind of line, its place (above the stats, with the stats, in the details, or hidden) and its color, with a live preview and three presets. By default:
 
-- **Two Handed** or **Dual Wielded** in dark gray, above the stats;
+- **Two Handed** or **Dual Wielded** in dark gray, right above "When in Main Hand";
 - reach, damage, attack speed and armor penetration in dark green;
-- sweep, shield disabling, on-hit effects, abilities and combos only while holding the "Weapon details" key (Shift by default, changeable in the game's controls).
+- the sweep ratio, shield disabling and projectile speed hidden (each can be turned back on on this page);
+- on-hit effects, abilities and combos only while holding the "Weapon details" key (Shift by default, changeable in the game's controls).
 
-Ability lines use the key the player actually bound to "Use Item", such as "Right Button: Parry (-50% damage from the front)".
+Tooltips stay short: "Parry", "Dash: ~3.5 blocks, 1.5 s", or "Combo 3: 360°, damage ×1.6" (the hit number, plus the area and the damage when they are higher than a normal hit). The in-game tutorials explain how each mechanic works.
 
 ### Interface
 
-The **Interface** page of the editor turns each on-screen element on or off and opens a screen to drag them anywhere: the combo progress (dots, squares, segmented bar, ring around the crosshair, or counter), the guard break timer, and the ability cooldown (key and time left).
+The **Interface** page of the editor turns the on-screen element on or off and opens a screen to drag it anywhere: the combo progress (dots, squares, segmented bar, ring around the crosshair, or counter).
 
 **Show attack zones** is a debug view to tune weapons by eye: a white circle for the reach, cyan arcs for the combo zones (gold for the next hit), and a green box for the sweep zone around the target.
 
@@ -312,8 +319,7 @@ Layers, from lowest to highest priority (the last one wins):
 | `sweep.damage_ratio` | 0 – 100 | Sweep damage in % of the weapon's damage (vanilla: 0 = 1 damage). Adds up with Sweeping Edge |
 | `ability` | `"none"` / `"parry"` / `"dash"` | What a right click does with the weapon in the main hand |
 | `parry.damage_reduction` | 0 – 100 | % of the damage blocked by the parry, front hits only (default 50) |
-| `parry.durability_per_damage` | 0 – 10 | Durability lost per point of damage blocked, rounded, at least 1 per hit (0 = no wear; default 1) |
-| `parry.while_dual_wielding` | `true` / `false` | `true`: also parries with a dual-wielded weapon in the off hand (default `false`) |
+| `parry.durability_per_damage` | 0 – 10 | Durability lost per point of damage of the parried hit, rounded down (0 = no wear; default 0.5) |
 | `parry.perfect_window_seconds` | 0 – 2 | Start of the parry during which a hit is blocked entirely (default 0.25, 0 = never) |
 | `parry.perfect_cooldown_seconds` | 0 – 10 | Delay before raising the guard can open a new perfect window (default 1) |
 | `parry.guard_break_seconds` | 0 – 10 | How long the weapon cannot parry after a guard break (default 1.5, 0 = never broken) |
@@ -325,7 +331,6 @@ Layers, from lowest to highest priority (the last one wins):
 | `dash.allow_airborne` | `true` / `false` | `true`: also dashes while jumping or falling (default `false`) |
 | `dash.hunger_cost` | 0 – 20 | Food points used per dash, 1 = half a drumstick (default 0.1) |
 | `combo.enabled` | `true` / `false` | This weapon has a combo (default `false`) |
-| `combo.requires_dual_wield` | `true` / `false` | The combo needs the same weapon type in the other hand (default `false`) |
 | `combo.reset_after_seconds` | 0.5 – 10 | The combo starts over after this long without landing a hit (default 2) |
 | `combo.min_charge` | 0 – 100 | A hit charged below this % resets the combo (default 90) |
 | `combo.steps` | up to 8 | The hits, in order. `{}` = normal hit. Fields of a hit below |
@@ -364,6 +369,8 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 | `combat_changes_enabled` | `true` / `false` | `true` | `false`: vanilla combat, every system below is off at once. Weapons keep their own damage and attack speed |
 | `dual_wield_speed_multiplier` | 1 – 5 | 1.5 | Attack speed multiplier while holding a weapon in each hand |
 | `dual_wield_invulnerability_seconds` | 0 – 1 | 0.25 | How long a target ignores new hits after a dual-wield hit (vanilla: 0.5) |
+| `balance_abilities` | `true` / `false` | `false` | Weapons with abilities deal slightly less damage, 12% less at most (see [Default stats](#default-stats)) |
+| `pvp_max_hit_percent` | 1 – 100 | 60 | Most damage a single melee hit can deal to another player, after armor, in % of their maximum health. 100: no limit |
 | `reach_enabled` | `true` / `false` | `true` | `false`: every weapon has the normal reach of a player |
 | `sweep_enabled` | `true` / `false` | `true` | `false`: weapons sweep like a vanilla sword |
 | `armor_penetration_enabled` | `true` / `false` | `true` | `false`: no weapon ignores armor |
@@ -403,30 +410,29 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 
 ### Default stats
 
-Each weapon is calibrated against the vanilla sword (4 damage × 1.6 attacks/s = 6.4 damage per second in wood). Two-handed weapons get about 1.5× that, because they lock the off hand. Reach is factored in: short reach is riskier and gets more DPS, long reach is safer and gets less.
+Each weapon is calibrated against the vanilla sword of the same material. Its netherite damage per second (8 damage × 1.6 attacks/s = 12.8 DPS) is multiplied by:
 
-| Reach | 2.0 | 2.5 | 3.0 | 4.0 | 4.5 | 5.0 |
-|---|---|---|---|---|---|---|
-| DPS factor | 1.25 | 1.15 | 1.00 | 0.85 | 0.80 | 0.75 |
+- **Hands**: ×1 for a one-handed weapon, ×1.4 for a two-handed weapon (the off hand is locked), ×1.2 for a pair of dual-wielded weapons. A single dual-wielded weapon is about ×0.8, so crafting the second one pays off.
+- **Reach**: `1 - 0.04 × (reach - 3)`. Reach counts, but only a little.
 
-Every weapon lands within 0.98–1.05 of its target.
+At netherite, every weapon lands within 2.5% of its target, with attack speeds of one decimal at most and damage in half points. DPS is measured on the real rhythm of the game, in whole ticks. The other materials use the same formula, so the balance holds at every tier. Abilities, effects, armor penetration and area damage do not count in this default balance.
 
 | Weapon | Hands | Reach | Speed | Wood | Stone | Iron | Diamond | Netherite | Style |
 |---|---|---|---|---|---|---|---|---|---|
-| Dagger | 1 | 2.0 | 2.0 | 4 | 5 | 6 | 7 | 8 | fastest, point-blank, made for pairs |
-| Sai | 1 | 2.5 | 1.8 | 4 | 5 | 6 | 7 | 8 | quick close-range, dual wield |
-| Sickle | 1 | 2.5 | 1.4 | 5.5 | 7 | 8 | 9.5 | 11 | heavy hooked cuts up close |
+| Dagger | 1 | 2.0 | 2.0 | 3 | 3.5 | 4 | 5 | 5.5 | fastest, point-blank, made for pairs |
+| Sai | 1 | 2.5 | 1.8 | 3 | 3.5 | 4 | 5 | 5.5 | quick close-range, parries in pairs |
+| Sickle | 1 | 2.5 | 1.4 | 4 | 5 | 6 | 7 | 8 | heavy hooked cuts up close |
 | *Vanilla sword* | 1 | 3.0 | 1.6 | 4 | 5 | 6 | 7 | 8 | *reference* |
-| Rapier | 1 | 3.0 | 1.9 | 3.5 | 4.5 | 5 | 6 | 7 | fast light thrusts |
-| Chakram | 1 | 3.0 | 1.3 | 5 | 6 | 7.5 | 9 | 10 | slow, every hit counts |
-| Katana | 2 | 3.0 | 1.6 | 6 | 7.5 | 9 | 10.5 | 12 | fast two-hander |
-| Broadsword | 1 | 4.0 | 1.2 | 4.5 | 5.5 | 7 | 8 | 9 | long one-hander, pairs with a shield |
-| Claymore | 2 | 4.0 | 1.1 | 7.5 | 9.5 | 11 | 13 | 15 | most agile heavy weapon |
-| Battleaxe | 2 | 4.0 | 0.9 | 9 | 11 | 13.5 | 16 | 18 | heavy and slow |
-| Hammer | 2 | 4.0 | 0.7 | 11.5 | 14.5 | 17 | 20 | 23 | slowest, crushing hits (best vs armor) |
-| Spear | 1 | 5.0 | 1.2 | 4 | 5 | 6 | 7 | 8 | longest reach, keeps the shield |
-| Glaive | 2 | 4.5 | 1.0 | 7.5 | 9.5 | 11 | 13 | 15 | balanced polearm |
-| Scythe | 2 | 5.0 | 0.8 | 9 | 11 | 13.5 | 16 | 18 | huge reach, slow wide swings |
+| Rapier | 1 | 3.0 | 1.6 | 3 | 4 | 4.5 | 5.5 | 6 | light thrusts that pierce armor |
+| Chakram | 1 | 3.0 | 1.0 | 5 | 6.5 | 7.5 | 9 | 10 | slow, every hit counts |
+| Katana | 2 | 3.5 | 1.6 | 5.5 | 6.5 | 8 | 9 | 10.5 | fast two-hander |
+| Broadsword | 1 | 4.0 | 1.2 | 5.5 | 6.5 | 8 | 9 | 10.5 | long one-hander, pairs with a shield |
+| Claymore | 2 | 4.0 | 1.1 | 8 | 9.5 | 11.5 | 13.5 | 15.5 | most agile heavy weapon |
+| Battleaxe | 2 | 4.0 | 0.9 | 9.5 | 12 | 14.5 | 16.5 | 19 | heavy and slow |
+| Hammer | 2 | 4.0 | 0.7 | 12.5 | 15.5 | 19 | 22 | 25 | slowest, crushing hits (best vs armor) |
+| Glaive | 2 | 4.5 | 1.0 | 8.5 | 10.5 | 13 | 15 | 17 | balanced polearm |
+| Spear | 1 | 5.0 | 1.2 | 5 | 6.5 | 7.5 | 9 | 10 | longest reach, keeps the shield |
+| Scythe | 2 | 5.0 | 0.8 | 10.5 | 13 | 15.5 | 18 | 20.5 | huge reach, slow wide swings |
 
 Golden = wood damage, like vanilla. Material damage uses the vanilla sword scale (×1 / ×1.25 / ×1.5 / ×1.75 / ×2), so the balance holds at every tier. Modded materials use `(4 + damage bonus) / 4`. No weapon goes above 2.0 attacks/s: after a hit, a mob is invulnerable for 0.5 s, so anything faster would be wasted.
 
@@ -435,22 +441,35 @@ Golden = wood damage, like vanilla. Material damage uses the vanilla sword scale
 | Weapon | Armor penetration | On hit | Sweep | Disables shields | Right click | Combo |
 |---|---|---|---|---|---|---|
 | Broadsword | — | — | vanilla | — | parry | — |
-| Spear | 15% | — | none (thrust) | — | — | — |
-| Dagger | — | — | none | — | dash (dodge, ~3.5 blocks, 1.5 s) | two daggers: 3rd hit with both |
+| Spear | 15% | — | none (thrust) | — | — | 3rd hit 30° thrust |
+| Dagger | — | — | none | — | dash (dodge, ~3.5 blocks, 1.5 s) | two daggers: 4th hit with both |
 | Scythe | — | — | radius 2, 50% damage | — | — | 3rd hit 360° |
 | Rapier | 20% | — | none (thrust) | — | dash (lunge, ~4.5 blocks, 2.5 s) | — |
 | Sickle | — | Slowness I, 1 s | radius 0.75 | — | — | two sickles: 3rd hit with both |
-| Katana | 10% | — | vanilla | — | parry | 3rd hit 180° |
-| Battleaxe | 15% | — | vanilla | yes | — | 3rd hit 360° |
+| Katana | 10% | — | vanilla | — | parry | 3rd hit 90° |
+| Battleaxe | 15% | — | vanilla | yes | — | 2nd hit 180° |
 | Glaive | 10% | — | radius 1.5 | — | parry | — |
-| Hammer | 30% | Slowness II, 1.5 s | none | yes | — | 3rd hit 360° shockwave |
+| Hammer | 30% | Slowness II, 1.5 s | none | yes | — | 2nd hit 360° shockwave |
 | Claymore | 5% | — | radius 1.25 | — | parry | 3rd hit 180° |
 | Chakram | — | — | vanilla | — | — | two chakrams: 3rd hit with both, 360° |
 | Sai | — | — | none | — | parry, even with a weapon in each hand | — |
 
-Every parry blocks 50% of the damage and costs 1 durability per point of damage blocked. Every dash costs 0.1 food point.
+Every parry blocks 50% of the damage and costs half of the hit's damage in durability. Every dash costs 0.1 food point.
 
-These are starting values: damage has not been rebalanced yet to account for them.
+Combo finishers deal as much extra damage as they add recovery time, so a combo costs no DPS on a single target. In PvP, one melee hit never removes more than `pvp_max_hit_percent` of the target's maximum health (60% by default), so a player at full health always survives the first hit.
+
+Machines and other fake players (Create deployers...) use these weapons as plain weapons: only the weapon's damage applies.
+
+Set `balance_abilities` to `true` in `rules.json` to also count these properties: weapons with a parry or dash (-4%), an area combo (-3%), on-hit effects (-2%), shield disabling (-2%) or armor penetration (-1% per 10%) deal slightly less damage, 12% less at most.
+
+---
+
+## Other mods
+
+- **Apothic Attributes**: when it is installed, weapons use its Armor Shred attribute instead of the mod's armor penetration, and its armor calculation applies. Tooltips show "Armor Shred" in the same place.
+- **Apotheosis**: melee weapons, bows, crossbows and shields get affixes like vanilla gear. Shurikens do not.
+- **Iris and Sodium**: the tutorials and the large weapon models work with shaders on. Oculus does not exist for NeoForge 1.21.1: use Iris.
+- **Machines and fake players** (Create deployers...): the weapon only applies its damage, without combos, parry, dash or effects.
 
 ---
 

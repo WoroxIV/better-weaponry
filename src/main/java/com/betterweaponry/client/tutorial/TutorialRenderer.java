@@ -1,6 +1,8 @@
 package com.betterweaponry.client.tutorial;
 
 import com.betterweaponry.tutorial.TutorialScene;
+import com.betterweaponry.tutorial.TutorialScenes;
+import com.betterweaponry.tutorial.TutorialTheme;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -14,7 +16,6 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +24,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -101,7 +101,7 @@ final class TutorialRenderer {
         Lighting.setupForEntityInInventory();
 
         MultiBufferSource.BufferSource buffers = graphics.bufferSource();
-        drawPlatform(pose, buffers);
+        drawPlatform(pose, buffers, TutorialScenes.theme(scene.id()));
         graphics.flush();
 
         VertexConsumer quads = buffers.getBuffer(RenderType.debugQuads());
@@ -117,18 +117,25 @@ final class TutorialRenderer {
         Lighting.setupFor3DItems();
     }
 
-    private void drawPlatform(PoseStack pose, MultiBufferSource buffers) {
-        BlockRenderDispatcher blocks = minecraft.getBlockRenderer();
-        BlockState light = Blocks.SMOOTH_STONE.defaultBlockState();
-        BlockState dark = Blocks.POLISHED_ANDESITE.defaultBlockState();
+    /** Le sol en damier, et un objet du thème à chaque coin. */
+    private void drawPlatform(PoseStack pose, MultiBufferSource buffers, TutorialTheme theme) {
         for (int x = -PLATFORM_RADIUS; x <= PLATFORM_RADIUS; x++) {
             for (int z = -PLATFORM_RADIUS; z <= PLATFORM_RADIUS; z++) {
-                pose.pushPose();
-                pose.translate(x - 0.5F, -1.0F, z - 0.5F);
-                blocks.renderSingleBlock((x + z & 1) == 0 ? light : dark, pose, buffers, LIGHT, OverlayTexture.NO_OVERLAY);
-                pose.popPose();
+                drawBlock(pose, buffers, (x + z & 1) == 0 ? theme.lightFloor() : theme.darkFloor(), x, -1, z);
             }
         }
+        for (int x : new int[]{-PLATFORM_RADIUS, PLATFORM_RADIUS}) {
+            for (int z : new int[]{-PLATFORM_RADIUS, PLATFORM_RADIUS}) {
+                drawBlock(pose, buffers, x == z ? theme.firstProp() : theme.secondProp(), x, 0, z);
+            }
+        }
+    }
+
+    private void drawBlock(PoseStack pose, MultiBufferSource buffers, BlockState block, int x, int y, int z) {
+        pose.pushPose();
+        pose.translate(x - 0.5F, (float) y, z - 0.5F);
+        minecraft.getBlockRenderer().renderSingleBlock(block, pose, buffers, LIGHT, OverlayTexture.NO_OVERLAY);
+        pose.popPose();
     }
 
     private static int withAlpha(int color, float factor) {

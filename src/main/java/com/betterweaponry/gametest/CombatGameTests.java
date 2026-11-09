@@ -87,6 +87,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
@@ -131,6 +132,10 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import com.betterweaponry.tutorial.TutorialHints;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -205,8 +210,11 @@ public final class CombatGameTests {
         double armorReduction = RAW_DAMAGE - (TEST_HEALTH - withoutPenetration.getHealth());
         double reducedArmorReduction = RAW_DAMAGE - (TEST_HEALTH - withPenetration.getHealth());
         helper.assertTrue(armorReduction > 1.0D, "the armor should absorb damage, absorbed " + armorReduction);
+        boolean apothic = ModList.get().isLoaded("apothic_attributes");
+        helper.assertTrue(ModAttributes.armorPenetration().equals(ModAttributes.ARMOR_PENETRATION) != apothic, "the penetration attribute should depend on Apothic Attributes");
         double expected = armorReduction * (1.0D - penetration);
-        helper.assertTrue(Math.abs(reducedArmorReduction - expected) < EPSILON,
+        // Avec Apothic Attributes, c'est son calcul de l'armure qui s'applique : l'armure protège seulement moins.
+        helper.assertTrue(apothic ? reducedArmorReduction < armorReduction : Math.abs(reducedArmorReduction - expected) < EPSILON,
                 piercing.id() + " (" + penetration * 100 + "%): armor absorbed " + reducedArmorReduction + " instead of " + expected);
         helper.succeed();
     }
@@ -301,8 +309,7 @@ public final class CombatGameTests {
             double frontDamage = TEST_HEALTH - defender.getHealth();
             helper.assertTrue(Math.abs(frontDamage - (RAW_DAMAGE - blocked)) < EPSILON,
                     type.id() + ": a hit from the front did " + frontDamage + " damage instead of " + (RAW_DAMAGE - blocked));
-            int expectedWear = parry.durabilityPerDamage() <= 0.0D || blocked <= 0.0D
-                    ? 0 : Math.max(1, (int) Math.round(blocked * parry.durabilityPerDamage()));
+            int expectedWear = (int) Math.floor(RAW_DAMAGE * parry.durabilityPerDamage());
             helper.assertTrue(stack.getDamageValue() == expectedWear,
                     type.id() + ": the parry wore the weapon by " + stack.getDamageValue() + " instead of " + expectedWear);
 
@@ -318,9 +325,41 @@ public final class CombatGameTests {
         helper.succeed();
     }
 
+    /** Usure à la parade : le plancher de la moitié des dégâts du coup ; partagée quand on pare avec une arme dans chaque main. */
+    @GameTest(template = ARENA)
+    public static void parryWear(GameTestHelper helper) {
+        Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+        Player attacker = mockPlayerAt(helper, position.add(0.0D, 0.0D, 2.0D));
+        ItemStack main = weapon(WeaponType.SAI);
+        ItemStack off = weapon(WeaponType.SAI);
+        Player pair = player(helper, main, off);
+        pair.setPos(position);
+        pair.setYRot(0.0F);
+        pair.setYHeadRot(0.0F);
+        setBase(pair.getAttribute(Attributes.MAX_HEALTH), TEST_HEALTH);
+        pair.setHealth(TEST_HEALTH);
+        startParry(helper, pair, main);
+        PlayerCombatState.of(pair).perfectParryUntil = 0L;
+
+        pair.hurt(pair.damageSources().playerAttack(attacker), 7.0F);
+        helper.assertTrue(main.getDamageValue() == 2 && off.getDamageValue() == 1,
+                "7 damage should cost 3 durability shared 2 and 1, got " + main.getDamageValue() + " and " + off.getDamageValue());
+        pair.invulnerableTime = 0;
+        pair.hurt(pair.damageSources().playerAttack(attacker), 1.0F);
+        helper.assertTrue(main.getDamageValue() == 2 && off.getDamageValue() == 1, "a hit of 1 damage should cost nothing");
+
+        ItemStack alone = weapon(WeaponType.SAI);
+        Player single = parrier(helper, alone, position);
+        startParry(helper, single, alone);
+        PlayerCombatState.of(single).perfectParryUntil = 0L;
+        single.hurt(single.damageSources().playerAttack(attacker), 7.0F);
+        helper.assertTrue(alone.getDamageValue() == 3, "a lone weapon should take all the wear, got " + alone.getDamageValue());
+        helper.succeed();
+    }
+
     /**
      * Quand le clic droit lance une parade : arme qui pare en main principale, main secondaire vide,
-     * arme à deux mains, ou arme en main secondaire avec while_dual_wielding. Un bouclier ou une torche
+     * arme à deux mains, ou arme ambidextre dans chaque main. Un bouclier ou une torche
      * en main secondaire gardent leur action ; une arme tenue en main secondaire ne pare jamais.
      */
     @GameTest(template = ARENA)
@@ -337,13 +376,14 @@ public final class CombatGameTests {
             expectParry(helper, type, ItemStack.EMPTY, parries);
             expectParry(helper, type, shield, parries && twoHanded);
             expectParry(helper, type, torch, parries && twoHanded);
-            expectParry(helper, type, dagger, parries && (twoHanded || definition.parry().whileDualWielding()));
+            expectParry(helper, type, dagger, parries && (twoHanded || definition.dualWielded()));
+            expectParry(helper, type, weapon(type), parries && (twoHanded || definition.dualWielded()));
 
-            // Avec une arme dans chaque main (saïs), les deux armes prennent la pose de parade.
+            // Avec une arme ambidextre dans chaque main (saïs), les deux armes prennent la pose de parade.
             ItemStack dualMain = weapon(type);
             Player dualParrier = player(helper, dualMain, dagger.copy());
             dualMain.use(helper.getLevel(), dualParrier, InteractionHand.MAIN_HAND);
-            boolean bothHands = parries && !twoHanded && definition.parry().whileDualWielding();
+            boolean bothHands = parries && !twoHanded && definition.dualWielded();
             helper.assertTrue(ParrySystem.isParryingWithBothHands(dualParrier) == bothHands,
                     type.id() + " with a dagger in the off hand: both hands should " + (bothHands ? "" : "not ") + "parry");
 
@@ -384,6 +424,7 @@ public final class CombatGameTests {
 
             expectDash(helper, type, ItemStack.EMPTY, false, dash.allowAirborne(), "in mid-air");
             expectDash(helper, type, weapon(WeaponType.DAGGER), true, true, "with a dagger in the off hand");
+            expectDash(helper, type, weapon(type), true, true, "with the same weapon in the off hand");
             expectDash(helper, type, new ItemStack(Items.TORCH), true, twoHanded, "with a torch in the off hand");
             expectDash(helper, type, new ItemStack(Items.SHIELD), true, twoHanded, "with a shield in the off hand");
 
@@ -431,7 +472,7 @@ public final class CombatGameTests {
         for (WeaponType type : WeaponType.values()) {
             ComboDefinition combo = WeaponData.weapon(type).combo();
             int finisher = firstStep(combo, step -> step.hasArea() && !step.bothHands());
-            if (!combo.enabled() || combo.requiresDualWield() || finisher < 0) continue;
+            if (!combo.enabled() || WeaponData.weapon(type).dualWielded() || finisher < 0) continue;
             ComboStep area = combo.steps().get(finisher);
 
             // Le joueur est au bord de l'arène et regarde vers le sud (+Z).
@@ -498,7 +539,7 @@ public final class CombatGameTests {
             WeaponDefinition definition = WeaponData.weapon(type);
             ComboDefinition combo = definition.combo();
             int bothHands = firstStep(combo, ComboStep::bothHands);
-            if (!combo.enabled() || !combo.requiresDualWield() || bothHands < 0) continue;
+            if (!combo.enabled() || !definition.dualWielded() || bothHands < 0) continue;
 
             WeaponType other = type == WeaponType.DAGGER ? WeaponType.SAI : WeaponType.DAGGER;
             helper.assertTrue(ComboSystem.activeCombo(player(helper, weapon(type), ItemStack.EMPTY)).isEmpty(),
@@ -533,6 +574,196 @@ public final class CombatGameTests {
             tested++;
         }
         helper.assertTrue(tested > 0, "no two-weapon combo with a both-hands hit");
+        helper.succeed();
+    }
+
+    /** Durée réelle d'une recharge : le coup est à pleine force dès que le compteur de ticks + 0.5 atteint la recharge. */
+    private static int attackTicks(double delay) {
+        return (int) Math.ceil(delay - 0.5D);
+    }
+
+    private static double attackDelay(WeaponDefinition definition, boolean pair) {
+        return 20.0D / (definition.attackSpeed() * (pair ? WeaponData.rules().dualWieldSpeedMultiplier() : 1.0D));
+    }
+
+    /**
+     * Équilibrage à la netherite : le DPS réel de chaque arme est à moins de 2,5 % de sa cible (valeurs rondes obligent), soit
+     * l'épée vanilla (12.8) × mains × portée. Les armes ambidextres sont mesurées en paire. Aucun coup n'est perdu à cause de l'invulnérabilité.
+     */
+    @GameTest(template = ARENA)
+    public static void netheriteBalance(GameTestHelper helper) {
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            double hands = definition.twoHanded() ? 1.4D : definition.dualWielded() ? 1.2D : 1.0D;
+            double target = 12.8D * hands * (1.0D - 0.04D * (definition.attackReach() - 3.0D));
+            int ticks = attackTicks(attackDelay(definition, definition.dualWielded()));
+            double dps = definition.damageFor(WeaponMaterials.NETHERITE) * 20.0D / ticks;
+            helper.assertTrue(Math.abs(dps / target - 1.0D) < 0.025D, type.id() + ": " + dps + " DPS instead of " + target);
+
+            helper.assertTrue(attackTicks(attackDelay(definition, false)) >= 10, type.id() + ": too fast, a lone weapon would lose hits");
+            if (definition.dualWielded()) {
+                helper.assertTrue(ticks >= Math.round(WeaponData.rules().dualWieldInvulnerabilitySeconds() * 20.0D),
+                        type.id() + ": too fast, a pair would lose hits");
+            }
+        }
+        helper.succeed();
+    }
+
+    /** PvP : après l'armure, un coup au corps à corps entre joueurs est plafonné ; les autres dégâts et les autres cibles ne le sont pas. */
+    @GameTest(template = ARENA)
+    public static void pvpHitCap(GameTestHelper helper) {
+        Vec3 position = helper.absoluteVec(new Vec3(2.5D, 1.0D, 2.5D));
+        Player attacker = mockPlayerAt(helper, position.add(0.0D, 0.0D, 2.0D));
+        Player defender = mockPlayerAt(helper, position);
+        setBase(defender.getAttribute(Attributes.MAX_HEALTH), TEST_HEALTH);
+        defender.setHealth(TEST_HEALTH);
+        double cap = TEST_HEALTH * WeaponData.rules().pvpMaxHitPercent() / 100.0D;
+
+        defender.hurt(defender.damageSources().playerAttack(attacker), 1000.0F);
+        helper.assertTrue(Math.abs(TEST_HEALTH - defender.getHealth() - cap) < EPSILON, "the hit should be capped at " + cap + ", took " + (TEST_HEALTH - defender.getHealth()));
+
+        defender.setHealth(TEST_HEALTH);
+        defender.invulnerableTime = 0;
+        defender.hurt(defender.damageSources().playerAttack(attacker), RAW_DAMAGE);
+        helper.assertTrue(Math.abs(TEST_HEALTH - defender.getHealth() - RAW_DAMAGE) < EPSILON, "a small hit should not change");
+
+        defender.setHealth(TEST_HEALTH);
+        defender.invulnerableTime = 0;
+        defender.hurt(defender.damageSources().generic(), 90.0F);
+        helper.assertTrue(Math.abs(TEST_HEALTH - defender.getHealth() - 90.0D) < EPSILON, "other damage should not be capped");
+
+        Pig pig = pigAt(helper, new Vec3(1.5D, 1.0D, 1.5D));
+        pig.hurt(pig.damageSources().playerAttack(attacker), 90.0F);
+        helper.assertTrue(Math.abs(TEST_HEALTH - pig.getHealth() - 90.0D) < EPSILON, "a mob should not be protected by the cap");
+        helper.succeed();
+    }
+
+    /** Mobs : quelle que soit l'arme du mod, le coup vaut celui d'une épée du même matériau, dans chaque main. */
+    @GameTest(template = ARENA)
+    public static void mobWeaponsHitLikeSwords(GameTestHelper helper) {
+        Zombie hammer = spawnWith(helper, EntityType.ZOMBIE, weapon(WeaponType.HAMMER, WeaponMaterials.NETHERITE));
+        Zombie sword = spawnWith(helper, EntityType.ZOMBIE, new ItemStack(Items.NETHERITE_SWORD));
+        Zombie pair = spawnWith(helper, EntityType.ZOMBIE, weapon(WeaponType.DAGGER, WeaponMaterials.NETHERITE));
+        pair.setItemSlot(EquipmentSlot.OFFHAND, weapon(WeaponType.CHAKRAM, WeaponMaterials.NETHERITE));
+        // Les bonus d'arme ne sont appliqués qu'au tick suivant.
+        helper.runAfterDelay(2, () -> {
+            Pig pig = pigAt(helper, new Vec3(1.5D, 1.0D, 1.5D));
+            sword.doHurtTarget(pig);
+            double reference = TEST_HEALTH - pig.getHealth();
+            helper.assertTrue(reference > 0.0D, "the sword zombie should hit");
+
+            for (Zombie zombie : List.of(hammer, pair, pair)) {
+                heal(pig);
+                zombie.doHurtTarget(pig);
+                double dealt = TEST_HEALTH - pig.getHealth();
+                helper.assertTrue(Math.abs(dealt - reference) < EPSILON, "a mod weapon should hit like a sword: " + dealt + " instead of " + reference);
+            }
+            helper.assertFalse(hammer.getAttribute(Attributes.ATTACK_DAMAGE).getModifiers().stream().anyMatch(modifier -> modifier.id().getPath().equals("mob_sword_damage")),
+                    "the correction should be removed after the hit");
+            helper.succeed();
+        });
+    }
+
+    /** Faux joueur (déployeur de Create...) : une arme simple, ses dégâts et rien d'autre. */
+    @GameTest(template = ARENA)
+    public static void fakePlayersUsePlainWeapons(GameTestHelper helper) {
+        FakePlayer fake = FakePlayerFactory.getMinecraft(helper.getLevel());
+        ItemStack dagger = weapon(WeaponType.DAGGER);
+        fake.setItemInHand(InteractionHand.MAIN_HAND, dagger);
+        fake.setItemInHand(InteractionHand.OFF_HAND, weapon(WeaponType.DAGGER));
+        helper.assertFalse(DualWieldSystem.isDualWielding(fake), "a fake player never dual wields");
+        fake.setOnGround(true);
+        helper.assertFalse(DashAbility.canDash(fake, InteractionHand.MAIN_HAND, dagger), "a fake player never dashes");
+        fake.setOnGround(false);
+        helper.assertTrue(ComboSystem.activeCombo(fake).isEmpty(), "a fake player has no combo");
+
+        ItemStack katana = weapon(WeaponType.KATANA);
+        fake.setItemInHand(InteractionHand.MAIN_HAND, katana);
+        fake.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+        helper.assertFalse(ParrySystem.canParry(fake, InteractionHand.MAIN_HAND, katana), "a fake player never parries");
+
+        ItemStack hammer = weapon(WeaponType.HAMMER);
+        fake.setItemInHand(InteractionHand.MAIN_HAND, hammer);
+        hammer.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+            AttributeInstance instance = fake.getAttribute(attribute);
+            if (instance != null && !instance.hasModifier(modifier.id())) instance.addTransientModifier(modifier);
+        });
+        Pig pig = pigAt(helper, new Vec3(1.5D, 1.0D, 1.5D));
+        double expected = WeaponData.weapon(WeaponType.HAMMER).damageFor(WeaponMaterials.IRON);
+        try {
+            for (int hit = 0; hit < WeaponData.weapon(WeaponType.HAMMER).combo().steps().size(); hit++) {
+                heal(pig);
+                fullyCharge(fake);
+                fake.attack(pig);
+                double dealt = TEST_HEALTH - pig.getHealth();
+                helper.assertTrue(Math.abs(dealt - expected) < EPSILON, "hit " + (hit + 1) + " did " + dealt + " instead of the weapon's " + expected);
+            }
+            helper.assertFalse(pig.hasEffect(MobEffects.MOVEMENT_SLOWDOWN), "a fake player should not apply the weapon's effects");
+        } finally {
+            hammer.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+                AttributeInstance instance = fake.getAttribute(attribute);
+                if (instance != null) instance.removeModifier(modifier.id());
+            });
+            fake.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        }
+        helper.succeed();
+    }
+
+    /** Stats lisibles : une décimale au plus pour la vitesse, des demi-points pour les dégâts, quel que soit le matériau. */
+    @GameTest(template = ARENA)
+    public static void roundStats(GameTestHelper helper) {
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            helper.assertTrue(Math.abs(definition.attackSpeed() * 10.0D - Math.rint(definition.attackSpeed() * 10.0D)) < 1.0E-6D,
+                    type.id() + ": attack speed " + definition.attackSpeed() + " has more than one decimal");
+            for (WeaponMaterial material : WeaponMaterials.all()) {
+                double damage = definition.damageFor(material);
+                helper.assertTrue(damage * 2.0D == Math.rint(damage * 2.0D), type.id() + " " + material.id() + ": damage " + damage + " is not a half point");
+            }
+        }
+        helper.assertTrue(WeaponData.weapon(WeaponType.KATANA).attackReach() == 3.5D, "the katana should reach 3.5 blocks");
+        helper.succeed();
+    }
+
+    /** Un combo ne coûte pas de DPS sur une seule cible : le coup final fait autant de dégâts en plus que sa recharge en plus. */
+    @GameTest(template = ARENA)
+    public static void comboKeepsSingleTargetDps(GameTestHelper helper) {
+        int tested = 0;
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            if (!definition.combo().enabled()) continue;
+            double delay = attackDelay(definition, definition.dualWielded());
+            double damage = 0.0D;
+            int ticks = 0;
+            for (ComboStep step : definition.combo().steps()) {
+                damage += step.damageMultiplier();
+                ticks += attackTicks(delay * step.cooldownMultiplier());
+            }
+            double ratio = damage / ticks * attackTicks(delay);
+            helper.assertTrue(Math.abs(ratio - 1.0D) < 0.015D, type.id() + ": the combo multiplies the DPS by " + ratio);
+            tested++;
+        }
+        helper.assertTrue(tested > 0, "no weapon has a combo");
+        helper.succeed();
+    }
+
+    /** Mode "équilibrage global" : coupé par défaut, chaque capacité active compte, et le total est plafonné. */
+    @GameTest(template = ARENA)
+    public static void abilityPenaltyMode(GameTestHelper helper) {
+        RulesDefinition balanced = new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, true, true, true, true, true, true, 60.0D);
+        RulesDefinition noParry = new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, false, true, true, true, true, true, 60.0D);
+        WeaponDefinition katana = WeaponData.weapon(WeaponType.KATANA);
+        WeaponDefinition hammer = WeaponData.weapon(WeaponType.HAMMER);
+        for (WeaponType type : WeaponType.values()) {
+            double penalty = WeaponData.weapon(type).abilityPenalty(balanced);
+            helper.assertTrue(WeaponData.weapon(type).abilityPenalty(WeaponData.rules()) == 0.0D, type.id() + ": the mode should be off by default");
+            helper.assertTrue(penalty >= 0.0D && penalty <= 0.12D, type.id() + ": penalty " + penalty);
+        }
+        // Katana : parade 4 %, combo en zone 3 %, pénétration 1 %.
+        helper.assertTrue(Math.abs(katana.abilityPenalty(balanced) - 0.08D) < EPSILON, "katana penalty " + katana.abilityPenalty(balanced));
+        helper.assertTrue(Math.abs(katana.abilityPenalty(noParry) - 0.04D) < EPSILON, "katana without parry " + katana.abilityPenalty(noParry));
+        // Marteau : combo en zone 3 %, effet 2 %, bouclier 2 %, pénétration 3 %.
+        helper.assertTrue(Math.abs(hammer.abilityPenalty(balanced) - 0.10D) < EPSILON, "hammer penalty " + hammer.abilityPenalty(balanced));
         helper.succeed();
     }
 
@@ -650,7 +881,7 @@ public final class CombatGameTests {
         WeaponData.Snapshot original = WeaponData.current();
         try {
             WeaponData.install(new WeaponData.Snapshot(original.weapons(),
-                    new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, true, false, true, true, true), original.gear()));
+                    new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, true, false, true, true, true, false, 60.0D), original.gear()));
             defender.stopUsingItem();
             state.perfectParryReadyAt = 0L;
             startParry(helper, defender, stack);
@@ -762,7 +993,7 @@ public final class CombatGameTests {
             WeaponDefinition hammer = weapons.get(WeaponType.HAMMER);
             ItemStack goldenSword = new ItemStack(Items.GOLDEN_SWORD);
             Player attacker = player(helper, goldenSword, ItemStack.EMPTY);
-            helper.assertTrue(Math.abs(attacker.getAttributeValue(ModAttributes.ARMOR_PENETRATION) - hammer.armorPenetration() / 100.0D) < EPSILON,
+            helper.assertTrue(Math.abs(attacker.getAttributeValue(ModAttributes.armorPenetration()) - hammer.armorPenetration() / 100.0D) < EPSILON,
                     "an adopted item should get the armor penetration");
             helper.assertTrue(attacker.canDisableShield() == hammer.disablesShield(), "an adopted item should disable shields like its weapon");
             helper.assertTrue(TwoHandedSystem.isOffhandLocked(attacker) == hammer.twoHanded(), "an adopted item should lock the off hand like its weapon");
@@ -798,7 +1029,7 @@ public final class CombatGameTests {
     }
 
     /**
-     * Rangement du tooltip : deux mains au-dessus des stats sans indentation, portée placée avant les dégâts,
+     * Rangement du tooltip : deux mains juste au-dessus du titre des stats sans indentation, portée placée avant les dégâts,
      * détails remplacés par l'invite tant que la touche n'est pas maintenue, couleur appliquée, catégorie cachée absente.
      */
     @GameTest(template = ARENA)
@@ -807,18 +1038,22 @@ public final class CombatGameTests {
         Component hint = Component.literal("hint");
 
         List<Component> closed = arrangedTooltip(defaults, false, hint);
-        helper.assertTrue(texts(closed).equals(List.of("Weapon", "two", "", "When in Main Hand:",
+        helper.assertTrue(texts(closed).equals(List.of("Weapon", "", "two", "When in Main Hand:",
                 " reach", " Attack Damage", " Attack Speed", "hint", "ID")),
                 "wrong layout without the key: " + texts(closed));
-        helper.assertTrue(closed.get(1).getStyle().getColor().equals(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)),
+        helper.assertTrue(closed.get(2).getStyle().getColor().equals(TextColor.fromLegacyFormat(ChatFormatting.DARK_GRAY)),
                 "the hands line should be dark gray");
         helper.assertTrue(closed.get(4).getStyle().getColor().equals(TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN)),
                 "the stats should be dark green");
 
         List<Component> open = arrangedTooltip(defaults, true, hint);
-        helper.assertTrue(texts(open).equals(List.of("Weapon", "two", "", "When in Main Hand:",
+        helper.assertTrue(texts(open).equals(List.of("Weapon", "", "two", "When in Main Hand:",
                 " reach", " Attack Damage", " Attack Speed", " parry", "ID")),
                 "wrong layout with the key: " + texts(open));
+
+        for (TooltipCategory category : List.of(TooltipCategory.SWEEP, TooltipCategory.SHIELD_DISABLING, TooltipCategory.PROJECTILE_SPEED)) {
+            helper.assertTrue(category.defaultPlacement() == TooltipPlacement.HIDDEN, category.id() + " should be hidden by default");
+        }
 
         // Tout caché : le titre des stats et sa ligne vide disparaissent aussi.
         TooltipLayout.Settings hidden = new TooltipLayout.Settings(category -> TooltipPlacement.HIDDEN, TooltipCategory::defaultColor);
@@ -1187,7 +1422,7 @@ public final class CombatGameTests {
         RulesDefinition pvp = presetRules(RulesPreset.PVP_1_8);
         helper.assertTrue(pvp.parryActive() && !pvp.perfectParryActive() && !pvp.guardBreakActive() && !pvp.reachActive() && !pvp.sweepActive() && !pvp.dashActive(), "pvp 1.8");
         RulesDefinition hard = presetRules(RulesPreset.HARD);
-        helper.assertTrue(hard.parryActive() && hard.perfectParryActive() && hard.combosActive() && hard.dashActive() && hard.dualWieldActive() && hard.dualWieldSpeedMultiplier() == 1.25D, "hard");
+        helper.assertTrue(hard.parryActive() && hard.perfectParryActive() && hard.combosActive() && hard.dashActive() && hard.dualWieldActive() && hard.dualWieldSpeedMultiplier() == 1.5D && hard.dualWieldInvulnerabilitySeconds() == 0.25D, "hard");
 
         JsonObject gear = EditorDocument.gear().defaults();
         RulesPreset.HARD.applyToGear(gear);
@@ -1203,6 +1438,22 @@ public final class CombatGameTests {
         for (int i = 1; i < byReach.size(); i++) helper.assertTrue(byReach.get(i - 1).reach() <= byReach.get(i).reach(), "the table should be sorted by reach");
         WeaponComparison.Row katana = byDps.stream().filter(row -> row.type() == WeaponType.KATANA).findFirst().orElseThrow();
         helper.assertTrue(Math.abs(katana.dps() - WeaponData.weapon(WeaponType.KATANA).dps(WeaponMaterials.IRON)) < EPSILON, "the DPS column should use the chosen material");
+        helper.assertTrue(katana.pairDps() == 0.0D, "a two-handed weapon has no pair DPS");
+        for (WeaponComparison.Row row : byDps) {
+            WeaponDefinition definition = WeaponData.weapon(row.type());
+            double damage = definition.damageFor(WeaponMaterials.IRON);
+            double solo = damage * 20.0D / attackTicks(attackDelay(definition, false));
+            helper.assertTrue(Math.abs(row.dps() - solo) < EPSILON, row.type().id() + ": real DPS " + row.dps() + " instead of " + solo);
+            double pair = definition.dualWielded() ? damage * 20.0D / attackTicks(attackDelay(definition, true)) : 0.0D;
+            helper.assertTrue(Math.abs(row.pairDps() - pair) < EPSILON, row.type().id() + ": pair DPS " + row.pairDps() + " instead of " + pair);
+        }
+        List<WeaponComparison.Row> byPair = WeaponComparison.rows(weapons, WeaponMaterials.IRON, WeaponComparison.Column.PAIR_DPS, true);
+        for (int i = 1; i < byPair.size(); i++) helper.assertTrue(byPair.get(i - 1).pairDps() >= byPair.get(i).pairDps(), "the table should be sorted by pair DPS");
+        // Trop rapide pour la protection de la cible : les coups en trop ne comptent pas.
+        WeaponDefinition tooFast = WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, json("{ \"attack_speed\": 10, \"base_damage\": 4, \"dual_wielded\": true }")).getOrThrow();
+        double fastDamage = tooFast.damageFor(WeaponMaterials.IRON);
+        helper.assertTrue(Math.abs(tooFast.dps(WeaponMaterials.IRON) - fastDamage * 2.0D) < EPSILON, "a lone weapon lands at most 2 hits per second, got " + tooFast.dps(WeaponMaterials.IRON));
+        helper.assertTrue(Math.abs(tooFast.pairDps(WeaponMaterials.IRON) - fastDamage * 4.0D) < EPSILON, "a pair lands at most 4 hits per second, got " + tooFast.pairDps(WeaponMaterials.IRON));
         helper.assertTrue(WeaponComparison.rows(weapons, WeaponMaterials.NETHERITE, WeaponComparison.Column.DAMAGE, true).getFirst().damage()
                 > WeaponComparison.rows(weapons, WeaponMaterials.WOODEN, WeaponComparison.Column.DAMAGE, true).getFirst().damage(), "the material should change the damage");
         helper.succeed();
@@ -1228,12 +1479,37 @@ public final class CombatGameTests {
         RecipeViewerInfo.Entry katana = entries.stream().filter(entry -> entry.id().equals(WeaponType.KATANA.id())).findFirst().orElseThrow();
         helper.assertTrue(katana.stacks().size() == ModItems.allOfType(WeaponType.KATANA).size(), "every material of the weapon should get the page");
         helper.assertTrue(katana.lines().stream().anyMatch(line -> line.getContents() instanceof TranslatableContents text && text.getKey().equals(BetterWeaponry.MODID + ".info.parry")), "the katana page should describe its parry");
+        java.util.function.Predicate<RecipeViewerInfo.Entry> mentionsShields = entry -> entry.lines().stream().anyMatch(line -> line.getContents() instanceof TranslatableContents text && text.getKey().equals(BetterWeaponry.MODID + ".info.disables_shield"));
+        helper.assertTrue(entries.stream().filter(entry -> entry.id().equals(WeaponType.HAMMER.id())).allMatch(mentionsShields), "the hammer page should say it disables shields");
+        helper.assertFalse(mentionsShields.test(katana), "the katana does not disable shields");
         for (String gear : List.of("shield", "bow", "crossbow", "shuriken")) {
             helper.assertTrue(entries.stream().anyMatch(entry -> entry.id().equals(gear) && !entry.stacks().isEmpty()), gear + " should have a page");
         }
         CombatCompat.simulateForTests(true);
         try {
             helper.assertTrue(RecipeViewerInfo.entries(registries).stream().noneMatch(entry -> entry.id().equals(WeaponType.KATANA.id())), "a weapon whose abilities are all off has no page");
+        } finally {
+            CombatCompat.simulateForTests(false);
+        }
+        helper.succeed();
+    }
+
+    /** Suggestion de tutoriel : le plus utile que le joueur ne connaît pas encore, parmi ceux des systèmes actifs. */
+    @GameTest(template = ARENA)
+    public static void tutorialHints(GameTestHelper helper) {
+        RulesDefinition rules = WeaponData.rules();
+        WeaponDefinition katana = WeaponData.weapon(WeaponType.KATANA);
+        helper.assertTrue(TutorialHints.suggestion(katana, rules, id -> false).orElseThrow().equals("two_handed"), "a new katana should suggest two-handed weapons");
+        helper.assertTrue(TutorialHints.suggestion(katana, rules, id -> id.equals("two_handed")).orElseThrow().equals("parry"), "then the parry");
+        helper.assertTrue(TutorialHints.suggestion(WeaponData.weapon(WeaponType.SAI), rules, id -> false).orElseThrow().equals("dual_wield"), "a sai should suggest dual wielding");
+        helper.assertTrue(TutorialHints.suggestion(WeaponData.weapon(WeaponType.RAPIER), rules, id -> id.equals("dual_wield")).orElseThrow().equals("dash"), "a rapier should suggest the dash");
+        helper.assertTrue(TutorialHints.suggestion(katana, rules, id -> true).isEmpty(), "nothing to suggest when everything is known");
+        helper.assertTrue(TutorialHints.relatedScenes(WeaponData.weapon(WeaponType.SPEAR), rules).equals(List.of("combos", "armor_penetration", "reach")), "spear scenes");
+        helper.assertTrue(TutorialScenes.IDS.containsAll(TutorialHints.relatedScenes(katana, rules)), "only existing tutorials");
+
+        CombatCompat.simulateForTests(true);
+        try {
+            helper.assertTrue(TutorialHints.relatedScenes(katana, WeaponData.rules()).isEmpty(), "no suggestion for systems that are off");
         } finally {
             CombatCompat.simulateForTests(false);
         }
@@ -1248,6 +1524,7 @@ public final class CombatGameTests {
         for (String id : TutorialScenes.IDS) {
             TutorialScene scene = TutorialScenes.create(id);
             helper.assertTrue(language.has(BetterWeaponry.MODID + ".tutorial." + id + ".title"), id + " has no title");
+            helper.assertTrue(TutorialScenes.theme(id) != null, id + " has no theme");
             helper.assertTrue(scene.steps().getFirst().start() == 0, id + " should start with a step");
             int previous = -1;
             for (TutorialScene.Step step : scene.steps()) {
@@ -1865,7 +2142,7 @@ public final class CombatGameTests {
         } finally {
             CombatCompat.simulateForTests(false);
         }
-        RulesDefinition noParry = new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, false, true, true, true, true);
+        RulesDefinition noParry = new RulesDefinition(1, true, 1.5D, 0.25D, true, true, true, true, true, true, true, false, true, true, true, true, false, 60.0D);
         helper.assertFalse(noParry.perfectParryActive() || noParry.guardBreakActive(), "no perfect parry nor guard break without the parry");
         helper.assertTrue(noParry.dashActive(), "turning the parry off should not touch the dash");
 
@@ -1900,7 +2177,7 @@ public final class CombatGameTests {
 
     /** Règles par défaut, en changeant l'interrupteur général et celui de la parade. */
     private static RulesDefinition rules(boolean main, boolean parry) {
-        return new RulesDefinition(1, main, 1.5D, 0.25D, true, true, true, true, true, true, true, parry, true, true, true, true);
+        return new RulesDefinition(1, main, 1.5D, 0.25D, true, true, true, true, true, true, true, parry, true, true, true, true, false, 60.0D);
     }
 
     private static void expectDash(GameTestHelper helper, WeaponType type, ItemStack offhand, boolean onGround, boolean expected,

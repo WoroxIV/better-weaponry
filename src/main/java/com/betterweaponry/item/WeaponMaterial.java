@@ -83,6 +83,11 @@ public final class WeaponMaterial {
         return damageMultiplier;
     }
 
+    /** Dégâts d'une épée vanilla de ce matériau. */
+    public double swordDamage() {
+        return VANILLA_SWORD_BASE_DAMAGE * damageMultiplier;
+    }
+
     /** Ingrédient qui remplace "M" dans les motifs de craft, ou null si le matériau ne se fabrique pas à l'établi. */
     @Nullable
     public MaterialIngredient craftingIngredient() {

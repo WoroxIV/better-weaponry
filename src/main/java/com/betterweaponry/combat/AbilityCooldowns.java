@@ -4,7 +4,6 @@ import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponShieldItem;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /** Recharge d'une capacité (dash, garde brisée), affichée par l'icône vanilla dans la barre d'objets. */
@@ -17,11 +16,6 @@ public final class AbilityCooldowns {
     /** Durée en ticks (au moins 1). */
     public static int ticks(double seconds) {
         return Math.max(1, (int) Math.round(seconds * TICKS_PER_SECOND));
-    }
-
-    /** Temps restant en secondes, d'après la part de recharge restante donnée par le jeu. */
-    public static double remainingSeconds(Player player, Item item, float remainingPart) {
-        return remainingPart * ((ICooldownDurations) player.getCooldowns()).betterweaponry$duration(item) / TICKS_PER_SECOND;
     }
 
     /** La recharge touche tous les matériaux du type : changer d'arme du même type ne permet pas d'y échapper. */
