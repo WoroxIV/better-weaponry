@@ -501,10 +501,10 @@ The mapping is in `datagen/BetterCombatAttributesProvider.java`. Better Combat i
 
 ### Requirements
 
-- JDK 21
+- JDK 25 or newer to run Gradle (the Fabric build tool needs it); the mod itself is compiled with Java 21, which Gradle downloads if needed
 - An IDE with Gradle support (IntelliJ IDEA recommended)
 
-`gradle.properties` sets `org.gradle.jvmargs=-Xmx16G`. If your machine has less RAM, lower this value.
+`gradle.properties` sets `org.gradle.jvmargs=-Xmx4G`. If your machine has less RAM, lower this value.
 
 ### Common tasks
 
