@@ -1363,33 +1363,69 @@ public final class CombatGameTests {
 
     /** Grille d'atelier remplie, pour interroger les recettes. */
     private static CraftingContainer craftingGrid(int width, int height, List<ItemStack> items) {
-        AbstractContainerMenu menu = new AbstractContainerMenu(null, -1) {
-            @Override
-            public ItemStack quickMoveStack(Player player, int index) {
-                return ItemStack.EMPTY;
-            }
+        return new TransientCraftingContainer(new TestMenu(), width, height, NonNullList.of(ItemStack.EMPTY, items.toArray(ItemStack[]::new)));
+    }
 
-            @Override
-            public boolean stillValid(Player player) {
-                return true;
-            }
-        };
-        return new TransientCraftingContainer(menu, width, height, NonNullList.of(ItemStack.EMPTY, items.toArray(ItemStack[]::new)));
+    // Classes nommées : sans recompilation du jeu (build en ligne), une classe anonyme qui étend une classe du jeu ne compile pas.
+    private static final class TestMenu extends AbstractContainerMenu {
+        private TestMenu() {
+            super(null, -1);
+        }
+
+        @Override
+        public ItemStack quickMoveStack(Player player, int index) {
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean stillValid(Player player) {
+            return true;
+        }
+    }
+
+    private static final class MockServerPlayer extends ServerPlayer {
+        private MockServerPlayer(GameTestHelper helper) {
+            super(helper.getLevel().getServer(), helper.getLevel(), new GameProfile(UUID.randomUUID(), "test-mock-player"));
+        }
+
+        @Override
+        public boolean isSpectator() {
+            return false;
+        }
+
+        @Override
+        public boolean isCreative() {
+            return true;
+        }
+    }
+
+    private static final class MockPlayer extends Player {
+        private final GameType mode;
+
+        private MockPlayer(GameTestHelper helper, GameType mode) {
+            super(helper.getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player"));
+            this.mode = mode;
+        }
+
+        @Override
+        public boolean isSpectator() {
+            return mode == GameType.SPECTATOR;
+        }
+
+        @Override
+        public boolean isCreative() {
+            return mode != null && mode.isCreative();
+        }
+
+        @Override
+        public boolean isLocalPlayer() {
+            return true;
+        }
     }
 
     /** Joueur de serveur simulé : Forge a besoin d'un vrai canal réseau, même vide, pour le connecter. */
     private static ServerPlayer mockServerPlayer(GameTestHelper helper) {
-        ServerPlayer player = new ServerPlayer(helper.getLevel().getServer(), helper.getLevel(), new GameProfile(UUID.randomUUID(), "test-mock-player")) {
-            @Override
-            public boolean isSpectator() {
-                return false;
-            }
-
-            @Override
-            public boolean isCreative() {
-                return true;
-            }
-        };
+        ServerPlayer player = new MockServerPlayer(helper);
         Connection connection = new Connection(PacketFlow.SERVERBOUND);
         new EmbeddedChannel(connection);
         helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player);
@@ -1398,22 +1434,7 @@ public final class CombatGameTests {
 
     /** Joueur simulé dans le mode de jeu voulu. */
     private static Player makeMockPlayer(GameTestHelper helper, GameType mode) {
-        return new Player(helper.getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player")) {
-            @Override
-            public boolean isSpectator() {
-                return mode == GameType.SPECTATOR;
-            }
-
-            @Override
-            public boolean isCreative() {
-                return mode.isCreative();
-            }
-
-            @Override
-            public boolean isLocalPlayer() {
-                return true;
-            }
-        };
+        return new MockPlayer(helper, mode);
     }
 
     /** Onglet créatif : boucliers, mêlée de la plus courte à la plus longue, arcs, arbalètes, shurikens ; plus rien dans l'onglet Combat. */
