@@ -1,6 +1,7 @@
 package com.betterweaponry.datagen;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.compat.EpicFightFiles;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.GearType;
@@ -33,24 +34,20 @@ import java.util.concurrent.CompletableFuture;
 public final class WeaponCompatProvider implements DataProvider {
     private static final double PLAYER_BASE_REACH = 3.0D;
 
-    /** @param betterCombat preset de Better Combat ; @param epicFight type d'arme d'Epic Fight */
-    private record Compat(String betterCombat, String epicFight) {
-    }
-
-    private static final Map<WeaponType, Compat> TABLE = new EnumMap<>(Map.ofEntries(
-            Map.entry(WeaponType.BROADSWORD, new Compat("sword", "sword")),
-            Map.entry(WeaponType.SPEAR, new Compat("spear", "spear")),
-            Map.entry(WeaponType.DAGGER, new Compat("dagger", "dagger")),
-            Map.entry(WeaponType.SCYTHE, new Compat("scythe", "longsword")),
-            Map.entry(WeaponType.RAPIER, new Compat("rapier", "sword")),
-            Map.entry(WeaponType.SICKLE, new Compat("sickle", "dagger")),
-            Map.entry(WeaponType.KATANA, new Compat("katana", "uchigatana")),
-            Map.entry(WeaponType.BATTLEAXE, new Compat("heavy_axe", "greatsword")),
-            Map.entry(WeaponType.GLAIVE, new Compat("glaive", "spear")),
-            Map.entry(WeaponType.HAMMER, new Compat("hammer", "greatsword")),
-            Map.entry(WeaponType.CLAYMORE, new Compat("claymore", "greatsword")),
-            Map.entry(WeaponType.CHAKRAM, new Compat("sickle", "dagger")),
-            Map.entry(WeaponType.SAI, new Compat("dagger", "dagger"))));
+    private static final Map<WeaponType, String> TABLE = new EnumMap<>(Map.ofEntries(
+            Map.entry(WeaponType.BROADSWORD, "sword"),
+            Map.entry(WeaponType.SPEAR, "spear"),
+            Map.entry(WeaponType.DAGGER, "dagger"),
+            Map.entry(WeaponType.SCYTHE, "scythe"),
+            Map.entry(WeaponType.RAPIER, "rapier"),
+            Map.entry(WeaponType.SICKLE, "sickle"),
+            Map.entry(WeaponType.KATANA, "katana"),
+            Map.entry(WeaponType.BATTLEAXE, "heavy_axe"),
+            Map.entry(WeaponType.GLAIVE, "glaive"),
+            Map.entry(WeaponType.HAMMER, "hammer"),
+            Map.entry(WeaponType.CLAYMORE, "claymore"),
+            Map.entry(WeaponType.CHAKRAM, "sickle"),
+            Map.entry(WeaponType.SAI, "dagger")));
 
     private final PackOutput output;
 
@@ -63,13 +60,13 @@ public final class WeaponCompatProvider implements DataProvider {
         Path data = output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve(BetterWeaponry.MODID);
         List<CompletableFuture<?>> writes = new ArrayList<>();
         for (WeaponType type : WeaponType.values()) {
-            Compat compat = TABLE.get(type);
+            String compat = TABLE.get(type);
             if (compat == null) throw new IllegalStateException("No compatibility entry for the weapon type " + type.id());
             WeaponDefinition stats = WeaponData.builtin().weapon(type);
             JsonObject behavior = combatFile(type);
 
             JsonObject betterCombat = betterCombat(compat, behavior, stats);
-            JsonObject epicFight = epicFight(compat, behavior, stats);
+            JsonObject epicFight = epicFight(type, behavior, stats);
             for (WeaponMaterial material : WeaponMaterials.all()) {
                 writes.add(DataProvider.saveStable(cache, betterCombat, data.resolve("weapon_attributes").resolve(material.itemName(type) + ".json")));
                 // Epic Fight signale chaque fichier d'un objet absent : les matériaux des autres mods sont générés au chargement.
@@ -115,11 +112,11 @@ public final class WeaponCompatProvider implements DataProvider {
     }
 
     /** Better Combat additionne la portée du joueur et "range_bonus" : les armes coupent la leur, celle-ci la remplace. */
-    private static JsonObject betterCombat(Compat compat, JsonObject behavior, WeaponDefinition stats) {
+    private static JsonObject betterCombat(String compat, JsonObject behavior, WeaponDefinition stats) {
         JsonObject attributes = new JsonObject();
         attributes.addProperty("two_handed", flag(behavior, "two_handed"));
         attributes.addProperty("range_bonus", stats.attackReach() - PLAYER_BASE_REACH);
-        JsonObject json = parent(compat.betterCombat());
+        JsonObject json = parent(compat);
         json.add("attributes", attributes);
         return json;
     }
@@ -131,8 +128,8 @@ public final class WeaponCompatProvider implements DataProvider {
     }
 
     /** La longueur de la zone de touche suit la portée de l'arme, à régler en jeu. */
-    private static JsonObject epicFight(Compat compat, JsonObject behavior, WeaponDefinition stats) {
-        JsonObject json = simpleEpicFight(compat.epicFight());
+    private static JsonObject epicFight(WeaponType type, JsonObject behavior, WeaponDefinition stats) {
+        JsonObject json = simpleEpicFight(EpicFightFiles.TYPES.get(type));
         JsonObject common = new JsonObject();
         common.addProperty("armor_negation", behavior.has("armor_penetration") ? behavior.get("armor_penetration").getAsDouble() : 0.0D);
         common.addProperty("impact", 0.5D);

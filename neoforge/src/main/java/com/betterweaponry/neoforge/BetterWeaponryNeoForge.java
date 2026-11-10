@@ -1,6 +1,8 @@
 package com.betterweaponry.neoforge;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.compat.BwCompat;
+import com.betterweaponry.compat.EpicFightFiles;
 import com.betterweaponry.datagen.WeaponCompatProvider;
 import com.betterweaponry.datagen.ModItemModelProvider;
 import com.betterweaponry.datagen.ModItemTagsProvider;
@@ -10,6 +12,13 @@ import com.betterweaponry.platform.Platform;
 import com.betterweaponry.registry.ModLootModifiers;
 import com.betterweaponry.registry.ModStats;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackSelectionConfig;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.world.item.CreativeModeTab;
@@ -21,9 +30,11 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /** Point d'entrée NeoForge (chargé côté client et serveur). */
@@ -35,6 +46,8 @@ public final class BetterWeaponryNeoForge {
         BetterWeaponry.init();
         ModLootModifiers.SERIALIZERS.register(modEventBus);
 
+        EpicFightFiles.generate();
+        modEventBus.addListener(this::addPacks);
         modEventBus.addListener(this::addToCreativeTab);
         modEventBus.addListener(this::gatherData);
         modEventBus.addListener(this::commonSetup);
@@ -43,6 +56,16 @@ public final class BetterWeaponryNeoForge {
     private void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(ModStats::registerFormats);
         BetterWeaponry.prepareConfigFolder();
+    }
+
+    /** Les fichiers d'Epic Fight des matériaux des autres mods, écrits au lancement. */
+    private void addPacks(AddPackFindersEvent event) {
+        if (event.getPackType() != PackType.SERVER_DATA || !BwCompat.epicFight()) return;
+        event.addRepositorySource(consumer -> {
+            Pack pack = Pack.readMetaAndCreate(new PackLocationInfo("better_weaponry_epic_fight", Component.literal("Better Weaponry: Epic Fight"), PackSource.BUILT_IN, Optional.empty()),
+                    new PathPackResources.PathResourcesSupplier(EpicFightFiles.packFolder()), PackType.SERVER_DATA, new PackSelectionConfig(true, Pack.Position.TOP, false));
+            if (pack != null) consumer.accept(pack);
+        });
     }
 
     /** Le bouclier, l'arc et l'arbalète vanilla sont remplacés par ceux du mod, qui ont leur propre onglet. */
