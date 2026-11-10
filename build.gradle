@@ -1,4 +1,5 @@
 plugins {
     id 'net.neoforged.moddev' version '2.0.148' apply false
     id 'net.fabricmc.fabric-loom-remap' version '1.18.4' apply false
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.1' apply false
 }

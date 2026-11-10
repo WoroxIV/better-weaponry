@@ -3,7 +3,7 @@
 A mod for Minecraft **1.21.1**, on NeoForge and Fabric, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
 
 - **Mod ID:** `better_weaponry`
-- **Version:** 2.0.0
+- **Version:** 2.0.1
 - **Author:** WoroxIV
 - **Loaders:** NeoForge 21.1.220 or newer, or Fabric with [Fabric API](https://modrinth.com/mod/fabric-api)
 - **Java:** 21

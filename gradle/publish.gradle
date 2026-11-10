@@ -1,0 +1,52 @@
+// Publie le jar de ce chargeur sur Modrinth et CurseForge : gradlew publishMods
+// Simulation sans envoi : -PpublishDryRun=true. Version bêta : -PpublishType=beta.
+// Les tokens modrinthToken et curseforgeToken sont dans ~/.gradle/gradle.properties, jamais dans le dépôt.
+def isFabric = project.name == 'fabric'
+def loaderName = [fabric: 'Fabric', forge: 'Forge', neoforge: 'NeoForge'][project.name]
+def gameVersion = project.minecraft_version
+def javaVersion = JavaVersion.toVersion(project.java_version)
+
+publishMods {
+    // Le jar à envoyer est celui que le chargeur peut lancer chez les joueurs : le code y est renommé sur Fabric et Forge.
+    file = tasks.named([fabric: 'remapJar', forge: 'reobfJar', neoforge: 'jar'][project.name]).flatMap { it.archiveFile }
+    version = project.version.toString()
+    displayName = "${project.mod_name} ${project.mod_version} (${loaderName} ${gameVersion})".toString()
+    changelog = providers.fileContents(rootProject.layout.projectDirectory.file('CHANGELOG.md')).asText
+    type = project.findProperty('publishType') == 'beta' ? BETA : STABLE
+    modLoaders.add(project.name)
+    dryRun = providers.gradleProperty('publishDryRun').map { it.toBoolean() }.orElse(false)
+
+    modrinth {
+        accessToken = providers.gradleProperty('modrinthToken')
+        projectId = project.modrinth_project_id
+        minecraftVersions.add(gameVersion)
+        if (isFabric) {
+            requires('fabric-api')
+            optional('modmenu')
+        } else {
+            // Epic Fight n'existe pas sur Fabric.
+            optional('epic-fight')
+        }
+        optional('jei')
+        optional('emi')
+        optional('better-combat')
+    }
+
+    curseforge {
+        accessToken = providers.gradleProperty('curseforgeToken')
+        projectId = project.curseforge_project_id
+        minecraftVersions.add(gameVersion)
+        javaVersions.add(javaVersion)
+        client = true
+        server = true
+        if (isFabric) {
+            requires('fabric-api')
+            optional('modmenu')
+        } else {
+            optional('epic-fight-mod')
+        }
+        optional('jei')
+        optional('emi')
+        optional('better-combat-by-daedelus')
+    }
+}
