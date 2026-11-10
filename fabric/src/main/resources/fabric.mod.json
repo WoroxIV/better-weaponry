@@ -28,7 +28,7 @@
   "accessWidener": "better_weaponry.accesswidener",
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
-    "minecraft": "~${minecraft_version}",
+    "minecraft": "${minecraft_version}",
     "java": ">=21",
     "fabric-api": "*"
   },

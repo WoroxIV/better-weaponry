@@ -16,6 +16,11 @@ import com.betterweaponry.combat.PlayerCombatState;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.item.WeaponItem;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -42,9 +47,22 @@ public abstract class PlayerCombatMixin implements ICombatPlayer {
     @Unique private static final String BROKEN_SHURIKENS_KEY = "BetterWeaponryBrokenShurikens";
     @Unique private final PlayerCombatState betterweaponry$combat = new PlayerCombatState();
 
+    /** Identifiant du bonus que le jeu donne aux joueurs en créatif. */
+    @Unique private static final ResourceLocation CREATIVE_REACH_BONUS = ResourceLocation.withDefaultNamespace("creative_mode_entity_range");
+
     @Override
     public PlayerCombatState betterweaponry$combat() {
         return betterweaponry$combat;
+    }
+
+    /** Le mode créatif ajoute 2 blocs de portée : une arme du mod porte exactement à la distance affichée. */
+    @ModifyReturnValue(method = "entityInteractionRange", at = @At("RETURN"))
+    private double betterweaponry$exactWeaponReach(double reach) {
+        Player player = (Player) (Object) this;
+        if (!WeaponItem.hasExactReach(player)) return reach;
+        AttributeInstance range = player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
+        AttributeModifier creativeBonus = range == null ? null : range.getModifier(CREATIVE_REACH_BONUS);
+        return creativeBonus == null ? reach : reach - creativeBonus.amount();
     }
 
     /**

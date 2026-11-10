@@ -40,7 +40,7 @@ Example: `/give @s better_weaponry:netherite_katana`
 - All weapons extend `SwordItem`. They use their tier's durability, enchantability and repair material.
 - They are added to the `minecraft:swords` item tag, so sword enchantments (Sharpness, Looting, etc.) work on them.
 - They have their own **Better Weaponry** creative tab, from the shortest reach to the longest.
-- Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute.
+- Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute. It is the real distance in blocks in every game mode: the extra reach of Creative mode only applies to other items.
 - The sweep-attack particle appears at `reach / 3` blocks in front of the player (vanilla: always 1 block, which matches reach 3). A dagger sweeps close, a spear or scythe sweeps far away.
 - Each weapon can have **armor penetration**, **on-hit effects** (slowness...), its own **sweep attack** (none for thrusting weapons, wider for the scythe) and can **disable shields** like an axe (see [Combat properties](#combat-properties)).
 - Netherite weapons (and those made of fire-resistant modded materials: warden, fiery, ignitium) float in lava and do not burn, like vanilla netherite.

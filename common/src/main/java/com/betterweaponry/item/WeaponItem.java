@@ -83,6 +83,11 @@ public class WeaponItem extends SwordItem {
         return WeaponData.rules().twoHandedActive() && WeaponProfiles.definition(stack).map(WeaponDefinition::twoHanded).orElse(false);
     }
 
+    /** Vrai si le joueur tient une arme du mod et que sa portée s'applique : elle porte alors à la distance affichée, même en créatif. */
+    public static boolean hasExactReach(Player player) {
+        return player.getMainHandItem().getItem() instanceof WeaponItem && WeaponData.rules().reachActive();
+    }
+
     /**
      * Le jeu n'applique les bonus d'une arme qu'au moment où on la prend en main : après un changement de réglages,
      * on remplace ceux de l'arme déjà tenue. Certains bonus peuvent avoir disparu (ex : portée coupée dans rules.json),

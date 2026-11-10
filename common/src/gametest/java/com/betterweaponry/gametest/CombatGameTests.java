@@ -2541,14 +2541,39 @@ public final class CombatGameTests {
     }
 
     /** Joueur factice tenant ces objets, avec leurs bonus d'attributs appliqués (comme quand on les équipe). */
+    /** La portée affichée est la portée réelle en blocs, en survie comme en créatif ; les objets vanilla gardent celle du jeu. */
+    @GameTest(template = ARENA)
+    public static void weaponReachMatchesTheTooltip(GameTestHelper helper) {
+        for (WeaponType type : WeaponType.values()) {
+            double shown = WeaponData.weapon(type).attackReach();
+            for (GameType mode : List.of(GameType.SURVIVAL, GameType.CREATIVE)) {
+                double reach = holding(helper, new ItemStack(ModItems.get(type, WeaponMaterials.IRON).get()), mode).entityInteractionRange();
+                helper.assertTrue(reach == shown, type + " should reach " + shown + " blocks in " + mode + ", not " + reach);
+            }
+        }
+        helper.assertTrue(holding(helper, new ItemStack(Items.IRON_SWORD), GameType.SURVIVAL).entityInteractionRange() == 3.0D, "a vanilla sword should keep its reach in survival");
+        helper.assertTrue(holding(helper, new ItemStack(Items.IRON_SWORD), GameType.CREATIVE).entityInteractionRange() > 3.0D, "a vanilla sword should keep the reach bonus of creative mode");
+        helper.succeed();
+    }
+
     private static Player player(GameTestHelper helper, ItemStack mainHand, ItemStack offHand) {
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, mainHand);
+        Player player = holding(helper, mainHand, GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.OFF_HAND, offHand);
+        return player;
+    }
+
+    private static Player holding(GameTestHelper helper, ItemStack mainHand, GameType mode) {
+        Player player = helper.makeMockPlayer(mode);
+        player.setItemInHand(InteractionHand.MAIN_HAND, mainHand);
         mainHand.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
             AttributeInstance instance = player.getAttribute(attribute);
             if (instance != null && !instance.hasModifier(modifier.id())) instance.addTransientModifier(modifier);
         });
+        // Sur un vrai joueur, c'est le serveur qui pose ce bonus.
+        if (mode.isCreative()) {
+            player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).addTransientModifier(
+                    new AttributeModifier(ResourceLocation.withDefaultNamespace("creative_mode_entity_range"), 2.0D, AttributeModifier.Operation.ADD_VALUE));
+        }
         return player;
     }
 
