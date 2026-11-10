@@ -60,9 +60,6 @@ public interface Platform {
     /** Enregistre un objet du jeu (item, son, effet...). Il n'est utilisable qu'une fois les registres remplis. */
     <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, String name, Supplier<T> factory);
 
-    /** Attribut en pourcentage, de 0 à 1 (affiché "30%" par le chargeur qui le permet). */
-    Attribute createArmorPenetrationAttribute(String descriptionId);
-
     /** Début de la construction d'un onglet créatif, placé après l'onglet Combat. */
     CreativeModeTab.Builder creativeTabBuilder();
 

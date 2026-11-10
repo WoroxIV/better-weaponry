@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_hammer",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_hammer",
+      "required": false
+    }
+  ]
+}

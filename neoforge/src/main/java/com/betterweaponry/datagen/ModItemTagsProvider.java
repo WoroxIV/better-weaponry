@@ -1,8 +1,6 @@
 package com.betterweaponry.datagen;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.data.WeaponAbility;
-import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.item.GearType;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
@@ -10,6 +8,7 @@ import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModItems;
 import com.betterweaponry.registry.ModTags;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -48,6 +47,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         addShields();
         addRangedWeapons();
         addEnchantable();
+        addWeaponTypeTags();
         for (WeaponMaterial material : WeaponMaterials.all()) {
             addIngredientTag(material.craftingIngredient());
             if (material.smithingUpgrade() != null) {
@@ -125,13 +125,14 @@ public class ModItemTagsProvider extends ItemTagsProvider {
 
     /** Objets qui acceptent les enchantements du mod, d'après les armes par défaut. Un datapack peut en ajouter. */
     private void addEnchantable() {
-        tag(ModTags.ENCHANTABLE_PARRYING).addTag(Tags.Items.TOOLS_SHIELD).addTag(ModTags.ENCHANTABLE_PARRY_WEAPONS);
-        for (WeaponType type : WeaponType.values()) {
-            WeaponAbility ability = WeaponData.builtin().weapon(type).ability();
-            if (ability == WeaponAbility.PARRY) addWeapons(ModTags.ENCHANTABLE_PARRY_WEAPONS, type);
-            if (ability == WeaponAbility.DASH) addWeapons(ModTags.ENCHANTABLE_DASHING, type);
-        }
         for (WeaponType type : List.of(WeaponType.SICKLE, WeaponType.SCYTHE, WeaponType.KATANA)) addWeapons(ModTags.ENCHANTABLE_BLEEDING, type);
+    }
+
+    /** Un tag par type d'arme : c'est par lui que Combat Reforged reconnaît les armes du mod. */
+    private void addWeaponTypeTags() {
+        for (WeaponType type : WeaponType.values()) {
+            addWeapons(TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, type.id() + "s")), type);
+        }
     }
 
     private void addWeapons(TagKey<Item> tagKey, WeaponType type) {

@@ -15,10 +15,9 @@ import java.util.Map;
  * @param dualWieldChance     parmi ces armes, chance en % d'en avoir une dans chaque main
  * @param ninjaSkeletonChance chance en % qu'un squelette lance des shurikens au lieu de tirer à l'arc
  * @param captainShield       les capitaines de patrouille et de raid portent un bouclier du mod
- * @param guardChance         à chaque occasion, chance en % qu'un mob au corps à corps lève sa garde
  */
 public record MobGearDefinition(double upgradeChance, double moddedWeaponChance, double dualWieldChance,
-                                double ninjaSkeletonChance, boolean captainShield, double guardChance) {
+                                double ninjaSkeletonChance, boolean captainShield) {
 
     // 9.5 % : la chance vanilla d'un mob d'avoir une armure d'un cran supérieur.
     public static final DataField<Double> UPGRADE_CHANCE = DataField.number("upgrade_chance", 0.0D, 100.0D, 9.5D);
@@ -26,20 +25,18 @@ public record MobGearDefinition(double upgradeChance, double moddedWeaponChance,
     public static final DataField<Double> DUAL_WIELD_CHANCE = DataField.number("dual_wield_chance", 0.0D, 100.0D, 5.0D);
     public static final DataField<Double> NINJA_SKELETON_CHANCE = DataField.number("ninja_skeleton_chance", 0.0D, 100.0D, 5.0D);
     public static final DataField<Boolean> CAPTAIN_SHIELD = DataField.bool("captain_shield", true);
-    public static final DataField<Double> GUARD_CHANCE = DataField.number("guard_chance", 0.0D, 100.0D, 25.0D);
 
     public static final FieldSet FIELDS = new FieldSet("gear.mobs",
-            List.of(UPGRADE_CHANCE, MODDED_WEAPON_CHANCE, DUAL_WIELD_CHANCE, NINJA_SKELETON_CHANCE, CAPTAIN_SHIELD, GUARD_CHANCE), Map.of());
+            List.of(UPGRADE_CHANCE, MODDED_WEAPON_CHANCE, DUAL_WIELD_CHANCE, NINJA_SKELETON_CHANCE, CAPTAIN_SHIELD), Map.of());
 
     public static final Codec<MobGearDefinition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             UPGRADE_CHANCE.forGetter(MobGearDefinition::upgradeChance),
             MODDED_WEAPON_CHANCE.forGetter(MobGearDefinition::moddedWeaponChance),
             DUAL_WIELD_CHANCE.forGetter(MobGearDefinition::dualWieldChance),
             NINJA_SKELETON_CHANCE.forGetter(MobGearDefinition::ninjaSkeletonChance),
-            CAPTAIN_SHIELD.forGetter(MobGearDefinition::captainShield),
-            GUARD_CHANCE.forGetter(MobGearDefinition::guardChance)
+            CAPTAIN_SHIELD.forGetter(MobGearDefinition::captainShield)
     ).apply(instance, MobGearDefinition::new));
 
     public static final MobGearDefinition DEFAULT = new MobGearDefinition(UPGRADE_CHANCE.defaultValue(), MODDED_WEAPON_CHANCE.defaultValue(),
-            DUAL_WIELD_CHANCE.defaultValue(), NINJA_SKELETON_CHANCE.defaultValue(), CAPTAIN_SHIELD.defaultValue(), GUARD_CHANCE.defaultValue());
+            DUAL_WIELD_CHANCE.defaultValue(), NINJA_SKELETON_CHANCE.defaultValue(), CAPTAIN_SHIELD.defaultValue());
 }

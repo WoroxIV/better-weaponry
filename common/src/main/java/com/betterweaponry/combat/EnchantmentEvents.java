@@ -1,16 +1,15 @@
 package com.betterweaponry.combat;
 
-import net.minecraft.world.damagesource.DamageSource;
 import com.betterweaponry.platform.IncomingDamage;
-import com.betterweaponry.registry.ModStats;
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.registry.ModEffects;
+import com.betterweaponry.registry.ModStats;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -55,7 +54,7 @@ public final class EnchantmentEvents {
 
     private static void applyVampirism(ServerLevel world, Player attacker, ItemStack weapon, LivingEntity target, float damage) {
         int level = ModEnchantments.level(world, weapon, ModEnchantments.VAMPIRISM);
-        PlayerCombatState state = PlayerCombatState.of(attacker);
+        WeaponPlayerState state = WeaponPlayerState.of(attacker);
         long now = world.getGameTime();
         if (level <= 0 || damage <= 0.0F || now < state.vampirismReadyAt) return;
         state.vampirismReadyAt = now + VAMPIRISM_COOLDOWN_TICKS;
@@ -63,7 +62,7 @@ public final class EnchantmentEvents {
         float healthBefore = attacker.getHealth();
         attacker.heal((float) ModEnchantments.vampirismHeal(damage, level));
         // La statistique compte ce qui a vraiment été regagné, en dixièmes de point de vie.
-        if (attacker instanceof Player player) player.awardStat(ModStats.HEALTH_STOLEN.get(), Math.round((player.getHealth() - healthBefore) * 10.0F));
+        attacker.awardStat(ModStats.HEALTH_STOLEN.get(), Math.round((attacker.getHealth() - healthBefore) * 10.0F));
         ModEnchantments.trail(world, BLOOD, target.getEyePosition(), attacker.getEyePosition());
         world.playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.SCULK_BLOCK_CHARGE, SoundSource.PLAYERS, 0.6F, 1.4F);
     }
@@ -71,7 +70,7 @@ public final class EnchantmentEvents {
     /** Seuls les coups bien chargés font saigner, et un squelette n'a pas de sang. */
     private static void applyBleeding(ServerLevel world, Player attacker, ItemStack weapon, LivingEntity target) {
         int level = ModEnchantments.level(world, weapon, ModEnchantments.BLEEDING);
-        if (level <= 0 || PlayerCombatState.of(attacker).lastAttackStrength < CHARGED_HIT || target.getType().is(EntityTypeTags.SKELETONS)) return;
+        if (level <= 0 || WeaponPlayerState.of(attacker).lastAttackStrength < CHARGED_HIT || target.getType().is(EntityTypeTags.SKELETONS)) return;
         target.addEffect(new MobEffectInstance(ModEffects.BLEEDING.holder(), (BLEEDING_BASE_SECONDS + level) * TICKS_PER_SECOND), attacker);
     }
 }

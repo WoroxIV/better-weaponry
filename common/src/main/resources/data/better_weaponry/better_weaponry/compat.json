@@ -1,0 +1,11 @@
+{
+  "format_version": 1,
+  "reach_enabled": true,
+  "balance_abilities": false,
+  "reach_disabled_by_mods": [
+    "bettercombat",
+    "combat_reforged",
+    "epicfight"
+  ],
+  "combat_reforged_notice": true
+}

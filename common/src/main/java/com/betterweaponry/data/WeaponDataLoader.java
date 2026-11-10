@@ -1,7 +1,8 @@
 package com.betterweaponry.data;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.combat.WeaponProfiles;
+import com.betterweaponry.compat.BwCompat;
+import com.betterweaponry.compat.CompatDefinition;
 import com.betterweaponry.config.ConfigFolder;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
@@ -33,30 +34,34 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Charge les fichiers des armes et des règles, au chargement d'un monde et à chaque {@code /reload}.
+ * Charge les stats des armes, au chargement d'un monde et à chaque {@code /reload}.
  * <p>
  * Pour chaque fichier, les couches sont fusionnées dans cet ordre (la dernière gagne) :
  * <ol>
- *   <li>les valeurs par défaut du mod (et d'éventuels autres mods) ;</li>
+ *   <li>les valeurs par défaut du mod ;</li>
+ *   <li>le profil d'équilibrage choisi selon les mods chargés ({@code balance/<profil>/}) ;</li>
  *   <li>le dossier {@code config/better_weaponry/} (tous les mondes) ;</li>
- *   <li>les datapacks du monde ({@code <monde>/datapacks}), pour des réglages propres à un monde
- *       (dont celui écrit par l'éditeur en jeu, {@value #EDITOR_PACK}).</li>
+ *   <li>les datapacks du monde ({@code <monde>/datapacks}).</li>
  * </ol>
- * Chemin dans un datapack : {@code data/better_weaponry/better_weaponry/weapons/<type>.json} et
- * {@code data/better_weaponry/better_weaponry/rules.json}.
+ * Chemin dans un datapack : {@code data/better_weaponry/better_weaponry/weapons/<type>.json}.
  */
 public final class WeaponDataLoader extends SimplePreparableReloadListener<WeaponDataLoader.Result> {
     /** Dossier des fichiers du mod dans un datapack : data/better_weaponry/better_weaponry/... */
     public static final String DATA_DIRECTORY = "better_weaponry";
     public static final String WEAPONS_DIRECTORY = "weapons";
-    public static final String RULES_FILE = "rules.json";
+    public static final String COMPAT_FILE = "compat.json";
     public static final String GEAR_FILE = "gear.json";
+    private static final String BALANCE_DIRECTORY = "balance";
 
     /** Les datapacks placés dans le dossier du monde ont un identifiant qui commence par "file/". */
     private static final String WORLD_DATAPACK_PREFIX = "file/";
-    /** Dossier du datapack écrit par l'éditeur en jeu pour les réglages "ce monde seulement". */
-    public static final String EDITOR_PACK = "better_weaponry_editor";
-    public static final String EDITOR_PACK_ID = WORLD_DATAPACK_PREFIX + EDITOR_PACK;
+    /**
+     * Réglages de combat des fichiers écrits avec Better Weaponry 2.0 : ils appartiennent maintenant à Combat Reforged.
+     * Ignorés sans message, ils ne sont pas des fautes de frappe.
+     */
+    private static final Set<String> FORMER_COMBAT_FIELDS = Set.of("two_handed", "dual_wielded", "armor_penetration", "disables_shield", "on_hit_effects", "sweep",
+            "ability", "parry", "dash", "combo", "items", "balance_abilities", "shield_perfect_window_seconds", "shield_perfect_cooldown_seconds",
+            "shield_perfect_damage_bonus", "shield_perfect_bonus_seconds", "shield_perfect_knockback", "reflect_arrows", "reflective_cooldown_seconds");
 
     /** Problèmes du dernier chargement, montrés aux opérateurs qui se connectent. */
     private static volatile List<DataProblem> lastProblems = List.of();
@@ -68,8 +73,6 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         return lastProblems;
     }
 
-    // --- Rechargement (monde, /reload) ---
-
     @Override
     protected Result prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
         return load(resourceManager);
@@ -80,23 +83,19 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         install(result);
     }
 
-    /** Lit et fusionne tous les fichiers (aussi utilisé par l'éditeur pour recharger sans /reload complet). */
+    /** Lit et fusionne tous les fichiers. */
     public static Result load(ResourceManager resourceManager) {
         List<DataProblem> problems = new ArrayList<>();
         Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(WeaponType.class);
         for (WeaponType type : WeaponType.values()) {
-            String file = weaponPath(type);
-            List<FieldSet.Layer> layers = collectLayers(resourceManager, file, ConfigFolder.weaponFile(type), problems);
+            List<FieldSet.Layer> layers = collectLayers(resourceManager, weaponPath(type), ConfigFolder.weaponFile(type), type, problems);
             weapons.put(type, decodeWeapon(type, layers, problems));
         }
-        WeaponProfiles.reportConflicts(weapons, problems);
-        List<FieldSet.Layer> ruleLayers = collectLayers(resourceManager, RULES_FILE, ConfigFolder.rulesFile(), problems);
-        RulesDefinition rules = decode(RulesDefinition.CODEC, RulesDefinition.FIELDS.merge(ruleLayers, problems),
-                RulesDefinition.FALLBACK, RULES_FILE, problems);
-        List<FieldSet.Layer> gearLayers = collectLayers(resourceManager, GEAR_FILE, ConfigFolder.gearFile(), problems);
-        GearDefinition gear = decode(GearDefinition.CODEC, GearDefinition.FIELDS.merge(gearLayers, problems),
+        CompatDefinition compat = decode(CompatDefinition.CODEC, CompatDefinition.FIELDS.merge(collectLayers(resourceManager, COMPAT_FILE, ConfigFolder.compatFile(), null, problems), problems),
+                CompatDefinition.FALLBACK, COMPAT_FILE, problems);
+        GearDefinition gear = decode(GearDefinition.CODEC, GearDefinition.FIELDS.merge(collectLayers(resourceManager, GEAR_FILE, ConfigFolder.gearFile(), null, problems), problems),
                 GearDefinition.FALLBACK, GEAR_FILE, problems);
-        return new Result(new WeaponData.Snapshot(weapons, rules, gear), List.copyOf(problems));
+        return new Result(new WeaponData.Snapshot(weapons, compat, gear), List.copyOf(problems));
     }
 
     /** Met en vigueur un chargement et signale ses problèmes dans le log. */
@@ -108,35 +107,24 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         WeaponData.install(result.snapshot());
         BetterWeaponry.LOGGER.info("Better Weaponry: weapon data loaded ({} weapon types, {} problem(s))",
                 result.snapshot().weapons().size(), result.problems().size());
-        if (BetterWeaponry.LOGGER.isDebugEnabled()) {
-            for (WeaponType type : WeaponType.values()) {
-                WeaponDefinition weapon = result.snapshot().weapon(type);
-                BetterWeaponry.LOGGER.debug("  {}: {}", type.id(), weapon);
-            }
-            BetterWeaponry.LOGGER.debug("  rules: {}", result.snapshot().rules());
-        }
     }
-
-    // --- Valeurs par défaut du jar (avant tout chargement de monde) ---
 
     /** Lit uniquement les fichiers du jar : sert de valeurs de départ, côté client comme côté serveur. */
     static WeaponData.Snapshot loadBuiltin() {
         List<DataProblem> problems = new ArrayList<>();
         Map<WeaponType, WeaponDefinition> weapons = new EnumMap<>(WeaponType.class);
         for (WeaponType type : WeaponType.values()) {
-            String file = weaponPath(type);
-            weapons.put(type, decodeWeapon(type, builtinLayer(file, problems), problems));
+            List<FieldSet.Layer> layers = new ArrayList<>(builtinLayer(weaponPath(type), problems));
+            String profile = BwCompat.balanceProfile();
+            if (profile != null) layers.addAll(builtinLayer(BALANCE_DIRECTORY + "/" + profile + "/" + type.id() + ".json", problems));
+            weapons.put(type, decodeWeapon(type, layers, problems));
         }
-        RulesDefinition rules = decode(RulesDefinition.CODEC,
-                RulesDefinition.FIELDS.merge(builtinLayer(RULES_FILE, problems), problems),
-                RulesDefinition.FALLBACK, RULES_FILE, problems);
-        GearDefinition gear = decode(GearDefinition.CODEC,
-                GearDefinition.FIELDS.merge(builtinLayer(GEAR_FILE, problems), problems),
-                GearDefinition.FALLBACK, GEAR_FILE, problems);
+        CompatDefinition compat = decode(CompatDefinition.CODEC, CompatDefinition.FIELDS.merge(builtinLayer(COMPAT_FILE, problems), problems), CompatDefinition.FALLBACK, COMPAT_FILE, problems);
+        GearDefinition gear = decode(GearDefinition.CODEC, GearDefinition.FIELDS.merge(builtinLayer(GEAR_FILE, problems), problems), GearDefinition.FALLBACK, GEAR_FILE, problems);
         for (DataProblem problem : problems) {
             BetterWeaponry.LOGGER.error("[Better Weaponry] Problem in the mod's own default data: {}", problem.toLogString());
         }
-        return new WeaponData.Snapshot(weapons, rules, gear);
+        return new WeaponData.Snapshot(weapons, compat, gear);
     }
 
     /** Contenu JSON brut d'un fichier par défaut du jar, ex : {@code builtinJson("weapons/katana.json")}. */
@@ -151,77 +139,25 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         });
     }
 
-    // --- Couches pour l'éditeur ---
-
-    /** Les couches que l'éditeur compare entre elles pour savoir quoi écrire. */
-    public enum Base {
-        /** Valeurs par défaut des mods. */
-        MOD_DEFAULTS,
-        /** Valeurs des mods et dossier config/better_weaponry : ce que la cible "tous les mondes" peut écrire. */
-        CONFIG_FOLDER,
-        /** Tout sauf le datapack de l'éditeur (cible "ce monde seulement", qui écrit dans ce datapack). */
-        BELOW_EDITOR_PACK,
-        /** Toutes les couches : les valeurs en vigueur dans ce monde. */
-        ALL
-    }
-
-    /** Fusion des couches qui forment cette base, pour un fichier (ex : "weapons/katana.json"). */
-    public static JsonObject mergedJson(ResourceManager resourceManager, FieldSet set, String relativePath, Path configFile, Base base) {
-        List<DataProblem> ignored = new ArrayList<>();
-        List<FieldSet.Layer> layers = switch (base) {
-            case MOD_DEFAULTS -> collectLayers(resourceManager, relativePath, null, false, ignored);
-            case CONFIG_FOLDER -> collectLayers(resourceManager, relativePath, configFile, false, ignored);
-            case BELOW_EDITOR_PACK -> collectLayers(resourceManager, relativePath, configFile, true, ignored);
-            case ALL -> collectLayers(resourceManager, relativePath, configFile, ignored);
-        };
-        return set.merge(layers, ignored);
-    }
-
-    /** Fusion des valeurs du jar et du dossier config (menu principal : pas de monde, donc pas de datapack). */
-    public static JsonObject localJson(FieldSet set, String relativePath, Path configFile, List<DataProblem> problems) {
-        List<FieldSet.Layer> layers = new ArrayList<>(builtinLayer(relativePath, problems));
-        readConfigFile(configFile, problems).ifPresent(layers::add);
-        return set.merge(layers, problems);
-    }
-
-    // --- Lecture des couches ---
-
     public static String weaponPath(WeaponType type) {
         return WEAPONS_DIRECTORY + "/" + type.id() + ".json";
     }
 
-    private static List<FieldSet.Layer> collectLayers(ResourceManager resourceManager, String relativePath,
-                                                      Path configFile, List<DataProblem> problems) {
-        List<FieldSet.Layer> layers = collectLayers(resourceManager, relativePath, configFile, true, problems);
-        resourceManager.getResourceStack(resourceId(relativePath)).stream()
-                .filter(resource -> resource.sourcePackId().equals(EDITOR_PACK_ID))
-                .forEach(resource -> readResource(resource, relativePath, problems).ifPresent(layers::add));
-        return layers;
-    }
-
-    /**
-     * Couches d'un fichier, de la moins prioritaire à la plus prioritaire, sans le datapack de l'éditeur
-     * (toujours le dernier, voir ci-dessus) : mods, puis config/better_weaponry, puis datapacks du monde.
-     *
-     * @param configFile null = sans le dossier config
-     * @param worldPacks avec les datapacks du monde
-     */
-    private static List<FieldSet.Layer> collectLayers(ResourceManager resourceManager, String relativePath, @Nullable Path configFile,
-                                                      boolean worldPacks, List<DataProblem> problems) {
+    private static List<FieldSet.Layer> collectLayers(ResourceManager resourceManager, String relativePath, @Nullable Path configFile, @Nullable WeaponType balancedType, List<DataProblem> problems) {
         // getResourceStack renvoie les fichiers du moins prioritaire au plus prioritaire.
         List<Resource> stack = resourceManager.getResourceStack(resourceId(relativePath));
         List<FieldSet.Layer> layers = new ArrayList<>();
-
         for (Resource resource : stack) {
             if (!isWorldDatapack(resource)) readResource(resource, relativePath, problems).ifPresent(layers::add);
         }
+        String profile = BwCompat.balanceProfile();
+        if (balancedType != null && profile != null) {
+            String file = BALANCE_DIRECTORY + "/" + profile + "/" + balancedType.id() + ".json";
+            resourceManager.getResourceStack(resourceId(file)).forEach(resource -> readResource(resource, file, problems).ifPresent(layers::add));
+        }
         if (configFile != null) readConfigFile(configFile, problems).ifPresent(layers::add);
-        if (worldPacks) {
-            for (Resource resource : stack) {
-                if (isWorldDatapack(resource) && !resource.sourcePackId().equals(EDITOR_PACK_ID)) {
-                    readResource(resource, relativePath, problems).ifPresent(layers::add);
-                }
-            }
+        for (Resource resource : stack) {
+            if (isWorldDatapack(resource)) readResource(resource, relativePath, problems).ifPresent(layers::add);
         }
         return layers;
     }
@@ -276,7 +212,9 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
                 problems.add(new DataProblem(DataProblem.Kind.NOT_AN_OBJECT, source, null, null));
                 return Optional.empty();
             }
-            return Optional.of(new FieldSet.Layer(source, element.getAsJsonObject()));
+            JsonObject object = element.getAsJsonObject();
+            FORMER_COMBAT_FIELDS.forEach(object::remove);
+            return Optional.of(new FieldSet.Layer(source, object));
         } catch (JsonParseException e) {
             String detail = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
             problems.add(new DataProblem(DataProblem.Kind.SYNTAX, source, null, detail));
@@ -291,8 +229,6 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
         while ((read = reader.read(buffer)) != -1) builder.append(buffer, 0, read);
         return builder.toString();
     }
-
-    // --- Décodage ---
 
     private static WeaponDefinition decodeWeapon(WeaponType type, List<FieldSet.Layer> layers, List<DataProblem> problems) {
         String file = weaponPath(type);

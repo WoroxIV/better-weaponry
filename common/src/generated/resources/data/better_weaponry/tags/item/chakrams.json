@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_chakram",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_chakram",
+      "required": false
+    }
+  ]
+}

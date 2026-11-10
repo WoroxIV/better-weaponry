@@ -1,6 +1,7 @@
 {
   "parent": "bettercombat:glaive",
   "attributes": {
+    "range_bonus": 1.5,
     "two_handed": true
   }
 }

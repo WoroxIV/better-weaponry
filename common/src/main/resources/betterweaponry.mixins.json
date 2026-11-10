@@ -4,32 +4,19 @@
   "package": "com.betterweaponry.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ItemInHandLayerMixin",
-    "KeyMappingAccessor",
-    "PlayerRendererMixin",
-    "ItemInHandRendererMixin",
-    "DualSwingFirstPersonMixin",
-    "DualSwingModelMixin",
     "RangedHandRenderMixin",
-    "SkeletonModelMixin",
-    "MobGuardModelMixin",
-    "ZombieArmsMixin"
+    "SkeletonModelMixin"
   ],
   "mixins": [
-    "PlayerCombatMixin",
     "ServerPlayerMixin",
     "IngredientMixin",
-    "ItemStackMixin",
     "AxeItemMixin",
     "CrossbowItemMixin",
     "MobRangedWeaponMixin",
     "PiglinMixin",
     "AbstractArrowMixin",
-    "MobAccessor",
-    "MobMixin",
-    "LivingEntityMixin",
-    "LivingEntityAccessor",
-    "SweepParticleMixin"
+    "PlayerWeaponMixin",
+    "MobWeaponMixin"
   ],
   "injectors": {
     "defaultRequire": 1

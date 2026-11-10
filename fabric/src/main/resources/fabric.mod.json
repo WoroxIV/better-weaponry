@@ -17,7 +17,6 @@
     "fabric-gametest": ["com.betterweaponry.gametest.CombatGameTests"],
     "main": ["com.betterweaponry.fabric.BetterWeaponryFabric"],
     "client": ["com.betterweaponry.fabric.BetterWeaponryFabricClient"],
-    "modmenu": ["com.betterweaponry.fabric.ModMenuIntegration"],
     "jei_mod_plugin": ["com.betterweaponry.compat.jei.BetterWeaponryJeiPlugin"],
     "emi": ["com.betterweaponry.compat.emi.BetterWeaponryEmiPlugin"]
   },
@@ -33,7 +32,6 @@
     "fabric-api": "*"
   },
   "suggests": {
-    "modmenu": "*",
     "jei": "*",
     "emi": "*"
   }

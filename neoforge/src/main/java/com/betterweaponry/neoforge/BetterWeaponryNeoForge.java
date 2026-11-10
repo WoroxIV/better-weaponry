@@ -1,7 +1,7 @@
 package com.betterweaponry.neoforge;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.datagen.BetterCombatAttributesProvider;
+import com.betterweaponry.datagen.WeaponCompatProvider;
 import com.betterweaponry.datagen.ModItemModelProvider;
 import com.betterweaponry.datagen.ModItemTagsProvider;
 import com.betterweaponry.datagen.ModRecipeProvider;
@@ -68,8 +68,8 @@ public final class BetterWeaponryNeoForge {
         generator.addProvider(event.includeServer(),
                 new ModRecipeProvider(output, event.getLookupProvider()));
 
-        // Fichiers lus par Better Combat (mod optionnel) : un preset d'attaques par arme
-        generator.addProvider(event.includeServer(), new BetterCombatAttributesProvider(output));
+        // Fichiers lus par Better Combat et Epic Fight (mods optionnels)
+        generator.addProvider(event.includeServer(), new WeaponCompatProvider(output));
 
         // Le mod n'a pas de blocs : on donne au provider d'items une liste de tags de blocs vide
         // au lieu de générer un BlockTagsProvider vide.

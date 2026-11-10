@@ -1,5 +1,6 @@
 package com.betterweaponry.item;
 
+import com.betterweaponry.compat.BwCompat;
 import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.data.MobGearDefinition;
 import com.betterweaponry.data.WeaponData;
@@ -37,7 +38,7 @@ public final class MobEquipment {
     public static void onFreshSpawn(Mob mob, GearDefinition gear) {
         MobGearDefinition settings = gear.mobs();
         RandomSource random = mob.getRandom();
-        boolean behaviors = WeaponData.rules().mobBehaviorsActive();
+        boolean behaviors = BwCompat.mobBehaviorsActive();
         ItemStack main = mob.getMainHandItem();
 
         if (behaviors && mob instanceof AbstractSkeleton && main.is(Items.BOW) && roll(random, settings.ninjaSkeletonChance())) {
@@ -64,8 +65,8 @@ public final class MobEquipment {
     private static void replaceWithModWeapon(Mob mob, ItemStack original, GearDefinition gear, MobGearDefinition settings) {
         RandomSource random = mob.getRandom();
         WeaponMaterial material = VanillaGear.rollMobMaterial(mob, gear, MATERIAL_OF_TIER.get(((TieredItem) original.getItem()).getTier()));
-        List<WeaponType> dualWielded = Arrays.stream(WeaponType.values()).filter(type -> WeaponData.weapon(type).dualWielded()).toList();
-        boolean dualWield = WeaponData.rules().dualWieldActive() && !dualWielded.isEmpty() && roll(random, settings.dualWieldChance());
+        List<WeaponType> dualWielded = Arrays.stream(WeaponType.values()).filter(MobEquipment::isDualWielded).toList();
+        boolean dualWield = BwCompat.combatReforged() && !BwCompat.betterCombat() && !dualWielded.isEmpty() && roll(random, settings.dualWieldChance());
         WeaponType type = dualWield ? dualWielded.get(random.nextInt(dualWielded.size())) : WeaponType.values()[random.nextInt(WeaponType.values().length)];
         Item weapon = ModItems.get(type, material).get();
         mob.setItemSlot(EquipmentSlot.MAINHAND, original.transmuteCopy(weapon, 1));
@@ -73,6 +74,13 @@ public final class MobEquipment {
             mob.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(weapon));
             mob.setDropChance(EquipmentSlot.OFFHAND, 0.0F);
         }
+    }
+
+    /** Les armes faites pour la paire, d'après le fichier Combat Reforged livré avec le mod. */
+    private static boolean isDualWielded(WeaponType type) {
+        return com.betterweaponry.data.ModFiles.read("data", "better_weaponry", "combat_reforged", "weapons", type.id() + ".json")
+                .map(com.betterweaponry.data.JsonUtil::parseLenient).filter(com.google.gson.JsonElement::isJsonObject)
+                .map(json -> json.getAsJsonObject().has("dual_wielded") && json.getAsJsonObject().get("dual_wielded").getAsBoolean()).orElse(false);
     }
 
     private static boolean roll(RandomSource random, double percent) {

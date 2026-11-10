@@ -4,11 +4,6 @@ import net.minecraft.world.item.Item;
 import java.util.function.Supplier;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.ModEnchantments;
-import com.betterweaponry.data.RulesDefinition;
-import com.betterweaponry.data.WeaponAbility;
-import com.betterweaponry.data.WeaponData;
-import com.betterweaponry.data.WeaponDefinition;
-import com.betterweaponry.item.WeaponType;
 import com.betterweaponry.registry.ModItems;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -43,12 +38,6 @@ public final class RecipeViewerInfo {
         for (ResourceKey<Enchantment> key : ModEnchantments.ALL) {
             registries.registryOrThrow(Registries.ENCHANTMENT).getHolder(key).ifPresent(holder -> entries.add(enchantmentEntry(key, holder)));
         }
-        RulesDefinition rules = WeaponData.rules();
-        for (WeaponType type : WeaponType.values()) {
-            List<Component> lines = weaponLines(WeaponData.weapon(type), rules);
-            if (!lines.isEmpty()) entries.add(new Entry(type.id(), stacks(ModItems.allOfType(type)), lines));
-        }
-        entries.add(new Entry("shield", stacks(ModItems.allShields()), List.of(Component.translatable(KEY + (rules.perfectParryActive() ? "shield" : "shield.simple")))));
         entries.add(new Entry("bow", stacks(ModItems.allBows()), List.of(Component.translatable(KEY + "ranged"))));
         entries.add(new Entry("crossbow", stacks(ModItems.allCrossbows()), List.of(Component.translatable(KEY + "ranged"))));
         entries.add(new Entry("shuriken", stacks(ModItems.allShurikens()), List.of(Component.translatable(KEY + "shuriken"))));
@@ -62,18 +51,6 @@ public final class RecipeViewerInfo {
             books.add(EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment, level)));
         }
         return new Entry(key.location().getPath(), books, List.of(Component.translatable("enchantment." + BetterWeaponry.MODID + "." + key.location().getPath() + ".desc")));
-    }
-
-    /** Seulement ce qui est actif : une capacité coupée dans les règles (ou par un autre mod de combat) n'est pas décrite. */
-    private static List<Component> weaponLines(WeaponDefinition weapon, RulesDefinition rules) {
-        List<Component> lines = new ArrayList<>();
-        if (rules.twoHandedActive() && weapon.twoHanded()) lines.add(Component.translatable(KEY + "two_handed"));
-        if (rules.dualWieldActive() && weapon.dualWielded()) lines.add(Component.translatable(KEY + "dual_wielded"));
-        if (rules.parryActive() && weapon.ability() == WeaponAbility.PARRY) lines.add(Component.translatable(KEY + "parry"));
-        if (rules.dashActive() && weapon.ability() == WeaponAbility.DASH) lines.add(Component.translatable(KEY + "dash"));
-        if (rules.shieldDisablingActive() && weapon.disablesShield()) lines.add(Component.translatable(KEY + "disables_shield"));
-        if (rules.combosActive() && weapon.combo().enabled()) lines.add(Component.translatable(KEY + "combo"));
-        return lines;
     }
 
     private static List<ItemStack> stacks(Collection<? extends Supplier<? extends Item>> items) {

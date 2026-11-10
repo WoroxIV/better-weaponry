@@ -2,9 +2,7 @@ package com.betterweaponry.config;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.JsonUtil;
-import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponDefinition;
-import com.betterweaponry.editor.EditorDocument;
 import com.betterweaponry.item.WeaponMaterial;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.item.WeaponType;
@@ -63,56 +61,12 @@ public final class LegacyConfigMigration {
             Map.entry("claymore", new LegacyStats(1.1, 4.0, true, 7.5)),
             Map.entry("chakram", new LegacyStats(1.3, 3.0, false, 5.0)),
             Map.entry("sai", new LegacyStats(1.8, 2.5, false, 4.0)));
-    private static final double LEGACY_DUAL_WIELD_MULTIPLIER = 1.5D;
     private static final double LEGACY_DAMAGE_ROUNDING = 0.5D;
     private static final double EPSILON = 1.0E-6D;
 
+    private static final String MIGRATED_PACK = "better_weaponry_migrated_1x";
+
     private LegacyConfigMigration() {
-    }
-
-    /** Les préférences d'affichage étaient dans un fichier TOML : elles passent telles quelles dans le fichier JSON. */
-    public static void migrateClientConfig() {
-        Path legacy = FMLPaths.CONFIGDIR.get().resolve(LEGACY_CLIENT_FILE_NAME);
-        Path converted = FMLPaths.CONFIGDIR.get().resolve(ClientConfig.FILE_NAME);
-        if (!Files.isRegularFile(legacy) || Files.exists(converted)) return;
-        try (Reader reader = Files.newBufferedReader(legacy, StandardCharsets.UTF_8)) {
-            ConfigFolder.writeJson(converted, toJson(new TomlParser().parse(reader)));
-        } catch (Exception e) {
-            BetterWeaponry.LOGGER.warn("[Better Weaponry] Could not convert {}, the default preferences are used", legacy, e);
-            return;
-        }
-        try {
-            Files.move(legacy, legacy.resolveSibling(LEGACY_CLIENT_FILE_NAME + OLD_SUFFIX), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            BetterWeaponry.LOGGER.warn("[Better Weaponry] Could not rename {}", legacy, e);
-        }
-    }
-
-    /** Les noms et les sections du fichier TOML sont ceux du fichier JSON. */
-    private static JsonObject toJson(UnmodifiableConfig config) {
-        JsonObject json = new JsonObject();
-        config.valueMap().forEach((key, value) -> {
-            JsonElement element = toJson(value);
-            if (element != null) json.add(key, element);
-        });
-        return json;
-    }
-
-    private static JsonElement toJson(Object value) {
-        if (value instanceof UnmodifiableConfig section) return toJson(section);
-        if (value instanceof Boolean flag) return new JsonPrimitive(flag);
-        if (value instanceof Number number) return new JsonPrimitive(number);
-        if (value instanceof Enum<?> constant) return new JsonPrimitive(constant.name());
-        if (value instanceof String text) return new JsonPrimitive(text);
-        if (value instanceof List<?> list) {
-            JsonArray array = new JsonArray();
-            for (Object entry : list) {
-                JsonElement element = toJson(entry);
-                if (element != null) array.add(element);
-            }
-            return array;
-        }
-        return null;
     }
 
     public static void migrateIfPresent() {
@@ -127,16 +81,13 @@ public final class LegacyConfigMigration {
             for (Map.Entry<WeaponType, JsonObject> weapon : converted.get().weapons().entrySet()) {
                 mergeInto(ConfigFolder.weaponFile(weapon.getKey()), weapon.getValue(), "../" + ConfigFolder.WEAPON_SCHEMA);
             }
-            if (converted.get().rules() != null) {
-                mergeInto(ConfigFolder.rulesFile(), converted.get().rules(), "./" + ConfigFolder.RULES_SCHEMA);
-            }
 
             Path renamed = legacy.resolveSibling(LEGACY_FILE_NAME + OLD_SUFFIX);
             Files.move(legacy, renamed, StandardCopyOption.REPLACE_EXISTING);
             BetterWeaponry.LOGGER.info("[Better Weaponry] Converted the 1.x config: {} weapon type(s) and {} global setting(s) "
                             + "different from the defaults were copied to {}. The old file was renamed to {}. "
-                            + "Tooltip options are now in better_weaponry-client.json.",
-                    converted.get().weapons().size(), converted.get().rules() != null ? 1 : 0, ConfigFolder.displayPath(ConfigFolder.root()), renamed.getFileName());
+                            + "",
+                    converted.get().weapons().size(), 0, ConfigFolder.displayPath(ConfigFolder.root()), renamed.getFileName());
         } catch (IOException e) {
             BetterWeaponry.LOGGER.error("[Better Weaponry] Could not convert the 1.x config {}", legacy, e);
         }
@@ -155,22 +106,32 @@ public final class LegacyConfigMigration {
         if (converted.isEmpty()) return false;
 
         try {
+            Path pack = worldRoot.resolve("datapacks").resolve(MIGRATED_PACK);
             for (Map.Entry<WeaponType, JsonObject> weapon : converted.get().weapons().entrySet()) {
-                EditorFiles.writeWorld(worldRoot, EditorDocument.weapon(weapon.getKey()), weapon.getValue());
+                ConfigFolder.writeJson(pack.resolve("data/better_weaponry/better_weaponry/weapons").resolve(weapon.getKey().id() + ".json"), weapon.getValue());
             }
-            if (converted.get().rules() != null) EditorFiles.writeWorld(worldRoot, EditorDocument.rules(), converted.get().rules());
+            ConfigFolder.writeJson(pack.resolve("pack.mcmeta"), packMetadata());
             Files.move(legacy, legacy.resolveSibling(LEGACY_FILE_NAME + OLD_SUFFIX), StandardCopyOption.REPLACE_EXISTING);
             BetterWeaponry.LOGGER.info("[Better Weaponry] Converted the 1.x settings of this world into its editor data pack ({} weapon type(s)).",
                     converted.get().weapons().size());
-            return !converted.get().weapons().isEmpty() || converted.get().rules() != null;
+            return !converted.get().weapons().isEmpty();
         } catch (IOException e) {
             BetterWeaponry.LOGGER.error("[Better Weaponry] Could not convert the 1.x config {}", legacy, e);
             return false;
         }
     }
 
+    private static JsonObject packMetadata() {
+        JsonObject pack = new JsonObject();
+        pack.addProperty("pack_format", net.minecraft.SharedConstants.getCurrentVersion().getPackVersion(net.minecraft.server.packs.PackType.SERVER_DATA));
+        pack.addProperty("description", "Better Weaponry: settings converted from 1.x for this world");
+        JsonObject root = new JsonObject();
+        root.add("pack", pack);
+        return root;
+    }
+
     /** Valeurs d'un ancien fichier qui diffèrent des défauts de la 1.1.4. */
-    private record Converted(Map<WeaponType, JsonObject> weapons, @Nullable JsonObject rules) {
+    private record Converted(Map<WeaponType, JsonObject> weapons) {
     }
 
     private static Optional<Converted> read(Path legacy) {
@@ -190,13 +151,7 @@ public final class LegacyConfigMigration {
             if (changes.size() > 0) weapons.put(type, changes);
         }
 
-        JsonObject rules = null;
-        Double multiplier = number(toml, "other", "dual_wield_speed_multiplier");
-        if (multiplier != null && !same(multiplier, LEGACY_DUAL_WIELD_MULTIPLIER)) {
-            rules = new JsonObject();
-            rules.addProperty(RulesDefinition.DUAL_WIELD_SPEED_MULTIPLIER.name(), multiplier);
-        }
-        return Optional.of(new Converted(weapons, rules));
+        return Optional.of(new Converted(weapons));
     }
 
     /** Valeurs d'une arme qui diffèrent des défauts de la 1.1.4, au format JSON. */
@@ -209,10 +164,6 @@ public final class LegacyConfigMigration {
         Double reach = number(toml, "weapon_stats", type.id(), "attack_reach");
         if (reach != null && !same(reach, defaults.attackReach())) {
             changes.addProperty(WeaponDefinition.ATTACK_REACH.name(), reach);
-        }
-        Object twoHanded = toml.get(List.of("weapon_stats", type.id(), "two_handed"));
-        if (twoHanded instanceof Boolean value && value != defaults.twoHanded()) {
-            changes.addProperty(WeaponDefinition.TWO_HANDED.name(), value);
         }
 
         JsonObject damages = new JsonObject();

@@ -5,7 +5,7 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.GearDefinition;
 import com.betterweaponry.data.JsonUtil;
-import com.betterweaponry.data.RulesDefinition;
+import com.betterweaponry.compat.CompatDefinition;
 import com.betterweaponry.data.WeaponDataLoader;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponType;
@@ -25,9 +25,9 @@ import java.util.Optional;
  * config/better_weaponry/
  * ├── README.txt            mode d'emploi, dans la langue du jeu
  * ├── weapon.schema.json    autocomplétion et aide au survol dans VS Code
- * ├── rules.schema.json
+ * ├── compat.schema.json
  * ├── gear.schema.json
- * ├── rules.json            règles globales modifiées par l'utilisateur (jamais écrasé)
+ * ├── compat.json           portée, compatibilité avec les autres mods (jamais écrasé)
  * ├── gear.json             réglages de l'équipement modifiés par l'utilisateur (jamais écrasé)
  * ├── weapons/&lt;type&gt;.json   stats modifiées par l'utilisateur (jamais écrasés)
  * └── defaults/             copie des valeurs par défaut du mod, réécrite à chaque lancement
@@ -38,7 +38,7 @@ import java.util.Optional;
 public final class ConfigFolder {
     public static final String README_FILE = "README.txt";
     public static final String WEAPON_SCHEMA = "weapon.schema.json";
-    public static final String RULES_SCHEMA = "rules.schema.json";
+    public static final String COMPAT_SCHEMA = "compat.schema.json";
     public static final String GEAR_SCHEMA = "gear.schema.json";
     private static final String DEFAULTS_DIRECTORY = "defaults";
 
@@ -53,8 +53,8 @@ public final class ConfigFolder {
         return root().resolve(WeaponDataLoader.weaponPath(type));
     }
 
-    public static Path rulesFile() {
-        return root().resolve(WeaponDataLoader.RULES_FILE);
+    public static Path compatFile() {
+        return root().resolve(WeaponDataLoader.COMPAT_FILE);
     }
 
     public static Path gearFile() {
@@ -84,8 +84,8 @@ public final class ConfigFolder {
             Docs docs = Docs.load(languageCode);
             writeJson(root().resolve(WEAPON_SCHEMA), SchemaWriter.schema(WeaponDefinition.FIELDS,
                     docs.text(BetterWeaponry.MODID + ".doc.schema.weapon"), docs));
-            writeJson(root().resolve(RULES_SCHEMA), SchemaWriter.schema(RulesDefinition.FIELDS,
-                    docs.text(BetterWeaponry.MODID + ".doc.schema.rules"), docs));
+            writeJson(root().resolve(COMPAT_SCHEMA), SchemaWriter.schema(CompatDefinition.FIELDS,
+                    docs.text(BetterWeaponry.MODID + ".doc.schema.compat"), docs));
             writeJson(root().resolve(GEAR_SCHEMA), SchemaWriter.schema(GearDefinition.FIELDS,
                     docs.text(BetterWeaponry.MODID + ".doc.schema.gear"), docs));
             writeText(root().resolve(README_FILE), ReadmeWriter.write(docs));
@@ -99,7 +99,7 @@ public final class ConfigFolder {
         for (WeaponType type : WeaponType.values()) {
             createIfAbsent(weaponFile(type), withSchema(new JsonObject(), "../" + WEAPON_SCHEMA));
         }
-        createIfAbsent(rulesFile(), withSchema(new JsonObject(), "./" + RULES_SCHEMA));
+        createIfAbsent(compatFile(), withSchema(new JsonObject(), "./" + COMPAT_SCHEMA));
         createIfAbsent(gearFile(), withSchema(new JsonObject(), "./" + GEAR_SCHEMA));
     }
 
@@ -111,8 +111,8 @@ public final class ConfigFolder {
             Optional<JsonObject> json = WeaponDataLoader.builtinJson(path);
             if (json.isPresent()) writeJson(defaults.resolve(path), withSchema(json.get(), "../../" + WEAPON_SCHEMA));
         }
-        Optional<JsonObject> rules = WeaponDataLoader.builtinJson(WeaponDataLoader.RULES_FILE);
-        if (rules.isPresent()) writeJson(defaults.resolve(WeaponDataLoader.RULES_FILE), withSchema(rules.get(), "../" + RULES_SCHEMA));
+        Optional<JsonObject> compat = WeaponDataLoader.builtinJson(WeaponDataLoader.COMPAT_FILE);
+        if (compat.isPresent()) writeJson(defaults.resolve(WeaponDataLoader.COMPAT_FILE), withSchema(compat.get(), "../" + COMPAT_SCHEMA));
         Optional<JsonObject> gear = WeaponDataLoader.builtinJson(WeaponDataLoader.GEAR_FILE);
         if (gear.isPresent()) writeJson(defaults.resolve(WeaponDataLoader.GEAR_FILE), withSchema(gear.get(), "../" + GEAR_SCHEMA));
     }

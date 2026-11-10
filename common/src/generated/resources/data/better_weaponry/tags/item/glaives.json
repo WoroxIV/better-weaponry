@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_glaive",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_glaive",
+      "required": false
+    }
+  ]
+}

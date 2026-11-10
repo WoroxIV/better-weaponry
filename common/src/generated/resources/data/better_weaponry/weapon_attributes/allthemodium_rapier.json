@@ -1,6 +1,7 @@
 {
   "parent": "bettercombat:rapier",
   "attributes": {
+    "range_bonus": 0.0,
     "two_handed": false
   }
 }

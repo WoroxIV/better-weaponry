@@ -2,7 +2,7 @@ package com.betterweaponry.item;
 
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.entity.ShurikenEntity;
-import com.betterweaponry.combat.PlayerCombatState;
+import com.betterweaponry.combat.WeaponPlayerState;
 import com.betterweaponry.registry.ModStats;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -144,7 +144,7 @@ public class ShurikenItem extends Item implements RangedWeapon {
     }
 
     private static boolean recreate(Player player, ItemStack thrown, UUID batch, boolean dropIfFull) {
-        List<UUID> broken = PlayerCombatState.of(player).brokenShurikens;
+        List<UUID> broken = WeaponPlayerState.of(player).brokenShurikens;
         if (!broken.contains(batch)) return false;
         ItemStack recreated = thrown.copyWithCount(1);
         recreated.setDamageValue(recreated.getMaxDamage() - 1);
@@ -154,16 +154,16 @@ public class ShurikenItem extends Item implements RangedWeapon {
         }
         List<UUID> remaining = new ArrayList<>(broken);
         remaining.remove(batch);
-        PlayerCombatState.of(player).brokenShurikens = List.copyOf(remaining);
+        WeaponPlayerState.of(player).brokenShurikens = List.copyOf(remaining);
         return true;
     }
 
     /** Les plus anciens sont oubliés : un shuriken tombé dans le vide ne doit pas rester dans les données du joueur pour toujours. */
     private static void rememberBroken(Player player, UUID batch) {
-        List<UUID> broken = new ArrayList<>(PlayerCombatState.of(player).brokenShurikens);
+        List<UUID> broken = new ArrayList<>(WeaponPlayerState.of(player).brokenShurikens);
         broken.add(batch);
         if (broken.size() > MAX_REMEMBERED_BROKEN) broken.subList(0, broken.size() - MAX_REMEMBERED_BROKEN).clear();
-        PlayerCombatState.of(player).brokenShurikens = List.copyOf(broken);
+        WeaponPlayerState.of(player).brokenShurikens = List.copyOf(broken);
     }
 
     /** Identifie cet objet parmi tous les shurikens : les projectiles savent ainsi à qui rendre leur point. */

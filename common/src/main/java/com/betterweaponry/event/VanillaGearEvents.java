@@ -4,7 +4,11 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.Entity;
 import com.betterweaponry.data.WeaponData;
-import com.betterweaponry.combat.MobCombat;
+import com.betterweaponry.combat.MobThrowShurikenGoal;
+import com.betterweaponry.compat.BwCompat;
+import com.betterweaponry.item.ShurikenItem;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
 import com.betterweaponry.entity.ShurikenEntity;
 import com.betterweaponry.item.MobEquipment;
 import com.betterweaponry.item.RangedWeapon;
@@ -26,6 +30,7 @@ import java.util.Map;
 
 /** Convertit l'équipement vanilla des joueurs à la connexion, et adapte les échanges des villageois. */
 public final class VanillaGearEvents {
+    private static final int THROW_GOAL_PRIORITY = 2;
     private static final int SHIELD_MAX_TRADES = 12;
     private static final int SHIELD_XP = 10;
     private static final float SHIELD_PRICE_MULTIPLIER = 0.05F;
@@ -69,7 +74,10 @@ public final class VanillaGearEvents {
         if (entity instanceof Mob mob) {
             if (!loadedFromDisk) MobEquipment.onFreshSpawn(mob, WeaponData.gear());
             VanillaGear.convertMobHands(mob, WeaponData.gear());
-            MobCombat.addGoals(mob);
+            // Les buts ne sont pas sauvegardés : ils sont remis à chaque arrivée du mob dans le monde.
+            if (BwCompat.mobBehaviorsActive() && mob instanceof AbstractSkeleton skeleton && skeleton.getMainHandItem().getItem() instanceof ShurikenItem) {
+                ((PathfinderMob) mob).goalSelector.addGoal(THROW_GOAL_PRIORITY, new MobThrowShurikenGoal(skeleton));
+            }
         } else if (!loadedFromDisk && entity instanceof AbstractArrow arrow && !(arrow instanceof ShurikenEntity) && arrow.getOwner() instanceof Mob
                 && arrow.getWeaponItem() != null && arrow.getWeaponItem().getItem() instanceof RangedWeapon weapon) {
             arrow.setDeltaMovement(RangedWeapon.mobShotVelocity(arrow.getDeltaMovement(), weapon.speedMultiplier()));

@@ -37,6 +37,7 @@ neoForge {
                     '--existing', rootProject.file('common/src/main/resources').absolutePath
             // Sources des traductions lues par ModLanguageProvider (un fichier par langue).
             systemProperty 'betterweaponry.langSources', rootProject.file('common/src/main/lang').absolutePath
+            systemProperty 'betterweaponry.combatFiles', rootProject.file('common/src/main/resources/data/better_weaponry/combat_reforged/weapons').absolutePath
         }
     }
 

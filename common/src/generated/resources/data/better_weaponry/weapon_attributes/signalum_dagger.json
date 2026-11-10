@@ -1,6 +1,7 @@
 {
   "parent": "bettercombat:dagger",
   "attributes": {
+    "range_bonus": -1.0,
     "two_handed": false
   }
 }

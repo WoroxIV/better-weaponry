@@ -1,6 +1,7 @@
 {
   "parent": "bettercombat:sword",
   "attributes": {
+    "range_bonus": 1.0,
     "two_handed": false
   }
 }

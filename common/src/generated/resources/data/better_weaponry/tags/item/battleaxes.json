@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_battleaxe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_battleaxe",
+      "required": false
+    }
+  ]
+}

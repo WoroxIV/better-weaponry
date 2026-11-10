@@ -2,11 +2,6 @@ package com.betterweaponry.fabric;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.WeaponData;
-import com.betterweaponry.network.ComboSyncPayload;
-import com.betterweaponry.network.DualSwingPayload;
-import com.betterweaponry.network.EditorResultPayload;
-import com.betterweaponry.network.OpenEditorPayload;
-import com.betterweaponry.network.SaveDocumentPayload;
 import com.betterweaponry.network.WeaponDataSyncPayload;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
@@ -28,13 +23,6 @@ final class FabricNetwork {
         // Pendant la connexion, et en jeu après un /reload.
         PayloadTypeRegistry.configurationS2C().register(WeaponDataSyncPayload.TYPE, WeaponDataSyncPayload.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(WeaponDataSyncPayload.TYPE, WeaponDataSyncPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(ComboSyncPayload.TYPE, ComboSyncPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(DualSwingPayload.TYPE, DualSwingPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(OpenEditorPayload.TYPE, OpenEditorPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(EditorResultPayload.TYPE, EditorResultPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playC2S().register(SaveDocumentPayload.TYPE, SaveDocumentPayload.STREAM_CODEC);
-
-        ServerPlayNetworking.registerGlobalReceiver(SaveDocumentPayload.TYPE, (payload, context) -> SaveDocumentPayload.handle(payload, context.player()));
 
         ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
             if (ServerConfigurationNetworking.canSend(handler, WeaponDataSyncPayload.TYPE)) handler.addTask(new SyncWeaponDataTask(handler));

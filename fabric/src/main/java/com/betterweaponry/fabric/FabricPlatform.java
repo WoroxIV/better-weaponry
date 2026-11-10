@@ -2,7 +2,6 @@ package com.betterweaponry.fabric;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.item.ShurikenItem;
-import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.platform.Platform;
 import com.betterweaponry.platform.Registered;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -117,11 +116,6 @@ final class FabricPlatform implements Platform {
     }
 
     @Override
-    public Attribute createArmorPenetrationAttribute(String descriptionId) {
-        return new RangedAttribute(descriptionId, 0.0D, 0.0D, 1.0D);
-    }
-
-    @Override
     public CreativeModeTab.Builder creativeTabBuilder() {
         return FabricItemGroup.builder();
     }
@@ -145,7 +139,6 @@ final class FabricPlatform implements Platform {
 
     @Override
     public boolean supportsEnchantment(ItemStack stack, Holder<Enchantment> enchantment) {
-        if (stack.getItem() instanceof WeaponItem weapon) return weapon.supportsEnchantment(stack, enchantment);
         if (stack.getItem() instanceof ShurikenItem shuriken) return shuriken.supportsEnchantment(stack, enchantment);
         return enchantment.value().isSupportedItem(stack);
     }

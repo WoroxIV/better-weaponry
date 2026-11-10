@@ -4,7 +4,6 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.config.LegacyConfigMigration;
 import com.betterweaponry.platform.Platform;
 import com.betterweaponry.platform.Registered;
-import com.betterweaponry.registry.ModAttributes;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
@@ -131,11 +130,6 @@ final class NeoForgePlatform implements Platform {
     }
 
     @Override
-    public Attribute createArmorPenetrationAttribute(String descriptionId) {
-        return new ArmorPenetrationAttribute(descriptionId);
-    }
-
-    @Override
     public CreativeModeTab.Builder creativeTabBuilder() {
         return CreativeModeTab.builder().withTabsBefore(CreativeModeTabs.COMBAT);
     }
@@ -167,25 +161,7 @@ final class NeoForgePlatform implements Platform {
 
     @Override
     public void migrateLegacyConfig() {
-        LegacyConfigMigration.migrateClientConfig();
         LegacyConfigMigration.migrateIfPresent();
     }
 
-    private static final class ArmorPenetrationAttribute extends PercentageAttribute {
-        ArmorPenetrationAttribute(String descriptionId) {
-            super(descriptionId, 0.0D, 0.0D, 1.0D);
-        }
-
-        @Override
-        public ResourceLocation getBaseId() {
-            return ModAttributes.BASE_ARMOR_PENETRATION_ID;
-        }
-
-        /** Ligne verte en pourcentage, au format vanilla de chaque langue ("30% Armor Penetration", "Penetrazione dell'armatura: 30%"). */
-        @Override
-        public MutableComponent toBaseComponent(double value, double entityBase, boolean merged, TooltipFlag flag) {
-            return Component.translatable("attribute.modifier.equals.1", FORMAT.format(value * scaleFactor),
-                    Component.translatable(getDescriptionId()));
-        }
-    }
 }
