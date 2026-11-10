@@ -1,6 +1,7 @@
 package com.betterweaponry.forge.mixin;
 
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
+import net.minecraftforge.fml.loading.LoadingModList;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -22,7 +23,8 @@ public final class ForgeMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        return true;
+        // Combat Reforged redéfinit la même méthode de Forge pour la portée : avec lui, c'est sa version qui compte.
+        return !mixinClassName.endsWith("PlayerForgeMixin") || LoadingModList.get().getModFileById("combat_reforged") == null;
     }
 
     @Override

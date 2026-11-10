@@ -77,3 +77,17 @@ dependencies {
     if (project.findProperty('bw_compat') == 'jei') modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
     if (project.findProperty('bw_compat') == 'emi') modRuntimeOnly "dev.emi:emi-forge:${emi_version}"
 }
+
+// Essais avec de vrais mods (Better Combat, Epic Fight...) : gradlew :forge:runGameTestServer -Pcompat_jars=<dossier de jars>
+if (project.hasProperty('compat_jars')) {
+    repositories {
+        ivy {
+            url = uri(project.property('compat_jars'))
+            patternLayout { artifact '[module].[ext]' }
+            metadataSources { artifact() }
+        }
+    }
+    dependencies {
+        fileTree(project.property('compat_jars')) { include '*.jar' }.each { jar -> modRuntimeOnly "compat:${jar.name - '.jar'}:1" }
+    }
+}
