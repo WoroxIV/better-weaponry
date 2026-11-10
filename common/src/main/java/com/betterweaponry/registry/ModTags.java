@@ -31,12 +31,6 @@ public final class ModTags {
     /** Tous les shurikens : reçoivent les enchantements des arcs et des arbalètes. */
     public static final TagKey<Item> SHURIKENS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "shurikens"));
 
-    /** Armes qui parent : elles peuvent recevoir Riposte. */
-    public static final TagKey<Item> ENCHANTABLE_PARRY_WEAPONS = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/parry_weapons"));
-    /** Tout ce qui peut parer ou bloquer (armes qui parent et boucliers) : peut recevoir Reflective. */
-    public static final TagKey<Item> ENCHANTABLE_PARRYING = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/parrying"));
-    /** Armes qui peuvent recevoir Élan. */
-    public static final TagKey<Item> ENCHANTABLE_DASHING = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/dashing"));
     /** Faucilles, faux et katanas : les armes qui peuvent recevoir Saignement. */
     public static final TagKey<Item> ENCHANTABLE_BLEEDING = TagKey.create(Registries.ITEM, new ResourceLocation(BetterWeaponry.MODID, "enchantable/bleeding"));
 

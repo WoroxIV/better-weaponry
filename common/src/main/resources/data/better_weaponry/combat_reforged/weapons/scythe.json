@@ -1,0 +1,44 @@
+{
+  "two_handed": true,
+  "dual_wielded": false,
+  "armor_penetration": 0,
+  "disables_shield": false,
+  "on_hit_effects": [],
+  "sweep": {
+    "enabled": true,
+    "radius": 2.0,
+    "damage_ratio": 50
+  },
+  "ability": "none",
+  "parry": {
+    "damage_reduction": 50,
+    "durability_per_damage": 0.5
+  },
+  "dash": {
+    "distance": 4.0,
+    "cooldown_seconds": 2.0,
+    "direction": "look",
+    "allow_airborne": false,
+    "hunger_cost": 0.1
+  },
+  "combo": {
+    "enabled": true,
+    "reset_after_seconds": 3.0,
+    "min_charge": 90,
+    "steps": [
+      {},
+      {},
+      {
+        "radius": 4.0,
+        "angle": 360,
+        "damage_multiplier": 1.5,
+        "cooldown_multiplier": 1.5
+      }
+    ]
+  },
+  "reach_bonus": 2.0,
+  "exact_reach": true,
+  "items": [
+    "#better_weaponry:scythes"
+  ]
+}

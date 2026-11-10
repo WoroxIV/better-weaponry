@@ -1,0 +1,35 @@
+{
+  "two_handed": false,
+  "dual_wielded": false,
+  "armor_penetration": 0,
+  "disables_shield": false,
+  "on_hit_effects": [],
+  "sweep": {
+    "enabled": true,
+    "radius": 1.0,
+    "damage_ratio": 0
+  },
+  "ability": "parry",
+  "parry": {
+    "damage_reduction": 50,
+    "durability_per_damage": 0.5
+  },
+  "dash": {
+    "distance": 4.0,
+    "cooldown_seconds": 2.0,
+    "direction": "look",
+    "allow_airborne": false,
+    "hunger_cost": 0.1
+  },
+  "combo": {
+    "enabled": false,
+    "reset_after_seconds": 2.0,
+    "min_charge": 90,
+    "steps": []
+  },
+  "reach_bonus": 1.0,
+  "exact_reach": true,
+  "items": [
+    "#better_weaponry:broadswords"
+  ]
+}

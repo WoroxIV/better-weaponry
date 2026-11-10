@@ -1,5 +1,6 @@
 package com.betterweaponry.fabric;
 
+import com.betterweaponry.compat.BwCompat;
 import com.betterweaponry.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -21,6 +22,7 @@ public final class FabricReachClient {
     }
 
     public static void pick(Minecraft minecraft, float partialTicks) {
+        if (!BwCompat.reachActive()) return;
         LocalPlayer player = minecraft.player;
         Entity camera = minecraft.getCameraEntity();
         if (player == null || camera != player || minecraft.gameMode == null || player.isSpectator()) return;

@@ -1,51 +1,7 @@
 {
   "format_version": 1,
-  "two_handed": true,
-  "dual_wielded": false,
   "attack_speed": 0.7,
   "attack_reach": 4.0,
   "base_damage": 12.5,
-  "material_damage": {},
-  "armor_penetration": 30,
-  "disables_shield": true,
-  "on_hit_effects": [
-    {
-      "effect": "minecraft:slowness",
-      "duration_seconds": 1.5,
-      "level": 2,
-      "chance": 100
-    }
-  ],
-  "sweep": {
-    "enabled": false,
-    "radius": 1.0,
-    "damage_ratio": 0
-  },
-  "ability": "none",
-  "parry": {
-    "damage_reduction": 50,
-    "durability_per_damage": 0.5
-  },
-  "dash": {
-    "distance": 4.0,
-    "cooldown_seconds": 2.0,
-    "direction": "look",
-    "allow_airborne": false,
-    "hunger_cost": 0.1
-  },
-  "combo": {
-    "enabled": true,
-    "reset_after_seconds": 3.5,
-    "min_charge": 90,
-    "steps": [
-      {},
-      {
-        "radius": 2.5,
-        "angle": 360,
-        "knockback": 2,
-        "damage_multiplier": 1.6,
-        "cooldown_multiplier": 1.6
-      }
-    ]
-  }
+  "material_damage": {}
 }

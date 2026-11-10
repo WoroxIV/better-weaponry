@@ -12,9 +12,6 @@
     }
   ],
   "enchantments": [
-    "better_weaponry:reflective",
-    "better_weaponry:riposte",
-    "better_weaponry:momentum",
     "better_weaponry:returning"
   ]
 }

@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_scythe",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_scythe",
+      "required": false
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 package com.betterweaponry.data;
 
+import com.betterweaponry.compat.CompatDefinition;
 import com.betterweaponry.item.WeaponType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Données des armes actuellement en vigueur (stats de chaque type + règles globales).
+ * Données des armes actuellement en vigueur (stats de chaque type, compatibilité, équipement).
  * <p>
  * Côté serveur, elles viennent du chargement des fichiers ({@link WeaponDataLoader}) ; côté client, de la
  * synchronisation envoyée par le serveur. En solo, client et serveur partagent la même instance, ce qui est
@@ -26,10 +27,10 @@ public final class WeaponData {
     }
 
     /** Un jeu de données complet, immuable : on le remplace en bloc, jamais champ par champ. */
-    public record Snapshot(Map<WeaponType, WeaponDefinition> weapons, RulesDefinition rules, GearDefinition gear) {
+    public record Snapshot(Map<WeaponType, WeaponDefinition> weapons, CompatDefinition compat, GearDefinition gear) {
         public static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.unboundedMap(WeaponType.CODEC, WeaponDefinition.CODEC).fieldOf("weapons").forGetter(Snapshot::weapons),
-                RulesDefinition.CODEC.fieldOf("rules").forGetter(Snapshot::rules),
+                CompatDefinition.CODEC.fieldOf("compat").forGetter(Snapshot::compat),
                 GearDefinition.CODEC.fieldOf("gear").forGetter(Snapshot::gear)
         ).apply(instance, Snapshot::new));
 
@@ -68,8 +69,8 @@ public final class WeaponData {
         return current().weapon(type);
     }
 
-    public static RulesDefinition rules() {
-        return current().rules();
+    public static CompatDefinition compat() {
+        return current().compat();
     }
 
     public static GearDefinition gear() {

@@ -1,13 +1,15 @@
 # Better Weaponry
 
-A mod for Minecraft **1.20.1**, on Forge and Fabric, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
+A mod for Minecraft **1.20.1**, on Forge and Fabric, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier and up to 44 materials from other mods, with generated textures and data-driven stats.
+
+The combat system (combos, parries, dashes, two-handed weapons, dual wielding, the in-game editor and the tutorials) is now a separate mod, **Combat Reforged**. Better Weaponry does not need it: with both installed, the weapons behave exactly as they did in 2.0.
 
 - **Mod ID:** `better_weaponry`
-- **Version:** 2.0.1
+- **Version:** 3.0.0
 - **Author:** WoroxIV
 - **Loaders:** Forge 47.4 or newer, or Fabric with [Fabric API](https://modrinth.com/mod/fabric-api). The 1.21.1 version (NeoForge and Fabric) is on the `mc/1.21.1` branch
 - **Java:** 17
-- **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) and Epic Fight compatibility, JEI and EMI information pages (JEI on Fabric needs Fabric Loader 0.19.4 or newer)
+- **Works with:** Combat Reforged, Better Combat, Epic Fight (all optional), JEI and EMI information pages
 - **Download:** [Modrinth](https://modrinth.com/mod/better-weaponry), [CurseForge](https://www.curseforge.com/minecraft/mc-mods/better-weaponry-system)
 - **Bug reports:** [GitHub issues](https://github.com/WoroxIV/better-weaponry/issues)
 
@@ -46,89 +48,6 @@ Example: `/give @s better_weaponry:netherite_katana`
 - Netherite weapons (and those made of fire-resistant modded materials: warden, fiery, ignitium) float in lava and do not burn, like vanilla netherite.
 
 - Every weapon can be crafted (see [Crafting recipes](#crafting-recipes)). Netherite versions are smithing-table upgrades of the diamond ones, like vanilla tools.
-
-### Two-handed weapons
-
-By default, the katana, claymore, battleaxe, hammer, glaive and scythe are two-handed. You can change this per weapon type with the `two_handed` field of its JSON file (see [Configuration](#configuration)). While a two-handed weapon is in your main hand:
-
-- the off-hand item is hidden in first person
-- you can't use the off hand to use items, place blocks or interact with entities
-
-`two_handed_enabled: false` in `rules.json` turns this off for every weapon. It is also off with Better Combat or Epic Fight, see [Combat mods](#better-combat-and-epic-fight-compatibility).
-
-### Dual wielding
-
-Only weapons with the `dual_wielded` option can be used in pairs: by default the **dagger, sickle, chakram, sai and rapier**. Hold such a weapon in **both** hands (two different ones are fine) and your attacks alternate between the main hand and the off hand:
-
-- An off-hand hit really uses the off-hand weapon: its damage, attack speed, enchantments, knockback, sweep and durability. If it breaks, it breaks in the off hand.
-- The attack cooldown and the crosshair indicator follow the weapon whose turn it is, and `dual_wield_speed_multiplier` (in `rules.json`) makes the cooldown shorter.
-- A target is protected for only `dual_wield_invulnerability_seconds` (0.25 s by default, vanilla 0.5 s) after a dual-wield hit, so fast weapons such as daggers never lose a hit.
-- Vanilla swords and axes no longer dual wield. A data pack can add items of other mods to the `better_weaponry:dual_wieldable` tag (empty by default), or a weapon file can adopt them with its `items` field.
-
-> With the default multiplier of 1.5, a pair deals about 1.2 times the damage per second of a sword.
-
-`dual_wield_enabled: false` in `rules.json` turns dual wielding off.
-
-### Combos
-
-Each weapon can have a **combo**: a series of hits that repeats, set by the `combo` object of its JSON file. By default, a combo ends with one special hit:
-
-| Weapon | Needs | Hits | Last hit |
-|---|---|---|---|
-| Dagger | two daggers | 4 | both daggers at once, 90° cone, 2.5 blocks |
-| Sickle | two sickles | 3 | both sickles at once, 120° cone, 3 blocks |
-| Chakram | two chakrams | 3 | both chakrams at once, all around, 3 blocks |
-| Spear | — | 3 | narrow thrust, 30° cone, 5 blocks |
-| Katana | — | 3 | focused cut, 90° cone, 4 blocks |
-| Claymore | — | 3 | half circle, 4 blocks |
-| Battleaxe | — | 2 | half circle, 3.5 blocks |
-| Hammer | — | 2 | shockwave all around, 2.5 blocks, strong knockback |
-| Scythe | — | 3 | all around, 4 blocks |
-
-- Only hits that land count: a swing in the air does not move the combo forward.
-- A hit charged below `min_charge` (90% by default, see the attack indicator under the crosshair) resets the combo, so spamming clicks does not work. The combo also starts over after `reset_after_seconds` without landing a hit, or when you switch weapons.
-- A dual-wielded weapon's combo only exists with the **same weapon type** in the other hand. Any other weapon has its combo on its own.
-- A special hit is always made with the main-hand weapon, and the next combo starts again from the main hand.
-- **Area hit** (`radius`, `angle`): hits every enemy within `radius` blocks in front of you (`angle` 360 = all around), with the vanilla sweep rules (charge, enchantments, Fire Aspect...) and the weapon's on-hit effects. It replaces the vanilla sweep for that hit. It never hits your allies, your tamed animals, marker armor stands, your mount, or players when PvP is off.
-- **Both weapons** (`both_hands`, with the same weapon type in each hand): **both arms swing at the same time** (first and third person, also seen by other players), damage = **average** of the two weapons, the effects of both weapons apply and both lose durability.
-- `damage_multiplier`, `knockback` and `cooldown_multiplier` change one hit. After a special hit, the next hit takes `cooldown_multiplier` times longer to charge (for a both-weapons hit, the average cooldown of the two weapons).
-- Feedback: a chime and sparkles when the next hit is the special one, and a progress indicator under the crosshair (dots, squares, segmented bar, ring or counter, see [Interface](#interface)).
-- Your game predicts the combo for the animation and the dots; the server decides the damage and corrects the combo if they ever disagree.
-- `combos_enabled: false` in `rules.json` turns every combo off.
-
-### Right-click abilities
-
-Each weapon has at most one right-click ability, set by the `ability` field of its JSON file: `"parry"`, `"dash"` or `"none"`. Only the main-hand weapon's ability is used.
-
-#### Parry
-
-By default the broadsword, katana, glaive, claymore and sai can **parry**, like swords in Minecraft 1.8:
-
-- Hold right click with the weapon in the **main hand**: the weapon tilts in front of you (1.8 pose in first person, arm raised in third person) and you move slowly.
-- Hits from the **front** are reduced by `parry.damage_reduction` (50% by default, like 1.8). Hits from behind, falls, fire, poison and other damage that a shield cannot block go through.
-- Each parried hit costs durability: half of the hit's damage, rounded down (`parry.durability_per_damage`). With a weapon in each hand, the wear is shared between both. It also makes a metallic sound (`better_weaponry:item.weapon.parry`, with a subtitle; a resource pack can replace it).
-- It works with one-handed and two-handed weapons. A one-handed weapon only parries with an **empty off hand**:
-  - a **shield** in the off hand is raised instead;
-  - a torch, food or a block in the off hand keeps its normal right-click action;
-  - a dual-wielded weapon also parries with another dual-wielded weapon in the off hand. Both weapons then take the parry pose, in first and third person.
-- A two-handed weapon always parries, since the off hand is locked.
-- **Perfect parry**: a hit taken during the first `parry.perfect_window_seconds` of the parry (0.25 s by default) is blocked entirely, without wear, with a sound and particles that depend on the weapon's material. Raising the guard again right after does not open a new window (`parry.perfect_cooldown_seconds`).
-- After a perfect parry, your next melee hit within `parry.perfect_bonus_seconds` (3 s, then the bonus is lost) deals `parry.perfect_damage_bonus` % more damage (20% by default).
-- **Guard break**: a hit from an axe or a weapon with `disables_shield` is still reduced, but it stops the parry and the weapon cannot parry for `parry.guard_break_seconds` (1.5 s by default, shared by every material). A perfect parry is never broken.
-- `parry_enabled: false` in `rules.json` turns the parry off for every weapon; `perfect_parry_enabled` and `guard_break_enabled` turn off only those two.
-
-#### Dash
-
-By default the dagger (sideways dodge) and the rapier (forward lunge) can **dash**:
-
-- Right click with the weapon in the **main hand**: you leap about `dash.distance` blocks (farther on ice or in mid-air), with a small hop, a whoosh (`better_weaponry:item.weapon.dash`) and a puff of cloud.
-- `dash.direction`: `"look"` goes where you look (horizontally), `"input"` goes where your movement keys point (A/D to dodge sideways, S to step back, forward when no key is held).
-- Then the weapon type has a cooldown (`dash.cooldown_seconds`), shown on the hotbar like an ender pearl's. It is shared by every material: switching to another dagger does not reset it.
-- Each dash uses a little food (`dash.hunger_cost`, 0.1 food point by default, about two sprint jumps). Like sprinting, it is impossible with 3 drumsticks or less.
-- It only works with the off hand **empty or holding a weapon** (dual wielding is fine): a shield is raised instead, a torch or food keeps its normal action. A two-handed weapon always dashes.
-- Never while riding, gliding with an elytra, or in water or lava. On the ground only, unless `dash.allow_airborne` is `true`.
-- The movement is done by the player's own game (like vanilla movement); the server handles the cooldown and the hunger.
-- `dash_enabled: false` in `rules.json` turns the dash off for every weapon.
 
 ### Shields
 
@@ -171,24 +90,6 @@ A mob holding one of the mod's weapons hits as hard as with a vanilla sword of t
 
 Mobs ignore `two_handed` and combos. They do respect the reach of their weapon, alternate hands when dual wielding, and can raise a guard with a shield or a parrying weapon; a guard reduces hits like a player's parry and an axe breaks it. 5% of skeletons throw shurikens, and patrol and raid captains carry a shield. All of this is off with `combat_changes_enabled: false`, Better Combat or Epic Fight, except for the weapons themselves.
 
-### Editor extras
-
-- **Creative tab**: the mod has its own tab: shields, melee weapons from the shortest to the longest reach, bows, crossbows, then shurikens.
-- **Comparison page**: compares damage, speed, DPS of one weapon, DPS of a pair, reach and armor penetration for the material of your choice, and shows the projectile speed of that material. DPS follows the real rhythm of the game, in whole ticks. Click a column to sort. It is also available in the Codex.
-- **Presets**, on the Rules page: "Close to vanilla", "PvP 1.8" and "Hard". Each one sets every switch of `rules.json` and the mobs of `gear.json`. Nothing is applied until you save.
-- **Statistics**, in the vanilla screen: perfect parries, shurikens thrown, health stolen.
-- **JEI and EMI** (optional): info pages for every enchantment and for the abilities of each item. To try them in a dev client: `gradlew :neoforge:runClient -Pbw_compat=jei` or `-Pbw_compat=emi`.
-
-### Tutorials
-
-The editor and the Codex have a **Tutorials** page, and a **?** button next to the related options. Each tutorial is a short animated scene with captions: two-handed weapons, dual wielding, parrying, perfect parry (with a timeline of the window), guard break, reach, attack area, armor penetration, dash and combos. Drag the mouse to turn the camera and scroll to zoom. The scenes use the current settings and also work from the main menu.
-
-In a tutorial, **Space** pauses, the **left and right arrows** move between steps and **R** replays. The top left shows the position (3/10), and the list button opens every tutorial, with a check mark on those you have seen.
-
-The first time you get a weapon type, a small notification suggests the tutorial that goes with it, one per weapon type and never the same tutorial twice. Press **H** (changeable in the game's controls) to open it; at any other time, the same key opens the list. The **Interface** page of the editor turns these suggestions off.
-
-Resource packs can replace the button icons: `assets/better_weaponry/textures/gui/sprites/tutorial/` holds `pause.png`, `replay.png`, `close.png`, `list.png` and `seen.png`. They are drawn at 10×10 on screen, and the default files include a 1-pixel shadow. The previous, play and next buttons use text characters.
-
 ### Enchantments
 
 | Enchantment | Effect | Goes on | How to get it |
@@ -201,23 +102,6 @@ Resource packs can replace the button icons: `assets/better_weaponry/textures/gu
 | Bleeding I-III | Charged hits make the target bleed 0.5 HP per second for 2/3/4 s (skeletons are immune, incompatible with Fire Aspect and Vampirism) | Sickles, scythes, katanas | Enchanting table, Nether chests |
 
 Reflective, Riposte and Momentum follow the weapon's configured `ability`: giving `parry` to a weapon in the editor makes it accept them. Descriptions are provided for the Enchantment Descriptions mod. With Better Combat or Epic Fight, Reflective only goes on shields and works on any block; Riposte and Momentum no longer apply.
-
-### Tooltips
-
-Each player chooses how weapon tooltips look on the **Tooltips** page of the editor: for each kind of line, its place (above the stats, with the stats, in the details, or hidden) and its color, with a live preview and three presets. By default:
-
-- **Two Handed** or **Dual Wielded** in dark gray, right above "When in Main Hand";
-- reach, damage, attack speed and armor penetration in dark green;
-- the sweep ratio, shield disabling and projectile speed hidden (each can be turned back on on this page);
-- on-hit effects, abilities and combos only while holding the "Weapon details" key (Shift by default, changeable in the game's controls).
-
-Tooltips stay short: "Parry", "Dash: ~3.5 blocks, 1.5 s", or "Combo 3: 360°, damage ×1.6" (the hit number, plus the area and the damage when they are higher than a normal hit). The in-game tutorials explain how each mechanic works.
-
-### Interface
-
-The **Interface** page of the editor turns the on-screen element on or off and opens a screen to drag it anywhere: the combo progress (dots, squares, segmented bar, ring around the crosshair, or counter).
-
-**Show attack zones** is a debug view to tune weapons by eye: a white circle for the reach, cyan arcs for the combo zones (gold for the next hit), and a green box for the sweep zone around the target.
 
 ### Localization
 
@@ -477,23 +361,19 @@ Set `balance_abilities` to `true` in `rules.json` to also count these properties
 
 ---
 
-## Better Combat and Epic Fight compatibility
+## Other combat mods
 
-The mod checks at runtime whether `bettercombat` or `epicfight` is loaded. These mods have their own combos, reach, dual wield and two-handed systems, so **all of the mod's combat systems turn off** (everything `rules.json` can switch), and the editor says so. The weapons themselves and their enchantments stay available.
+Better Weaponry detects these mods and adapts. It never needs them.
 
-`./gradlew :neoforge:runData` writes one Better Combat weapon attribute file per weapon (`data/better_weaponry/weapon_attributes/<item>.json`, 650 files). Each one uses a Better Combat preset and forces the number of hands of Better Weaponry's defaults:
+| Mod | What changes |
+|---|---|
+| Combat Reforged | Weapons get their combos, parries and abilities. Stats stay those of Better Weaponry 2.0. Reach is handled by Combat Reforged |
+| Better Combat | Every weapon has a Better Combat preset and its own range. Dual-wielded weapons get a damage profile adapted to its attack speed |
+| Epic Fight | Every weapon has an Epic Fight type and hit area. Damage and speed offsets are set in the generated files |
 
-| Weapon | Preset | Weapon | Preset |
-|---|---|---|---|
-| Broadsword | `sword` | Battleaxe | `heavy_axe` |
-| Spear | `spear` (one-handed) | Glaive | `glaive` |
-| Dagger | `dagger` | Hammer | `hammer` |
-| Scythe | `scythe` | Claymore | `claymore` |
-| Rapier | `rapier` | Chakram | `sickle` |
-| Sickle | `sickle` | Sai | `dagger` |
-| Katana | `katana` | | |
+The weapons' own reach turns off when a mod listed in `reach_disabled_by_mods` (`config/better_weaponry/compat.json`) is loaded. By default: `bettercombat`, `combat_reforged`, `epicfight`.
 
-The mapping is in `datagen/BetterCombatAttributesProvider.java`. Better Combat ignores the files of weapons whose mod is not installed.
+Damage values follow a profile chosen from the loaded mods, in `data/better_weaponry/better_weaponry/balance/`. Your own values in `config/better_weaponry/weapons/` always win.
 
 ---
 

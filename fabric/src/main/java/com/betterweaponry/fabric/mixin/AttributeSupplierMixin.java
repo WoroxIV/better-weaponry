@@ -1,7 +1,6 @@
 package com.betterweaponry.fabric.mixin;
 
 import com.betterweaponry.fabric.FabricAttributes;
-import com.betterweaponry.registry.ModAttributes;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -18,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Map;
 import java.util.function.Consumer;
 
-/** Les attributs du mod existent sur toutes les créatures (joueurs, mais aussi mobs qui tiendraient une arme), à leur valeur par défaut. */
+/** La portée du mod existe sur toutes les créatures (joueurs, mais aussi mobs qui tiendraient une arme), à sa valeur par défaut. */
 @Mixin(AttributeSupplier.class)
 public abstract class AttributeSupplierMixin {
     @Shadow @Final private Map<Attribute, AttributeInstance> instances;
@@ -37,7 +36,6 @@ public abstract class AttributeSupplierMixin {
 
     @Unique
     private static boolean betterweaponry$isModAttribute(Attribute attribute) {
-        return attribute == ModAttributes.ARMOR_PENETRATION.get() || attribute == ModAttributes.SWEEPING_DAMAGE_RATIO.get()
-                || attribute == FabricAttributes.ENTITY_REACH.get();
+        return attribute == FabricAttributes.ENTITY_REACH.get();
     }
 }

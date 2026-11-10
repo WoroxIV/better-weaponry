@@ -1,35 +1,7 @@
 {
   "format_version": 1,
-  "two_handed": false,
-  "dual_wielded": true,
   "attack_speed": 1.6,
   "attack_reach": 3.0,
   "base_damage": 3.0,
-  "material_damage": {},
-  "armor_penetration": 20,
-  "disables_shield": false,
-  "on_hit_effects": [],
-  "sweep": {
-    "enabled": false,
-    "radius": 1.0,
-    "damage_ratio": 0
-  },
-  "ability": "dash",
-  "parry": {
-    "damage_reduction": 50,
-    "durability_per_damage": 0.5
-  },
-  "dash": {
-    "distance": 4.5,
-    "cooldown_seconds": 2.5,
-    "direction": "look",
-    "allow_airborne": false,
-    "hunger_cost": 0.1
-  },
-  "combo": {
-    "enabled": false,
-    "reset_after_seconds": 2.0,
-    "min_charge": 90,
-    "steps": []
-  }
+  "material_damage": {}
 }

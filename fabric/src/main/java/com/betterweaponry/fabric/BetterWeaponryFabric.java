@@ -1,9 +1,6 @@
 package com.betterweaponry.fabric;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.combat.AdoptedItemEvents;
-import com.betterweaponry.combat.CombatEvents;
-import com.betterweaponry.combat.TwoHandedSystem;
 import com.betterweaponry.command.BetterWeaponryCommand;
 import com.betterweaponry.data.WeaponDataEvents;
 import com.betterweaponry.data.WeaponDataLoader;
@@ -18,13 +15,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.fabric.api.item.v1.ModifyItemAttributeModifiersCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -36,9 +28,6 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -63,25 +52,8 @@ public final class BetterWeaponryFabric implements ModInitializer {
         // Côté client, on attend que le jeu soit prêt pour connaître sa langue (BetterWeaponryFabricClient).
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) BetterWeaponry.prepareConfigFolder();
 
-        FabricNetwork.register();
-        registerCombat();
         registerWorld();
         registerData();
-    }
-
-    private static void registerCombat() {
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> CombatEvents.onChangedDimension(player));
-        UseItemCallback.EVENT.register((player, level, hand) -> {
-            if (TwoHandedSystem.isLockedHand(player, hand)) return InteractionResultHolder.fail(player.getItemInHand(hand));
-            if (AdoptedItemEvents.onRightClickItem(player, hand, player.getItemInHand(hand), level)) return InteractionResultHolder.consume(player.getItemInHand(hand));
-            return InteractionResultHolder.pass(player.getItemInHand(hand));
-        });
-        UseBlockCallback.EVENT.register((player, level, hand, hit) -> TwoHandedSystem.isLockedHand(player, hand) ? InteractionResult.FAIL : InteractionResult.PASS);
-        UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> TwoHandedSystem.isLockedHand(player, hand) ? InteractionResult.FAIL : InteractionResult.PASS);
-
-        ModifyItemAttributeModifiersCallback.EVENT.register((stack, slot, modifiers) -> {
-            if (slot == EquipmentSlot.MAINHAND) AdoptedItemEvents.collectModifiers(stack, modifiers::put);
-        });
     }
 
     private static void registerWorld() {

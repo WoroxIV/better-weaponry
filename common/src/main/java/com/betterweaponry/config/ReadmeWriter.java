@@ -4,7 +4,7 @@ import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.data.DataField;
 import com.betterweaponry.data.FieldSet;
 import com.betterweaponry.data.GearDefinition;
-import com.betterweaponry.data.RulesDefinition;
+import com.betterweaponry.compat.CompatDefinition;
 import com.betterweaponry.data.WeaponDefinition;
 import com.betterweaponry.item.WeaponType;
 
@@ -38,7 +38,7 @@ final class ReadmeWriter {
         out.append('\n');
 
         appendFields(out, docs, WeaponDefinition.FIELDS, KEY + "weapon_fields");
-        appendFields(out, docs, RulesDefinition.FIELDS, KEY + "rules_fields");
+        appendFields(out, docs, CompatDefinition.FIELDS, KEY + "compat_fields");
         appendFields(out, docs, GearDefinition.FIELDS, KEY + "gear_fields");
         return out.toString();
     }

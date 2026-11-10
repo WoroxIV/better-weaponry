@@ -1,31 +1,19 @@
 package com.betterweaponry.fabric.mixin;
 
-import com.betterweaponry.combat.CombatEvents;
 import com.betterweaponry.combat.EnchantmentEvents;
-import com.betterweaponry.combat.TwoHandedSystem;
-import com.betterweaponry.combat.WeaponProfiles;
-import com.betterweaponry.data.WeaponData;
-import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.platform.Platform;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Ce que Forge modifie dans le joueur, et que Fabric laisse tel quel. */
+/** Ce que le jeu de base réserve au bouclier vanilla, et les dégâts infligés à un joueur. */
 @Mixin(Player.class)
 public abstract class PlayerFabricMixin {
 
@@ -34,22 +22,6 @@ public abstract class PlayerFabricMixin {
     private void betterweaponry$damageDealt(CombatTracker tracker, DamageSource source, float damage, Operation<Void> original) {
         original.call(tracker, source, damage);
         EnchantmentEvents.onDamageDealt((Player) (Object) this, source, damage);
-    }
-
-    /** Armes sans coup balayé, et coup spécial en zone qui remplace le balayage. */
-    @WrapOperation(method = "attack", constant = @Constant(classValue = SwordItem.class))
-    private boolean betterweaponry$mayNotSweep(Object item, Operation<Boolean> original) {
-        return original.call(item) && !CombatEvents.preventsSweep((Player) (Object) this);
-    }
-
-    /** Zone touchée par le coup balayé autour de la cible. */
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;inflate(DDD)Lnet/minecraft/world/phys/AABB;"))
-    private AABB betterweaponry$sweepZone(AABB box, double x, double y, double z, Operation<AABB> original, @Local(argsOnly = true) Entity target) {
-        Player player = (Player) (Object) this;
-        ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() instanceof WeaponItem weapon) return weapon.getSweepHitBox(stack, player, target);
-        if (WeaponData.rules().sweepActive() && WeaponProfiles.isAdopted(stack)) return WeaponItem.sweepZone(WeaponProfiles.definition(stack).orElseThrow(), target);
-        return original.call(box, x, y, z);
     }
 
     /** Le jeu de base met toujours en recharge le bouclier vanilla : ici, celui qui est tenu. */
@@ -63,11 +35,5 @@ public abstract class PlayerFabricMixin {
     @WrapOperation(method = "hurtCurrentlyUsedShield", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
     private boolean betterweaponry$wearAnyShield(ItemStack stack, Item item, Operation<Boolean> original) {
         return original.call(stack, item) || Platform.get().isShield(stack);
-    }
-
-    /** Une utilisation commencée avant de prendre l'arme à deux mains : côté client et côté serveur. */
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void betterweaponry$stopLockedOffhandUse(CallbackInfo ci) {
-        TwoHandedSystem.stopLockedOffhandUse((Player) (Object) this);
     }
 }

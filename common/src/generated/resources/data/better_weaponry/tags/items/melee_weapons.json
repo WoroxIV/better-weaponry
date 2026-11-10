@@ -4,7 +4,7 @@
     "#minecraft:axes",
     "minecraft:trident",
     {
-      "id": "#forge:tools/melee_weapon",
+      "id": "#c:tools/melee_weapon",
       "required": false
     }
   ]

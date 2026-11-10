@@ -1,12 +1,9 @@
 package com.betterweaponry.gametest;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.config.EditorFiles;
 import com.betterweaponry.config.LegacyConfigMigration;
 import com.betterweaponry.data.JsonUtil;
-import com.betterweaponry.data.RulesDefinition;
 import com.betterweaponry.data.WeaponDataLoader;
-import com.betterweaponry.editor.EditorDocument;
 import com.betterweaponry.item.WeaponType;
 import com.google.gson.JsonObject;
 import net.minecraft.gametest.framework.GameTest;
@@ -26,7 +23,7 @@ public final class ForgeGameTests {
     private ForgeGameTests() {
     }
 
-    /** Réglages 1.x propres à un monde : convertis dans le datapack de l'éditeur, et l'ancien fichier est mis de côté. */
+    /** Réglages 1.x propres à un monde : convertis dans un datapack du monde, et l'ancien fichier est mis de côté. */
     @GameTest(template = ARENA)
     public static void legacyWorldConfigIsConverted(GameTestHelper helper) {
         try {
@@ -39,11 +36,9 @@ public final class ForgeGameTests {
             helper.assertFalse(Files.exists(legacy), "the old file should be moved away");
             helper.assertTrue(Files.exists(legacy.resolveSibling(LegacyConfigMigration.LEGACY_FILE_NAME + ".old")), "the old file should be kept as .old");
 
-            Path data = EditorFiles.editorPack(worldRoot).resolve("data").resolve(BetterWeaponry.MODID).resolve(WeaponDataLoader.DATA_DIRECTORY);
-            JsonObject glaive = JsonUtil.parseLenient(Files.readString(data.resolve(EditorDocument.weapon(WeaponType.GLAIVE).relativePath()))).getAsJsonObject();
+            Path data = worldRoot.resolve("datapacks/better_weaponry_migrated_1x/data/better_weaponry/better_weaponry/weapons");
+            JsonObject glaive = JsonUtil.parseLenient(Files.readString(data.resolve("glaive.json"))).getAsJsonObject();
             helper.assertTrue(glaive.get("attack_speed").getAsDouble() == 2.5D, "the changed value should be converted: " + glaive);
-            JsonObject rules = JsonUtil.parseLenient(Files.readString(data.resolve(EditorDocument.rules().relativePath()))).getAsJsonObject();
-            helper.assertTrue(rules.get(RulesDefinition.DUAL_WIELD_SPEED_MULTIPLIER.name()).getAsDouble() == 3.0D, "the global rule should be converted: " + rules);
 
             helper.assertFalse(LegacyConfigMigration.migrateWorld(worldRoot), "a converted world should not be converted twice");
             try (var files = Files.walk(worldRoot)) {

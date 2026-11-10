@@ -162,13 +162,7 @@ final class ForgePlatform implements Platform {
 
     @Override
     public void migrateLegacyConfig() {
-        LegacyConfigMigration.migrateClientConfig();
         LegacyConfigMigration.migrateIfPresent();
-    }
-
-    @Override
-    public WeaponItem createWeapon(WeaponType type, WeaponMaterial material, Item.Properties properties) {
-        return new ForgeWeaponItem(type, material, properties);
     }
 
     @Override

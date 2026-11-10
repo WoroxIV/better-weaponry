@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_spear",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_spear",
+      "required": false
+    }
+  ]
+}

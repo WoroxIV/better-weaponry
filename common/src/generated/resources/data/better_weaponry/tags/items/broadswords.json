@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_broadsword",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_broadsword",
+      "required": false
+    }
+  ]
+}

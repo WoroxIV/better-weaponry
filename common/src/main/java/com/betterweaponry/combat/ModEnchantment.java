@@ -1,6 +1,5 @@
 package com.betterweaponry.combat;
 
-import com.betterweaponry.item.WeaponItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -8,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentCategory;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -61,13 +59,8 @@ public final class ModEnchantment extends Enchantment {
         return super.checkCompatibility(other) && !exclusiveWith.contains(BuiltInRegistries.ENCHANTMENT.getKey(other));
     }
 
-    /** Une arme du mod suit sa capacité configurée ; le reste dépend du type d'objet. */
     @Override
     public boolean canEnchant(ItemStack stack) {
-        if (stack.getItem() instanceof WeaponItem weapon) {
-            Optional<Boolean> byAbility = ModEnchantments.supportedByAbility(weapon.definition(), this);
-            if (byAbility.isPresent()) return byAbility.get();
-        }
         return accepted.test(stack);
     }
 

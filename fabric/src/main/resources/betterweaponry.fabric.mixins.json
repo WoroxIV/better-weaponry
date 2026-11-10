@@ -13,7 +13,6 @@
     "PiglinArmPoseMixin",
     "PillagerArmPoseMixin",
     "PlayerFabricMixin",
-    "ProjectileFabricMixin",
     "ProjectileUtilMixin",
     "ServerGamePacketListenerMixin",
     "ServerLevelMixin"
@@ -23,7 +22,6 @@
     "GameRendererMixin",
     "ItemInHandRendererFabricMixin",
     "ItemRendererFabricMixin",
-    "KeyMappingFabricMixin",
     "PlayerRendererFabricMixin"
   ],
   "injectors": {

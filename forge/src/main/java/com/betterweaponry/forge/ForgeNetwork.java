@@ -1,12 +1,7 @@
 package com.betterweaponry.forge;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.network.ComboSyncPayload;
-import com.betterweaponry.network.DualSwingPayload;
-import com.betterweaponry.network.EditorResultPayload;
-import com.betterweaponry.network.OpenEditorPayload;
 import com.betterweaponry.network.Payload;
-import com.betterweaponry.network.SaveDocumentPayload;
 import com.betterweaponry.network.WeaponDataSyncPayload;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +15,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-/** Les paquets du mod sur Forge. Les réceptions côté client sont dans {@link ForgeClientPackets}, jamais chargée sur un serveur dédié. */
+/** Les paquets du mod sur Forge. */
 final class ForgeNetwork {
     /** À augmenter quand le format d'un paquet change : un client et un serveur différents refuseront de se connecter. */
     private static final String PROTOCOL_VERSION = "1";
@@ -33,19 +28,6 @@ final class ForgeNetwork {
 
     static void register() {
         toClient(WeaponDataSyncPayload.class, WeaponDataSyncPayload::read, payload -> WeaponDataSyncPayload.handle(payload));
-        toClient(ComboSyncPayload.class, ComboSyncPayload::read, payload -> ForgeClientPackets.combo(payload));
-        toClient(DualSwingPayload.class, DualSwingPayload::read, payload -> ForgeClientPackets.dualSwing(payload));
-        toClient(OpenEditorPayload.class, OpenEditorPayload::read, payload -> OpenEditorPayload.handle(payload));
-        toClient(EditorResultPayload.class, EditorResultPayload::read, payload -> EditorResultPayload.handle(payload));
-
-        CHANNEL.messageBuilder(SaveDocumentPayload.class, nextId++, NetworkDirection.PLAY_TO_SERVER)
-                .encoder(SaveDocumentPayload::write)
-                .decoder(SaveDocumentPayload::read)
-                .consumerMainThread((payload, context) -> {
-                    ServerPlayer sender = context.get().getSender();
-                    if (sender != null) SaveDocumentPayload.handle(payload, sender);
-                })
-                .add();
     }
 
     private static <T extends Payload> void toClient(Class<T> type, Function<FriendlyByteBuf, T> reader, Consumer<T> handler) {

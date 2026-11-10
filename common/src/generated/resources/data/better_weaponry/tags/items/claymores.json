@@ -1,0 +1,204 @@
+{
+  "values": [
+    {
+      "id": "better_weaponry:wooden_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:stone_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:iron_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:golden_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:diamond_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:netherite_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:bronze_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:silver_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lead_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:nickel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:aluminum_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:electrum_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:constantan_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:osmium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_obsidian_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:refined_glowstone_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:invar_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:signalum_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lumium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:enderium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:brass_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:andesite_alloy_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manasteel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:elementium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:terrasteel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ironwood_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:steeleaf_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:knightmetal_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fiery_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:certus_quartz_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fluix_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:zanite_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:gravitite_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:warden_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:dragonbone_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:fire_dragonsteel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ice_dragonsteel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:lightning_dragonsteel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cobalt_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:manyullyn_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:allthemodium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:vibranium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:unobtainium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:ignitium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cursium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:cloggrum_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:froststeel_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:utherium_claymore",
+      "required": false
+    },
+    {
+      "id": "better_weaponry:forgotten_claymore",
+      "required": false
+    }
+  ]
+}
