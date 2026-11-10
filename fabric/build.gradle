@@ -15,15 +15,20 @@ dependencies {
         officialMojangMappings()
         parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
     }
-    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    def compat = project.findProperty('bw_compat')?.toString()?.split(',') as List ?: []
+    // JEI demande un chargeur plus récent que celui exigé par le mod : seulement quand on le teste en développement.
+    modImplementation "net.fabricmc:fabric-loader:${'jei' in compat ? jei_fabric_loader_version : fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
     // Mods optionnels, seulement pour compiler nos plugins. Pour tester : gradlew :fabric:runClient -Pbw_compat=jei,modmenu (ou emi).
     modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
     modCompileOnly "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}"
     modCompileOnly "dev.emi:emi-fabric:${emi_version}:api"
-    def compat = project.findProperty('bw_compat')?.toString()?.split(',') as List ?: []
-    if ('jei' in compat) modLocalRuntime "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+    if ('jei' in compat) {
+        modLocalRuntime "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+        // Le jar de JEI embarque ce mod, mais Loom retire les jars imbriqués en développement.
+        modLocalRuntime "net.mezzdev.config:mezz_config-${minecraft_version}-fabric:${mezz_config_version}"
+    }
     if ('emi' in compat) modLocalRuntime "dev.emi:emi-fabric:${emi_version}"
     if ('modmenu' in compat) modLocalRuntime "com.terraformersmc:modmenu:${modmenu_version}"
 }
@@ -55,34 +60,87 @@ loom {
     }
 }
 
-// Les recettes sont générées pour NeoForge : on traduit leurs conditions pour Fabric au moment de construire le jar.
+// Les données sont générées au format Forge : on les traduit pour Fabric au moment de construire le jar.
+// Les tags communs "forge:ingots/iron" s'écrivent "c:iron_ingots" sur Fabric en 1.20.1.
+def fabricTag = { String tag ->
+    def path = tag.substring('forge:'.length())
+    def specific = ['gems/diamond': 'diamonds', 'rods/wooden': 'wooden_rods'][path]
+    if (specific) return "c:${specific}".toString()
+    if (path.startsWith('tools/')) return "c:${path.substring('tools/'.length())}".toString()
+    def separator = path.indexOf('/')
+    return separator < 0 ? "c:${path}".toString() : "c:${path.substring(separator + 1)}_${path.substring(0, separator)}".toString()
+}
+
 def fabricCondition
 fabricCondition = { Map condition ->
     switch (condition.type) {
-        case 'neoforge:mod_loaded':
+        case 'forge:mod_loaded':
             return [condition: 'fabric:all_mods_loaded', values: [condition.modid]]
-        case 'neoforge:tag_empty':
-            return [condition: 'fabric:not', value: [condition: 'fabric:tags_populated', registry: 'minecraft:item', values: [condition.tag]]]
-        case 'neoforge:not':
+        case 'forge:tag_empty':
+            def tag = condition.tag.startsWith('forge:') ? fabricTag(condition.tag) : condition.tag
+            return [condition: 'fabric:not', value: [condition: 'fabric:item_tags_populated', values: [tag]]]
+        case 'forge:not':
             return [condition: 'fabric:not', value: fabricCondition(condition.value)]
-        case 'neoforge:or':
+        case 'forge:or':
             return [condition: 'fabric:or', values: condition.values.collect { fabricCondition(it) }]
-        case 'neoforge:false':
-            return [condition: 'fabric:not', value: [condition: 'fabric:true']]
         default:
             throw new GradleException("Unknown recipe condition: ${condition.type}")
     }
+}
+
+def convertIngredientTags
+convertIngredientTags = { node ->
+    if (node instanceof Map) {
+        return node.collectEntries { key, value ->
+            [key, key == 'tag' && value instanceof String && value.startsWith('forge:') ? fabricTag(value) : convertIngredientTags(value)]
+        }
+    }
+    return node instanceof List ? node.collect { convertIngredientTags(it) } : node
+}
+
+// Une référence vers un tag commun reste facultative : un tag absent ne doit pas faire échouer le tag qui le cite.
+def convertTagValue = { value ->
+    def id = value instanceof Map ? value.id : value
+    if (!(id instanceof String) || !id.startsWith('#forge:')) return value
+    return [id: "#${fabricTag(id.substring(1))}".toString(), required: false]
 }
 
 tasks.named('processResources', ProcessResources) {
     doLast {
         def data = new File(destinationDir, 'data')
         data.eachFileRecurse { file ->
-            if (!file.isFile() || !file.name.endsWith('.json') || !file.text.contains('neoforge:conditions')) return
-            def json = new JsonSlurper().parse(file)
-            def converted = ['fabric:load_conditions': json.remove('neoforge:conditions').collect { fabricCondition(it) }] + json
-            file.text = JsonOutput.toJson(converted)
+            if (!file.isFile() || !file.name.endsWith('.json') || !file.getText('UTF-8').contains('forge:')) return
+            def json = new JsonSlurper().parse(file, 'UTF-8')
+            if (file.toURI().path.contains('/tags/')) {
+                json.values = json.values.collect { convertTagValue(it) }
+            } else {
+                def conditions = json.conditions
+                if (conditions instanceof List && conditions.every { it.type?.startsWith('forge:') }) {
+                    json.remove('conditions')
+                    json = ['fabric:load_conditions': conditions.collect { fabricCondition(it) }] + json
+                }
+                json = convertIngredientTags(json)
+            }
+            file.setText(JsonOutput.toJson(json), 'UTF-8')
         }
+
+        // Les tags du dossier "forge" passent dans le dossier des tags communs de Fabric.
+        def commonItemTags = new File(data, 'c/tags/items')
+        commonItemTags.mkdirs()
+        def forgeItemTags = new File(data, 'forge/tags/items')
+        if (forgeItemTags.exists()) {
+            forgeItemTags.eachFileRecurse { file ->
+                if (!file.isFile()) return
+                def name = forgeItemTags.toURI().relativize(file.toURI()).path - '.json'
+                def target = new File(commonItemTags, "${fabricTag("forge:${name}").substring('c:'.length())}.json")
+                target.setText(file.getText('UTF-8'), 'UTF-8')
+            }
+            new File(data, 'forge').deleteDir()
+        }
+
+        // Fabric API ne fournit pas ces deux tags, qui servent aux recettes de toutes les armes.
+        new File(commonItemTags, 'wooden_rods.json').setText(JsonOutput.toJson([replace: false, values: ['minecraft:stick']]), 'UTF-8')
+        new File(commonItemTags, 'string.json').setText(JsonOutput.toJson([replace: false, values: ['minecraft:string']]), 'UTF-8')
     }
 }
 

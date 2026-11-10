@@ -2628,10 +2628,30 @@ public final class CombatGameTests {
     }
 
     /** Joueur factice tenant ces objets, avec leurs bonus d'attributs appliqués (comme quand on les équipe). */
+    /** La portée affichée est la portée réelle en blocs, en survie comme en créatif ; les objets vanilla gardent celle du jeu. */
+    @GameTest(template = ARENA)
+    public static void weaponReachMatchesTheTooltip(GameTestHelper helper) {
+        for (WeaponType type : WeaponType.values()) {
+            double shown = WeaponData.weapon(type).attackReach();
+            for (GameType mode : List.of(GameType.SURVIVAL, GameType.CREATIVE)) {
+                double reach = Platform.get().entityReach(holding(helper, new ItemStack(ModItems.get(type, WeaponMaterials.IRON).get()), mode));
+                helper.assertTrue(reach == shown, type + " should reach " + shown + " blocks in " + mode + ", not " + reach);
+            }
+        }
+        helper.assertTrue(Platform.get().entityReach(holding(helper, new ItemStack(Items.IRON_SWORD), GameType.SURVIVAL)) == 3.0D, "a vanilla sword should keep its reach in survival");
+        helper.assertTrue(Platform.get().entityReach(holding(helper, new ItemStack(Items.IRON_SWORD), GameType.CREATIVE)) > 3.0D, "a vanilla sword should keep the reach bonus of creative mode");
+        helper.succeed();
+    }
+
     private static Player player(GameTestHelper helper, ItemStack mainHand, ItemStack offHand) {
-        Player player = makeMockPlayer(helper, GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, mainHand);
+        Player player = holding(helper, mainHand, GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.OFF_HAND, offHand);
+        return player;
+    }
+
+    private static Player holding(GameTestHelper helper, ItemStack mainHand, GameType mode) {
+        Player player = makeMockPlayer(helper, mode);
+        player.setItemInHand(InteractionHand.MAIN_HAND, mainHand);
         mainHand.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
             AttributeInstance instance = player.getAttribute(attribute);
             if (instance != null && instance.getModifier(modifier.getId()) == null) instance.addTransientModifier(modifier);

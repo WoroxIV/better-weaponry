@@ -1,13 +1,13 @@
 # Better Weaponry
 
-A mod for Minecraft **1.20.1**, on Forge, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
+A mod for Minecraft **1.20.1**, on Forge and Fabric, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier, with two-handed weapons, dual wielding, combos, parries, dashes, new enchantments and animated in-game tutorials. Every stat can be changed in an in-game editor or in JSON files, for all worlds or per world.
 
 - **Mod ID:** `better_weaponry`
 - **Version:** 2.0.0
 - **Author:** WoroxIV
-- **Loader:** Forge 47.4 or newer. The 1.21.1 version (NeoForge and Fabric) is on the `mc/1.21.1` branch
-- **Java:** 21
-- **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) and Epic Fight compatibility, JEI and EMI information pages
+- **Loaders:** Forge 47.4 or newer, or Fabric with [Fabric API](https://modrinth.com/mod/fabric-api). The 1.21.1 version (NeoForge and Fabric) is on the `mc/1.21.1` branch
+- **Java:** 17
+- **Optional:** [Better Combat](https://modrinth.com/mod/better-combat) and Epic Fight compatibility, JEI and EMI information pages (JEI on Fabric needs Fabric Loader 0.19.4 or newer)
 - **Download:** [Modrinth](https://modrinth.com/mod/better-weaponry), [CurseForge](https://www.curseforge.com/minecraft/mc-mods/better-weaponry-system)
 - **Bug reports:** [GitHub issues](https://github.com/WoroxIV/better-weaponry/issues)
 
@@ -40,7 +40,7 @@ Example: `/give @s better_weaponry:netherite_katana`
 - All weapons extend `SwordItem`. They use their tier's durability, enchantability and repair material.
 - They are added to the `minecraft:swords` item tag, so sword enchantments (Sharpness, Looting, etc.) work on them.
 - They have their own **Better Weaponry** creative tab, from the shortest reach to the longest.
-- Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute.
+- Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute. It is the real distance in blocks in every game mode: the extra reach of Creative mode only applies to other items.
 - The sweep-attack particle appears at `reach / 3` blocks in front of the player (vanilla: always 1 block, which matches reach 3). A dagger sweeps close, a spear or scythe sweeps far away.
 - Each weapon can have **armor penetration**, **on-hit effects** (slowness...), its own **sweep attack** (none for thrusting weapons, wider for the scythe) and can **disable shields** like an axe (see [Combat properties](#combat-properties)).
 - Netherite weapons (and those made of fire-resistant modded materials: warden, fiery, ignitium) float in lava and do not burn, like vanilla netherite.

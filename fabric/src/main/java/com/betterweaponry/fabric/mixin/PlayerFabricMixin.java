@@ -1,15 +1,16 @@
 package com.betterweaponry.fabric.mixin;
 
 import com.betterweaponry.combat.CombatEvents;
+import com.betterweaponry.combat.EnchantmentEvents;
 import com.betterweaponry.combat.TwoHandedSystem;
 import com.betterweaponry.combat.WeaponProfiles;
 import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.platform.Platform;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -24,15 +25,15 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Ce que NeoForge modifie dans le joueur, et que Fabric laisse tel quel. */
+/** Ce que Forge modifie dans le joueur, et que Fabric laisse tel quel. */
 @Mixin(Player.class)
 public abstract class PlayerFabricMixin {
 
-    /** Après l'armure : plafond des dégâts entre joueurs. */
-    @ModifyExpressionValue(method = "actuallyHurt", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getDamageAfterMagicAbsorb(Lnet/minecraft/world/damagesource/DamageSource;F)F"))
-    private float betterweaponry$capPvpHit(float damage, @Local(argsOnly = true) DamageSource source) {
-        return CombatEvents.capPvpHit((Player) (Object) this, source, damage);
+    /** Les dégâts finaux reçus par un joueur, une fois l'armure et l'absorption comptées. */
+    @WrapOperation(method = "actuallyHurt", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/damagesource/CombatTracker;recordDamage(Lnet/minecraft/world/damagesource/DamageSource;F)V"))
+    private void betterweaponry$damageDealt(CombatTracker tracker, DamageSource source, float damage, Operation<Void> original) {
+        original.call(tracker, source, damage);
+        EnchantmentEvents.onDamageDealt((Player) (Object) this, source, damage);
     }
 
     /** Armes sans coup balayé, et coup spécial en zone qui remplace le balayage. */

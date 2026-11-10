@@ -3,15 +3,12 @@ package com.betterweaponry.fabric;
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.AdoptedItemEvents;
 import com.betterweaponry.combat.CombatEvents;
-import com.betterweaponry.combat.EnchantmentEvents;
 import com.betterweaponry.combat.TwoHandedSystem;
 import com.betterweaponry.command.BetterWeaponryCommand;
 import com.betterweaponry.data.WeaponDataEvents;
 import com.betterweaponry.data.WeaponDataLoader;
 import com.betterweaponry.event.VanillaGearEvents;
-import com.betterweaponry.item.ShurikenItem;
 import com.betterweaponry.item.VanillaGear;
-import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterials;
 import com.betterweaponry.platform.Platform;
 import com.betterweaponry.registry.ModItems;
@@ -22,18 +19,17 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.fabricmc.fabric.api.item.v1.ModifyItemAttributeModifiersCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.util.TriState;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -42,6 +38,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -60,6 +57,7 @@ public final class BetterWeaponryFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         Platform.set(new FabricPlatform());
+        FabricAttributes.init();
         BetterWeaponry.init();
         ModStats.registerFormats();
         // Côté client, on attend que le jeu soit prêt pour connaître sa langue (BetterWeaponryFabricClient).
@@ -73,10 +71,6 @@ public final class BetterWeaponryFabric implements ModInitializer {
 
     private static void registerCombat() {
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> CombatEvents.onChangedDimension(player));
-        ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damage, blocked) -> {
-            if (!blocked) EnchantmentEvents.onDamageDealt(entity, source, damage);
-        });
-
         UseItemCallback.EVENT.register((player, level, hand) -> {
             if (TwoHandedSystem.isLockedHand(player, hand)) return InteractionResultHolder.fail(player.getItemInHand(hand));
             if (AdoptedItemEvents.onRightClickItem(player, hand, player.getItemInHand(hand), level)) return InteractionResultHolder.consume(player.getItemInHand(hand));
@@ -85,15 +79,8 @@ public final class BetterWeaponryFabric implements ModInitializer {
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> TwoHandedSystem.isLockedHand(player, hand) ? InteractionResult.FAIL : InteractionResult.PASS);
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> TwoHandedSystem.isLockedHand(player, hand) ? InteractionResult.FAIL : InteractionResult.PASS);
 
-        allowEnchantingByAbility();
-    }
-
-    /** Reflective, Riposte et Élan suivent la capacité de l'arme ; un shuriken refuse Infinité et Charge rapide. */
-    private static void allowEnchantingByAbility() {
-        net.fabricmc.fabric.api.item.v1.EnchantmentEvents.ALLOW_ENCHANTING.register((enchantment, target, context) -> {
-            if (target.getItem() instanceof WeaponItem weapon) return TriState.of(weapon.supportsEnchantment(target, enchantment));
-            if (target.getItem() instanceof ShurikenItem shuriken) return TriState.of(shuriken.supportsEnchantment(target, enchantment));
-            return TriState.DEFAULT;
+        ModifyItemAttributeModifiersCallback.EVENT.register((stack, slot, modifiers) -> {
+            if (slot == EquipmentSlot.MAINHAND) AdoptedItemEvents.collectModifiers(stack, modifiers::put);
         });
     }
 
@@ -138,7 +125,7 @@ public final class BetterWeaponryFabric implements ModInitializer {
 
     /** Le chargeur de données, avec le nom que Fabric demande. */
     private static final class WeaponDataReloadListener implements IdentifiableResourceReloadListener {
-        private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "weapon_data");
+        private static final ResourceLocation ID = new ResourceLocation(BetterWeaponry.MODID, "weapon_data");
         private final WeaponDataLoader loader = new WeaponDataLoader();
 
         @Override

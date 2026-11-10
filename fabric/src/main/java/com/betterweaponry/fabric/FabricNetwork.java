@@ -1,59 +1,71 @@
 package com.betterweaponry.fabric;
 
 import com.betterweaponry.BetterWeaponry;
-import com.betterweaponry.data.WeaponData;
 import com.betterweaponry.network.ComboSyncPayload;
 import com.betterweaponry.network.DualSwingPayload;
 import com.betterweaponry.network.EditorResultPayload;
 import com.betterweaponry.network.OpenEditorPayload;
+import com.betterweaponry.network.Payload;
 import com.betterweaponry.network.SaveDocumentPayload;
 import com.betterweaponry.network.WeaponDataSyncPayload;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerConfigurationConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerConfigurationNetworking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.server.network.ConfigurationTask;
-import net.minecraft.server.network.ServerConfigurationPacketListenerImpl;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 
-import java.util.function.Consumer;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
-/** Paquets réseau du mod, côté commun : déclaration des formats et réception des paquets envoyés au serveur. */
+/** Les paquets du mod sur Fabric : un canal par type de paquet. */
 final class FabricNetwork {
+    private static final Map<Class<? extends Payload>, ResourceLocation> CHANNELS = Map.of(
+            WeaponDataSyncPayload.class, channel("weapon_data"),
+            ComboSyncPayload.class, channel("combo"),
+            DualSwingPayload.class, channel("dual_swing"),
+            OpenEditorPayload.class, channel("open_editor"),
+            EditorResultPayload.class, channel("editor_result"),
+            SaveDocumentPayload.class, channel("save_document"));
 
     private FabricNetwork() {
     }
 
     static void register() {
-        // Pendant la connexion, et en jeu après un /reload.
-        PayloadTypeRegistry.configurationS2C().register(WeaponDataSyncPayload.TYPE, WeaponDataSyncPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(WeaponDataSyncPayload.TYPE, WeaponDataSyncPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(ComboSyncPayload.TYPE, ComboSyncPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(DualSwingPayload.TYPE, DualSwingPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(OpenEditorPayload.TYPE, OpenEditorPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(EditorResultPayload.TYPE, EditorResultPayload.STREAM_CODEC);
-        PayloadTypeRegistry.playC2S().register(SaveDocumentPayload.TYPE, SaveDocumentPayload.STREAM_CODEC);
-
-        ServerPlayNetworking.registerGlobalReceiver(SaveDocumentPayload.TYPE, (payload, context) -> SaveDocumentPayload.handle(payload, context.player()));
-
-        ServerConfigurationConnectionEvents.CONFIGURE.register((handler, server) -> {
-            if (ServerConfigurationNetworking.canSend(handler, WeaponDataSyncPayload.TYPE)) handler.addTask(new SyncWeaponDataTask(handler));
+        ServerPlayNetworking.registerGlobalReceiver(CHANNELS.get(SaveDocumentPayload.class), (server, player, handler, buffer, responseSender) -> {
+            // Le paquet est lu ici : le tampon n'existe plus une fois sur le fil principal.
+            SaveDocumentPayload payload = SaveDocumentPayload.read(buffer);
+            server.execute(() -> SaveDocumentPayload.handle(payload, player));
         });
     }
 
-    /** Étape de la connexion : les stats sont déjà bonnes quand JEI/EMI et l'onglet créatif construisent leurs index. */
-    private record SyncWeaponDataTask(ServerConfigurationPacketListenerImpl handler) implements ConfigurationTask {
-        private static final Type TYPE = new Type(BetterWeaponry.MODID + ":sync_weapon_data");
+    /** Côté client uniquement : le traitement se fait sur le fil principal, une fois le joueur local connu. */
+    static <T extends Payload> void toClient(Class<T> type, Function<FriendlyByteBuf, T> reader, BiConsumer<T, LocalPlayer> handler) {
+        ClientPlayNetworking.registerGlobalReceiver(CHANNELS.get(type), (client, listener, buffer, responseSender) -> {
+            T payload = reader.apply(buffer);
+            client.execute(() -> {
+                if (client.player != null) handler.accept(payload, client.player);
+            });
+        });
+    }
 
-        @Override
-        public void start(Consumer<Packet<?>> sender) {
-            sender.accept(ServerConfigurationNetworking.createS2CPacket(new WeaponDataSyncPayload(WeaponData.current())));
-            handler.completeTask(TYPE);
-        }
+    static void sendToPlayer(ServerPlayer player, Payload payload) {
+        ServerPlayNetworking.send(player, CHANNELS.get(payload.getClass()), encode(payload));
+    }
 
-        @Override
-        public Type type() {
-            return TYPE;
-        }
+    static void sendToServer(Payload payload) {
+        ClientPlayNetworking.send(CHANNELS.get(payload.getClass()), encode(payload));
+    }
+
+    private static FriendlyByteBuf encode(Payload payload) {
+        FriendlyByteBuf buffer = PacketByteBufs.create();
+        payload.write(buffer);
+        return buffer;
+    }
+
+    private static ResourceLocation channel(String name) {
+        return new ResourceLocation(BetterWeaponry.MODID, name);
     }
 }
