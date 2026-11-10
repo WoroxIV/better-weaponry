@@ -2,6 +2,7 @@ package com.betterweaponry.gametest;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.combat.ModEnchantments;
+import com.betterweaponry.combat.WeaponPlayerState;
 import com.betterweaponry.combat.MobThrowShurikenGoal;
 import com.betterweaponry.compat.RecipeViewerInfo;
 import com.betterweaponry.data.DataProblem;
@@ -719,5 +720,116 @@ public final class CombatGameTests {
 
     private static void setBase(AttributeInstance attribute, double value) {
         if (attribute != null) attribute.setBaseValue(value);
+    }
+
+    /** Fusion des couches : valeur invalide ignorée, sous-champ fusionné, fautes de frappe signalées avec suggestion. */
+    @GameTest(template = ARENA)
+    public static void dataLayersMerge(GameTestHelper helper) {
+        JsonObject defaults = json("{ \"attack_speed\": 1.5, \"base_damage\": 4, \"material_damage\": { \"iron\": 7 } }");
+        JsonObject user = json("{ \"attack_speed\": 99, \"attack_reach\": 4, \"material_damage\": { \"golden\": 3 }, \"atack_speed\": 2 }");
+        List<DataProblem> problems = new ArrayList<>();
+        JsonObject merged = WeaponDefinition.FIELDS.merge(List.of(new FieldSet.Layer("defaults", defaults), new FieldSet.Layer("user", user)), problems);
+        WeaponDefinition definition = WeaponDefinition.CODEC.parse(JsonOps.INSTANCE, merged).getOrThrow();
+
+        helper.assertTrue(definition.attackSpeed() == 1.5D, "attack_speed 99 must be ignored, got " + definition.attackSpeed());
+        helper.assertTrue(definition.attackReach() == 4.0D, "attack_reach should apply");
+        helper.assertTrue(definition.materialDamage().size() == 2, "material_damage must merge key by key: " + definition.materialDamage());
+        helper.assertTrue(problems.size() == 2, "2 problems expected, got " + problems.stream().map(DataProblem::toLogString).toList());
+        helper.assertTrue(problems.stream().anyMatch(p -> "atack_speed".equals(p.field()) && "attack_speed".equals(p.detail())),
+                "the typo atack_speed must suggest attack_speed");
+        helper.succeed();
+    }
+
+    /** Stats lisibles : une décimale au plus pour la vitesse, des demi-points pour les dégâts, quel que soit le matériau. */
+    @GameTest(template = ARENA)
+    public static void roundStats(GameTestHelper helper) {
+        for (WeaponType type : WeaponType.values()) {
+            WeaponDefinition definition = WeaponData.weapon(type);
+            helper.assertTrue(Math.abs(definition.attackSpeed() * 10.0D - Math.rint(definition.attackSpeed() * 10.0D)) < 1.0E-6D,
+                    type.id() + ": attack speed " + definition.attackSpeed() + " has more than one decimal");
+            for (WeaponMaterial material : WeaponMaterials.all()) {
+                double damage = definition.damageFor(material, 0.0D);
+                helper.assertTrue(damage * 2.0D == Math.rint(damage * 2.0D), type.id() + " " + material.id() + ": damage " + damage + " is not a half point");
+            }
+        }
+        helper.assertTrue(WeaponData.weapon(WeaponType.KATANA).attackReach() == 3.5D, "the katana should reach 3.5 blocks");
+        helper.succeed();
+    }
+
+    /** Le bouclier vanilla devient une version du mod : butin, conversion de l'inventaire, usure proportionnelle, enchantements gardés. */
+    @GameTest(template = ARENA)
+    public static void vanillaShieldReplaced(GameTestHelper helper) {
+        ItemStack vanilla = new ItemStack(Items.SHIELD);
+        vanilla.setDamageValue(vanilla.getMaxDamage() / 2);
+        vanilla.enchant(enchantment(helper, Enchantments.UNBREAKING), 2);
+        ItemStack converted = VanillaGear.convert(vanilla, WeaponMaterials.DIAMOND);
+        helper.assertTrue(converted.is(ModItems.shield(WeaponMaterials.DIAMOND).get()), "the shield should become a diamond shield");
+        helper.assertTrue(Math.abs((double) converted.getDamageValue() / converted.getMaxDamage() - 0.5D) < 0.01D, "the wear should stay proportional");
+        helper.assertTrue(EnchantmentHelper.getItemEnchantmentLevel(enchantment(helper, Enchantments.UNBREAKING), converted) == 2, "enchantments should be kept");
+
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        player.getInventory().setItem(3, new ItemStack(Items.SHIELD));
+        player.getEnderChestInventory().setItem(1, new ItemStack(Items.SHIELD));
+        VanillaGear.convertInventory(player);
+        helper.assertTrue(player.getInventory().getItem(3).is(ModItems.shield(WeaponMaterials.WOODEN).get()), "the inventory should be converted");
+        helper.assertTrue(player.getEnderChestInventory().getItem(1).is(ModItems.shield(WeaponMaterials.WOODEN).get()), "the ender chest should be converted");
+
+        List<ItemStack> loot = new ArrayList<>(List.of(new ItemStack(Items.SHIELD), new ItemStack(Items.DIAMOND)));
+        VanillaGear.replaceInLoot(loot, helper.getLevel().getRandom(), WeaponData.gear());
+        helper.assertTrue(loot.get(0).getItem() instanceof WeaponShieldItem && loot.get(1).is(Items.DIAMOND), "only the shield should be replaced in loot");
+        helper.assertTrue(VanillaGear.rollMaterial(helper.getLevel().getRandom(), 0.0D) == WeaponMaterials.WOODEN, "no upgrade at 0%");
+        helper.assertTrue(VanillaGear.rollMaterial(helper.getLevel().getRandom(), 100.0D) == WeaponMaterials.NETHERITE, "always upgraded at 100%");
+
+        MerchantOffer offer = new MerchantOffer(new ItemCost(Items.EMERALD, 5), new ItemStack(Items.SHIELD), 12, 10, 0.05F);
+        helper.assertTrue(VanillaGearEvents.convertOffer(offer, WeaponMaterials.IRON).getResult().is(ModItems.shield(WeaponMaterials.IRON).get()), "the trade should sell an iron shield");
+
+        // Recettes : celle du bouclier vanilla est coupée, celles du mod existent.
+        RecipeManager recipes = helper.getLevel().getServer().getRecipeManager();
+        helper.assertTrue(recipes.byKey(ResourceLocation.withDefaultNamespace("shield")).isEmpty(), "the vanilla shield recipe should be disabled");
+        for (String id : List.of("wooden_shield", "iron_shield", "netherite_shield_smithing", "shield_decoration")) {
+            helper.assertTrue(recipes.byKey(ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, id)).isPresent(), "missing recipe " + id);
+        }
+        CraftingInput decoration = CraftingInput.of(2, 1, List.of(new ItemStack(ModItems.shield(WeaponMaterials.IRON).get()), new ItemStack(Items.RED_BANNER)));
+        ModShieldDecorationRecipe bannerRecipe = new ModShieldDecorationRecipe(CraftingBookCategory.MISC);
+        helper.assertTrue(bannerRecipe.matches(decoration, helper.getLevel()), "a banner should go on a shield of the mod");
+        helper.assertTrue(bannerRecipe.assemble(decoration, helper.getLevel().registryAccess()).get(DataComponents.BASE_COLOR) == DyeColor.RED, "the shield should take the banner's color");
+
+        // Vrai butin : les fichiers de loot_modifiers doivent être lus et leurs conditions justes.
+        WeaponData.Snapshot original = WeaponData.current();
+        GearDefinition gear = original.gear();
+        WeaponData.install(new WeaponData.Snapshot(original.weapons(), original.compat(), new GearDefinition(1, gear.replaceVanillaGear(),
+                gear.lootUpgradeChance(), 100.0D, gear.projectileSpeedMultipliers(), gear.projectileSpeedCap(),
+                gear.goldenDrawTime(), gear.shurikens(), gear.mobs())));
+        try {
+            LootParams params = new LootParams.Builder(helper.getLevel()).withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO)).create(LootContextParamSets.CHEST);
+            var tables = helper.getLevel().getServer().reloadableRegistries();
+            helper.assertTrue(tables.getLootTable(BuiltInLootTables.NETHER_BRIDGE).getRandomItems(params).stream().anyMatch(item -> item.is(Items.ENCHANTED_BOOK)),
+                    "a nether fortress chest should hold a book");
+            // Le tirage normal du jeu peut donner un de nos livres dans un donjon. Mais à 100 %, l'ajout dédié en mettrait un dans chaque coffre.
+            int chests = 30;
+            int chestsWithModBook = 0;
+            for (int i = 0; i < chests; i++) {
+                boolean modBook = tables.getLootTable(BuiltInLootTables.SIMPLE_DUNGEON).getRandomItems(params).stream().anyMatch(item ->
+                        EnchantmentHelper.getEnchantmentsForCrafting(item).keySet().stream().anyMatch(holder -> holder.getRegisteredName().startsWith(BetterWeaponry.MODID)));
+                if (modBook) chestsWithModBook++;
+            }
+            helper.assertTrue(chestsWithModBook < chests, "the mod's dedicated books should not be added to overworld dungeons");
+        } finally {
+            WeaponData.install(original);
+        }
+        helper.succeed();
+    }
+
+    /** Les shurikens cassés en attente sont sauvegardés avec le joueur. */
+    @GameTest(template = ARENA)
+    public static void brokenShurikensAreSaved(GameTestHelper helper) {
+        java.util.UUID batch = java.util.UUID.randomUUID();
+        Player player = thrower(helper, ItemStack.EMPTY, GameType.SURVIVAL);
+        WeaponPlayerState.of(player).brokenShurikens = List.of(batch);
+        net.minecraft.nbt.CompoundTag tag = player.saveWithoutId(new net.minecraft.nbt.CompoundTag());
+        Player loaded = thrower(helper, ItemStack.EMPTY, GameType.SURVIVAL);
+        loaded.load(tag);
+        helper.assertTrue(WeaponPlayerState.of(loaded).brokenShurikens.equals(List.of(batch)), "the list should survive a save: " + WeaponPlayerState.of(loaded).brokenShurikens);
+        helper.succeed();
     }
 }
