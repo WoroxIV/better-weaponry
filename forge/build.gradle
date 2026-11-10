@@ -1,6 +1,7 @@
 plugins {
     id 'multiloader-loader'
     id 'net.neoforged.moddev.legacyforge'
+    id 'me.modmuss50.mod-publish-plugin'
 }
 
 ext.gameTestAnnotations = '@net.minecraftforge.gametest.GameTestHolder(BetterWeaponry.MODID)\n@net.minecraftforge.gametest.PrefixGameTestTemplate(false)'
@@ -39,6 +40,9 @@ legacyForge {
         }
     }
 }
+
+// Après le bloc legacyForge : c'est lui qui crée la tâche reobfJar.
+apply from: rootProject.file('gradle/publish.gradle')
 
 mixin {
     add sourceSets.main, "${mod_id}.refmap.json"

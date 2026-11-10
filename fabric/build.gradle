@@ -4,7 +4,10 @@ import groovy.json.JsonSlurper
 plugins {
     id 'multiloader-loader'
     id 'net.fabricmc.fabric-loom-remap'
+    id 'me.modmuss50.mod-publish-plugin'
 }
+
+apply from: rootProject.file('gradle/publish.gradle')
 
 ext.gameTestAnnotations = ''
 ext.gameTestArena = 'better_weaponry:empty'
