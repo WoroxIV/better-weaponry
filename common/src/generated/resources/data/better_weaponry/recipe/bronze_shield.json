@@ -27,14 +27,14 @@
     "M": {
       "tag": "c:ingots/bronze"
     },
-    "o": {
-      "tag": "c:ingots/iron"
+    "P": {
+      "tag": "minecraft:planks"
     }
   },
   "pattern": [
-    "MoM",
-    "MMM",
-    " M "
+    "PMP",
+    "PPP",
+    " P "
   ],
   "result": {
     "count": 1,

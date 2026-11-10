@@ -135,11 +135,11 @@ By default the dagger (sideways dodge) and the rapier (forward lunge) can **dash
 Shields exist in every material (`wooden_shield`, `iron_shield`, `netherite_shield`...). They block like the vanilla shield, take banners, and accept the same enchantments.
 
 - Durability: that of the material's tools, except wood (118) and gold (64).
-- Recipe: the vanilla shape, with the material instead of planks and the iron ingot in the middle. Netherite and other upgrade materials use the smithing table.
+- Recipe: the vanilla shape, with the material instead of the iron ingot and planks everywhere else. Netherite and other upgrade materials use the smithing table.
 - Texture: generated from the template `textures/templates/entity/shield/shield.png` and the material's palette (see [Weapon textures](#weapon-textures)). A file `textures/entity/shield/<material>_shield.png` (64×64) takes priority.
 - **Perfect parry**: a hit taken just after the shield is up does not wear it and cannot disable it. It pushes melee attackers back and sends arrows back to their shooter, and your next hit deals 20% more damage. See `gear.json`.
 
-The vanilla shield is replaced everywhere it can be: its recipe is off, it is gone from the creative tab, loot and villagers give the mod's shields (better materials are rarer), armorers sell better ones as they level up, and vanilla shields in a player's inventory or ender chest become wooden shields at login. Turn off `replace_vanilla_gear` in `gear.json` for loot, trades and the login conversion; the vanilla recipes stay off either way, because the mod's wooden versions use the same shapes.
+The vanilla shield is replaced everywhere it can be: its recipe is off, it is gone from the creative tab, loot and villagers give the mod's shields (better materials are rarer), armorers sell better ones as they level up, and vanilla shields in a player's inventory or ender chest become wooden shields at login. Turn off `replace_vanilla_gear` in `gear.json` for loot, trades and the login conversion; the vanilla recipes stay off either way, because the mod's versions use the same shapes.
 
 A recipe from the game or from another mod that asks for a vanilla shield, bow or crossbow accepts the mod's versions, in any material.
 
@@ -150,7 +150,7 @@ Bows and crossbows exist in every material (`iron_bow`, `iron_crossbow`...), wit
 - The material only changes the **projectile speed**: arrow damage depends on speed, so a better material hits harder and flies straighter. Raw damage and rate of fire stay vanilla. Multipliers: wood 0.62, stone 1 (the vanilla bow), iron 1.12, diamond 1.45, netherite 1.62 (see `gear.json`), which gives 4, 6, 7, 9 and 10 damage for a fully drawn bow.
 - **Gold** is the exception: it draws or loads twice as fast, enchants very well, but shoots at ×0.45 (3 damage) and breaks quickly.
 - Durability: bow 384, crossbow 465 for wood, stone and iron; gold 49 / 60; diamond 2398 / 2903; netherite 3120 / 3778; modded materials follow the ratio of their tools to iron tools.
-- Recipes: the vanilla shapes with the material instead of sticks (the wooden versions keep the sticks), netherite at the smithing table.
+- Recipes: the vanilla shapes with the material instead of sticks (the wooden versions keep the sticks, and the wooden crossbow takes stone instead of the iron ingot), netherite at the smithing table.
 - Textures: generated from the templates `textures/templates/item/bow.png`, `bow_pulling_0` to `2`, `crossbow.png`, `crossbow_pulling_0` to `2`, `crossbow_arrow` and `crossbow_firework` (see [Weapon textures](#weapon-textures)). The same names prefixed by `<material>_` in `textures/item/` take priority.
 
 The vanilla bow and crossbow are replaced like the vanilla shield. Skeletons, strays, bogged, illusioners, pillagers and piglins get the mod's versions when they spawn (stone by default, which shoots like the vanilla weapon, with a 9.5% chance per step to move up a material, more on Hard). Their aim adapts to the speed of the arrow. Fletchers and armorers sell better materials as they level up, up to diamond: villagers never sell netherite. Recipes that ask for a bow accept any bow of the mod, like the dispenser, and the Ol' Betsy advancement accepts any crossbow.

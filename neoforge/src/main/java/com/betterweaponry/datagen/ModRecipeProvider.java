@@ -15,6 +15,7 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.SmithingTransformRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -47,16 +48,22 @@ public class ModRecipeProvider extends RecipeProvider {
         super(output, registries);
     }
 
-    /** Forme du bouclier vanilla : les planches sont remplacées par le matériau, le lingot de fer central reste. */
-    private static final WeaponRecipe SHIELD_RECIPE = WeaponRecipe.of("MoM", "MMM", " M ").with('o', Tags.Items.INGOTS_IRON);
+    /** Forme du bouclier vanilla : le lingot de fer est remplacé par le matériau, les planches restent. */
+    private static final WeaponRecipe SHIELD_RECIPE = WeaponRecipe.of("PMP", "PPP", " P ").with('P', ItemTags.PLANKS);
 
     /** Forme de l'arc vanilla : les bâtons sont remplacés par le matériau (l'arc en bois garde les bâtons). */
     private static final WeaponRecipe BOW_RECIPE = WeaponRecipe.of(" MX", "M X", " MX").with('X', Tags.Items.STRINGS);
     /** Forme de l'arbalète vanilla, sur le même principe. */
-    private static final WeaponRecipe CROSSBOW_RECIPE = WeaponRecipe.of("MIM", "XHX", " M ")
-            .with('I', Tags.Items.INGOTS_IRON).with('X', Tags.Items.STRINGS).withItem('H', () -> Items.TRIPWIRE_HOOK);
+    private static final WeaponRecipe CROSSBOW_RECIPE = crossbowRecipe(Tags.Items.INGOTS_IRON);
+    /** L'arbalète en bois prend de la pierre pour outils à la place du lingot de fer. */
+    private static final WeaponRecipe WOODEN_CROSSBOW_RECIPE = crossbowRecipe(ItemTags.STONE_TOOL_MATERIALS);
 
     private static final WeaponRecipe SHURIKEN_RECIPE = WeaponRecipe.of("M M", " S ", "M M");
+
+    private static WeaponRecipe crossbowRecipe(TagKey<Item> top) {
+        return WeaponRecipe.of("MIM", "XHX", " M ")
+                .with('I', top).with('X', Tags.Items.STRINGS).withItem('H', () -> Items.TRIPWIRE_HOOK);
+    }
 
     @Override
     protected void buildRecipes(RecipeOutput output) {
@@ -74,7 +81,7 @@ public class ModRecipeProvider extends RecipeProvider {
                     base -> ModItems.shield(base).get());
             addRecipes(output, material, BOW_RECIPE, ModItems.bow(material).get(), material.itemName(GearType.BOW),
                     base -> ModItems.bow(base).get());
-            addRecipes(output, material, CROSSBOW_RECIPE, ModItems.crossbow(material).get(), material.itemName(GearType.CROSSBOW),
+            addRecipes(output, material, material == WeaponMaterials.WOODEN ? WOODEN_CROSSBOW_RECIPE : CROSSBOW_RECIPE, ModItems.crossbow(material).get(), material.itemName(GearType.CROSSBOW),
                     base -> ModItems.crossbow(base).get());
             addRecipes(output, material, SHURIKEN_RECIPE, ModItems.shuriken(material).get(), material.itemName(GearType.SHURIKEN),
                     base -> ModItems.shuriken(base).get());
@@ -86,7 +93,7 @@ public class ModRecipeProvider extends RecipeProvider {
                             Function<WeaponMaterial, Item> itemOfMaterial) {
         RecipeOutput conditionalOutput = withLoadConditions(output, material);
         if (material.craftingIngredient() != null) {
-            boolean sticks = material == WeaponMaterials.WOODEN && (recipe == BOW_RECIPE || recipe == CROSSBOW_RECIPE);
+            boolean sticks = recipe == BOW_RECIPE && material == WeaponMaterials.WOODEN || recipe == WOODEN_CROSSBOW_RECIPE;
             shaped(conditionalOutput, result, name, recipe, sticks ? Tags.Items.RODS_WOODEN : material.craftingIngredient().tag());
         } else if (material.smithingUpgrade() != null) {
             smithing(conditionalOutput, result, name, itemOfMaterial.apply(material.smithingUpgrade().base()), material.smithingUpgrade());
