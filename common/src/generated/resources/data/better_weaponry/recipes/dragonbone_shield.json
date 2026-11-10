@@ -18,14 +18,14 @@
     "M": {
       "tag": "better_weaponry:weapon_materials/dragonbone"
     },
-    "o": {
-      "tag": "forge:ingots/iron"
+    "P": {
+      "tag": "minecraft:planks"
     }
   },
   "pattern": [
-    "MoM",
-    "MMM",
-    " M "
+    "PMP",
+    "PPP",
+    " P "
   ],
   "result": {
     "item": "better_weaponry:dragonbone_shield"

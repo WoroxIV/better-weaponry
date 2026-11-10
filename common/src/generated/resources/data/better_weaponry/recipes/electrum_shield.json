@@ -31,14 +31,14 @@
     "M": {
       "tag": "forge:ingots/electrum"
     },
-    "o": {
-      "tag": "forge:ingots/iron"
+    "P": {
+      "tag": "minecraft:planks"
     }
   },
   "pattern": [
-    "MoM",
-    "MMM",
-    " M "
+    "PMP",
+    "PPP",
+    " P "
   ],
   "result": {
     "item": "better_weaponry:electrum_shield"

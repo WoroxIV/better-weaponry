@@ -35,14 +35,14 @@
     "M": {
       "tag": "forge:ingots/lead"
     },
-    "o": {
-      "tag": "forge:ingots/iron"
+    "P": {
+      "tag": "minecraft:planks"
     }
   },
   "pattern": [
-    "MoM",
-    "MMM",
-    " M "
+    "PMP",
+    "PPP",
+    " P "
   ],
   "result": {
     "item": "better_weaponry:lead_shield"

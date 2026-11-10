@@ -6,7 +6,7 @@
       "item": "minecraft:tripwire_hook"
     },
     "I": {
-      "tag": "forge:ingots/iron"
+      "tag": "minecraft:stone_tool_materials"
     },
     "M": {
       "tag": "forge:rods/wooden"
