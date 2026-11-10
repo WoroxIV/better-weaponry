@@ -170,6 +170,18 @@ public final class CombatGameTests {
     public CombatGameTests() {
     }
 
+    /** Écrit la photographie du comportement des armes (voir {@link ParitySnapshot}). */
+    @GameTest(template = ARENA)
+    public static void writeParityReference(GameTestHelper helper) {
+        try {
+            ParitySnapshot.write(helper.getLevel().registryAccess(), "parity-reference.json");
+        } catch (java.io.IOException e) {
+            helper.fail("could not write the parity reference: " + e.getMessage());
+            return;
+        }
+        helper.succeed();
+    }
+
     /** Fusion des couches : valeur invalide ignorée, sous-champ fusionné, fautes de frappe signalées avec suggestion. */
     @GameTest(template = ARENA)
     public static void dataLayersMerge(GameTestHelper helper) {

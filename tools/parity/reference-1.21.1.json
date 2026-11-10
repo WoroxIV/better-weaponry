@@ -1,0 +1,1762 @@
+{
+  "gear": {
+    "projectile_speed_multipliers": {
+      "diamond": 1.45,
+      "golden": 0.45,
+      "iron": 1.12,
+      "netherite": 1.62,
+      "stone": 1.0,
+      "wooden": 0.62
+    }
+  },
+  "rules": {},
+  "unknown_enchantment": "item_kept, enchantments_left=1",
+  "weapons": {
+    "better_weaponry:diamond_battleaxe": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 3.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 16.5,
+      "final_attack_speed": 0.8999999999999999,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:diamond_broadsword": {
+      "ability": "parry",
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 9.0,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:diamond_chakram": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "both_hands": true,
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 9.0,
+      "final_attack_speed": 1.0,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:diamond_claymore": {
+      "ability": "parry",
+      "armor_penetration": 5.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 5.0,
+      "final_attack_damage": 13.5,
+      "final_attack_speed": 1.1,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.25
+      },
+      "two_handed": true
+    },
+    "better_weaponry:diamond_dagger": {
+      "ability": "dash",
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 2.5
+          }
+        ]
+      },
+      "dash": {
+        "cooldown_seconds": 1.5,
+        "direction": "input",
+        "distance": 3.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.0,
+      "final_attack_speed": 2.0,
+      "final_reach": 2.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:diamond_glaive": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 15.0,
+      "final_attack_speed": 1.0,
+      "final_reach": 4.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.5
+      },
+      "two_handed": true
+    },
+    "better_weaponry:diamond_hammer": {
+      "armor_penetration": 30.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.5,
+        "steps": [
+          {},
+          {
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "knockback": 2.0,
+            "radius": 2.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 30.0,
+      "final_attack_damage": 22.0,
+      "final_attack_speed": 0.7000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.5,
+          "effect": "minecraft:slowness",
+          "level": 2
+        }
+      ],
+      "sweep": {
+        "enabled": false
+      },
+      "two_handed": true
+    },
+    "better_weaponry:diamond_katana": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 9.0,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.5,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:diamond_rapier": {
+      "ability": "dash",
+      "armor_penetration": 20.0,
+      "dash": {
+        "cooldown_seconds": 2.5,
+        "distance": 4.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 20.0,
+      "final_attack_damage": 5.5,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:diamond_sai": {
+      "ability": "parry",
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.0,
+      "final_attack_speed": 1.7999999999999998,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:diamond_scythe": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 18.0,
+      "final_attack_speed": 0.7999999999999998,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 50.0,
+      "sweep": {
+        "damage_ratio": 50.0,
+        "radius": 2.0
+      },
+      "two_handed": true
+    },
+    "better_weaponry:diamond_sickle": {
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 120.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.2,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 7.0,
+      "final_attack_speed": 1.4,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.0,
+          "effect": "minecraft:slowness"
+        }
+      ],
+      "sweep": {
+        "radius": 0.75
+      }
+    },
+    "better_weaponry:diamond_spear": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 30.0,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 5.0
+          }
+        ]
+      },
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 9.0,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:golden_battleaxe": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 3.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 9.5,
+      "final_attack_speed": 0.8999999999999999,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:golden_broadsword": {
+      "ability": "parry",
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.5,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:golden_chakram": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "both_hands": true,
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.0,
+      "final_attack_speed": 1.0,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:golden_claymore": {
+      "ability": "parry",
+      "armor_penetration": 5.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 5.0,
+      "final_attack_damage": 8.0,
+      "final_attack_speed": 1.1,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.25
+      },
+      "two_handed": true
+    },
+    "better_weaponry:golden_dagger": {
+      "ability": "dash",
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 2.5
+          }
+        ]
+      },
+      "dash": {
+        "cooldown_seconds": 1.5,
+        "direction": "input",
+        "distance": 3.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 3.0,
+      "final_attack_speed": 2.0,
+      "final_reach": 2.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:golden_glaive": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 8.5,
+      "final_attack_speed": 1.0,
+      "final_reach": 4.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.5
+      },
+      "two_handed": true
+    },
+    "better_weaponry:golden_hammer": {
+      "armor_penetration": 30.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.5,
+        "steps": [
+          {},
+          {
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "knockback": 2.0,
+            "radius": 2.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 30.0,
+      "final_attack_damage": 12.5,
+      "final_attack_speed": 0.7000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.5,
+          "effect": "minecraft:slowness",
+          "level": 2
+        }
+      ],
+      "sweep": {
+        "enabled": false
+      },
+      "two_handed": true
+    },
+    "better_weaponry:golden_katana": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 5.5,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.5,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:golden_rapier": {
+      "ability": "dash",
+      "armor_penetration": 20.0,
+      "dash": {
+        "cooldown_seconds": 2.5,
+        "distance": 4.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 20.0,
+      "final_attack_damage": 3.0,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:golden_sai": {
+      "ability": "parry",
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 3.0,
+      "final_attack_speed": 1.7999999999999998,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:golden_scythe": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 10.5,
+      "final_attack_speed": 0.7999999999999998,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 50.0,
+      "sweep": {
+        "damage_ratio": 50.0,
+        "radius": 2.0
+      },
+      "two_handed": true
+    },
+    "better_weaponry:golden_sickle": {
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 120.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.2,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 4.0,
+      "final_attack_speed": 1.4,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.0,
+          "effect": "minecraft:slowness"
+        }
+      ],
+      "sweep": {
+        "radius": 0.75
+      }
+    },
+    "better_weaponry:golden_spear": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 30.0,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 5.0
+          }
+        ]
+      },
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 5.0,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:iron_battleaxe": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 3.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 14.5,
+      "final_attack_speed": 0.8999999999999999,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:iron_broadsword": {
+      "ability": "parry",
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 8.0,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:iron_chakram": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "both_hands": true,
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 7.5,
+      "final_attack_speed": 1.0,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:iron_claymore": {
+      "ability": "parry",
+      "armor_penetration": 5.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 5.0,
+      "final_attack_damage": 11.5,
+      "final_attack_speed": 1.1,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.25
+      },
+      "two_handed": true
+    },
+    "better_weaponry:iron_dagger": {
+      "ability": "dash",
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 2.5
+          }
+        ]
+      },
+      "dash": {
+        "cooldown_seconds": 1.5,
+        "direction": "input",
+        "distance": 3.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 4.0,
+      "final_attack_speed": 2.0,
+      "final_reach": 2.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:iron_glaive": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 13.0,
+      "final_attack_speed": 1.0,
+      "final_reach": 4.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.5
+      },
+      "two_handed": true
+    },
+    "better_weaponry:iron_hammer": {
+      "armor_penetration": 30.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.5,
+        "steps": [
+          {},
+          {
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "knockback": 2.0,
+            "radius": 2.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 30.0,
+      "final_attack_damage": 19.0,
+      "final_attack_speed": 0.7000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.5,
+          "effect": "minecraft:slowness",
+          "level": 2
+        }
+      ],
+      "sweep": {
+        "enabled": false
+      },
+      "two_handed": true
+    },
+    "better_weaponry:iron_katana": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 8.0,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.5,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:iron_rapier": {
+      "ability": "dash",
+      "armor_penetration": 20.0,
+      "dash": {
+        "cooldown_seconds": 2.5,
+        "distance": 4.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 20.0,
+      "final_attack_damage": 4.5,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:iron_sai": {
+      "ability": "parry",
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 4.0,
+      "final_attack_speed": 1.7999999999999998,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:iron_scythe": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 15.5,
+      "final_attack_speed": 0.7999999999999998,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 50.0,
+      "sweep": {
+        "damage_ratio": 50.0,
+        "radius": 2.0
+      },
+      "two_handed": true
+    },
+    "better_weaponry:iron_sickle": {
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 120.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.2,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 6.0,
+      "final_attack_speed": 1.4,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.0,
+          "effect": "minecraft:slowness"
+        }
+      ],
+      "sweep": {
+        "radius": 0.75
+      }
+    },
+    "better_weaponry:iron_spear": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 30.0,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 5.0
+          }
+        ]
+      },
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 7.5,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:netherite_battleaxe": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 3.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 19.0,
+      "final_attack_speed": 0.8999999999999999,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:netherite_broadsword": {
+      "ability": "parry",
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 10.5,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:netherite_chakram": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "both_hands": true,
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 10.0,
+      "final_attack_speed": 1.0,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:netherite_claymore": {
+      "ability": "parry",
+      "armor_penetration": 5.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 5.0,
+      "final_attack_damage": 15.5,
+      "final_attack_speed": 1.1,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.25
+      },
+      "two_handed": true
+    },
+    "better_weaponry:netherite_dagger": {
+      "ability": "dash",
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 2.5
+          }
+        ]
+      },
+      "dash": {
+        "cooldown_seconds": 1.5,
+        "direction": "input",
+        "distance": 3.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.5,
+      "final_attack_speed": 2.0,
+      "final_reach": 2.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:netherite_glaive": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 17.0,
+      "final_attack_speed": 1.0,
+      "final_reach": 4.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.5
+      },
+      "two_handed": true
+    },
+    "better_weaponry:netherite_hammer": {
+      "armor_penetration": 30.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.5,
+        "steps": [
+          {},
+          {
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "knockback": 2.0,
+            "radius": 2.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 30.0,
+      "final_attack_damage": 25.0,
+      "final_attack_speed": 0.7000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.5,
+          "effect": "minecraft:slowness",
+          "level": 2
+        }
+      ],
+      "sweep": {
+        "enabled": false
+      },
+      "two_handed": true
+    },
+    "better_weaponry:netherite_katana": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 10.5,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.5,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:netherite_rapier": {
+      "ability": "dash",
+      "armor_penetration": 20.0,
+      "dash": {
+        "cooldown_seconds": 2.5,
+        "distance": 4.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 20.0,
+      "final_attack_damage": 6.0,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:netherite_sai": {
+      "ability": "parry",
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.5,
+      "final_attack_speed": 1.7999999999999998,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:netherite_scythe": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 20.5,
+      "final_attack_speed": 0.7999999999999998,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 50.0,
+      "sweep": {
+        "damage_ratio": 50.0,
+        "radius": 2.0
+      },
+      "two_handed": true
+    },
+    "better_weaponry:netherite_sickle": {
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 120.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.2,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 8.0,
+      "final_attack_speed": 1.4,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.0,
+          "effect": "minecraft:slowness"
+        }
+      ],
+      "sweep": {
+        "radius": 0.75
+      }
+    },
+    "better_weaponry:netherite_spear": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 30.0,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 5.0
+          }
+        ]
+      },
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 10.0,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:stone_battleaxe": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 3.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 12.0,
+      "final_attack_speed": 0.8999999999999999,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:stone_broadsword": {
+      "ability": "parry",
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 6.5,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:stone_chakram": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "both_hands": true,
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 6.5,
+      "final_attack_speed": 1.0,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:stone_claymore": {
+      "ability": "parry",
+      "armor_penetration": 5.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 5.0,
+      "final_attack_damage": 9.5,
+      "final_attack_speed": 1.1,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.25
+      },
+      "two_handed": true
+    },
+    "better_weaponry:stone_dagger": {
+      "ability": "dash",
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 2.5
+          }
+        ]
+      },
+      "dash": {
+        "cooldown_seconds": 1.5,
+        "direction": "input",
+        "distance": 3.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 3.5,
+      "final_attack_speed": 2.0,
+      "final_reach": 2.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:stone_glaive": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 10.5,
+      "final_attack_speed": 1.0,
+      "final_reach": 4.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.5
+      },
+      "two_handed": true
+    },
+    "better_weaponry:stone_hammer": {
+      "armor_penetration": 30.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.5,
+        "steps": [
+          {},
+          {
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "knockback": 2.0,
+            "radius": 2.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 30.0,
+      "final_attack_damage": 15.5,
+      "final_attack_speed": 0.7000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.5,
+          "effect": "minecraft:slowness",
+          "level": 2
+        }
+      ],
+      "sweep": {
+        "enabled": false
+      },
+      "two_handed": true
+    },
+    "better_weaponry:stone_katana": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 6.5,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.5,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:stone_rapier": {
+      "ability": "dash",
+      "armor_penetration": 20.0,
+      "dash": {
+        "cooldown_seconds": 2.5,
+        "distance": 4.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 20.0,
+      "final_attack_damage": 4.0,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:stone_sai": {
+      "ability": "parry",
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 3.5,
+      "final_attack_speed": 1.7999999999999998,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:stone_scythe": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 13.0,
+      "final_attack_speed": 0.7999999999999998,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 50.0,
+      "sweep": {
+        "damage_ratio": 50.0,
+        "radius": 2.0
+      },
+      "two_handed": true
+    },
+    "better_weaponry:stone_sickle": {
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 120.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.2,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.0,
+      "final_attack_speed": 1.4,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.0,
+          "effect": "minecraft:slowness"
+        }
+      ],
+      "sweep": {
+        "radius": 0.75
+      }
+    },
+    "better_weaponry:stone_spear": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 30.0,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 5.0
+          }
+        ]
+      },
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 6.5,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:wooden_battleaxe": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 3.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 9.5,
+      "final_attack_speed": 0.8999999999999999,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:wooden_broadsword": {
+      "ability": "parry",
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.5,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:wooden_chakram": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "both_hands": true,
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 5.0,
+      "final_attack_speed": 1.0,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0
+    },
+    "better_weaponry:wooden_claymore": {
+      "ability": "parry",
+      "armor_penetration": 5.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 180.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 5.0,
+      "final_attack_damage": 8.0,
+      "final_attack_speed": 1.1,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.25
+      },
+      "two_handed": true
+    },
+    "better_weaponry:wooden_dagger": {
+      "ability": "dash",
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 2.5
+          }
+        ]
+      },
+      "dash": {
+        "cooldown_seconds": 1.5,
+        "direction": "input",
+        "distance": 3.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 3.0,
+      "final_attack_speed": 2.0,
+      "final_reach": 2.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:wooden_glaive": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 8.5,
+      "final_attack_speed": 1.0,
+      "final_reach": 4.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "radius": 1.5
+      },
+      "two_handed": true
+    },
+    "better_weaponry:wooden_hammer": {
+      "armor_penetration": 30.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.5,
+        "steps": [
+          {},
+          {
+            "cooldown_multiplier": 1.6,
+            "damage_multiplier": 1.6,
+            "knockback": 2.0,
+            "radius": 2.5
+          }
+        ]
+      },
+      "disables_shield": true,
+      "final_armor_penetration": 30.0,
+      "final_attack_damage": 12.5,
+      "final_attack_speed": 0.7000000000000002,
+      "final_reach": 4.0,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.5,
+          "effect": "minecraft:slowness",
+          "level": 2
+        }
+      ],
+      "sweep": {
+        "enabled": false
+      },
+      "two_handed": true
+    },
+    "better_weaponry:wooden_katana": {
+      "ability": "parry",
+      "armor_penetration": 10.0,
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 2.5,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 90.0,
+            "cooldown_multiplier": 1.4,
+            "damage_multiplier": 1.4,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 10.0,
+      "final_attack_damage": 5.5,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.5,
+      "final_sweep_ratio": 0.0,
+      "two_handed": true
+    },
+    "better_weaponry:wooden_rapier": {
+      "ability": "dash",
+      "armor_penetration": 20.0,
+      "dash": {
+        "cooldown_seconds": 2.5,
+        "distance": 4.5
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 20.0,
+      "final_attack_damage": 3.0,
+      "final_attack_speed": 1.6,
+      "final_reach": 3.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:wooden_sai": {
+      "ability": "parry",
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 3.0,
+      "final_attack_speed": 1.7999999999999998,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    },
+    "better_weaponry:wooden_scythe": {
+      "combo": {
+        "enabled": true,
+        "reset_after_seconds": 3.0,
+        "steps": [
+          {},
+          {},
+          {
+            "cooldown_multiplier": 1.5,
+            "damage_multiplier": 1.5,
+            "radius": 4.0
+          }
+        ]
+      },
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 10.5,
+      "final_attack_speed": 0.7999999999999998,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 50.0,
+      "sweep": {
+        "damage_ratio": 50.0,
+        "radius": 2.0
+      },
+      "two_handed": true
+    },
+    "better_weaponry:wooden_sickle": {
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 120.0,
+            "both_hands": true,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.2,
+            "radius": 3.0
+          }
+        ]
+      },
+      "dual_wielded": true,
+      "final_armor_penetration": 0.0,
+      "final_attack_damage": 4.0,
+      "final_attack_speed": 1.4,
+      "final_reach": 2.5,
+      "final_sweep_ratio": 0.0,
+      "on_hit_effects": [
+        {
+          "duration_seconds": 1.0,
+          "effect": "minecraft:slowness"
+        }
+      ],
+      "sweep": {
+        "radius": 0.75
+      }
+    },
+    "better_weaponry:wooden_spear": {
+      "armor_penetration": 15.0,
+      "combo": {
+        "enabled": true,
+        "steps": [
+          {},
+          {},
+          {
+            "angle": 30.0,
+            "cooldown_multiplier": 1.3,
+            "damage_multiplier": 1.3,
+            "radius": 5.0
+          }
+        ]
+      },
+      "final_armor_penetration": 15.0,
+      "final_attack_damage": 5.0,
+      "final_attack_speed": 1.2000000000000002,
+      "final_reach": 5.0,
+      "final_sweep_ratio": 0.0,
+      "sweep": {
+        "enabled": false
+      }
+    }
+  }
+}
