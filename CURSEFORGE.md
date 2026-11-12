@@ -14,7 +14,7 @@ Combos, parries, dashes, dual wielding and two-handed weapons are now in their o
 
 ## Addons
 
-Other mods can now add their own materials. **[Extended Weaponry](https://www.curseforge.com/minecraft/mc-mods/extended-weaponry)** adds copper, emerald, amethyst and Warden versions of every weapon, plus tools and armor.
+Other mods can now add their own materials. **[Extended Weaponry](https://www.curseforge.com/minecraft/mc-mods/extended-weaponry-mod)** adds copper, emerald, amethyst and Warden versions of every weapon, plus tools and armor.
 
 ## Customization
 
