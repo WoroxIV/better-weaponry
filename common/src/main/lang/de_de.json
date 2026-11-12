@@ -149,6 +149,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "Angriffsreichweite",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s Problem(e) in den Waffendateien:",
     "better_weaponry.data.problems.more": "... und %s weitere. Details in logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: JSON-Syntaxfehler, Datei ignoriert (%2$s)",
@@ -270,7 +271,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Parierwaffen",
     "tag.item.better_weaponry.enchantable.parrying": "Parier-Gegenstände",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherit-Aufwertungsvorlagen",
-    "better_weaponry.notice.combat_reforged": "Das Kampfsystem von Better Weaponry (Combos, Paraden, Dashes, Tutorials und Editor) ist jetzt die separate Mod Combat Reforged. Installiere sie, um sie wiederzubekommen. Diese Meldung lässt sich in config/better_weaponry/compat.json abschalten.",
     "better_weaponry.doc.schema.compat": "Kompatibilitätseinstellungen von Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Felder von compat.json:",
     "better_weaponry.field.compat.format_version": "Dateiformat-Version",
@@ -280,8 +280,6 @@
     "better_weaponry.field.compat.balance_abilities": "Fähigkeiten ausgleichen",
     "better_weaponry.field.compat.balance_abilities.help": "Mit Combat Reforged verursachen Waffen mit Fähigkeiten etwas weniger Schaden.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods mit eigener Reichweite",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Ist eine dieser Mods geladen, wenden Waffen ihre eigene Reichweite nicht mehr an.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Combat-Reforged-Meldung",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Sagt den Spielern einmal, wo das Kampfsystem jetzt ist."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Ist eine dieser Mods geladen, wenden Waffen ihre eigene Reichweite nicht mehr an. Mit Combat Reforged, Better Combat oder Epic Fight überlässt es ihnen die Zeile Angriffsreichweite im Tooltip."
   }
 }

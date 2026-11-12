@@ -12,7 +12,7 @@ public final class FabricAttributes {
     private static final double MAX_ENTITY_REACH = 1024.0D;
 
     public static final Registered<Attribute, Attribute> ENTITY_REACH = Platform.get().register(Registries.ATTRIBUTE, "entity_reach",
-            () -> new RangedAttribute("attribute.betterweaponry.attack_reach", DEFAULT_ENTITY_REACH, 0.0D, MAX_ENTITY_REACH).setSyncable(true));
+            () -> new RangedAttribute("attribute.better_weaponry.attack_reach", DEFAULT_ENTITY_REACH, 0.0D, MAX_ENTITY_REACH).setSyncable(true));
 
     private FabricAttributes() {
     }

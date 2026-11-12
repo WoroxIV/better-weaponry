@@ -76,6 +76,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "Attack Reach",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s problem(s) in the weapon files:",
     "better_weaponry.data.problems.more": "... and %s more. Details in logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: JSON syntax error, file ignored (%2$s)",
@@ -197,7 +198,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Parrying Weapons",
     "tag.item.better_weaponry.enchantable.parrying": "Parrying Items",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherite Upgrade Templates",
-    "better_weaponry.notice.combat_reforged": "The combat system of Better Weaponry (combos, parries, dashes, tutorials and the editor) is now the separate mod Combat Reforged. Install it to get them back. You can turn this message off in config/better_weaponry/compat.json.",
     "better_weaponry.doc.schema.compat": "Compatibility settings of Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Fields of compat.json:",
     "better_weaponry.field.compat.format_version": "File format version",
@@ -207,8 +207,6 @@
     "better_weaponry.field.compat.balance_abilities": "Balance abilities",
     "better_weaponry.field.compat.balance_abilities.help": "With Combat Reforged, weapons with abilities deal slightly less damage.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods with their own reach",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "If one of these mods is loaded, weapons no longer apply their own reach.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Combat Reforged message",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Tells players once where the combat system went."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "If one of these mods is loaded, weapons no longer apply their own reach. With Combat Reforged, Better Combat or Epic Fight, the Attack Reach line in tooltips is left to them."
   }
 }

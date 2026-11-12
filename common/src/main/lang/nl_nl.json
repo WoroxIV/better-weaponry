@@ -161,6 +161,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "aanvalsbereik",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s probleem/problemen in de wapenbestanden:",
     "better_weaponry.data.problems.more": "... en nog %s. Details in logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: JSON-syntaxisfout, bestand genegeerd (%2$s)",
@@ -282,7 +283,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Pareerwapens",
     "tag.item.better_weaponry.enchantable.parrying": "Pareervoorwerpen",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Netherietverbeteringssjablonen",
-    "better_weaponry.notice.combat_reforged": "Het vechtsysteem van Better Weaponry (combo's, pareren, dashes, tutorials en editor) is nu de aparte mod Combat Reforged. Installeer die om ze terug te krijgen. Dit bericht schakel je uit in config/better_weaponry/compat.json.",
     "better_weaponry.doc.schema.compat": "Compatibiliteitsinstellingen van Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Velden van compat.json:",
     "better_weaponry.field.compat.format_version": "Bestandsformaatversie",
@@ -292,8 +292,6 @@
     "better_weaponry.field.compat.balance_abilities": "Vaardigheden balanceren",
     "better_weaponry.field.compat.balance_abilities.help": "Met Combat Reforged doen wapens met vaardigheden iets minder schade.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods met eigen bereik",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Als een van deze mods is geladen, passen wapens hun eigen bereik niet meer toe.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Combat Reforged-bericht",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Vertelt spelers één keer waar het vechtsysteem nu is."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Als een van deze mods is geladen, passen wapens hun eigen bereik niet meer toe. Met Combat Reforged, Better Combat of Epic Fight wordt de regel aanvalsbereik in de tooltip aan hen overgelaten."
   }
 }

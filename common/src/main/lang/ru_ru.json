@@ -207,6 +207,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "Дальность атаки",
     "better_weaponry.data.problems.header": "[Better Weaponry] Проблем в файлах оружия: %s",
     "better_weaponry.data.problems.more": "... и ещё %s. Подробности в logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: ошибка синтаксиса JSON, файл пропущен (%2$s)",
@@ -328,7 +329,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Парирующее оружие",
     "tag.item.better_weaponry.enchantable.parrying": "Парирующие предметы",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Шаблоны незеритового улучшения",
-    "better_weaponry.notice.combat_reforged": "Боевая система Better Weaponry (комбо, парирование, рывки, обучение и редактор) теперь — отдельный мод Combat Reforged. Установите его, чтобы вернуть их. Это сообщение отключается в config/better_weaponry/compat.json.",
     "better_weaponry.doc.schema.compat": "Настройки совместимости Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Поля compat.json:",
     "better_weaponry.field.compat.format_version": "Версия формата",
@@ -338,8 +338,6 @@
     "better_weaponry.field.compat.balance_abilities": "Баланс способностей",
     "better_weaponry.field.compat.balance_abilities.help": "С Combat Reforged оружие со способностями наносит немного меньше урона.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Моды со своей дальностью",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Если загружен один из этих модов, оружие не применяет свою дальность.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Сообщение о Combat Reforged",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Один раз сообщает игрокам, где теперь боевая система."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Если загружен один из этих модов, оружие не применяет свою дальность. С Combat Reforged, Better Combat или Epic Fight строку «Дальность атаки» в подсказке показывают они."
   }
 }

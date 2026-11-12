@@ -42,7 +42,7 @@ Example: `/give @s better_weaponry:netherite_katana`
 - All weapons extend `SwordItem`. They use their tier's durability, enchantability and repair material.
 - They are added to the `minecraft:swords` item tag, so sword enchantments (Sharpness, Looting, etc.) work on them.
 - They have their own **Better Weaponry** creative tab, from the shortest reach to the longest.
-- Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute. It is the real distance in blocks in every game mode: the extra reach of Creative mode only applies to other items.
+- Each weapon sets its own **Attack Reach** through the `entity_interaction_range` attribute. It is the real distance in blocks in every game mode: the extra reach of Creative mode only applies to other items. The tooltip shows it as a dark green stat under the attack speed, for example `5 Attack Reach`.
 - The sweep-attack particle appears at `reach / 3` blocks in front of the player (vanilla: always 1 block, which matches reach 3). A dagger sweeps close, a spear or scythe sweeps far away.
 - Each weapon can have **armor penetration**, **on-hit effects** (slowness...), its own **sweep attack** (none for thrusting weapons, wider for the scythe) and can **disable shields** like an axe (see [Combat properties](#combat-properties)).
 - Netherite weapons (and those made of fire-resistant modded materials: warden, fiery, ignitium) float in lava and do not burn, like vanilla netherite.
@@ -292,6 +292,10 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 | `shurikens` | object | see the editor | `throw_speed`, `base_damage`, `cooldown_seconds` |
 | `mobs` | object | see the editor | `upgrade_chance`, `modded_weapon_chance`, `dual_wield_chance`, `ninja_skeleton_chance`, `captain_shield`, `guard_chance` |
 
+### Upgrading from 2.0
+
+The combat system of 2.0 (combos, parries, dashes, two-handed weapons, dual wielding, the editor and the tutorials) is now the separate mod **Combat Reforged**. Install it next to Better Weaponry to get it back: the weapons then behave exactly as in 2.0 and your combat settings are imported automatically. Without it, the weapons keep their damage, speed, reach, recipes and enchantments.
+
 ### Upgrading from 1.x
 
 1.x used `config/better_weaponry-server.toml`. At first launch, 2.0 copies the values you had changed into `config/better_weaponry/` and renames the old file to `better_weaponry-server.toml.old`. The tooltip options are now in the client config. A 1.x file in `<world>/serverconfig/` or `defaultconfigs/` is not converted; a warning is written to the log.
@@ -371,7 +375,7 @@ Better Weaponry detects these mods and adapts. It never needs them.
 | Better Combat | Every weapon has a Better Combat preset and its own range. Dual-wielded weapons get a damage profile adapted to its attack speed |
 | Epic Fight | Every weapon has an Epic Fight type and hit area. Damage and speed offsets are set in the generated files |
 
-The weapons' own reach turns off when a mod listed in `reach_disabled_by_mods` (`config/better_weaponry/compat.json`) is loaded. By default: `bettercombat`, `combat_reforged`, `epicfight`.
+The weapons' own reach turns off when a mod listed in `reach_disabled_by_mods` (`config/better_weaponry/compat.json`) is loaded. By default: `bettercombat`, `combat_reforged`, `epicfight`. With Combat Reforged, Better Combat or Epic Fight loaded, Better Weaponry also leaves the **Attack Reach** tooltip line to them.
 
 Damage values follow a profile chosen from the loaded mods, in `data/better_weaponry/better_weaponry/balance/`. Your own values in `config/better_weaponry/weapons/` always win.
 
@@ -402,6 +406,8 @@ If dependencies get out of sync: `./gradlew --refresh-dependencies`, or `./gradl
 ### Project layout
 
 The project has one Gradle module per mod loader. `common/` holds everything that does not depend on a loader and only talks to it through `platform/Platform.java`, including the JEI and EMI plugins. `neoforge/` holds the entry points, the event bridges, data generation and loot modifiers. `fabric/` holds the entry points and the mixins that replace NeoForge's events. The GameTests are in `common/src/gametest/` and run on each loader.
+
+The **Attack Reach** tooltip line is built in `common/.../client/ReachTooltip.java` and hooked per loader: `ItemTooltipEvent` in `forge/.../ForgeClientEvents.java`, `ItemTooltipCallback` in `fabric/.../BetterWeaponryFabricClient.java`. Minecraft 1.21.2 and later build attribute lines differently, so a port to those versions must check this hook.
 
 ```
 common/src/main/java/com/betterweaponry/

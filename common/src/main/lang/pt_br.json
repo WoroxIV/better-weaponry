@@ -131,6 +131,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "Alcance de ataque",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s problema(s) nos arquivos de armas:",
     "better_weaponry.data.problems.more": "... e mais %s. Detalhes em logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: erro de sintaxe JSON, arquivo ignorado (%2$s)",
@@ -252,7 +253,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Armas de defesa",
     "tag.item.better_weaponry.enchantable.parrying": "Itens de defesa",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Moldes de melhoria de netherita",
-    "better_weaponry.notice.combat_reforged": "O sistema de combate do Better Weaponry (combos, aparos, investidas, tutoriais e editor) agora é o mod separado Combat Reforged. Instale-o para tê-los de volta. Esta mensagem é desativada em config/better_weaponry/compat.json.",
     "better_weaponry.doc.schema.compat": "Ajustes de compatibilidade do Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Campos de compat.json:",
     "better_weaponry.field.compat.format_version": "Versão do formato",
@@ -262,8 +262,6 @@
     "better_weaponry.field.compat.balance_abilities": "Equilibrar habilidades",
     "better_weaponry.field.compat.balance_abilities.help": "Com o Combat Reforged, armas com habilidades causam um pouco menos de dano.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods com alcance próprio",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Se um destes mods estiver carregado, as armas deixam de aplicar o próprio alcance.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Mensagem do Combat Reforged",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Informa uma vez aos jogadores onde está o sistema de combate."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Se um destes mods estiver carregado, as armas deixam de aplicar o próprio alcance. Com Combat Reforged, Better Combat ou Epic Fight, a linha Alcance de ataque da dica fica a cargo deles."
   }
 }

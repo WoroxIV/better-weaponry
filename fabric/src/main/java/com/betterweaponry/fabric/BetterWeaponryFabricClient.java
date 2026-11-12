@@ -2,6 +2,7 @@ package com.betterweaponry.fabric;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.client.RangedWeaponClient;
+import com.betterweaponry.client.ReachTooltip;
 import com.betterweaponry.client.ShieldItemRenderer;
 import com.betterweaponry.client.ShurikenRenderer;
 import com.betterweaponry.client.WeaponPaletteSource;
@@ -11,6 +12,7 @@ import com.betterweaponry.registry.ModEntities;
 import com.betterweaponry.registry.ModItems;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -65,5 +67,6 @@ public final class BetterWeaponryFabricClient implements ClientModInitializer {
         ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
             if (screen instanceof TitleScreen && client.level == null) WeaponData.resetToBuiltin();
         });
+        ItemTooltipCallback.EVENT.register((stack, flag, lines) -> ReachTooltip.onTooltip(stack, lines));
     }
 }

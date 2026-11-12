@@ -14,7 +14,9 @@ import net.minecraft.world.item.ShieldItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import com.betterweaponry.data.DataResults;
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.client.ReachTooltip;
 import com.betterweaponry.combat.ModEnchantments;
+import com.betterweaponry.compat.CompatDefinition;
 import com.betterweaponry.combat.WeaponPlayerState;
 import com.betterweaponry.data.DataResults;
 import com.betterweaponry.combat.MobThrowShurikenGoal;
@@ -908,6 +910,56 @@ public final class CombatGameTests {
         }
         helper.assertTrue(Platform.get().entityReach(holding(helper, new ItemStack(Items.IRON_SWORD), GameType.SURVIVAL)) == 3.0D, "a vanilla sword should keep its reach in survival");
         helper.assertTrue(Platform.get().entityReach(holding(helper, new ItemStack(Items.IRON_SWORD), GameType.CREATIVE)) > 3.0D, "a vanilla sword should keep the reach bonus of creative mode");
+        helper.succeed();
+    }
+
+    /**
+     * Tooltip : la portée devient une stat de base vert foncé ("5 Attack Reach") placée sous la vitesse, à la place du bonus bleu ;
+     * les objets vanilla ne changent pas, et la ligne est laissée aux mods de combat qui l'affichent eux-mêmes.
+     */
+    @GameTest(template = ARENA)
+    public static void reachTooltipLine(GameTestHelper helper) {
+        ItemStack spear = new ItemStack(ModItems.get(WeaponType.SPEAR, WeaponMaterials.IRON).get());
+        List<Component> tooltip = vanillaTooltip();
+        List<Component> before = List.copyOf(tooltip);
+        ReachTooltip.onTooltip(spear, tooltip);
+        if (ReachTooltip.handledByAnotherMod()) {
+            helper.assertTrue(tooltip.equals(before), "another combat mod owns the reach line");
+            helper.succeed();
+            return;
+        }
+
+        helper.assertFalse(tooltip.stream().anyMatch(line -> ReachTooltip.containsTranslationKey(line, "attribute.modifier.plus")), "the blue reach bonus should be gone");
+        List<Component> reach = tooltip.stream().filter(line -> ReachTooltip.containsTranslationKey(line, ReachTooltip.REACH_KEY)).toList();
+        helper.assertTrue(reach.size() == 1, "one Attack Reach line expected: " + texts(tooltip));
+        helper.assertTrue(tooltip.indexOf(reach.get(0)) == 5, "the reach should follow the attack speed: " + texts(tooltip));
+        helper.assertTrue(reach.get(0).getStyle().getColor().equals(TextColor.fromLegacyFormat(ChatFormatting.DARK_GREEN)), "the reach should be dark green");
+        String expected = ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(WeaponData.weapon(WeaponType.SPEAR).attackReach());
+        TranslatableContents stat = (TranslatableContents) reach.get(0).getSiblings().get(0).getContents();
+        helper.assertTrue(stat.getArgs()[0].equals(expected), "the spear should show " + expected + " blocks, not " + stat.getArgs()[0]);
+
+        List<Component> sword = vanillaTooltip();
+        ReachTooltip.onTooltip(new ItemStack(Items.IRON_SWORD), sword);
+        helper.assertTrue(sword.equals(vanillaTooltip()), "a vanilla item keeps its tooltip");
+        helper.succeed();
+    }
+
+    /** Tooltip comme le jeu le construit : nom, ligne vide, titre, dégâts, vitesse, bonus de portée bleu. */
+    private static List<Component> vanillaTooltip() {
+        return new ArrayList<>(List.of(Component.literal("Spear"), Component.empty(),
+                Component.translatable("item.modifiers.mainhand"),
+                Component.literal(" ").append(Component.translatable("attribute.modifier.equals.0", "6",
+                        Component.translatable(Attributes.ATTACK_DAMAGE.getDescriptionId()))),
+                Component.literal(" ").append(Component.translatable("attribute.modifier.equals.0", "1.2",
+                        Component.translatable(Attributes.ATTACK_SPEED.getDescriptionId()))),
+                Component.translatable("attribute.modifier.plus.0", "2",
+                        Component.translatable(Platform.get().entityReachAttribute().getDescriptionId())).withStyle(ChatFormatting.BLUE)));
+    }
+
+    /** Le message qui renvoyait vers Combat Reforged à la connexion n'existe plus, ni son réglage. */
+    @GameTest(template = ARENA)
+    public static void noCombatReforgedNotice(GameTestHelper helper) {
+        helper.assertFalse(CompatDefinition.FIELDS.byName().containsKey("combat_reforged_notice"), "the notice setting should be gone");
         helper.succeed();
     }
 

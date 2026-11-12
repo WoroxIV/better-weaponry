@@ -76,6 +76,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "攻击距离",
     "better_weaponry.data.problems.header": "[Better Weaponry] 武器文件中有 %s 个问题：",
     "better_weaponry.data.problems.more": "……另有 %s 个，详见 logs/latest.log。",
     "better_weaponry.data.problem.syntax": "%1$s：JSON 语法错误，已忽略该文件（%2$s）",
@@ -197,7 +198,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "格挡武器",
     "tag.item.better_weaponry.enchantable.parrying": "可格挡物品",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "下界合金升级模板",
-    "better_weaponry.notice.combat_reforged": "Better Weaponry 的战斗系统（连招、格挡、冲刺、教程和编辑器）现在是独立模组 Combat Reforged。安装它即可恢复这些内容。可在 config/better_weaponry/compat.json 中关闭此消息。",
     "better_weaponry.doc.schema.compat": "Better Weaponry 的兼容性设置。",
     "better_weaponry.doc.readme.compat_fields": "compat.json 的字段：",
     "better_weaponry.field.compat.format_version": "文件格式版本",
@@ -207,8 +207,6 @@
     "better_weaponry.field.compat.balance_abilities": "平衡技能",
     "better_weaponry.field.compat.balance_abilities.help": "安装 Combat Reforged 时，带技能的武器伤害略低。",
     "better_weaponry.field.compat.reach_disabled_by_mods": "拥有自身攻击距离的模组",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "加载其中任一模组后，武器不再应用自身攻击距离。",
-    "better_weaponry.field.compat.combat_reforged_notice": "Combat Reforged 提示",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "向玩家提示一次战斗系统的去向。"
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "加载其中任一模组后，武器不再应用自身攻击距离。 安装 Combat Reforged、Better Combat 或 Epic Fight 时，提示中的攻击距离一行交给它们显示。"
   }
 }

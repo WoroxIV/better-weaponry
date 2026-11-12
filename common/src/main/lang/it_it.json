@@ -77,6 +77,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "Portata d'attacco",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s problema/i nei file delle armi:",
     "better_weaponry.data.problems.more": "... e altri %s. Dettagli in logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: errore di sintassi JSON, file ignorato (%2$s)",
@@ -198,7 +199,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Armi da parata",
     "tag.item.better_weaponry.enchantable.parrying": "Oggetti da parata",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Modelli di potenziamento in netherite",
-    "better_weaponry.notice.combat_reforged": "Il sistema di combattimento di Better Weaponry (combo, parate, scatti, tutorial ed editor) ora è la mod separata Combat Reforged. Installala per riaverli. Questo messaggio si disattiva in config/better_weaponry/compat.json.",
     "better_weaponry.doc.schema.compat": "Impostazioni di compatibilità di Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Campi di compat.json:",
     "better_weaponry.field.compat.format_version": "Versione del formato",
@@ -208,8 +208,6 @@
     "better_weaponry.field.compat.balance_abilities": "Bilanciare le abilità",
     "better_weaponry.field.compat.balance_abilities.help": "Con Combat Reforged, le armi con abilità infliggono un po' meno danni.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mod con portata propria",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Se è caricata una di queste mod, le armi non applicano più la propria portata.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Messaggio di Combat Reforged",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Indica una volta ai giocatori dove si trova il sistema di combattimento."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Se è caricata una di queste mod, le armi non applicano più la propria portata. Con Combat Reforged, Better Combat o Epic Fight, la riga Portata d'attacco del tooltip è lasciata a loro."
   }
 }
