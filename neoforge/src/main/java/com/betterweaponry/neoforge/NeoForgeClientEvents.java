@@ -2,6 +2,7 @@ package com.betterweaponry.neoforge;
 
 import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.client.RangedWeaponClient;
+import com.betterweaponry.client.ReachTooltip;
 import com.betterweaponry.data.WeaponData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -11,6 +12,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 /** Relie les événements client de NeoForge au code commun. */
 @EventBusSubscriber(modid = BetterWeaponry.MODID, value = Dist.CLIENT)
@@ -22,6 +24,11 @@ final class NeoForgeClientEvents {
     @SubscribeEvent
     static void onComputeFov(ComputeFovModifierEvent event) {
         event.setNewFovModifier(RangedWeaponClient.modifyFov(event.getPlayer(), event.getNewFovModifier()));
+    }
+
+    @SubscribeEvent
+    static void onTooltip(ItemTooltipEvent event) {
+        ReachTooltip.onTooltip(event.getItemStack(), event.getToolTip());
     }
 
     /** En quittant un serveur, on oublie ses stats : on revient aux valeurs par défaut du mod. */

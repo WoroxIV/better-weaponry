@@ -76,6 +76,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "Portée d'attaque",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s problème(s) dans les fichiers des armes :",
     "better_weaponry.data.problems.more": "... et %s autre(s). Détails dans logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s : erreur de syntaxe JSON, fichier ignoré (%2$s)",
@@ -197,7 +198,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Armes de parade",
     "tag.item.better_weaponry.enchantable.parrying": "Objets qui parent",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Modèles d'amélioration en netherite",
-    "better_weaponry.notice.combat_reforged": "Le système de combat de Better Weaponry (combos, parades, dashs, tutoriels et éditeur) est maintenant le mod séparé Combat Reforged. Installez-le pour les retrouver. Ce message se désactive dans config/better_weaponry/compat.json.",
     "better_weaponry.doc.schema.compat": "Réglages de compatibilité de Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Champs de compat.json :",
     "better_weaponry.field.compat.format_version": "Version du format",
@@ -207,8 +207,6 @@
     "better_weaponry.field.compat.balance_abilities": "Équilibrer les capacités",
     "better_weaponry.field.compat.balance_abilities.help": "Avec Combat Reforged, les armes à capacités font un peu moins de dégâts.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods avec leur propre portée",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si l'un de ces mods est chargé, les armes n'appliquent plus leur propre portée.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Message Combat Reforged",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Indique une fois aux joueurs où se trouve le système de combat."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si l'un de ces mods est chargé, les armes n'appliquent plus leur propre portée. Avec Combat Reforged, Better Combat ou Epic Fight, la ligne Portée d'attaque des infobulles leur est laissée."
   }
 }

@@ -76,6 +76,7 @@
     "overrides": {}
   },
   "strings": {
+    "attribute.better_weaponry.attack_reach": "Alcance de ataque",
     "better_weaponry.data.problems.header": "[Better Weaponry] %s problema(s) en los archivos de armas:",
     "better_weaponry.data.problems.more": "... y %s más. Detalles en logs/latest.log.",
     "better_weaponry.data.problem.syntax": "%1$s: error de sintaxis JSON, archivo ignorado (%2$s)",
@@ -197,7 +198,6 @@
     "tag.item.better_weaponry.enchantable.parry_weapons": "Armas de parada",
     "tag.item.better_weaponry.enchantable.parrying": "Objetos de parada",
     "tag.item.better_weaponry.weapon_materials.netherite_template": "Plantillas de mejora de netherita",
-    "better_weaponry.notice.combat_reforged": "El sistema de combate de Better Weaponry (combos, paradas, embestidas, tutoriales y editor) ahora es el mod independiente Combat Reforged. Instálalo para recuperarlos. Este mensaje se desactiva en config/better_weaponry/compat.json.",
     "better_weaponry.doc.schema.compat": "Ajustes de compatibilidad de Better Weaponry.",
     "better_weaponry.doc.readme.compat_fields": "Campos de compat.json:",
     "better_weaponry.field.compat.format_version": "Versión del formato",
@@ -207,8 +207,6 @@
     "better_weaponry.field.compat.balance_abilities": "Equilibrar habilidades",
     "better_weaponry.field.compat.balance_abilities.help": "Con Combat Reforged, las armas con habilidades hacen algo menos de daño.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods con alcance propio",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si se carga uno de estos mods, las armas dejan de aplicar su alcance.",
-    "better_weaponry.field.compat.combat_reforged_notice": "Mensaje de Combat Reforged",
-    "better_weaponry.field.compat.combat_reforged_notice.help": "Indica una vez a los jugadores dónde está el sistema de combate."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si se carga uno de estos mods, las armas dejan de aplicar su alcance. Con Combat Reforged, Better Combat o Epic Fight, la línea Alcance de ataque del tooltip queda a su cargo."
   }
 }
