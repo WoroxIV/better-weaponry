@@ -32,7 +32,7 @@ public final class WeaponIconModel extends BakedModelWrapper<BakedModel> {
         Map<ModelResourceLocation, BakedModel> models = event.getModels();
         for (WeaponType type : WeaponType.values()) {
             for (WeaponMaterial material : WeaponMaterials.all()) {
-                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, material.itemName(type));
+                ResourceLocation id = material.itemId(type);
                 models.computeIfPresent(ModelResourceLocation.inventory(id),
                         (key, model) -> WeaponIconLayout.of(model).<BakedModel>map(layout -> new WeaponIconModel(model, layout)).orElse(model));
             }

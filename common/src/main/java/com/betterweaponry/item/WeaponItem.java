@@ -1,6 +1,5 @@
 package com.betterweaponry.item;
 
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.compat.BwCompat;
 import com.betterweaponry.data.AbilityPenalty;
 import com.betterweaponry.data.WeaponData;
@@ -37,7 +36,7 @@ public class WeaponItem extends SwordItem {
         super(material.tier(), properties);
         this.type = type;
         this.material = material;
-        this.reachModifierId = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, material.itemName(type) + "_reach");
+        this.reachModifierId = ResourceLocation.fromNamespaceAndPath(material.namespace(), material.itemName(type) + "_reach");
     }
 
     public WeaponType getType() {

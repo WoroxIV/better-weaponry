@@ -11,8 +11,11 @@ import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  * Un matériau d'arme (bois, fer, ou un matériau d'un autre mod).
@@ -28,6 +31,7 @@ public final class WeaponMaterial {
      */
     private static final double VANILLA_SWORD_BASE_DAMAGE = 4.0D;
 
+    private final String namespace;
     private final String id;
     private final Tier tier;
     private final double damageMultiplier;
@@ -35,8 +39,10 @@ public final class WeaponMaterial {
     @Nullable private final SmithingUpgrade smithingUpgrade;
     private final List<String> requiredMods;
     private final boolean fireResistant;
+    private final Map<GearType, Integer> gearDurability;
 
     private WeaponMaterial(Builder builder, Tier tier) {
+        this.namespace = builder.namespace;
         this.id = builder.id;
         this.tier = tier;
         this.damageMultiplier = builder.damageMultiplier != null
@@ -46,16 +52,30 @@ public final class WeaponMaterial {
         this.smithingUpgrade = builder.smithingUpgrade;
         this.requiredMods = List.copyOf(builder.requiredMods);
         this.fireResistant = builder.fireResistant;
+        this.gearDurability = builder.gearDurability.isEmpty() ? Map.of() : new EnumMap<>(builder.gearDurability);
     }
 
     /** Matériau basé sur un {@link Tier} existant (vanilla). */
     public static Builder builder(String id, Tier tier) {
-        return new Builder(id).tier(tier);
+        return new Builder(BetterWeaponry.MODID, id).tier(tier);
     }
 
     /** Matériau moddé : le Tier est créé à partir de {@link Builder#stats}. */
     public static Builder builder(String id) {
-        return new Builder(id);
+        return new Builder(BetterWeaponry.MODID, id);
+    }
+
+    /**
+     * Matériau d'un addon (voir {@link com.betterweaponry.api.WeaponMaterialProvider}) : ses armes s'appellent
+     * {@code <namespace>:<id>_katana}. Le {@link Tier} est celui de l'addon (il peut servir aussi à ses outils).
+     */
+    public static Builder builder(String namespace, String id, Tier tier) {
+        return new Builder(namespace, id).tier(tier);
+    }
+
+    /** Matériau d'un addon, avec un Tier créé à partir de {@link Builder#stats}. */
+    public static Builder builder(String namespace, String id) {
+        return new Builder(namespace, id);
     }
 
     /** Raccourci pour un tag d'item, ex : {@code itemTag("c:ingots/steel")}. */
@@ -68,6 +88,24 @@ public final class WeaponMaterial {
     /** Préfixe des noms d'items, ex : "golden" pour "golden_katana". */
     public String id() {
         return id;
+    }
+
+    /** Namespace des items de ce matériau : "better_weaponry", ou celui de l'addon qui l'a déclaré. */
+    public String namespace() {
+        return namespace;
+    }
+
+    /** Matériau déclaré par un autre mod au travers de {@link com.betterweaponry.api.WeaponMaterialProvider}. */
+    public boolean isAddon() {
+        return !namespace.equals(BetterWeaponry.MODID);
+    }
+
+    /**
+     * Nom du matériau dans les fichiers de données ({@code material_damage}, {@code projectile_speed_multipliers}) :
+     * "iron" pour un matériau du mod, "extended_weaponry:emerald" pour un matériau d'addon.
+     */
+    public String key() {
+        return isAddon() ? namespace + ":" + id : id;
     }
 
     /** Fournit la durabilité, l'enchantabilité et l'objet de réparation. */
@@ -123,6 +161,12 @@ public final class WeaponMaterial {
         return fireResistant;
     }
 
+    /** Durabilité imposée à cet équipement (bouclier, arc...) au lieu de celle calculée à partir des outils du matériau. */
+    public OptionalInt gearDurability(GearType type) {
+        Integer durability = gearDurability.get(type);
+        return durability == null ? OptionalInt.empty() : OptionalInt.of(durability);
+    }
+
     /** Nom de l'item pour ce matériau et ce type, ex : "netherite_katana". */
     public String itemName(WeaponType type) {
         return id + "_" + type.id();
@@ -133,9 +177,19 @@ public final class WeaponMaterial {
         return id + "_" + type.id();
     }
 
+    /** Identifiant complet de l'arme, ex : "better_weaponry:netherite_katana". */
+    public ResourceLocation itemId(WeaponType type) {
+        return ResourceLocation.fromNamespaceAndPath(namespace, itemName(type));
+    }
+
+    /** Identifiant complet de l'équipement, ex : "better_weaponry:netherite_shield". */
+    public ResourceLocation itemId(GearType type) {
+        return ResourceLocation.fromNamespaceAndPath(namespace, itemName(type));
+    }
+
     @Override
     public String toString() {
-        return id;
+        return key();
     }
 
     /**
@@ -163,8 +217,9 @@ public final class WeaponMaterial {
         /**
          * Construit un ingrédient à partir d'entrées "#namespace:tag" ou "namespace:item".
          * Une seule entrée de type tag est utilisée directement, sans générer de tag.
+         * Le tag généré est dans le namespace du matériau ({@code <namespace>:weapon_materials/...}).
          */
-        static MaterialIngredient of(String generatedTagPath, String... entries) {
+        static MaterialIngredient of(String namespace, String generatedTagPath, String... entries) {
             if (entries.length == 0) {
                 throw new IllegalArgumentException("Aucun ingrédient pour " + generatedTagPath);
             }
@@ -172,12 +227,13 @@ public final class WeaponMaterial {
                 return new MaterialIngredient(itemTag(entries[0].substring(1)), List.of());
             }
             TagKey<Item> tag = TagKey.create(Registries.ITEM,
-                    ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "weapon_materials/" + generatedTagPath));
+                    ResourceLocation.fromNamespaceAndPath(namespace, "weapon_materials/" + generatedTagPath));
             return new MaterialIngredient(tag, List.of(entries));
         }
     }
 
     public static final class Builder {
+        private final String namespace;
         private final String id;
         @Nullable private Tier tier;
         @Nullable private Double damageMultiplier;
@@ -185,12 +241,14 @@ public final class WeaponMaterial {
         @Nullable private SmithingUpgrade smithingUpgrade;
         private List<String> requiredMods = List.of();
         private boolean fireResistant;
+        private final Map<GearType, Integer> gearDurability = new EnumMap<>(GearType.class);
         // Stats d'un matériau moddé, transformées en Tier au build()
         private int durability = -1;
         private int enchantability;
         private float attackBonus;
 
-        private Builder(String id) {
+        private Builder(String namespace, String id) {
+            this.namespace = Objects.requireNonNull(namespace);
             this.id = Objects.requireNonNull(id);
         }
 
@@ -231,7 +289,7 @@ public final class WeaponMaterial {
          * Mettre le tag commun en premier, puis l'item exact du mod en secours.
          */
         public Builder craftedFrom(String... entries) {
-            this.craftingIngredient = MaterialIngredient.of(id, entries);
+            this.craftingIngredient = MaterialIngredient.of(namespace, id, entries);
             this.smithingUpgrade = null;
             return this;
         }
@@ -242,8 +300,8 @@ public final class WeaponMaterial {
          */
         public Builder smithingUpgrade(WeaponMaterial base, String template, String addition) {
             this.smithingUpgrade = new SmithingUpgrade(base,
-                    MaterialIngredient.of(id + "_template", template),
-                    MaterialIngredient.of(id + "_addition", addition));
+                    MaterialIngredient.of(namespace, id + "_template", template),
+                    MaterialIngredient.of(namespace, id + "_addition", addition));
             this.craftingIngredient = null;
             return this;
         }
@@ -251,6 +309,16 @@ public final class WeaponMaterial {
         /** Les armes résistent au feu et à la lave, comme les objets en netherite. */
         public Builder fireResistant() {
             this.fireResistant = true;
+            return this;
+        }
+
+        /**
+         * Durabilité fixe d'un équipement de ce matériau. Utile quand celle des outils est si basse (ou si haute) que
+         * le calcul habituel donnerait un bouclier ou un shuriken inutilisable.
+         */
+        public Builder gearDurability(GearType type, int durability) {
+            if (durability <= 0) throw new IllegalArgumentException("Durabilité invalide pour " + id + " " + type.id() + " : " + durability);
+            this.gearDurability.put(type, durability);
             return this;
         }
 

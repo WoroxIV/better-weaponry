@@ -251,7 +251,7 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
 
     /** Un matériau inconnu n'empêche rien (il est simplement inutilisé), mais c'est souvent une faute de frappe. */
     private static void reportUnknownMaterials(String file, WeaponDefinition definition, List<DataProblem> problems) {
-        Set<String> known = WeaponMaterials.all().stream().map(WeaponMaterial::id).collect(Collectors.toSet());
+        Set<String> known = WeaponMaterials.all().stream().map(WeaponMaterial::key).collect(Collectors.toSet());
         for (String material : definition.materialDamage().keySet()) {
             if (!known.contains(material)) {
                 problems.add(new DataProblem(DataProblem.Kind.UNKNOWN_MATERIAL, file, WeaponDefinition.MATERIAL_DAMAGE.name(), material));
