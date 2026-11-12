@@ -1,12 +1,16 @@
 package com.betterweaponry.item;
 
+import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.api.WeaponMaterialProvider;
 import com.betterweaponry.platform.Platform;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Tiers;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Liste de tous les matériaux d'armes. L'ordre de déclaration est l'ordre dans l'onglet créatif.
@@ -22,10 +26,18 @@ import java.util.List;
  * Pour les ingrédients, mettre d'abord le tag commun ({@code #c:ingots/...}) puis l'item exact du mod :
  * toutes les entrées sont optionnelles, donc un item mal nommé ou absent ne casse rien.
  * Les recettes ne se chargent que si le mod est présent ET que l'ingrédient existe.
+ *
+ * <h2>Matériaux d'addons</h2>
+ * Un autre mod peut ajouter ses propres matériaux avec {@link WeaponMaterialProvider}. Ils sont lus à la première
+ * lecture de {@link #all()} ou {@link #active()} (pas pendant le chargement de cette classe : un addon peut donc
+ * s'appuyer sur {@link #NETHERITE} pour une amélioration), et placés après ceux du mod.
  */
 public final class WeaponMaterials {
     private static final List<WeaponMaterial> ALL = new ArrayList<>();
     private static final List<WeaponMaterial> ACTIVE = new ArrayList<>();
+    private static final Object ADDON_LOCK = new Object();
+    private static volatile boolean addonsLoaded;
+    private static boolean loadingAddons;
 
     // IDs des mods compatibles
     private static final String MEKANISM = "mekanism";
@@ -361,12 +373,64 @@ public final class WeaponMaterials {
      * (les recettes des matériaux moddés reçoivent des conditions de chargement).
      */
     public static List<WeaponMaterial> active() {
+        loadAddons();
         return Collections.unmodifiableList(ACTIVE);
     }
 
     /** Tous les matériaux déclarés, y compris ceux dont le mod n'est pas installé. */
     public static List<WeaponMaterial> all() {
+        loadAddons();
         return Collections.unmodifiableList(ALL);
+    }
+
+    /** Matériaux de Better Weaponry lui-même, sans ceux des addons. */
+    public static List<WeaponMaterial> builtIn() {
+        return all().stream().filter(material -> !material.isAddon()).toList();
+    }
+
+    /** Matériaux déclarés par un addon donné (son namespace). */
+    public static List<WeaponMaterial> ofNamespace(String namespace) {
+        return all().stream().filter(material -> material.namespace().equals(namespace)).toList();
+    }
+
+    /**
+     * Ajoute les matériaux des addons, une seule fois. Un addon qui relirait les listes pendant sa propre déclaration
+     * les verrait sans ses matériaux, au lieu de bloquer.
+     */
+    private static void loadAddons() {
+        if (addonsLoaded) return;
+        synchronized (ADDON_LOCK) {
+            if (addonsLoaded || loadingAddons) return;
+            loadingAddons = true;
+            try {
+                Set<String> taken = new HashSet<>();
+                ALL.forEach(material -> taken.add(material.key()));
+                for (WeaponMaterialProvider provider : Platform.get().materialProviders()) {
+                    for (WeaponMaterial material : provider.materials()) {
+                        addAddonMaterial(provider, material, taken);
+                    }
+                }
+            } finally {
+                loadingAddons = false;
+                addonsLoaded = true;
+            }
+        }
+    }
+
+    /** Un matériau mal déclaré est ignoré avec un message, sans empêcher le jeu de démarrer. */
+    private static void addAddonMaterial(WeaponMaterialProvider provider, WeaponMaterial material, Set<String> taken) {
+        String source = provider.getClass().getName();
+        if (!material.isAddon()) {
+            BetterWeaponry.LOGGER.error("[Better Weaponry] {} declares the material \"{}\" in the better_weaponry namespace: ignored, use the addon's own namespace", source, material.id());
+            return;
+        }
+        if (!taken.add(material.key())) {
+            BetterWeaponry.LOGGER.error("[Better Weaponry] {} declares the material \"{}\" twice: the second one is ignored", source, material.key());
+            return;
+        }
+        ALL.add(material);
+        if (isAvailable(material)) ACTIVE.add(material);
+        BetterWeaponry.LOGGER.info("[Better Weaponry] Material \"{}\" added by {}", material.key(), source);
     }
 
     private static WeaponMaterial register(WeaponMaterial.Builder builder) {

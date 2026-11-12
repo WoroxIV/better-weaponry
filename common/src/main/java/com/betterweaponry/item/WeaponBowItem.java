@@ -21,7 +21,7 @@ public class WeaponBowItem extends BowItem implements RangedWeapon {
     }
 
     private static Item.Properties configure(WeaponMaterial material, Item.Properties properties) {
-        properties.durability(RangedWeapon.durabilityOf(material, VANILLA_DURABILITY));
+        properties.durability(RangedWeapon.durabilityOf(material, GearType.BOW, VANILLA_DURABILITY));
         if (material.isFireResistant()) properties.fireResistant();
         return properties;
     }

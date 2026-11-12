@@ -45,10 +45,11 @@ public final class EpicFightFiles {
     public static void generate() {
         if (!BwCompat.epicFight()) return;
         Path pack = packFolder();
-        Path folder = pack.resolve("data").resolve(BetterWeaponry.MODID).resolve("capabilities/weapons");
         try {
             for (WeaponMaterial material : WeaponMaterials.active()) {
-                if (!material.isModded()) continue;
+                // Les matériaux vanilla ont leurs fichiers dans le jar ; ceux des autres mods et des addons sont écrits ici.
+                if (!material.isModded() && !material.isAddon()) continue;
+                Path folder = pack.resolve("data").resolve(material.namespace()).resolve("capabilities/weapons");
                 for (WeaponType type : WeaponType.values()) {
                     ConfigFolder.writeJson(folder.resolve(material.itemName(type) + ".json"), weapon(type));
                 }

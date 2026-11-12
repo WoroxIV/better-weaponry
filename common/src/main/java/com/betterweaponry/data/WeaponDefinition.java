@@ -77,7 +77,7 @@ public record WeaponDefinition(int formatVersion, double attackSpeed, double att
      * @param abilityPenalty part des dégâts retirée, 0 si l'équilibrage global est coupé
      */
     public double damageFor(WeaponMaterial material, double abilityPenalty) {
-        Double forced = materialDamage.get(material.id());
+        Double forced = materialDamage.get(material.key());
         if (forced != null) return forced;
         double damage = Math.round(baseDamage * material.damageMultiplier() * DAMAGE_STEPS_PER_POINT) / DAMAGE_STEPS_PER_POINT;
         return abilityPenalty <= 0.0D ? damage : Math.round(damage * (1.0D - abilityPenalty) * PENALIZED_STEPS_PER_POINT) / PENALIZED_STEPS_PER_POINT;
