@@ -1,6 +1,7 @@
 package com.betterweaponry.neoforge;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.api.WeaponMaterialProvider;
 import com.betterweaponry.config.LegacyConfigMigration;
 import com.betterweaponry.platform.Platform;
 import com.betterweaponry.platform.Registered;
@@ -34,12 +35,15 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforgespi.language.IModFileInfo;
+import net.neoforged.neoforgespi.language.IModInfo;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -47,7 +51,7 @@ import java.util.function.Supplier;
 /** Version NeoForge de ce qui diffère d'un chargeur à l'autre. */
 final class NeoForgePlatform implements Platform {
     private final IEventBus modBus;
-    private final Map<ResourceKey<?>, DeferredRegister<?>> registers = new LinkedHashMap<>();
+    private final Map<RegisterKey, DeferredRegister<?>> registers = new LinkedHashMap<>();
 
     NeoForgePlatform(IEventBus modBus) {
         this.modBus = modBus;
@@ -109,13 +113,14 @@ final class NeoForgePlatform implements Platform {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, String name, Supplier<T> factory) {
-        DeferredRegister<R> register = (DeferredRegister<R>) registers.computeIfAbsent(registry, key -> {
-            DeferredRegister<R> created = DeferredRegister.create(registry, BetterWeaponry.MODID);
+    public <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, ResourceLocation id, Supplier<T> factory) {
+        // Un registre différé par namespace : les armes des matériaux d'addons gardent le namespace de l'addon.
+        DeferredRegister<R> register = (DeferredRegister<R>) registers.computeIfAbsent(new RegisterKey(registry, id.getNamespace()), key -> {
+            DeferredRegister<R> created = DeferredRegister.create(registry, id.getNamespace());
             created.register(modBus);
             return created;
         });
-        DeferredHolder<R, T> holder = register.register(name, factory);
+        DeferredHolder<R, T> holder = register.register(id.getPath(), factory);
         return new Registered<>() {
             @Override
             public T get() {
@@ -127,6 +132,23 @@ final class NeoForgePlatform implements Platform {
                 return holder;
             }
         };
+    }
+
+    /** Chaque mod peut nommer sa classe dans {@code [modproperties.<modid>]} de son neoforge.mods.toml. */
+    @Override
+    public List<WeaponMaterialProvider> materialProviders() {
+        List<WeaponMaterialProvider> providers = new ArrayList<>();
+        for (IModInfo mod : ModList.get().getMods()) {
+            Object className = mod.getModProperties().get(WeaponMaterialProvider.KEY);
+            if (!(className instanceof String name)) continue;
+            try {
+                Class<?> type = Class.forName(name, true, NeoForgePlatform.class.getClassLoader());
+                providers.add((WeaponMaterialProvider) type.getDeclaredConstructor().newInstance());
+            } catch (ReflectiveOperationException | ClassCastException | LinkageError e) {
+                BetterWeaponry.LOGGER.error("[Better Weaponry] Could not create the material provider {} of {}", name, mod.getModId(), e);
+            }
+        }
+        return providers;
     }
 
     @Override
@@ -164,4 +186,6 @@ final class NeoForgePlatform implements Platform {
         LegacyConfigMigration.migrateIfPresent();
     }
 
+    private record RegisterKey(ResourceKey<?> registry, String namespace) {
+    }
 }

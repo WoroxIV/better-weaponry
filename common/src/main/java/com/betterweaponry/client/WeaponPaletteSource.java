@@ -35,6 +35,9 @@ import java.util.function.IntUnaryOperator;
  * Le résultat s'appelle {@code <dossier>/iron_katana}, exactement comme une texture dessinée à la main. Si le fichier
  * {@code textures/<dossier>/iron_katana.png} existe, rien n'est généré : c'est lui qui est utilisé.
  * <p>
+ * Un matériau d'addon utilise les mêmes modèles de couleurs, avec sa palette dans son propre namespace
+ * ({@code assets/<namespace>/textures/palettes/<id>.png}) : sa texture s'appelle {@code <namespace>:<dossier>/<id>_katana}.
+ * <p>
  * Déclarée dans {@code assets/minecraft/atlases/} pour les atlas où vivent les textures concernées.
  */
 public final class WeaponPaletteSource implements SpriteSource {
@@ -71,7 +74,7 @@ public final class WeaponPaletteSource implements SpriteSource {
                           Map<WeaponMaterial, IntUnaryOperator> palettes) {
         Map<ResourceLocation, IntUnaryOperator> targets = new LinkedHashMap<>();
         palettes.forEach((material, palette) -> {
-            ResourceLocation target = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, directory + "/" + material.id() + "_" + template);
+            ResourceLocation target = ResourceLocation.fromNamespaceAndPath(material.namespace(), directory + "/" + material.id() + "_" + template);
             boolean handDrawn = manager.getResource(TEXTURE_ID_CONVERTER.idToFile(target)).isPresent();
             if (!handDrawn) targets.put(target, palette);
         });
@@ -85,7 +88,7 @@ public final class WeaponPaletteSource implements SpriteSource {
     /** Une palette absente ou de la mauvaise taille n'empêche pas le jeu de démarrer : l'arme apparaît en violet et noir. */
     private static Map<WeaponMaterial, IntUnaryOperator> loadPalettes(ResourceManager manager) {
         Map<WeaponMaterial, IntUnaryOperator> palettes = new LinkedHashMap<>();
-        int[] key = readPalette(manager, "key");
+        int[] key = readPalette(manager, BetterWeaponry.MODID, "key");
         if (key == null) {
             BetterWeaponry.LOGGER.warn("textures/palettes/key.png est absent ou illisible : aucune texture d'arme générée");
             return palettes;
@@ -93,11 +96,11 @@ public final class WeaponPaletteSource implements SpriteSource {
 
         List<String> problems = new ArrayList<>();
         for (WeaponMaterial material : WeaponMaterials.active()) {
-            int[] colors = readPalette(manager, material.id());
+            int[] colors = readPalette(manager, material.namespace(), material.id());
             if (colors != null && colors.length == key.length) {
                 palettes.put(material, recolor(key, colors));
             } else {
-                problems.add(material.id());
+                problems.add(material.key());
             }
         }
         if (!problems.isEmpty()) {
@@ -108,8 +111,8 @@ public final class WeaponPaletteSource implements SpriteSource {
     }
 
     @Nullable
-    private static int[] readPalette(ResourceManager manager, String name) {
-        ResourceLocation palette = ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, "palettes/" + name);
+    private static int[] readPalette(ResourceManager manager, String namespace, String name) {
+        ResourceLocation palette = ResourceLocation.fromNamespaceAndPath(namespace, "palettes/" + name);
         if (manager.getResource(TEXTURE_ID_CONVERTER.idToFile(palette)).isEmpty()) return null;
         try {
             return PalettedPermutations.loadPaletteEntryFromImage(manager, palette);

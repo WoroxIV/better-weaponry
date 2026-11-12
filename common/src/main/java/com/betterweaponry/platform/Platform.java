@@ -1,9 +1,12 @@
 package com.betterweaponry.platform;
 
+import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.api.WeaponMaterialProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -14,6 +17,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.enchantment.Enchantment;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -58,7 +62,15 @@ public interface Platform {
     Optional<String> readModFile(String... path);
 
     /** Enregistre un objet du jeu (item, son, effet...). Il n'est utilisable qu'une fois les registres remplis. */
-    <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, String name, Supplier<T> factory);
+    default <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, String name, Supplier<T> factory) {
+        return register(registry, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, name), factory);
+    }
+
+    /** Même chose avec un identifiant complet : les armes des matériaux d'addons sont enregistrées sous leur namespace. */
+    <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, ResourceLocation id, Supplier<T> factory);
+
+    /** Fournisseurs de matériaux déclarés par les autres mods (voir {@link WeaponMaterialProvider}). */
+    List<WeaponMaterialProvider> materialProviders();
 
     /** Début de la construction d'un onglet créatif, placé après l'onglet Combat. */
     CreativeModeTab.Builder creativeTabBuilder();

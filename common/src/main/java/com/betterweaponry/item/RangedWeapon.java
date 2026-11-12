@@ -36,7 +36,8 @@ public interface RangedWeapon {
      * Durabilité : celle de l'arc ou de l'arbalète vanilla, suivant le rapport entre les outils du matériau et ceux
      * en fer. Le bois et la pierre gardent la valeur vanilla : leur rapport les rendrait inutilisables.
      */
-    static int durabilityOf(WeaponMaterial material, int vanillaDurability) {
+    static int durabilityOf(WeaponMaterial material, GearType type, int vanillaDurability) {
+        if (material.gearDurability(type).isPresent()) return material.gearDurability(type).getAsInt();
         if (material == WeaponMaterials.WOODEN || material == WeaponMaterials.STONE) return vanillaDurability;
         return (int) Math.round(vanillaDurability * material.tier().getUses() / IRON_TOOL_DURABILITY);
     }

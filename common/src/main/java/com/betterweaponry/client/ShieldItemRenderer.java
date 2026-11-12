@@ -1,6 +1,5 @@
 package com.betterweaponry.client;
 
-import com.betterweaponry.BetterWeaponry;
 import com.betterweaponry.item.WeaponShieldItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -64,7 +63,7 @@ public final class ShieldItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static Material materialOf(ItemStack stack, boolean decorated) {
         if (stack.getItem() instanceof WeaponShieldItem shield) {
             String name = "entity/shield/" + shield.getMaterial().id() + "_shield";
-            Material custom = new Material(Sheets.SHIELD_SHEET, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, name));
+            Material custom = new Material(Sheets.SHIELD_SHEET, ResourceLocation.fromNamespaceAndPath(shield.getMaterial().namespace(), name));
             if (!custom.sprite().contents().name().equals(MissingTextureAtlasSprite.getLocation())) return custom;
         }
         return decorated ? ModelBakery.SHIELD_BASE : ModelBakery.NO_PATTERN_SHIELD;

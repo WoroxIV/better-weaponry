@@ -1,6 +1,7 @@
 package com.betterweaponry.fabric;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.api.WeaponMaterialProvider;
 import com.betterweaponry.item.ShurikenItem;
 import com.betterweaponry.platform.Platform;
 import com.betterweaponry.platform.Registered;
@@ -33,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -98,10 +100,10 @@ final class FabricPlatform implements Platform {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, String name, Supplier<T> factory) {
+    public <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, ResourceLocation id, Supplier<T> factory) {
         Registry<R> target = (Registry<R>) BuiltInRegistries.REGISTRY.get(registry.location());
         if (target == null) throw new IllegalArgumentException("Unknown registry " + registry.location());
-        Holder.Reference<R> holder = Registry.registerForHolder(target, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, name), factory.get());
+        Holder.Reference<R> holder = Registry.registerForHolder(target, id, factory.get());
         return new Registered<>() {
             @Override
             public T get() {
@@ -113,6 +115,12 @@ final class FabricPlatform implements Platform {
                 return holder;
             }
         };
+    }
+
+    /** Chaque mod peut déclarer sa classe dans le point d'entrée "better_weaponry_materials" de son fabric.mod.json. */
+    @Override
+    public List<WeaponMaterialProvider> materialProviders() {
+        return FabricLoader.getInstance().getEntrypoints(WeaponMaterialProvider.KEY, WeaponMaterialProvider.class);
     }
 
     @Override
