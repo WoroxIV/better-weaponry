@@ -46,7 +46,8 @@ public class WeaponItem extends SwordItem {
         super(material.tier(), 0, 0.0F, properties);
         this.type = type;
         this.material = material;
-        this.reachModifierId = uuid(material.itemName(type) + "_reach");
+        // Même identifiant qu'avant pour les matériaux du mod ; celui de l'addon pour les siens.
+        this.reachModifierId = UUID.nameUUIDFromBytes((material.namespace() + ":" + material.itemName(type) + "_reach").getBytes(StandardCharsets.UTF_8));
     }
 
     /** Identifiant stable d'un modificateur d'attribut du mod. */

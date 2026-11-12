@@ -76,6 +76,6 @@ public record GearDefinition(int formatVersion, boolean replaceVanillaGear, doub
      */
     public double projectileSpeedMultiplier(WeaponMaterial material) {
         double derived = Math.max(MIN_DERIVED_SPEED, material.damageMultiplier() - DERIVED_SPEED_PENALTY);
-        return Math.min(projectileSpeedCap, projectileSpeedMultipliers.getOrDefault(material.id(), derived));
+        return Math.min(projectileSpeedCap, projectileSpeedMultipliers.getOrDefault(material.key(), derived));
     }
 }

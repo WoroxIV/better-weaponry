@@ -73,7 +73,7 @@ final class SchemaWriter {
                 JsonObject map = typed("object");
                 // Les matériaux connus sont proposés par l'autocomplétion ; les autres restent acceptés.
                 JsonObject materials = new JsonObject();
-                for (WeaponMaterial material : WeaponMaterials.all()) materials.add(material.id(), numberSchema(field, "number"));
+                for (WeaponMaterial material : WeaponMaterials.all()) materials.add(material.key(), numberSchema(field, "number"));
                 map.add("properties", materials);
                 map.add("additionalProperties", numberSchema(field, "number"));
                 yield map;

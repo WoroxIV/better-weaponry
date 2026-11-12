@@ -19,7 +19,7 @@ public class WeaponCrossbowItem extends CrossbowItem implements RangedWeapon {
     }
 
     private static Item.Properties configure(WeaponMaterial material, Item.Properties properties) {
-        properties.durability(RangedWeapon.durabilityOf(material, VANILLA_DURABILITY));
+        properties.durability(RangedWeapon.durabilityOf(material, GearType.CROSSBOW, VANILLA_DURABILITY));
         if (material.isFireResistant()) properties.fireResistant();
         return properties;
     }

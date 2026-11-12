@@ -52,7 +52,7 @@ public class ShurikenItem extends Item implements RangedWeapon {
     }
 
     private static Item.Properties configure(WeaponMaterial material, Item.Properties properties) {
-        properties.durability(Math.max(1, material.tier().getUses() / DURABILITY_DIVISOR));
+        properties.durability(material.gearDurability(GearType.SHURIKEN).orElse(Math.max(1, material.tier().getUses() / DURABILITY_DIVISOR)));
         if (material.isFireResistant()) properties.fireResistant();
         return properties;
     }

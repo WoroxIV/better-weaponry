@@ -14,7 +14,7 @@
   "icon": "assets/better_weaponry/icon.png",
   "environment": "*",
   "entrypoints": {
-    "fabric-gametest": ["com.betterweaponry.gametest.CombatGameTests"],
+    "fabric-gametest": ["com.betterweaponry.gametest.CombatGameTests", "com.betterweaponry.gametest.ApiGameTests"],
     "main": ["com.betterweaponry.fabric.BetterWeaponryFabric"],
     "client": ["com.betterweaponry.fabric.BetterWeaponryFabricClient"],
     "jei_mod_plugin": ["com.betterweaponry.compat.jei.BetterWeaponryJeiPlugin"],

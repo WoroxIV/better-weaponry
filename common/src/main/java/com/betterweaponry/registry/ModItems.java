@@ -1,6 +1,7 @@
 package com.betterweaponry.registry;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -28,6 +29,7 @@ import java.util.Objects;
 /**
  * Enregistre une arme pour chaque combinaison type × matériau actif (ex : "netherite_katana").
  * L'ordre d'enregistrement (type puis matériau) est aussi l'ordre dans l'onglet créatif.
+ * Les armes d'un matériau d'addon sont enregistrées sous le namespace de l'addon ("extended_weaponry:emerald_katana").
  */
 public final class ModItems {
     private static final Map<WeaponType, Map<WeaponMaterial, Registered<Item, WeaponItem>>> WEAPONS = new EnumMap<>(WeaponType.class);
@@ -41,15 +43,15 @@ public final class ModItems {
             // Garde l'ordre de déclaration des matériaux : c'est celui de l'onglet créatif.
             Map<WeaponMaterial, Registered<Item, WeaponItem>> byMaterial = new LinkedHashMap<>();
             for (WeaponMaterial material : WeaponMaterials.active()) {
-                byMaterial.put(material, register(material.itemName(type), () -> Platform.get().createWeapon(type, material, properties(new Item.Properties(), material))));
+                byMaterial.put(material, register(material.itemId(type), () -> Platform.get().createWeapon(type, material, properties(new Item.Properties(), material))));
             }
             WEAPONS.put(type, byMaterial);
         }
         for (WeaponMaterial material : WeaponMaterials.active()) {
-            SHIELDS.put(material, register(material.itemName(GearType.SHIELD), () -> Platform.get().createShield(material, new Item.Properties())));
-            BOWS.put(material, register(material.itemName(GearType.BOW), () -> new WeaponBowItem(material, new Item.Properties())));
-            CROSSBOWS.put(material, register(material.itemName(GearType.CROSSBOW), () -> new WeaponCrossbowItem(material, new Item.Properties())));
-            SHURIKENS.put(material, register(material.itemName(GearType.SHURIKEN), () -> new ShurikenItem(material, new Item.Properties())));
+            SHIELDS.put(material, register(material.itemId(GearType.SHIELD), () -> Platform.get().createShield(material, new Item.Properties())));
+            BOWS.put(material, register(material.itemId(GearType.BOW), () -> new WeaponBowItem(material, new Item.Properties())));
+            CROSSBOWS.put(material, register(material.itemId(GearType.CROSSBOW), () -> new WeaponCrossbowItem(material, new Item.Properties())));
+            SHURIKENS.put(material, register(material.itemId(GearType.SHURIKEN), () -> new ShurikenItem(material, new Item.Properties())));
         }
     }
 
@@ -60,8 +62,8 @@ public final class ModItems {
     public static void init() {
     }
 
-    private static <T extends Item> Registered<Item, T> register(String name, Supplier<T> item) {
-        return Platform.get().register(Registries.ITEM, name, item);
+    private static <T extends Item> Registered<Item, T> register(ResourceLocation id, Supplier<T> item) {
+        return Platform.get().register(Registries.ITEM, id, item);
     }
 
     /** Toutes les armes de mêlée, tous types et matériaux confondus. */

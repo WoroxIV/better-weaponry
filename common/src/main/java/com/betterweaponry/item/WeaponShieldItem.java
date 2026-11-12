@@ -28,6 +28,7 @@ public class WeaponShieldItem extends ShieldItem {
 
     /** La durabilité des outils du matériau, sauf pour les boucliers rudimentaires en bois et en or. */
     public static int durabilityOf(WeaponMaterial material) {
+        if (material.gearDurability(GearType.SHIELD).isPresent()) return material.gearDurability(GearType.SHIELD).getAsInt();
         if (material == WeaponMaterials.WOODEN) return WOODEN_DURABILITY;
         if (material == WeaponMaterials.GOLDEN) return GOLDEN_DURABILITY;
         return material.tier().getUses();

@@ -1,6 +1,7 @@
 package com.betterweaponry.forge;
 
 import com.betterweaponry.BetterWeaponry;
+import com.betterweaponry.api.WeaponMaterialProvider;
 import com.betterweaponry.config.LegacyConfigMigration;
 import com.betterweaponry.item.WeaponItem;
 import com.betterweaponry.item.WeaponMaterial;
@@ -11,6 +12,7 @@ import com.betterweaponry.platform.Platform;
 import com.betterweaponry.platform.Registered;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -31,6 +33,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -38,7 +41,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -48,7 +53,7 @@ final class ForgePlatform implements Platform {
     private static final String COMMON_NAMESPACE = "c:";
 
     private final IEventBus modBus;
-    private final Map<ResourceKey<?>, DeferredRegister<?>> registers = new LinkedHashMap<>();
+    private final Map<RegisterKey, DeferredRegister<?>> registers = new LinkedHashMap<>();
 
     ForgePlatform(IEventBus modBus) {
         this.modBus = modBus;
@@ -120,14 +125,32 @@ final class ForgePlatform implements Platform {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, String name, Supplier<T> factory) {
-        DeferredRegister<R> register = (DeferredRegister<R>) registers.computeIfAbsent(registry, key -> {
-            DeferredRegister<R> created = DeferredRegister.create(registry, BetterWeaponry.MODID);
+    public <R, T extends R> Registered<R, T> register(ResourceKey<? extends Registry<R>> registry, ResourceLocation id, Supplier<T> factory) {
+        // Un registre différé par namespace : les armes des matériaux d'addons gardent le namespace de l'addon.
+        DeferredRegister<R> register = (DeferredRegister<R>) registers.computeIfAbsent(new RegisterKey(registry, id.getNamespace()), key -> {
+            DeferredRegister<R> created = DeferredRegister.create(registry, id.getNamespace());
             created.register(modBus);
             return created;
         });
-        RegistryObject<T> object = register.register(name, factory);
+        RegistryObject<T> object = register.register(id.getPath(), factory);
         return object::get;
+    }
+
+    /** Chaque mod peut nommer sa classe dans {@code [modproperties.<modid>]} de son mods.toml. */
+    @Override
+    public List<WeaponMaterialProvider> materialProviders() {
+        List<WeaponMaterialProvider> providers = new ArrayList<>();
+        for (IModInfo mod : ModList.get().getMods()) {
+            Object className = mod.getModProperties().get(WeaponMaterialProvider.KEY);
+            if (!(className instanceof String name)) continue;
+            try {
+                Class<?> type = Class.forName(name, true, ForgePlatform.class.getClassLoader());
+                providers.add((WeaponMaterialProvider) type.getDeclaredConstructor().newInstance());
+            } catch (ReflectiveOperationException | ClassCastException | LinkageError e) {
+                BetterWeaponry.LOGGER.error("[Better Weaponry] Could not create the material provider {} of {}", name, mod.getModId(), e);
+            }
+        }
+        return providers;
     }
 
     @Override
@@ -168,5 +191,8 @@ final class ForgePlatform implements Platform {
     @Override
     public WeaponShieldItem createShield(WeaponMaterial material, Item.Properties properties) {
         return new ForgeShieldItem(material, properties);
+    }
+
+    private record RegisterKey(ResourceKey<?> registry, String namespace) {
     }
 }
