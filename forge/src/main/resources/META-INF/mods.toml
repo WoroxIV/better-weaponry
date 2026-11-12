@@ -11,7 +11,7 @@ authors="${mod_authors}"
 displayURL="${mod_display_url}"
 logoFile="logo.png"
 logoBlur=true
-description='''${mod_description}'''
+description="""${mod_description}"""
 
 [[dependencies.${mod_id}]]
 modId="forge"
