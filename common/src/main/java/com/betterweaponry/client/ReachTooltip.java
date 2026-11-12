@@ -31,9 +31,13 @@ public final class ReachTooltip {
     private ReachTooltip() {
     }
 
-    /** Combat Reforged, Better Combat et Epic Fight affichent la portée à leur façon : on leur laisse la ligne. */
+    /** Ces mods réécrivent aussi les lignes d'attributs : Apothic Attributes (1.21) et Attributes Lib, son nom en 1.20. */
+    private static final List<String> TOOLTIP_MODS = List.of("apothic_attributes", "attributeslib");
+
+    /** Combat Reforged, Better Combat, Epic Fight et Apothic Attributes affichent la portée à leur façon : on leur laisse la ligne. */
     public static boolean handledByAnotherMod() {
-        return BwCompat.combatReforged() || BwCompat.betterCombat() || BwCompat.epicFight();
+        return BwCompat.combatReforged() || BwCompat.betterCombat() || BwCompat.epicFight()
+                || TOOLTIP_MODS.stream().anyMatch(Platform.get()::isModLoaded);
     }
 
     public static void onTooltip(ItemStack stack, List<Component> tooltip) {

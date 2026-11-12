@@ -375,7 +375,7 @@ Better Weaponry detects these mods and adapts. It never needs them.
 | Better Combat | Every weapon has a Better Combat preset and its own range. Dual-wielded weapons get a damage profile adapted to its attack speed |
 | Epic Fight | Every weapon has an Epic Fight type and hit area. Damage and speed offsets are set in the generated files |
 
-The weapons' own reach turns off when a mod listed in `reach_disabled_by_mods` (`config/better_weaponry/compat.json`) is loaded. By default: `bettercombat`, `combat_reforged`, `epicfight`. With Combat Reforged, Better Combat or Epic Fight loaded, Better Weaponry also leaves the **Attack Reach** tooltip line to them.
+The weapons' own reach turns off when a mod listed in `reach_disabled_by_mods` (`config/better_weaponry/compat.json`) is loaded. By default: `bettercombat`, `combat_reforged`, `epicfight`. With Combat Reforged, Better Combat, Epic Fight or Apothic Attributes loaded, Better Weaponry also leaves the **Attack Reach** tooltip line to them.
 
 Damage values follow a profile chosen from the loaded mods, in `data/better_weaponry/better_weaponry/balance/`. Your own values in `config/better_weaponry/weapons/` always win.
 
