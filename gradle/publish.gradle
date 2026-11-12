@@ -48,7 +48,5 @@ publishMods {
         optional('jei')
         optional('emi')
         optional('better-combat-by-daedelus')
-        // Le système de combat est dans Combat Reforged depuis la 3.1.0.
-        optional('combat-reforged')
     }
 }
