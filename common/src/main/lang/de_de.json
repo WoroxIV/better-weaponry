@@ -278,8 +278,8 @@
     "better_weaponry.field.compat.reach_enabled": "Waffenreichweite",
     "better_weaponry.field.compat.reach_enabled.help": "Jede Waffe nutzt ihre eigene Reichweite. Sie wird auch abgeschaltet, sobald eine Mod aus der Liste unten geladen ist.",
     "better_weaponry.field.compat.balance_abilities": "Fähigkeiten ausgleichen",
-    "better_weaponry.field.compat.balance_abilities.help": "Mit Combat Reforged verursachen Waffen mit Fähigkeiten etwas weniger Schaden.",
+    "better_weaponry.field.compat.balance_abilities.help": "Mit Combat Ascended verursachen Waffen mit Fähigkeiten etwas weniger Schaden.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods mit eigener Reichweite",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Ist eine dieser Mods geladen, wenden Waffen ihre eigene Reichweite nicht mehr an. Mit Combat Reforged, Better Combat oder Epic Fight überlässt es ihnen die Zeile Angriffsreichweite im Tooltip."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Ist eine dieser Mods geladen, wenden Waffen ihre eigene Reichweite nicht mehr an. Mit Combat Ascended, Better Combat oder Epic Fight überlässt es ihnen die Zeile Angriffsreichweite im Tooltip."
   }
 }

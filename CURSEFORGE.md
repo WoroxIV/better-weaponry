@@ -4,11 +4,11 @@
 
 Broadswords, spears, daggers, scythes, rapiers, sickles, katanas, battleaxes, glaives, hammers, claymores, chakrams and sais, from wood to netherite. Materials from many mods are supported too (Mekanism, Thermal, Create, Botania, Twilight Forest, and more).
 
-## Since 3.1.0: combat moved to Combat Reforged
+## Since 3.1.0: combat moved to Combat Ascended
 
-Combos, parries, dashes, dual wielding and two-handed weapons are now in their own mod, [Combat Reforged](https://www.curseforge.com/minecraft/mc-mods/combat-reforged), so they work with any weapon mod.
+Combos, parries, dashes, dual wielding and two-handed weapons are now in their own mod, [Combat Ascended](https://www.curseforge.com/minecraft/mc-mods/combat-reforged), so they work with any weapon mod.
 
-- **Install Combat Reforged to keep the full combat system.** With it, the weapons behave exactly as in 2.0, and your settings are imported automatically.
+- **Install Combat Ascended to keep the full combat system.** With it, the weapons behave exactly as in 2.0, and your settings are imported automatically.
 - Without it, the weapons keep their damage, speed, reach, recipes and enchantments (Vampirism, Execution, Bleeding, Returning).
 - Better Combat and Epic Fight recognize every weapon.
 

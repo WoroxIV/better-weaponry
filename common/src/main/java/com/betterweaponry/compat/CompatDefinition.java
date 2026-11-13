@@ -13,7 +13,7 @@ import java.util.Map;
  *
  * @param formatVersion       version du format de fichier (1)
  * @param reachEnabled        portée d'attaque propre à chaque arme
- * @param balanceAbilities    avec Combat Reforged, les armes à capacités font un peu moins de dégâts
+ * @param balanceAbilities    avec Combat Ascended, les armes à capacités font un peu moins de dégâts
  * @param reachDisabledByMods mods qui ont leur propre système de portée : s'ils sont chargés, celle des armes se coupe
  */
 public record CompatDefinition(int formatVersion, boolean reachEnabled, boolean balanceAbilities, List<String> reachDisabledByMods) {

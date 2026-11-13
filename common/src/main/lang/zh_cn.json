@@ -205,8 +205,8 @@
     "better_weaponry.field.compat.reach_enabled": "武器攻击距离",
     "better_weaponry.field.compat.reach_enabled.help": "每种武器使用自己的攻击距离。加载下方列表中的模组时也会关闭。",
     "better_weaponry.field.compat.balance_abilities": "平衡技能",
-    "better_weaponry.field.compat.balance_abilities.help": "安装 Combat Reforged 时，带技能的武器伤害略低。",
+    "better_weaponry.field.compat.balance_abilities.help": "安装 Combat Ascended 时，带技能的武器伤害略低。",
     "better_weaponry.field.compat.reach_disabled_by_mods": "拥有自身攻击距离的模组",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "加载其中任一模组后，武器不再应用自身攻击距离。 安装 Combat Reforged、Better Combat 或 Epic Fight 时，提示中的攻击距离一行交给它们显示。"
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "加载其中任一模组后，武器不再应用自身攻击距离。 安装 Combat Ascended、Better Combat 或 Epic Fight 时，提示中的攻击距离一行交给它们显示。"
   }
 }

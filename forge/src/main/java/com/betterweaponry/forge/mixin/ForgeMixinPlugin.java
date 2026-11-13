@@ -23,7 +23,7 @@ public final class ForgeMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        // Combat Reforged redéfinit la même méthode de Forge pour la portée : avec lui, c'est sa version qui compte.
+        // Combat Ascended redéfinit la même méthode de Forge pour la portée : avec lui, c'est sa version qui compte.
         return !mixinClassName.endsWith("PlayerForgeMixin") || LoadingModList.get().getModFileById("combat_reforged") == null;
     }
 

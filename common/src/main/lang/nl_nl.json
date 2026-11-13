@@ -290,8 +290,8 @@
     "better_weaponry.field.compat.reach_enabled": "Bereik van wapens",
     "better_weaponry.field.compat.reach_enabled.help": "Elk wapen gebruikt zijn eigen bereik. Het gaat ook uit zodra een mod uit de lijst hieronder is geladen.",
     "better_weaponry.field.compat.balance_abilities": "Vaardigheden balanceren",
-    "better_weaponry.field.compat.balance_abilities.help": "Met Combat Reforged doen wapens met vaardigheden iets minder schade.",
+    "better_weaponry.field.compat.balance_abilities.help": "Met Combat Ascended doen wapens met vaardigheden iets minder schade.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods met eigen bereik",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Als een van deze mods is geladen, passen wapens hun eigen bereik niet meer toe. Met Combat Reforged, Better Combat of Epic Fight wordt de regel aanvalsbereik in de tooltip aan hen overgelaten."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Als een van deze mods is geladen, passen wapens hun eigen bereik niet meer toe. Met Combat Ascended, Better Combat of Epic Fight wordt de regel aanvalsbereik in de tooltip aan hen overgelaten."
   }
 }

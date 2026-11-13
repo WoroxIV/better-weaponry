@@ -206,8 +206,8 @@
     "better_weaponry.field.compat.reach_enabled": "Portata delle armi",
     "better_weaponry.field.compat.reach_enabled.help": "Ogni arma usa la propria portata. Si disattiva anche se è caricata una mod dell'elenco qui sotto.",
     "better_weaponry.field.compat.balance_abilities": "Bilanciare le abilità",
-    "better_weaponry.field.compat.balance_abilities.help": "Con Combat Reforged, le armi con abilità infliggono un po' meno danni.",
+    "better_weaponry.field.compat.balance_abilities.help": "Con Combat Ascended, le armi con abilità infliggono un po' meno danni.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mod con portata propria",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Se è caricata una di queste mod, le armi non applicano più la propria portata. Con Combat Reforged, Better Combat o Epic Fight, la riga Portata d'attacco del tooltip è lasciata a loro."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Se è caricata una di queste mod, le armi non applicano più la propria portata. Con Combat Ascended, Better Combat o Epic Fight, la riga Portata d'attacco del tooltip è lasciata a loro."
   }
 }

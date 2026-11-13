@@ -205,8 +205,8 @@
     "better_weaponry.field.compat.reach_enabled": "Portée des armes",
     "better_weaponry.field.compat.reach_enabled.help": "Chaque arme utilise sa propre portée. Elle se coupe aussi dès qu'un mod de la liste ci-dessous est chargé.",
     "better_weaponry.field.compat.balance_abilities": "Équilibrer les capacités",
-    "better_weaponry.field.compat.balance_abilities.help": "Avec Combat Reforged, les armes à capacités font un peu moins de dégâts.",
+    "better_weaponry.field.compat.balance_abilities.help": "Avec Combat Ascended, les armes à capacités font un peu moins de dégâts.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods avec leur propre portée",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si l'un de ces mods est chargé, les armes n'appliquent plus leur propre portée. Avec Combat Reforged, Better Combat ou Epic Fight, la ligne Portée d'attaque des infobulles leur est laissée."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si l'un de ces mods est chargé, les armes n'appliquent plus leur propre portée. Avec Combat Ascended, Better Combat ou Epic Fight, la ligne Portée d'attaque des infobulles leur est laissée."
   }
 }

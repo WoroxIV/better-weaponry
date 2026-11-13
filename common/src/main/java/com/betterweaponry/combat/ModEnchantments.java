@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 
 /**
  * Les enchantements du mod : coût, niveaux et objets acceptés sont dans {@link #init()},
- * leurs effets sont ici et dans {@link EnchantmentEvents}. Reflective, Riposte et Élan appartiennent à Combat Reforged.
+ * leurs effets sont ici et dans {@link EnchantmentEvents}. Reflective, Riposte et Élan appartiennent à Combat Ascended.
  */
 public final class ModEnchantments {
     public static final ResourceKey<Enchantment> VAMPIRISM = key("vampirism");

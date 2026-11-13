@@ -205,8 +205,8 @@
     "better_weaponry.field.compat.reach_enabled": "Alcance de las armas",
     "better_weaponry.field.compat.reach_enabled.help": "Cada arma usa su propio alcance. También se desactiva si se carga un mod de la lista siguiente.",
     "better_weaponry.field.compat.balance_abilities": "Equilibrar habilidades",
-    "better_weaponry.field.compat.balance_abilities.help": "Con Combat Reforged, las armas con habilidades hacen algo menos de daño.",
+    "better_weaponry.field.compat.balance_abilities.help": "Con Combat Ascended, las armas con habilidades hacen algo menos de daño.",
     "better_weaponry.field.compat.reach_disabled_by_mods": "Mods con alcance propio",
-    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si se carga uno de estos mods, las armas dejan de aplicar su alcance. Con Combat Reforged, Better Combat o Epic Fight, la línea Alcance de ataque del tooltip queda a su cargo."
+    "better_weaponry.field.compat.reach_disabled_by_mods.help": "Si se carga uno de estos mods, las armas dejan de aplicar su alcance. Con Combat Ascended, Better Combat o Epic Fight, la línea Alcance de ataque del tooltip queda a su cargo."
   }
 }
