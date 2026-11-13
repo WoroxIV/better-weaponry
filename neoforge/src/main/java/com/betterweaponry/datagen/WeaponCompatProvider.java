@@ -90,7 +90,7 @@ public final class WeaponCompatProvider implements DataProvider {
         return "Better Weaponry - weapon compatibility files";
     }
 
-    /** Le fichier Combat Reforged de cette arme, livré avec le mod : il dit combien de mains et quelles propriétés. */
+    /** Le fichier Combat Ascended de cette arme, livré avec le mod : il dit combien de mains et quelles propriétés. */
     private static JsonObject combatFile(WeaponType type) {
         Path file = Path.of(System.getProperty("betterweaponry.combatFiles"), type.id() + ".json");
         try {

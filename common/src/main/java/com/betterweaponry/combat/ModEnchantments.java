@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Les enchantements du mod. Ils sont déclarés dans data/better_weaponry/enchantment/ (coût, niveaux, objets acceptés)
  * et leurs effets sont ici et dans {@link EnchantmentEvents}. Reflective, Riposte et Élan restent déclarés, sans être
- * obtenables : ils appartiennent à Combat Reforged, et les objets qui les portent doivent rester intacts sans ce mod.
+ * obtenables : ils appartiennent à Combat Ascended, et les objets qui les portent doivent rester intacts sans ce mod.
  */
 public final class ModEnchantments {
     public static final ResourceKey<Enchantment> VAMPIRISM = key("vampirism");

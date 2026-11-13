@@ -128,7 +128,7 @@ public class ModItemTagsProvider extends ItemTagsProvider {
         for (WeaponType type : List.of(WeaponType.SICKLE, WeaponType.SCYTHE, WeaponType.KATANA)) addWeapons(ModTags.ENCHANTABLE_BLEEDING, type);
     }
 
-    /** Un tag par type d'arme : c'est par lui que Combat Reforged reconnaît les armes du mod. */
+    /** Un tag par type d'arme : c'est par lui que Combat Ascended reconnaît les armes du mod. */
     private void addWeaponTypeTags() {
         for (WeaponType type : WeaponType.values()) {
             addWeapons(TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(BetterWeaponry.MODID, type.id() + "s")), type);

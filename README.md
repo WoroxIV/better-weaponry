@@ -2,14 +2,14 @@
 
 A mod for Minecraft **1.21.1**, on NeoForge and Fabric, that adds 13 new weapon types, shields, bows, crossbows and shurikens in every vanilla material tier and up to 44 materials from other mods, with generated textures and data-driven stats.
 
-The combat system (combos, parries, dashes, two-handed weapons, dual wielding, the in-game editor and the tutorials) is now a separate mod, **Combat Reforged**. Better Weaponry does not need it: with both installed, the weapons behave exactly as they did in 2.0.
+The combat system (combos, parries, dashes, two-handed weapons, dual wielding, the in-game editor and the tutorials) is now a separate mod, **Combat Ascended**. Better Weaponry does not need it: with both installed, the weapons behave exactly as they did in 2.0.
 
 - **Mod ID:** `better_weaponry`
 - **Version:** 3.0.0
 - **Author:** WoroxIV
 - **Loaders:** NeoForge 21.1.220 or newer, or Fabric with [Fabric API](https://modrinth.com/mod/fabric-api)
 - **Java:** 21
-- **Works with:** Combat Reforged, Better Combat, Epic Fight (all optional), JEI and EMI information pages
+- **Works with:** Combat Ascended, Better Combat, Epic Fight (all optional), JEI and EMI information pages
 - **Download:** [Modrinth](https://modrinth.com/mod/better-weaponry), [CurseForge](https://www.curseforge.com/minecraft/mc-mods/better-weaponry-system)
 - **Bug reports:** [GitHub issues](https://github.com/WoroxIV/better-weaponry/issues)
 
@@ -294,7 +294,7 @@ They get its parry or dash, combo, on-hit effects, sweep, armor penetration, shi
 
 ### Upgrading from 2.0
 
-The combat system of 2.0 (combos, parries, dashes, two-handed weapons, dual wielding, the editor and the tutorials) is now the separate mod **Combat Reforged**. Install it next to Better Weaponry to get it back: the weapons then behave exactly as in 2.0 and your combat settings are imported automatically. Without it, the weapons keep their damage, speed, reach, recipes and enchantments.
+The combat system of 2.0 (combos, parries, dashes, two-handed weapons, dual wielding, the editor and the tutorials) is now the separate mod **Combat Ascended**. Install it next to Better Weaponry to get it back: the weapons then behave exactly as in 2.0 and your combat settings are imported automatically. Without it, the weapons keep their damage, speed, reach, recipes and enchantments.
 
 ### Upgrading from 1.x
 
@@ -371,11 +371,11 @@ Better Weaponry detects these mods and adapts. It never needs them.
 
 | Mod | What changes |
 |---|---|
-| Combat Reforged | Weapons get their combos, parries and abilities. Stats stay those of Better Weaponry 2.0. Reach is handled by Combat Reforged |
+| Combat Ascended | Weapons get their combos, parries and abilities. Stats stay those of Better Weaponry 2.0. Reach is handled by Combat Ascended |
 | Better Combat | Every weapon has a Better Combat preset and its own range. Dual-wielded weapons get a damage profile adapted to its attack speed |
 | Epic Fight | Every weapon has an Epic Fight type and hit area. Damage and speed offsets are set in the generated files |
 
-The weapons' own reach turns off when a mod listed in `reach_disabled_by_mods` (`config/better_weaponry/compat.json`) is loaded. By default: `bettercombat`, `combat_reforged`, `epicfight`. With Combat Reforged, Better Combat, Epic Fight or Apothic Attributes loaded, Better Weaponry also leaves the **Attack Reach** tooltip line to them.
+The weapons' own reach turns off when a mod listed in `reach_disabled_by_mods` (`config/better_weaponry/compat.json`) is loaded. By default: `bettercombat`, `combat_reforged`, `epicfight`. With Combat Ascended, Better Combat, Epic Fight or Apothic Attributes loaded, Better Weaponry also leaves the **Attack Reach** tooltip line to them.
 
 Damage values follow a profile chosen from the loaded mods, in `data/better_weaponry/better_weaponry/balance/`. Your own values in `config/better_weaponry/weapons/` always win.
 

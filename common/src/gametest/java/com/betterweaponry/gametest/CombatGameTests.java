@@ -743,7 +743,7 @@ public final class CombatGameTests {
                         Component.translatable(Attributes.ENTITY_INTERACTION_RANGE.value().getDescriptionId())).withStyle(ChatFormatting.BLUE)));
     }
 
-    /** Le message qui renvoyait vers Combat Reforged à la connexion n'existe plus, ni son réglage. */
+    /** Le message qui renvoyait vers Combat Ascended à la connexion n'existe plus, ni son réglage. */
     @GameTest(template = ARENA)
     public static void noCombatReforgedNotice(GameTestHelper helper) {
         helper.assertFalse(CompatDefinition.FIELDS.byName().containsKey("combat_reforged_notice"), "the notice setting should be gone");

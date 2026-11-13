@@ -56,7 +56,7 @@ public final class WeaponDataLoader extends SimplePreparableReloadListener<Weapo
     /** Les datapacks placés dans le dossier du monde ont un identifiant qui commence par "file/". */
     private static final String WORLD_DATAPACK_PREFIX = "file/";
     /**
-     * Réglages de combat des fichiers écrits avec Better Weaponry 2.0 : ils appartiennent maintenant à Combat Reforged.
+     * Réglages de combat des fichiers écrits avec Better Weaponry 2.0 : ils appartiennent maintenant à Combat Ascended.
      * Ignorés sans message, ils ne sont pas des fautes de frappe.
      */
     private static final Set<String> FORMER_COMBAT_FIELDS = Set.of("two_handed", "dual_wielded", "armor_penetration", "disables_shield", "on_hit_effects", "sweep",

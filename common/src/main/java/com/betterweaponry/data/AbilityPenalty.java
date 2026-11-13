@@ -12,7 +12,7 @@ import java.util.Optional;
 
 /**
  * Le mode "équilibrage global" ({@code balance_abilities}) : les armes à capacités font un peu moins de dégâts.
- * Les capacités sont lues dans les fichiers Combat Reforged livrés avec le mod, sans jamais appeler ce mod ;
+ * Les capacités sont lues dans les fichiers Combat Ascended livrés avec le mod, sans jamais appeler ce mod ;
  * sans lui, ces capacités n'existent pas et il n'y a rien à retirer.
  */
 public final class AbilityPenalty {
@@ -32,7 +32,7 @@ public final class AbilityPenalty {
     private AbilityPenalty() {
     }
 
-    /** Part des dégâts retirée pour ce type d'arme, 0 si le mode est coupé ou si Combat Reforged est absent. */
+    /** Part des dégâts retirée pour ce type d'arme, 0 si le mode est coupé ou si Combat Ascended est absent. */
     public static double of(WeaponType type) {
         if (!BwCompat.combatReforged() || !WeaponData.compat().balanceAbilities()) return 0.0D;
         synchronized (CACHE) {

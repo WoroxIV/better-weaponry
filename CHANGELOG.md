@@ -1,4 +1,3 @@
-## 3.1.1
+## 3.1.2
 
-- New logo and icon.
-- Fuller description in the mod list.
+- Works with Combat Ascended, the new name of Combat Reforged (Combat Reforged still works too).

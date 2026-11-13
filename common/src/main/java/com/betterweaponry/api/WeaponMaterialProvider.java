@@ -28,7 +28,7 @@ import java.util.List;
  *       (ou la version avec {@code stats}), avec le namespace de l'addon.</li>
  *   <li>L'addon fournit lui-même les ressources de ses items : palette {@code assets/<namespace>/textures/palettes/<id>.png}
  *       (les textures sont alors fabriquées au chargement à partir des modèles de Better Weaponry), modèles, traductions,
- *       recettes et tags (dont {@code better_weaponry:<type>s}, par lesquels Combat Reforged reconnaît les armes).</li>
+ *       recettes et tags (dont {@code better_weaponry:<type>s}, par lesquels Combat Ascended reconnaît les armes).</li>
  *   <li>Dans les fichiers de données, le matériau s'écrit {@code "<namespace>:<id>"} (voir {@link WeaponMaterial#key()}).</li>
  * </ul>
  */

@@ -76,7 +76,7 @@ public final class MobEquipment {
         }
     }
 
-    /** Les armes faites pour la paire, d'après le fichier Combat Reforged livré avec le mod. */
+    /** Les armes faites pour la paire, d'après le fichier Combat Ascended livré avec le mod. */
     private static boolean isDualWielded(WeaponType type) {
         return com.betterweaponry.data.ModFiles.read("data", "better_weaponry", "combat_reforged", "weapons", type.id() + ".json")
                 .map(com.betterweaponry.data.JsonUtil::parseLenient).filter(com.google.gson.JsonElement::isJsonObject)
